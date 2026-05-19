@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace progressive {
 
@@ -72,6 +73,89 @@ struct RoomNameInfo {
         return memberCount == 0 && !isNameFromState && !isNameFromAlias;
     }
 };
+
+// ==== Room Name Error ====
+// Original Kotlin: validation errors for room name changes
+
+enum class RoomNameError {
+    NONE,
+    TOO_LONG,       // Exceeds max length
+    TOO_SHORT,      // Below min length
+    INVALID_CHARS,  // Contains disallowed characters
+    EMPTY,          // Name is empty or whitespace only
+    DUPLICATE       // Same as current room name
+};
+
+// Describe a room name error as human-readable text.
+// Original Kotlin: getRoomNameError() for UI display
+std::string getRoomNameError(RoomNameError error);
+
+// ==== Room Name Config ====
+// Original Kotlin: configuration for room name validation
+
+struct RoomNameConfig {
+    int maxLength = 255;             // Matrix spec: max room name length
+    int minLength = 1;               // Min length (1 char required)
+    std::string allowedRegex;        // Regex for allowed chars (empty = no restriction)
+    std::string disallowedRegex;     // Regex for disallowed chars (empty = no restriction)
+};
+
+// Get default room name config per Matrix spec.
+// Original Kotlin: standard Matrix room name limits
+RoomNameConfig getDefaultRoomNameConfig();
+
+// ==== Room Name Event Validator ====
+// Original Kotlin: validate room name change events
+
+struct RoomNameEventValidator {
+    // Validate a proposed room name against config.
+    // Returns NONE if valid, or the specific error code.
+    static RoomNameError validateRoomName(
+        const std::string& name,
+        const RoomNameConfig& config = getDefaultRoomNameConfig(),
+        const std::string& currentName = "");
+
+    // Sanitize a room name by stripping invalid characters.
+    // Removes leading/trailing whitespace and disallowed chars.
+    static std::string sanitizeRoomName(
+        const std::string& name,
+        const RoomNameConfig& config = getDefaultRoomNameConfig());
+};
+
+// ==== Room Name History ====
+// Original Kotlin: track room name changes over time
+
+struct RoomNameHistoryEntry {
+    std::string name;        // The room name at that point in time
+    int64_t timestampMs = 0; // When the name was set
+};
+
+struct RoomNameHistory {
+    std::string roomId;
+    std::vector<RoomNameHistoryEntry> entries;  // Ordered oldest → newest
+
+    // Get the current (most recent) name.
+    std::string currentName() const;
+
+    // Get the previous name before current.
+    std::string previousName() const;
+
+    // Check if the room has ever been renamed.
+    bool wasRenamed() const;
+};
+
+// Track a room name change — record in history.
+// Original Kotlin: append to room name history
+void trackRoomNameChange(
+    RoomNameHistory& history,
+    const std::string& roomId,
+    const std::string& newName,
+    int64_t timestampMs);
+
+// Format room name history as human-readable.
+// "Renamed from 'Old Name' to 'New Name'"
+// "Renamed 3 times, currently 'Newest Name'"
+std::string formatRoomNameHistory(const RoomNameHistory& history);
 
 // Compute the room display name using the matrix-js-sdk algorithm.
 // Original Kotlin (RoomDisplayNameResolver.kt:resolve):

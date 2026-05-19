@@ -5,6 +5,176 @@
 
 namespace progressive {
 
+// ================================================================
+// Thumbnail URL Builder (enhanced — takes ThumbnailRequest)
+// ================================================================
+
+// Original Kotlin: MxcUrl.kt, ImageViewer.kt
+std::string buildThumbnailUrl(const ThumbnailRequest& request) {
+    auto mxcUri = request.mxcUrl;
+    if (mxcUri.rfind("mxc://", 0) != 0) return {};
+
+    auto rest = mxcUri.substr(6);
+    auto slash = rest.find('/');
+    if (slash == std::string::npos) return {};
+
+    std::string server = rest.substr(0, slash);
+    std::string mediaId = rest.substr(slash + 1);
+
+    std::ostringstream url;
+    url << "/_matrix/media/v3/thumbnail/" << server << "/" << mediaId
+        << "?width=" << request.desiredWidth
+        << "&height=" << request.desiredHeight
+        << "&method=" << thumbnailMethodToString(request.method)
+        << "&format=" << thumbnailFormatToString(request.format);
+    if (request.animated) url << "&animated=true";
+
+    return url.str();
+}
+
+// ================================================================
+// Thumbnail Response Parser
+// ================================================================
+
+// Original Kotlin: ImageUploadService.kt
+ThumbnailResponseInfo parseThumbnailResponse(const std::string& responseJson) {
+    ThumbnailResponseInfo info;
+
+    // Parse JSON manually for width/height/mimeType
+    for (const auto* key : {"w", "width"}) {
+        auto pp = responseJson.find('"' + std::string(key) + '"');
+        if (pp != std::string::npos) {
+            pp = responseJson.find(':', pp);
+            if (pp != std::string::npos) {
+                pp++;
+                while (pp < responseJson.size() && (responseJson[pp] == ' ' || responseJson[pp] == '\t')) pp++;
+                while (pp < responseJson.size() && std::isdigit(responseJson[pp])) {
+                    info.width = info.width * 10 + (responseJson[pp] - '0');
+                    pp++;
+                }
+            }
+            break;
+        }
+    }
+
+    for (const auto* key : {"h", "height"}) {
+        auto pp = responseJson.find('"' + std::string(key) + '"');
+        if (pp != std::string::npos) {
+            pp = responseJson.find(':', pp);
+            if (pp != std::string::npos) {
+                pp++;
+                while (pp < responseJson.size() && (responseJson[pp] == ' ' || responseJson[pp] == '\t')) pp++;
+                while (pp < responseJson.size() && std::isdigit(responseJson[pp])) {
+                    info.height = info.height * 10 + (responseJson[pp] - '0');
+                    pp++;
+                }
+            }
+            break;
+        }
+    }
+
+    // Extract size
+    {
+        auto pp = responseJson.find("\"size\"");
+        if (pp != std::string::npos) {
+            pp = responseJson.find(':', pp);
+            if (pp != std::string::npos) {
+                pp++;
+                while (pp < responseJson.size() && (responseJson[pp] == ' ' || responseJson[pp] == '\t')) pp++;
+                while (pp < responseJson.size() && std::isdigit(responseJson[pp])) {
+                    info.sizeBytes = info.sizeBytes * 10 + (responseJson[pp] - '0');
+                    pp++;
+                }
+            }
+        }
+    }
+
+    // Extract MIME type
+    {
+        auto pp = responseJson.find("\"content_type\"");
+        if (pp == std::string::npos) pp = responseJson.find("\"mimetype\"");
+        if (pp == std::string::npos) pp = responseJson.find("\"mime_type\"");
+        if (pp != std::string::npos) {
+            pp = responseJson.find('"', pp + 1);
+            if (pp != std::string::npos) {
+                pp = responseJson.find('"', pp + 1);
+                if (pp != std::string::npos) {
+                    pp++;
+                    size_t e = pp;
+                    while (e < responseJson.size() && responseJson[e] != '"') e++;
+                    info.mimeType = responseJson.substr(pp, e - pp);
+                }
+            }
+        }
+    }
+
+    return info;
+}
+
+// ================================================================
+// Optimal Thumbnail Size Computation
+// ================================================================
+
+// Original Kotlin: ImageUtils.kt
+ThumbnailRequest getOptimalThumbnailSize(const std::string& mxcUrl, int displayWidth, int displayHeight) {
+    ThumbnailRequest req;
+    req.mxcUrl = mxcUrl;
+    req.method = ThumbnailMethod::SCALE;
+    req.format = ThumbnailFormat::JPEG;
+
+    // Original Kotlin: choose size slightly larger than display for retina/HiDPI
+    // Typically 2x display size, capped at common server limits
+    int optimalW = std::min(displayWidth * 2, 2048);
+    int optimalH = std::min(displayHeight * 2, 2048);
+
+    // Ensure minimum viable size
+    req.desiredWidth = std::max(optimalW, 32);
+    req.desiredHeight = std::max(optimalH, 32);
+
+    return req;
+}
+
+// ================================================================
+// Thumbnail Availability / Generation Decision
+// ================================================================
+
+// Original Kotlin: ImageUtils.kt
+bool isThumbnailAvailable(const std::string& mimeType) {
+    if (mimeType.empty()) return false;
+
+    auto lower = mimeType;
+    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+
+    // Images and videos can have thumbnails
+    if (lower.rfind("image/", 0) == 0) return true;
+    if (lower.rfind("video/", 0) == 0) return true;
+
+    return false;
+}
+
+// Original Kotlin: ThumbnailGeneration.kt — decision logic
+bool shouldGenerateThumbnail(const ThumbnailGenerationConfig& config,
+                             int sourceW, int sourceH, const std::string& mimeType) {
+    if (!config.enabled) return false;
+
+    // Check if media type supports thumbnails
+    if (!isThumbnailAvailable(mimeType)) return false;
+
+    // Don't generate thumbnails if source is already small enough
+    if (sourceW <= config.maxWidth && sourceH <= config.maxHeight) return false;
+
+    // Animated check
+    auto lower = mimeType;
+    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    if (lower == "image/gif" && !config.allowAnimated) return false;
+
+    return true;
+}
+
+// ================================================================
+// Existing: Compute Thumbnail
+// ================================================================
+
 ThumbnailResult computeThumbnail(const ThumbnailParams& params) {
     ThumbnailResult result;
 
@@ -15,7 +185,6 @@ ThumbnailResult computeThumbnail(const ThumbnailParams& params) {
     result.targetW = static_cast<int>(params.sourceW * scale);
     result.targetH = static_cast<int>(params.sourceH * scale);
 
-    // Ensure at least 1x1
     result.targetW = std::max(1, result.targetW);
     result.targetH = std::max(1, result.targetH);
 
@@ -41,12 +210,10 @@ bool needsThumbnail(int srcW, int srcH, int maxW, int maxH) {
 }
 
 int64_t estimateJpegSize(int w, int h, int quality) {
-    // Rough estimate: pixels * quality_factor * compression_ratio
     int pixels = w * h;
     double qFactor = quality / 100.0;
-    // JPEG compression: ~0.5-2.0 bits per pixel depending on quality
-    double bpp = 0.5 + qFactor * 1.5; // 0.5 (q=0) → 2.0 (q=100) bits per pixel
-    return static_cast<int64_t>((pixels * bpp) / 8.0); // bits → bytes
+    double bpp = 0.5 + qFactor * 1.5;
+    return static_cast<int64_t>((pixels * bpp) / 8.0);
 }
 
 ImageSize resizeToWidth(const ImageSize& src, int targetW) {
@@ -61,9 +228,12 @@ ImageSize resizeToHeight(const ImageSize& src, int targetH) {
     return {static_cast<int>(targetH * ratio), targetH, true};
 }
 
+// ================================================================
+// Existing: Build Thumbnail URL (simple overload)
+// ================================================================
+
 std::string buildThumbnailUrl(const std::string& mxcUri, int w, int h,
                                const std::string& method, bool animated) {
-    // mxc://server/id → /_matrix/media/v3/thumbnail/server/id?width=w&height=h&method=method
     if (mxcUri.rfind("mxc://", 0) != 0) return {};
 
     auto rest = mxcUri.substr(6);
@@ -81,10 +251,13 @@ std::string buildThumbnailUrl(const std::string& mxcUri, int w, int h,
     return url.str();
 }
 
+// ================================================================
+// Existing: Parse Image Size
+// ================================================================
+
 ImageSize parseImageSize(const std::string& infoJson) {
     ImageSize size;
 
-    // Parse "w": XXX from JSON
     auto wPos = infoJson.find("\"w\":");
     if (wPos == std::string::npos) wPos = infoJson.find("\"width\":");
     if (wPos != std::string::npos) {

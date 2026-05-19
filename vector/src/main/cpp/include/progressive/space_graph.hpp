@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <cstdint>
+#include "progressive/graph_utils.hpp"
 
 namespace progressive {
 
@@ -150,7 +151,7 @@ public:
     // ====== Graph Traversal ======
 
     // Traverse the space hierarchy and return all nodes.
-    SpaceGraphResult traverse(const SpaceTraversalOptions& options = {}) const const;
+    SpaceGraphResult traverse(const SpaceTraversalOptions& options = {}) const;
 
     // Get direct children of a space.
     std::vector<SpaceNode> getChildren(const std::string& spaceId) const;
@@ -223,5 +224,203 @@ private:
     std::string nodeToJson(const std::string& nodeId, int depthLeft,
                             std::unordered_set<std::string>& visited) const;
 };
+
+// ================================================================
+// Space Tree Node — hierarchical node in the space tree
+// Original Kotlin: SpaceNode (conceptually), SpaceHierarchyViewModel.kt
+// ================================================================
+
+struct SpaceTreeNode {
+    std::string roomId;
+    std::string name;
+    std::string type;                       // "space", "room", or ""
+    std::vector<std::string> children;      // Child room/subspace IDs
+    std::vector<std::string> parentIds;     // Parent space IDs
+    int depth = 0;
+    bool isJoined = false;
+    bool isSuggested = true;
+    std::string order;                      // m.space.order
+};
+
+// ================================================================
+// Space Hierarchy — full tree with root + all nodes + flattened lookup
+// Original Kotlin: SpaceHierarchyData.kt, HierarchyLiveDataHelper.kt
+// ================================================================
+
+struct SpaceHierarchy {
+    std::string rootId;
+    SpaceTreeNode root;                                     // Root space node
+    std::unordered_map<std::string, SpaceTreeNode> nodes;   // roomId → node
+    std::vector<SpaceTreeNode> allNodes;                    // Flattened (BFS order)
+    int totalNodes = 0;
+    int totalSpaces = 0;
+    int totalRooms = 0;
+    int maxDepth = 0;
+
+    bool empty() const { return totalNodes == 0; }
+    const SpaceTreeNode* findNode(const std::string& roomId) const {
+        auto it = nodes.find(roomId);
+        return (it != nodes.end()) ? &it->second : nullptr;
+    }
+};
+
+// ================================================================
+// Space Child With Order — for sorting space children
+// Original Kotlin: SpaceChildInfo.kt (order field), SpaceChildContent.kt
+// ================================================================
+
+struct SpaceChildWithOrder {
+    std::string childRoomId;
+    std::string order;
+    std::vector<std::string> viaServers;
+    bool suggested = false;
+    bool autoJoin = false;
+};
+
+// ================================================================
+// Room Summary Info — minimal room data for space validation
+// Original Kotlin: RoomSummaryEntity fields, RoomSummary.kt
+// ================================================================
+
+struct RoomSummaryInfo {
+    std::string roomId;
+    std::string roomType;                   // "m.space" or ""
+    std::string membership;                 // "join", "invite", "leave", "ban"
+    std::string displayName;
+    std::unordered_set<std::string> joinedMemberIds;
+    bool isDirect = false;
+    int highlightCount = 0;
+    int notificationCount = 0;
+    // Output fields — set by validateSpaceRelationships
+    std::vector<std::string> flattenParentIds;
+    std::vector<std::string> directParentNames;
+    int spaceHighlightCount = 0;
+    int spaceNotificationCount = 0;
+};
+
+// ================================================================
+// Space Relation Event — raw state event for space relationships
+// Original Kotlin: SpaceChildSummaryEvent.kt, RoomChildRelationInfo.kt
+// ================================================================
+
+struct SpaceRelationEvent {
+    std::string eventType;      // "m.space.child" or "m.space.parent"
+    std::string roomId;         // The room this event is in
+    std::string stateKey;       // The other room/spaces ID
+    std::string sender;
+    std::string contentJson;    // Raw content JSON string
+    int64_t originServerTs = 0;
+};
+
+// ================================================================
+// Space Validation Result
+// Original Kotlin: RoomSummaryUpdater.validateSpaceRelationship return
+// ================================================================
+
+struct SpaceValidationResult {
+    int totalRoomsProcessed = 0;
+    int totalSpacesProcessed = 0;
+    int cyclesBroken = 0;
+    int parentRelationsValidated = 0;
+    int dmRoomsAssigned = 0;
+    bool ok() const { return cyclesBroken >= 0; }
+};
+
+// ================================================================
+// Hierarchy building — from flat room summaries + child/parent relations
+// ================================================================
+
+// Original Kotlin: buildSpaceHierarchy (conceptual, from SpaceListViewModel/HierarchyLiveDataHelper)
+// Build a SpaceHierarchy tree from a list of rooms and child/parent relations.
+// `rooms`: all room summaries (JOIN members only typically)
+// `children`: child entries keyed by parent roomId
+// `parents`: parent entries keyed by child roomId
+SpaceHierarchy buildSpaceHierarchy(
+    const std::string& rootSpaceId,
+    const std::vector<RoomSummaryInfo>& rooms,
+    const std::unordered_map<std::string, std::vector<SpaceChildWithOrder>>& children,
+    const std::unordered_map<std::string, std::vector<std::string>>& parents,
+    int maxDepth = 10);
+
+// ================================================================
+// Space tree queries
+// Original Kotlin: SpaceGetter.kt, HierarchyLiveDataHelper.kt
+// ================================================================
+
+// Direct children of a space (only immediate, not recursive).
+std::vector<std::string> getSpaceChildren(const SpaceHierarchy& hierarchy, const std::string& spaceId);
+
+// All descendants — transitive (children + children of subspaces, etc.).
+std::vector<std::string> getSpaceDescendants(const SpaceHierarchy& hierarchy, const std::string& spaceId);
+
+// All ancestors up to root from a room.
+std::vector<std::string> getSpaceAncestors(const SpaceHierarchy& hierarchy, const std::string& roomId);
+
+// Check if a room is in a space's hierarchy (any depth).
+bool isRoomInSpace(const SpaceHierarchy& hierarchy, const std::string& spaceId, const std::string& roomId);
+
+// Path from root space to a room (inclusive).
+std::vector<std::string> getSpacePath(const SpaceHierarchy& hierarchy, const std::string& roomId);
+
+// Flatten the space tree into a list in BFS or DFS order.
+std::vector<SpaceTreeNode> flattenSpaceTree(const SpaceHierarchy& hierarchy, bool bfs = true);
+
+// ================================================================
+// Space relationship validation — ported from RoomSummaryUpdater.kt
+// Original Kotlin: RoomSummaryUpdater.validateSpaceRelationship (lines 239-467)
+// ================================================================
+
+// Full validation:
+//   1. Build parent/child graph from state events
+//   2. Validate parent relations (cross-check power levels / child events)
+//   3. Detect and break cycles (uses Graph::findBackwardEdges)
+//   4. Compute flattened parent IDs (transitive closure)
+//   5. Handle DM room → space membership inference
+//   6. Compute space notification counts from children
+// `rooms`: IN/OUT — flattened parent IDs and notification counts are set
+// `events`: all m.space.child and m.space.parent state events across rooms
+// `powerLevels`: map from roomId → (userId → powerLevel), fallback to default
+// `userId`: current user (for power level checks)
+SpaceValidationResult validateSpaceRelationships(
+    std::vector<RoomSummaryInfo>& rooms,
+    const std::vector<SpaceRelationEvent>& events,
+    const std::unordered_map<std::string, std::unordered_map<std::string, int>>& powerLevels,
+    const std::string& userId);
+
+// ================================================================
+// Compute space notification counts
+// Original Kotlin: RoomSummaryUpdater.kt lines 444-462
+// ================================================================
+
+// Aggregates highlightCount and notificationCount from child rooms into parent spaces.
+// `rooms`: IN/OUT — spaceHighlightCount and spaceNotificationCount are set on space-type rooms.
+void computeSpaceNotificationCounts(std::vector<RoomSummaryInfo>& rooms);
+
+// ================================================================
+// Break space cycles
+// Original Kotlin: RoomSummaryUpdater.kt lines 365-384
+// ================================================================
+
+// Builds a Graph from space→space parent relationships (spaces only, joined),
+// finds backward edges (cycles), and returns the edges that need to be removed.
+// Caller should remove these edges from the child/parent lookup maps.
+std::vector<GraphEdge> breakSpaceCycles(
+    const std::vector<RoomSummaryInfo>& rooms,
+    const std::unordered_map<std::string, std::vector<std::string>>& parentMap);
+
+// ================================================================
+// Space child ordering
+// Original Kotlin: SpaceOrderUtils.kt, TopLevelSpaceComparator.kt, SpaceChildContent.kt
+// ================================================================
+
+// Sort vector of SpaceChildWithOrder by order string, then by name (via roomNames lookup).
+// Items with empty order sort after ordered items.
+void sortSpaceChildren(std::vector<SpaceChildWithOrder>& children,
+                       const std::unordered_map<std::string, std::string>& roomNames);
+
+// Parse and validate an order string per spec:
+// Only ASCII chars in range \x20-\x7E, max 50 chars.
+// Returns empty string if invalid.
+std::string parseSpaceChildOrder(const std::string& rawOrder);
 
 } // namespace progressive

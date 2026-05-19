@@ -36,6 +36,9 @@ struct ProfilerEntry {
     int64_t durationNs = 0;          // Duration
     int callCount = 0;               // How many times called
     bool active = false;             // Currently measuring
+    std::string parentName;          // Parent profiler entry name
+    int threadId = 0;                // OS thread ID
+    std::string metadata;            // Arbitrary JSON metadata
 };
 
 // ---- Profile Summary (aggregated) ----
@@ -66,9 +69,14 @@ struct ProfileReport {
 
 struct MemorySnapshot {
     int64_t timestampNs = 0;
+    int64_t heapSize = 0;            // Total heap size
     int64_t allocatedBytes = 0;      // Approximate allocated memory
+    int64_t deallocatedBytes = 0;    // Bytes freed since last snapshot
     int allocateCount = 0;
     int deallocateCount = 0;
+    int liveObjects = 0;             // Estimated live object count
+    int fragments = 0;               // Memory fragmentation count
+    double fragmentationPercent = 0.0; // 0.0-100.0
     std::string label;
 };
 
@@ -143,6 +151,8 @@ public:
 
     // ====== Measurement ======
     int start(const std::string& name);
+    int start(const std::string& name, const std::string& parentName,
+        const std::string& metadata = "");
     int64_t stop(const std::string& name);
     int64_t stop(int entryIndex);
 
@@ -244,6 +254,9 @@ public:
     int64_t totalProfiledTime() const;
     int getActiveCount() const;
 
+    // High-resolution timestamp (public for use by ProfileScope/ProfilerSession).
+    static int64_t nowNs();
+
 private:
     Profiler();
     ~Profiler() = default;
@@ -269,7 +282,6 @@ private:
     int frameCount_ = 0;
 
     // Helpers
-    static int64_t nowNs();
     int64_t measureOverhead();
     int64_t overheadNs_ = 0;
 
@@ -280,5 +292,147 @@ private:
     static std::string formatNs(int64_t ns);
     static std::string formatBytes(int64_t bytes);
 };
+
+// ================================================================
+// ProfileScope — RAII Profiler
+// ================================================================
+//
+// Usage:
+//   {
+//       ProfileScope ps("my_operation");
+//       // ... work ...
+//   } // automatically stops and records duration
+
+class ProfileScope {
+public:
+    explicit ProfileScope(const std::string& name,
+        const std::string& parentName = "",
+        const std::string& metadata = "");
+    ~ProfileScope();
+
+    int64_t elapsedNs() const;
+    const std::string& name() const { return name_; }
+
+    // Prevent copy/move
+    ProfileScope(const ProfileScope&) = delete;
+    ProfileScope& operator=(const ProfileScope&) = delete;
+
+private:
+    std::string name_;
+    int64_t startNs_;
+    int entryIndex_ = -1;
+    bool stopped_ = false;
+};
+
+// ================================================================
+// ProfilerSession — standalone session for accumulated data
+// ================================================================
+//
+// Independent from the singleton Profiler, can be used in tests
+// or to track a specific subsystem without polluting global data.
+
+class ProfilerSession {
+public:
+    ProfilerSession() = default;
+
+    void startProfiling();
+    void stopProfiling();
+    void reset();
+
+    int start(const std::string& name, const std::string& parentName = "");
+    int64_t stop(const std::string& name);
+
+    std::vector<ProfilerEntry> getEntries() const;
+    int64_t getTotalTime() const;
+    int64_t getEntryTime(const std::string& name) const;
+
+    // Sorted by total time (descending) — "hot paths".
+    std::vector<ProfileSummary> getHotPaths() const;
+
+    bool isProfiling() const { return profiling_; }
+
+private:
+    bool profiling_ = false;
+    std::vector<ProfilerEntry> entries_;
+    std::unordered_map<std::string, ProfileSummary> summaries_;
+};
+
+// ================================================================
+// ProfilerStats — aggregate statistics for a profiled entry
+// ================================================================
+
+struct ProfilerStats {
+    std::string name;
+    int totalCalls = 0;
+    double totalTimeMs = 0.0;
+    double avgTimeMs = 0.0;
+    double minTimeMs = 0.0;
+    double maxTimeMs = 0.0;
+    int64_t firstCallTs = 0;
+    int64_t lastCallTs = 0;
+};
+
+ProfilerStats computeProfilerStats(const ProfileSummary& summary);
+
+// ================================================================
+// Memory Leak Detection
+// ================================================================
+
+struct MemorySnapshotDelta {
+    int64_t elapsedNs = 0;
+    int64_t heapDelta = 0;           // positive = growth
+    int64_t allocDelta = 0;
+    int64_t deallocDelta = 0;
+    int liveObjectsDelta = 0;
+    double fragmentationDelta = 0.0;
+};
+
+struct MemoryLeakInfo {
+    std::string allocationSite;      // description of where
+    int64_t bytesLeaked = 0;
+    int allocationsLeaked = 0;
+    int64_t firstSeen = 0;
+    double growthRate = 0.0;         // bytes per second
+};
+
+// Compute delta between two memory snapshots.
+MemorySnapshotDelta compareMemorySnapshots(
+    const MemorySnapshot& older,
+    const MemorySnapshot& newer);
+
+// Detect potential memory leaks from snapshot comparison.
+// Returns suspected leak sites with growth info.
+std::vector<MemoryLeakInfo> detectMemoryLeaks(
+    const std::vector<MemorySnapshot>& snapshots,
+    int64_t growthThresholdBytes = 1048576 /* 1 MB */);
+
+// ================================================================
+// Performance Thresholds
+// ================================================================
+
+struct PerformanceThreshold {
+    std::string metric;              // "latency", "memory", "fps", "duration"
+    double thresholdValue = 0.0;     // threshold
+    std::string severity;            // "warning", "error", "critical"
+    bool exceeded = false;
+    double currentValue = 0.0;
+    std::string message;
+};
+
+// Check a set of metrics against threshold definitions.
+std::vector<PerformanceThreshold> checkPerformanceThresholds(
+    const std::vector<PerformanceThreshold>& thresholds,
+    const std::unordered_map<std::string, double>& currentValues);
+
+// ================================================================
+// Flame Graph Generation
+// ================================================================
+
+// Generate flame graph JSON data from profiler entries.
+// Format compatible with flamegraph-rs / Speedscope.
+std::string generateProfilerFlameGraph(const Profiler& profiler);
+
+// Generate flame graph JSON from a ProfilerSession.
+std::string generateProfilerFlameGraph(const ProfilerSession& session);
 
 } // namespace progressive

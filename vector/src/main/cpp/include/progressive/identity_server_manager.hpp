@@ -1,6 +1,7 @@
-#include "progressive/auth_models.hpp"
 #pragma once
 
+#include "progressive/auth_models.hpp"
+#include "progressive/identity_utils.hpp"
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -9,36 +10,36 @@
 namespace progressive {
 
 // ================================================================
-// Identity Server Manager — 3PID management, identity server API
+// Identity Server Manager - 3PID management, identity server API
 //
 // Faithful port from Element Android original sources:
-//   IS_ThreePid.kt — sealed Email/Msisdn, toMedium(), getCountryCode()
-//   IdentityService.kt — get/set identity server, bind/unbind 3PID,
+//   IS_ThreePid.kt - sealed Email/Msisdn, toMedium(), getCountryCode()
+//   IdentityService.kt - get/set identity server, bind/unbind 3PID,
 //     lookUp, user consent, getShareStatus, sign3pidInvitation
-//   IS_FoundThreePid.kt — threePid + matrixId
-//   IS_SharedState.kt — SHARED, NOT_SHARED, BINDING_IN_PROGRESS
+//   IS_FoundThreePid.kt - threePid + matrixId
+//   IS_SharedState.kt - SHARED, NOT_SHARED, BINDING_IN_PROGRESS
+//   DefaultIdentityService.kt - full implementation
+//   IdentityBulkLookupTask.kt - bulk lookup with SHA-256 hashing
+//   IdentityRegisterTask.kt - OpenID token exchange
+//   IdentityPingTask.kt - IS availability check
+//   IdentityDisconnectTask.kt - logout
+//   IdentityRequestTokenForBindingTask.kt - start binding
 //
 // Covers:
 //   1. ThreePID type (Email, MSISDN/phone)
 //   2. Identity server discovery and configuration
 //   3. 3PID bind/unbind lifecycle
-//   4. 3PID lookup (email→MatrixID)
+//   4. 3PID lookup (email->MatrixID)
 //   5. User consent management
 //   6. Share status tracking
-//   7. Identity server validation
+//   7. Identity server validation (ping)
 //   8. Invitation signing
+//   9. Privacy-preserving hashed lookup (SHA-256)
+//  10. Bulk lookup request/response
 // ================================================================
 
-// ---- ThreePID Type ----
-// Original: IS_ThreePid.kt sealed Email/Msisdn
-
-enum class ThreePidMedium {
-    EMAIL = 0,       // Original: MEDIUM_EMAIL
-    MSISDN = 1,      // Original: MEDIUM_MSISDN (phone number)
-};
-
-const char* threePidMediumToString(ThreePidMedium medium);
-ThreePidMedium threePidMediumFromString(const std::string& s);
+// ThreePidMedium enum and helpers now in identity_utils.hpp
+// (threePidMediumToString, threePidMediumFromString)
 
 // ---- ThreePID ----
 // Original: IS_ThreePid.kt (Email(email), Msisdn(msisdn))
@@ -101,8 +102,8 @@ struct IS_ThreePidBindingStatus {
 
 struct SignInvitationResult {
     std::string mxid;                // Matrix ID
-    std::string token;
-    std::string signatures;
+    std::string token;               // Invitation token
+    std::string signatures;          // Signed data
     bool valid = false;
 };
 
@@ -115,6 +116,81 @@ struct IdentityServerConfig {
     bool userConsent = false;        // User consented to data sharing
 };
 
+// ---- NEW: Identity Bulk Lookup Request/Response ----
+// Original Kotlin: IdentityBulkLookupTask.kt Params(threepids),
+//   IdentityLookUpParams.kt, IdentityLookUpResponse.kt
+
+struct IdentityBulkLookupRequest {
+    std::vector<ThreePid> threepids;        // 3PIDs to look up
+};
+
+struct IdentityBulkLookupResponse {
+    std::vector<FoundThreePid> threepids;   // resolved 3PIDs with MXIDs
+    bool limited = false;                   // server returned partial results
+};
+
+// ---- NEW: Identity Register Request/Response ----
+// Original Kotlin: IdentityRegisterTask.kt, IdentityRegisterResponse.kt,
+//   IdentityAuthAPI.kt register() - exchanges OpenID token for IS token
+// POST /_matrix/identity/v2/account/register
+
+struct IdentityRegisterRequest {
+    std::string address;                    // email/MSISDN address (unused in actual register, kept for parity)
+    std::string clientSecret;               // unused in register flow
+    int sendAttempt = 0;                    // unused in register flow
+    std::string nextLink;                   // unused in register flow
+    std::string idAccessToken;              // OpenID access_token from homeserver
+};
+
+struct IdentityRegisterResponse {
+    // Original Kotlin: IdentityRegisterResponse(token) - the registered token
+    std::string sid;                        // identity server access token (named "token" in spec)
+};
+
+// ---- NEW: Ping Response ----
+// Original Kotlin: IdentityPingTask.kt, IdentityAuthAPI.kt ping()
+
+struct IdentityPingResponse {
+    std::string status;                     // "ok" on success, error description otherwise
+};
+
+// ---- NEW: Disconnect Response ----
+// Original Kotlin: IdentityDisconnectTask.kt, IdentityAPI.kt logout()
+
+struct IdentityDisconnectResponse {
+    std::string status;                     // "ok" on success
+};
+
+// ---- NEW: Token Response ----
+// Original Kotlin: IdentityRegisterResponse.kt, EnsureIdentityToken.kt
+
+struct IdentityTokenResponse {
+    std::string token;                      // identity server access token
+    int64_t ttl = 0;                        // time-to-live in seconds
+};
+
+// ---- NEW: Identity Binding Response ----
+// Original Kotlin: identity binding API - 3PID association info
+
+struct IdentityBindingResponse {
+    std::string address;                    // 3PID address (email or phone)
+    std::string medium;                     // "email" or "msisdn"
+    std::string mxid;                       // bound Matrix ID
+    int64_t notBefore = 0;                 // ms timestamp - binding start
+    int64_t notAfter = 0;                  // ms timestamp - binding expiry
+    int64_t ts = 0;                        // ms timestamp - server time
+};
+
+// ---- NEW: ThreePidCredentials ----
+// Original Kotlin: IdentityPendingBinding.kt (clientSecret, sendAttempt, sid)
+
+struct ThreePidCredentials {
+    std::string sid;                        // session ID from identity server
+    std::string clientSecret;               // client-generated secret (UUID)
+    std::string idServer;                   // identity server base URL
+    std::string idAccessToken;              // identity server access token
+};
+
 // ---- Identity Server Manager ----
 
 class IdentityServerManager {
@@ -124,122 +200,156 @@ public:
     // ====== Server Configuration ======
     // Original: IdentityService.getDefaultIdentityServer / getCurrentIdentityServerUrl
 
-    // Set the default identity server (from login/well-known).
     void setDefaultServer(const std::string& url);
-
-    // Set the current identity server URL.
     void setCurrentServer(const std::string& url);
-
-    // Get the current server URL.
     std::string getCurrentServerUrl() const;
-
-    // Get the default server URL.
     std::string getDefaultServerUrl() const;
 
-    // Original: setNewIdentityServer(url) → final url
-    // Prepends "https://" if needed.
+    // Original: setNewIdentityServer(url) -> final url
     std::string setNewIdentityServer(const std::string& url, std::string& error);
 
-    // Original: disconnect() — logout from identity server
+    // Original: disconnect() - logout from identity server
     void disconnect();
 
     // ====== Server Validation ======
     // Original: isValidIdentityServer(url)
 
-    // Build the identity server status check URL.
     std::string buildStatusCheckUrl(const std::string& serverUrl) const;
-
-    // Parse identity server status response.
     bool parseStatusResponse(const std::string& json) const;
-
-    // Check if a URL is a valid-looking identity server URL.
     bool isValidServerUrl(const std::string& url) const;
 
     // ====== ThreePID Management ======
     // Original: startBindThreePid / cancelBindThreePid / finalizeBindThreePid / unbindThreePid
 
-    // Build bind request body.
     std::string buildBindRequest(const IS_ThreePid& threePid) const;
-
-    // Build unbind request body.
     std::string buildUnbindRequest(const IS_ThreePid& threePid) const;
-
-    // Build validation token submission request.
     std::string buildSubmitTokenRequest(const IS_ThreePid& threePid, const std::string& sid,
                                          const std::string& clientSecret, int token) const;
-
-    // Parse bind response.
     IS_ThreePidBindingStatus parseBindResponse(const std::string& json, const IS_ThreePid& threePid) const;
 
-    // Register a binding session.
     void registerBinding(const std::string& sid, const IS_ThreePid& threePid);
-
-    // Get binding by session ID.
     IS_ThreePidBindingStatus getBinding(const std::string& sid) const;
-
-    // Cancel a pending binding.
     void cancelBinding(const std::string& sid);
-
-    // Finalize a binding.
     void finalizeBinding(const std::string& sid);
-
-    // Remove a binding.
     void removeBinding(const std::string& sid);
 
     // ====== 3PID Lookup ======
-    // Original: lookUp(threePids) → List<IS_FoundThreePid>
+    // Original: lookUp(threePids) -> List<IS_FoundThreePid>
 
-    // Build lookup request for multiple 3PIDs.
     std::string buildLookupRequest(const std::vector<IS_ThreePid>& threePids) const;
-
-    // Parse lookup response.
     std::vector<IS_FoundThreePid> parseLookupResponse(const std::string& json) const;
+
+    // ====== NEW: Generic Identity API Request Builder ======
+    // Original Kotlin: IdentityAPI.kt, IdentityAuthAPI.kt - Retrofit-based REST calls
+    //
+    // Build a generic JSON request envelope with optional Authorization header token.
+    // Returns the JSON body string; the auth token is meant to be set as a header by the caller.
+    std::string buildIdentityApiRequest(const std::string& endpoint,
+                                        const std::string& body,
+                                        const std::string& accessToken = "") const;
+
+    // ====== NEW: Bulk Lookup (Hashed and Unhashed) ======
+    // Original Kotlin: IdentityBulkLookupTask.kt
+
+    // Build bulk lookup body with unhashed "threepids" format (legacy).
+    std::string buildBulkLookupBody(const std::vector<ThreePid>& threepids) const;
+
+    // Build hashed lookup request body (privacy-preserving).
+    // Format: {"addresses":[...], "algorithm":"sha256", "pepper":"..."}
+    std::string buildHashedLookupRequest(const std::vector<std::string>& hashedAddresses,
+                                         const std::string& algorithm,
+                                         const std::string& pepper) const;
+
+    // Parse bulk lookup response (hashed mappings -> FoundThreePid list).
+    IdentityBulkLookupResponse parseBulkLookupResponse(const std::string& json,
+                                                        const std::vector<ThreePid>& originalPids) const;
+
+    // ====== NEW: Register ======
+    // Original Kotlin: IdentityRegisterTask.kt, IdentityRegisterResponse.kt
+
+    // Build register request body (OpenID token exchange for IS token).
+    std::string buildRegisterBody(const IdentityRegisterRequest& req) const;
+
+    // Parse register response {"token":"..."}.
+    IdentityRegisterResponse parseRegisterResponse(const std::string& json) const;
+
+    // ====== NEW: Binding Status ======
+    // Original Kotlin: identity binding API endpoint
+
+    // Parse identity binding response.
+    IdentityBindingResponse parseIdentityBindingResponse(const std::string& json) const;
 
     // ====== User Consent ======
     // Original: getUserConsent / setUserConsent
 
     void setUserConsent(bool consent);
     bool getUserConsent() const;
-
-    // Build consent request body.
     std::string buildConsentRequest(bool consent) const;
 
     // ====== Share Status ======
-    // Original: getShareStatus(threePids) → Map<IS_ThreePid, IS_SharedState>
+    // Original: getShareStatus(threePids) -> Map<IS_ThreePid, IS_SharedState>
 
-    // Get share status for 3PIDs.
     IS_SharedState getShareStatus(const IS_ThreePid& threePid) const;
-
-    // Set share status.
     void setShareStatus(const IS_ThreePid& threePid, IS_SharedState state);
 
     // ====== Invitation Signing ======
     // Original: sign3pidInvitation(identityServer, token, secret)
 
-    // Build invitation signing request.
     std::string buildSignInvitationRequest(const std::string& token, const std::string& secret) const;
-
-    // Parse signing response.
     SignInvitationResult parseSignInvitationResponse(const std::string& json) const;
 
     // ====== Serialization ======
 
-    // Export 3PID as JSON.
     std::string threePidToJson(const IS_ThreePid& threePid) const;
-
-    // Export binding status as JSON.
     std::string bindingToJson(const IS_ThreePidBindingStatus& status) const;
-
-    // Export found 3PID as JSON.
     std::string foundPidToJson(const IS_FoundThreePid& found) const;
 
 private:
     IdentityServerConfig config_;
-    std::unordered_map<std::string, IS_ThreePidBindingStatus> bindings_; // sid → binding
+    std::unordered_map<std::string, IS_ThreePidBindingStatus> bindings_; // sid -> binding
 
     static std::string extractStr(const std::string& json, const std::string& key);
     static int64_t extractInt(const std::string& json, const std::string& key);
     static bool extractBool(const std::string& json, const std::string& key);
 };
+
+// ====== Free Functions ======
+
+// ---- Identity Server Availability ----
+// Original Kotlin: IdentityPingTask.kt, IdentityAuthAPI.kt ping()
+//
+// Check if the identity server at the given URL is reachable and returning valid v2 API.
+// Returns true if the server responds with a JSON body containing a "version" key.
+bool isIdentityServerAvailable(const std::string& identityServerUrl);
+
+// ---- Display Formatting ----
+// Original Kotlin: ThreePid.kt display formatting
+//
+// Format a 3PID for display: "email@example.com" or "+1 234 567 8901".
+std::string formatThreePidForDisplay(const ThreePid& pid);
+
+// ---- Binding Check ----
+// Original Kotlin: IdentityService.kt getShareStatus() - checks lookup results
+//
+// Check if a 3PID is bound to the given MXID by querying the identity server.
+// Returns true if the 3PID resolves to the given MXID.
+bool isThreePidBound(const ThreePid& pid, const std::string& mxid);
+
+// ---- Hash Lookup ----
+// Original Kotlin: Sha256Converter.kt, IdentityBulkLookupTask.kt getHashedAddresses()
+//
+// Compute a SHA-256 hash for a 3PID address using identity server pepper.
+// Format: SHA-256(lowercase(address) + " " + medium + " " + pepper)
+// Returns the hash as a raw 32-byte string (caller should base64url-encode).
+std::string hashThreePidAddress(const std::string& address,
+                                const std::string& medium,
+                                const std::string& pepper);
+
+// Build a hashed bulk lookup request JSON body.
+// Uses the given algorithm (e.g. "sha256") and pepper.
+// {"addresses":["hashed1","hashed2",...],"algorithm":"sha256","pepper":"..."}
+std::string buildHashedLookupRequest(const std::vector<std::string>& hashedAddresses,
+                                     const std::string& algorithm,
+                                     const std::string& pepper);
 
 } // namespace progressive

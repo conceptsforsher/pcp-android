@@ -39,6 +39,33 @@ EndCallReason endCallReasonFromString(const std::string& s) {
     return EndCallReason::USER_HANGUP;
 }
 
+// ==== CallEndReason (high-level UI) ====
+// Original Kotlin: CallEndReason enum (deduced from EndCallReason + state)
+const char* callEndReasonToString(CallEndReason r) {
+    switch (r) {
+        case CallEndReason::UNKNOWN:             return "unknown";
+        case CallEndReason::HUNG_UP:             return "hung_up";
+        case CallEndReason::REJECTED:            return "rejected";
+        case CallEndReason::BUSY:                return "busy";
+        case CallEndReason::TIMEOUT:             return "timeout";
+        case CallEndReason::ANSWERED_ELSEWHERE:  return "answered_elsewhere";
+        case CallEndReason::ICE_FAILED:          return "ice_failed";
+        case CallEndReason::INVITE_EXPIRED:      return "invite_expired";
+    }
+    return "unknown";
+}
+CallEndReason callEndReasonFromString(const std::string& s) {
+    if (s == "unknown")             return CallEndReason::UNKNOWN;
+    if (s == "hung_up")             return CallEndReason::HUNG_UP;
+    if (s == "rejected")            return CallEndReason::REJECTED;
+    if (s == "busy")                return CallEndReason::BUSY;
+    if (s == "timeout")             return CallEndReason::TIMEOUT;
+    if (s == "answered_elsewhere")  return CallEndReason::ANSWERED_ELSEWHERE;
+    if (s == "ice_failed")          return CallEndReason::ICE_FAILED;
+    if (s == "invite_expired")      return CallEndReason::INVITE_EXPIRED;
+    return CallEndReason::UNKNOWN;
+}
+
 // ==== JSON Helpers ====
 static std::string extractJsonString(const std::string& json, const std::string& key) {
     auto pos = json.find("\"" + key + "\"");

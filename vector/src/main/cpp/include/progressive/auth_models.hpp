@@ -413,32 +413,15 @@ struct HomeServerCapabilities {
     std::string versionOverrideForFeature(const std::string& feature) const;
 };
 
-// ==== Identity Service Models ====
+// Identity Service Models are now defined in:
+//   identity_utils.hpp — ThreePid, ThreePidMedium, FoundThreePid,
+//       IdentityServerError, IdentityServiceState,
+//       IdentityServerInfo, ThreePidValidationSession
+//   identity_server_manager.hpp — IS_ThreePid, IS_FoundThreePid,
+//       IS_SharedState, IdentityBulkLookupRequest, etc.
 //
-// Original Kotlin: ThreePid.kt, SharedState.kt, FoundThreePid.kt, IdentityServiceError.kt
-
-enum class ThreePidType { EMAIL = 0, MSISDN = 1 };
-
-struct ThreePid {
-    ThreePidType type = ThreePidType::EMAIL;
-    std::string value;               // email address or phone number
-};
-
-enum class SharedState {
-    SHARED = 0, NOT_SHARED = 1, BINDING_IN_PROGRESS = 2
-};
-
-struct FoundThreePid {
-    ThreePid threePid;
-    std::string matrixId;
-};
-
-enum class IdentityServiceErrorType {
-    OUTDATED_IDENTITY_SERVER = 0, OUTDATED_HOME_SERVER = 1,
-    NO_IDENTITY_SERVER_CONFIGURED = 2, TERMS_NOT_SIGNED = 3,
-    BULK_LOOKUP_SHA256_NOT_SUPPORTED = 4, USER_CONSENT_NOT_PROVIDED = 5,
-    BINDING_ERROR = 6, NO_CURRENT_BINDING = 7
-};
+// Original Kotlin: ThreePid.kt, SharedState.kt, FoundThreePid.kt,
+//   IdentityServiceError.kt
 
 // ==== Widget Models ====
 //

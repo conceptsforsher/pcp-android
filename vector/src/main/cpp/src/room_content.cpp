@@ -718,4 +718,124 @@ std::string buildCanonicalAliasContent(const std::string& canonicalAlias, const 
     return json.str();
 }
 
+// ================================================================
+// Room Alias Resolution (EXPAND)
+//
+// Ported from GetRoomIdByAliasTask.kt, DirectoryAPI.kt,
+// RoomAliasDescription.kt
+// ================================================================
+
+RoomAliasMapping resolveRoomAlias(const std::string& roomAlias, const std::string& apiResponseJson) {
+    // Original Kotlin: GetRoomIdByAliasTask.execute() calls roomAPI.getAlias(alias)
+    // and returns RoomAliasDescription(roomId, servers)
+    return parseAliasResolveResponse(apiResponseJson);
+}
+
+std::string buildAliasResolveRequest(const std::string& roomAlias) {
+    // Original Kotlin: Retrofit @GET("directory/room/{alias}")
+    // URL-safe alias: the alias is URL-encoded by the networking layer.
+    // We return the path portion for manual HTTP construction.
+    std::ostringstream path;
+    path << "/_matrix/client/r0/directory/room/" << roomAlias;
+    return path.str();
+}
+
+RoomAliasMapping parseAliasResolveResponse(const std::string& responseJson) {
+    // Original Kotlin: API response → RoomAliasDescription(roomId, servers)
+    RoomAliasMapping mapping;
+    mapping.roomId = extractJsonString(responseJson, "room_id");
+
+    // Parse servers array
+    auto serversPos = responseJson.find("\"servers\"");
+    if (serversPos != std::string::npos) {
+        serversPos = responseJson.find('[', serversPos);
+        if (serversPos != std::string::npos) {
+            serversPos++;
+            while (serversPos < responseJson.size()) {
+                while (serversPos < responseJson.size() && (responseJson[serversPos] == ' ' || responseJson[serversPos] == ',' || responseJson[serversPos] == '\n')) serversPos++;
+                if (serversPos >= responseJson.size() || responseJson[serversPos] == ']') break;
+                if (responseJson[serversPos] == '"') {
+                    serversPos++;
+                    size_t end = serversPos;
+                    while (end < responseJson.size() && responseJson[end] != '"') end++;
+                    mapping.servers.push_back(responseJson.substr(serversPos, end - serversPos));
+                    serversPos = end + 1;
+                }
+            }
+        }
+    }
+
+    return mapping;
+}
+
+std::string buildCreateAliasRequest(const std::string& roomAlias, const std::string& roomId) {
+    // Original Kotlin: DirectoryAPI.setRoomAlias — PUT /directory/room/{alias}
+    // Body: {"room_id": "!abc:example.org"}
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+    std::ostringstream json;
+    json << R"({"room_id":")" << esc(roomId) << R"("})";
+    return json.str();
+}
+
+std::string buildDeleteAliasRequest(const std::string& roomAlias) {
+    // Original Kotlin: DirectoryAPI.deleteRoomAlias — DELETE /directory/room/{alias}
+    std::ostringstream path;
+    path << "/_matrix/client/r0/directory/room/" << roomAlias;
+    return path.str();
+}
+
+// ==== Alias Parsing Utilities (EXPAND) ====
+
+RoomAliasLocalpart parseAliasLocalpart(const std::string& roomAlias) {
+    // Original Kotlin: split "#localpart:domain"
+    RoomAliasLocalpart result;
+    if (roomAlias.empty() || roomAlias[0] != '#') return result;
+
+    auto colonPos = roomAlias.find(':');
+    if (colonPos == std::string::npos || colonPos < 2) return result;
+
+    // localpart is between '#' and ':'
+    result.localpart = roomAlias.substr(1, colonPos - 1);
+
+    // domain is everything after ':'
+    result.domain = roomAlias.substr(colonPos + 1);
+
+    return result;
+}
+
+std::string formatRoomAlias(const std::string& localpart, const std::string& domain) {
+    // Original Kotlin: build "#localpart:domain"
+    if (localpart.empty() || domain.empty()) return "";
+    return "#" + localpart + ":" + domain;
+}
+
+bool isValidAlias(const std::string& roomAlias) {
+    // Original Kotlin: check alias format rules
+    if (roomAlias.empty() || roomAlias[0] != '#') return false;
+
+    auto colonPos = roomAlias.find(':');
+    if (colonPos == std::string::npos || colonPos < 2) return false;
+
+    // Must have non-empty localpart
+    if (colonPos == 1) return false;
+
+    // Must have non-empty domain
+    if (colonPos == roomAlias.size() - 1) return false;
+
+    // No internal spaces
+    if (roomAlias.find(' ') != std::string::npos) return false;
+
+    return true;
+}
+
+bool isAliasAvailable(const std::string& responseJson) {
+    // Original Kotlin: if the room_id field is empty/null, alias is available
+    // The server returns 404 with {"errcode":"M_NOT_FOUND"} if alias is available
+    // or returns {"room_id": "...", "servers": [...]} if it's taken.
+    auto roomId = extractJsonString(responseJson, "room_id");
+    return roomId.empty();
+}
+
 } // namespace progressive

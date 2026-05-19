@@ -4,6 +4,7 @@
 #include "progressive/megolm_decryptor.hpp"
 #include <sstream>
 #include <algorithm>
+#include <unordered_set>
 #include <ctime>
 
 namespace progressive {
@@ -607,6 +608,159 @@ std::string KeyBackupManager::decryptResultsToJson(const std::vector<BackupSessi
     }
     os << "]";
     return os.str();
+}
+
+// ====== Key Backup Status & Decision Logic ======
+// Original Kotlin (KeysBackupStateManager.kt:30-59):
+//   var state = KeysBackupState.Unknown
+//   val isEnabled: Boolean get() = state == ReadyToBackUp || state == WillBackUp || state == BackingUp
+//   val isStuck: Boolean get() = state == Unknown || state == Disabled || state == WrongBackUpVersion || state == NotTrusted
+
+KeyBackupStatus KeyBackupManager::computeKeyBackupStatus(int totalLocalKeys, int backedUpKeys) const {
+    KeyBackupStatus status;
+    status.totalKeys = totalLocalKeys;
+    status.backedUpKeys = backedUpKeys;
+    status.currentVersion = currentVersion_.version;
+
+    if (!currentVersion_.valid) {
+        status.state = KeyBackupState::DISABLED;
+        status.errorMessage = currentVersion_.error;
+        return status;
+    }
+
+    switch (trust_) {
+        case BackupTrust::TRUSTED:
+        case BackupTrust::VERIFIED:
+            status.state = KeyBackupState::ENABLED;
+            break;
+        case BackupTrust::UNTRUSTED:
+            status.state = KeyBackupState::NOT_TRUSTED;
+            status.errorMessage = "Backup version is not trusted";
+            break;
+        case BackupTrust::UNKNOWN:
+        default:
+            status.state = KeyBackupState::CHECKING_BACKUP;
+            break;
+    }
+
+    // If progress is running, override state
+    if (progress_.isRunning && !progress_.isComplete) {
+        if (progress_.uploadedKeys > 0) {
+            status.state = KeyBackupState::BACKING_UP;
+        } else {
+            status.state = KeyBackupState::WILL_BACKUP;
+        }
+    }
+
+    if (!progress_.error.empty()) {
+        status.state = KeyBackupState::ERROR;
+        status.errorMessage = progress_.error;
+    }
+
+    // Compute shorthand flags
+    status.isEnabled = (status.state == KeyBackupState::ENABLED ||
+                        status.state == KeyBackupState::WILL_BACKUP ||
+                        status.state == KeyBackupState::BACKING_UP);
+
+    status.isStuck = (status.state == KeyBackupState::UNKNOWN ||
+                      status.state == KeyBackupState::DISABLED ||
+                      status.state == KeyBackupState::WRONG_VERSION ||
+                      status.state == KeyBackupState::NOT_TRUSTED);
+
+    status.lastBackupTime = progress_.lastUpdateAt;
+
+    return status;
+}
+
+// Original Kotlin (KeysBackupStateManager.kt:49-53):
+//   val isEnabled: Boolean get() = state == ReadyToBackUp || state == WillBackUp || state == BackingUp
+
+bool KeyBackupManager::shouldBackupKeys() const {
+    if (!currentVersion_.valid) return false;
+    if (trust_ != BackupTrust::TRUSTED && trust_ != BackupTrust::VERIFIED) return false;
+    if (progress_.error.empty() == false) return false; // has error
+    return true;
+}
+
+// Original Kotlin (KeysBackup.kt + DefaultKeysBackupService.kt):
+//   Compute the list of sessions that exist locally but are not yet in the remote backup set.
+//   This is the delta that needs to be uploaded.
+
+std::vector<std::pair<std::string, std::string>> KeyBackupManager::getKeysToBackup(
+    const std::vector<std::pair<std::string, std::string>>& localSessionIds,
+    const std::vector<KeyBackupRoomSessions>& remoteSessions) const {
+
+    // Build set of remote session keys: "roomId/sessionId"
+    std::unordered_set<std::string> remoteSet;
+    for (const auto& room : remoteSessions) {
+        for (const auto& [sid, session] : room.sessions) {
+            remoteSet.insert(room.roomId + "/" + sid);
+        }
+    }
+
+    // Find local sessions not in remote set
+    std::vector<std::pair<std::string, std::string>> delta;
+    for (const auto& [roomId, sessionId] : localSessionIds) {
+        if (remoteSet.find(roomId + "/" + sessionId) == remoteSet.end()) {
+            delta.emplace_back(roomId, sessionId);
+        }
+    }
+
+    return delta;
+}
+
+// ====== Key Backup Config Serialization ======
+// Original Kotlin (KeysBackup.kt + MegolmBackupCreationInfo.kt):
+//   data class MegolmBackupCreationInfo(algorithm, authData, recoveryKey)
+
+std::string KeyBackupManager::buildKeyBackupConfig() const {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+    std::ostringstream os;
+    os << R"({"algorithm":")" << esc(currentVersion_.algorithm) << R"(")";
+    if (!currentVersion_.authData.empty()) {
+        os << R"(,"auth_data":)" << currentVersion_.authData;
+    }
+    os << R"(,"version":")" << esc(currentVersion_.version) << R"(")";
+    os << R"(,"count":)" << currentVersion_.count;
+    os << R"(,"etag":")" << esc(currentVersion_.etag) << R"(")";
+    if (!recoveryKey_.empty()) {
+        os << R"(,"recovery_key":")" << esc(recoveryKey_) << R"(")";
+    }
+    os << R"(,"trust":)" << static_cast<int>(trust_);
+    os << "}";
+    return os.str();
+}
+
+// Original Kotlin (KeysBackup.kt + CreateKeysBackupVersionBody.kt):
+//   Parse JSON config -> KeyBackupConfig
+
+KeyBackupConfig KeyBackupManager::parseKeyBackupConfig(const std::string& configJson) const {
+    KeyBackupConfig config;
+
+    config.algorithm = extractStr(configJson, "algorithm");
+    if (config.algorithm.empty()) config.algorithm = "m.megolm_backup.v1.curve25519-aes-sha2";
+
+    auto authBlock = extractNestedObj(configJson, "auth_data");
+    if (!authBlock.empty()) config.authData = authBlock;
+
+    auto ver = extractStr(configJson, "version");
+    if (!ver.empty()) {
+        try { config.version = std::stoi(ver); } catch (...) { config.version = 0; }
+    }
+
+    config.recoveryKey = extractStr(configJson, "recovery_key");
+
+    config.minKeyCount = extractInt(configJson, "min_key_count");
+    if (config.minKeyCount == 0) config.minKeyCount = 1;
+
+    config.forceCreate = (configJson.find("\"force_create\":true") != std::string::npos);
+
+    auto created = extractInt(configJson, "created_at");
+    if (created > 0) config.createdAt = created;
+
+    return config;
 }
 
 } // namespace progressive

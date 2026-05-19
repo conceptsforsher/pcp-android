@@ -1,7 +1,9 @@
+#pragma once
 #ifndef PROGRESSIVE_CONTENT_SCANNER_HPP
 #define PROGRESSIVE_CONTENT_SCANNER_HPP
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <cstdint>
 
@@ -9,13 +11,27 @@ namespace progressive {
 
 // ---- Content Scanner (Antivirus Integration) ----
 
+// Original Kotlin: data class ScanRequest
+struct ScanRequest {
+    std::string mxcUrl;
+    std::string roomId;
+    std::string eventId;
+    bool encrypted = false;
+    std::string fileInfo;        // JSON-encoded EncryptedFileInfo or empty
+};
+
 struct ScanResult {
     bool clean = true;
     bool scanned = false;
-    std::string mxcUri;
+    bool hasThreat = false;
+    std::string mxcUrl;          // Original Kotlin: mxcUrl
+    std::string mxcUri;          // legacy alias
     std::string serverName;      // which scanner server
+    std::string scanId;          // Original Kotlin: scanId — server-assigned
     std::string threat;          // detected threat name
+    std::string info;            // Original Kotlin: human-readable info string
     std::string recommendation;  // "allow", "block", "warn"
+    int64_t scannedAt = 0;       // Original Kotlin: scannedAt timestamp ms
 };
 
 // Parse scan result from Matrix content scanner API response.
@@ -40,6 +56,28 @@ enum class ScanState : int {
     IN_PROGRESS = 3
 };
 
+// Original Kotlin: enum class ScanStatus
+enum class ScanStatus : int {
+    NOT_SCANNED = 0,
+    IN_PROGRESS = 1,
+    TRUSTED = 2,
+    INFECTED = 3,
+    ERROR = 4
+};
+
+constexpr const char* scanStatusToString(ScanStatus status) {
+    switch (status) {
+        case ScanStatus::NOT_SCANNED: return "NOT_SCANNED";
+        case ScanStatus::IN_PROGRESS: return "IN_PROGRESS";
+        case ScanStatus::TRUSTED:     return "TRUSTED";
+        case ScanStatus::INFECTED:    return "INFECTED";
+        case ScanStatus::ERROR:       return "ERROR";
+        default:                      return "UNKNOWN";
+    }
+}
+
+ScanStatus scanStatusFromString(const std::string& str);
+
 constexpr const char* scanStateToString(ScanState state) {
     switch (state) {
         case ScanState::TRUSTED:     return "TRUSTED";
@@ -57,6 +95,30 @@ struct ScanStatusInfo {
     ScanState state = ScanState::UNKNOWN;
     int64_t scanDateTimestamp = 0;
     std::string humanReadableMessage;
+};
+
+// Original Kotlin: data class ScanInfo — detailed scan result
+struct ScanInfo {
+    ScanStatus scanStatus = ScanStatus::NOT_SCANNED;
+    std::string threatName;
+    std::string scanId;
+    int64_t scannedAt = 0;
+    std::string resultDetails;   // human-readable scanner output
+};
+
+// Original Kotlin: scan poll configuration
+struct ScanPollConfig {
+    int maxRetries = 10;
+    int retryDelayMs = 1000;     // base delay between polls
+    int timeoutMs = 30000;       // total timeout
+};
+
+// Original Kotlin: data class ScanThreatInfo
+struct ScanThreatInfo {
+    std::string threatName;
+    std::string threatType;      // "virus", "malware", "spyware", "phishing"
+    std::string description;
+    std::string recommendation;  // "block", "quarantine", "allow", "review"
 };
 
 // ---- Content Scanner Error Types ----
@@ -178,6 +240,38 @@ bool isScannerConfigured(const ContentScannerConfig& config);
 // ---- Scan Result Utilities ----
 // Original Kotlin: DefaultScanMediaTask — map clean bool to ScanState.
 ScanState scanResponseToState(bool clean);
+
+// ==================== Scan Flow: Submit → Poll → Result ====================
+
+// Original Kotlin: scanContent — full scan flow (submit + poll until complete or timeout).
+// Returns ScanResult with final status.
+// @param mxcUrl       MXC URI of the media to scan
+// @param config       Scanner configuration (server URL, enabled)
+// @param pollCfg      Polling parameters (retries, delays, timeout)
+// @param fileInfo     Optional encrypted file info for scan_encrypted
+ScanResult scanContent(const std::string& mxcUrl,
+                       const ContentScannerConfig& config,
+                       const ScanPollConfig& pollCfg,
+                       const EncryptedFileInfo* fileInfo = nullptr);
+
+// Original Kotlin: buildScanRequestJson — POST body JSON for /_matrix/media_proxy/unstable/scan/{mxc}
+std::string buildScanRequestJson(const std::string& mxcUrl,
+                                  const EncryptedFileInfo* fileInfo = nullptr);
+
+// Original Kotlin: pollScanResult — retry loop with backoff
+// Polls the scan endpoint until complete, error, or timeout.
+ScanResult pollScanResult(const std::string& scannerBaseUrl,
+                          const std::string& scanId,
+                          const ScanPollConfig& pollCfg);
+
+// Original Kotlin: isScanComplete — check if scan has finished
+bool isScanComplete(const ScanResult& result);
+
+// Original Kotlin: getScanStatusDescription — human-readable status string
+std::string getScanStatusDescription(ScanStatus status);
+
+// Original Kotlin: getScanRecommendation — what user should do based on result
+std::string getScanRecommendation(const ScanThreatInfo& threatInfo);
 
 // ---- Encrypted Content JSON Builders ----
 // Original Kotlin: DownloadBody.toJson() — full DownloadBody as JSON.

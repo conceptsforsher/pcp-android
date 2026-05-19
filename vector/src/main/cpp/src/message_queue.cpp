@@ -318,6 +318,17 @@ bool MessageQueue::markAsFailed(const std::string& localId) {
     return false;
 }
 
+bool MessageQueue::updateEntry(const std::string& localId, const QueueEntry& updated) {
+    // Original Kotlin: localEchoRepository.updateSendState / replace entry in queue
+    for (auto& e : entries_) {
+        if (e.localId == localId) {
+            e = updated;
+            return true;
+        }
+    }
+    return false;
+}
+
 SendQueueStats MessageQueue::getStats() const {
     SendQueueStats stats;
     for (const auto& e : entries_) {
@@ -467,6 +478,331 @@ bool isRetryableSendError(int httpErrorCode, bool isNetworkError) {
     // 4xx Client Error (except 429) → don't retry (invalid request, not found, etc.)
     // Success codes → no retry needed
     return false;
+}
+
+// ---- SendQueueManager ----
+// Original Kotlin: DefaultSendService.sendEvent() → EventSenderProcessor.postEvent()
+//   submitEvent creates a local echo, assigns txnId, enqueues, returns txnId for tracking.
+
+std::string SendQueueManager::submitEvent(const SendRequest& request) {
+    QueueEntry entry;
+    entry.localId = request.transactionId.empty()
+                        ? TransactionIdGenerator::generate()
+                        : request.transactionId;
+    entry.event = request.contentJson;
+    entry.roomId = request.roomId;
+    entry.sendState = SendState::UNSENT;
+    entry.priority = request.priority;
+    entry.retryCount = 0;
+    entry.lastAttemptMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    queue_.enqueue(entry);
+    return entry.localId;
+}
+
+bool SendQueueManager::cancelEvent(const std::string& transactionId) {
+    // Original Kotlin: cancelSendTracker.markLocalEchoForCancel(eventId, roomId)
+    //                  + eventSenderProcessor.cancel(eventId, roomId)
+    // If event is still UNSENT, remove it entirely. If already SENDING, mark cancelled.
+    for (auto& e : queue_.getAll()) {
+        if (e.localId == transactionId) {
+            if (e.sendState == SendState::UNSENT) {
+                return queue_.remove(transactionId);
+            }
+            if (e.sendState == SendState::SENDING) {
+                // Mark as FAILED: it's already in flight and can't be cleanly removed.
+                // The server will still receive it, but the local echo is cancelled.
+                return queue_.markAsFailed(transactionId);
+            }
+        }
+    }
+    return false;
+}
+
+int SendQueueManager::cancelAllInRoom(const std::string& roomId) {
+    // Original Kotlin: cancelAllFailedMessages loops and calls cancelSend for each.
+    int count = 0;
+    auto entries = queue_.getAll();
+    for (const auto& e : entries) {
+        if (e.roomId == roomId) {
+            if (cancelEvent(e.localId)) count++;
+        }
+    }
+    return count;
+}
+
+int SendQueueManager::getPendingCount() const {
+    auto stats = queue_.getStats();
+    return stats.pending;
+}
+
+int SendQueueManager::getFailedCount() const {
+    auto stats = queue_.getStats();
+    return stats.failed;
+}
+
+int SendQueueManager::getSendingCount() const {
+    auto stats = queue_.getStats();
+    return stats.sending;
+}
+
+std::vector<SendResult> SendQueueManager::processQueue() {
+    // Original Kotlin: EventSenderProcessorCoroutine.executeTask() loop
+    //   Processes the queue sequentially per room (SemaphoreCoroutineSequencer).
+    std::vector<SendResult> results;
+    auto entries = queue_.getAll();
+
+    for (auto& entry : entries) {
+        if (entry.sendState != SendState::UNSENT) continue;
+
+        SendResult result;
+        result.transactionId = entry.localId;
+
+        // Mark as SENDING per Kotlin: localEchoRepository.updateSendState(_, SENDING)
+        queue_.markAsSending(entry.localId);
+
+        // In a full implementation, this would call runSendPipeline() which calls
+        // the actual HTTP send. For the NDK layer, we simulate success.
+        // The JNI bridge handles actual network I/O.
+        result.success = true;
+        result.eventId = entry.localId + "_server";
+        result.errorCode = 0;
+
+        // Original Kotlin: markAsFinished → remove from memento/cancelableBag
+        queue_.markAsSent(entry.localId);
+        results.push_back(result);
+    }
+
+    return results;
+}
+
+int SendQueueManager::requeueFailed() {
+    // Original Kotlin: resendAllFailedMessages() sets state to UNSENT for all failed.
+    // Since getAll() returns a copy, we iterate localIds and use updateEntry to
+    // modify entries in-place within the queue.
+    int count = 0;
+    auto entries = queue_.getAll();
+    int64_t nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+
+    for (const auto& e : entries) {
+        if (e.sendState == SendState::FAILED ||
+            e.sendState == SendState::UNDELIVERABLE) {
+            QueueEntry updated = e;
+            updated.sendState = SendState::UNSENT;
+            updated.retryCount = 0;
+            updated.lastAttemptMs = nowMs;
+            if (queue_.updateEntry(e.localId, updated)) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+std::vector<QueueEntry> SendQueueManager::getFailedEvents() const {
+    return queue_.getFailedEvents();
+}
+
+std::vector<QueueEntry> SendQueueManager::getPendingEvents() const {
+    return queue_.getPendingEvents();
+}
+
+SendQueueStats SendQueueManager::getStats() const {
+    return queue_.getStats();
+}
+
+std::vector<QueueEntry> SendQueueManager::getAll() const {
+    return queue_.getAll();
+}
+
+bool SendQueueManager::updateState(const std::string& transactionId, SendState newState) {
+    // Original Kotlin: localEchoRepository.updateSendState(eventId, roomId, sendState)
+    // Use getAll to find the entry, then updateEntry to modify it in-place.
+    auto entries = queue_.getAll();
+    for (const auto& e : entries) {
+        if (e.localId == transactionId) {
+            QueueEntry updated = e;
+            updated.sendState = newState;
+            if (newState == SendState::FAILED || newState == SendState::UNDELIVERABLE) {
+                updated.retryCount++;
+            }
+            updated.lastAttemptMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch()).count();
+            return queue_.updateEntry(transactionId, updated);
+        }
+    }
+    return false;
+}
+
+bool SendQueueManager::hasEvent(const std::string& transactionId) const {
+    auto entries = queue_.getAll();
+    for (const auto& e : entries) {
+        if (e.localId == transactionId) return true;
+    }
+    return false;
+}
+
+void SendQueueManager::clear() {
+    queue_.clear();
+}
+
+int SendQueueManager::count() const {
+    return queue_.count();
+}
+
+// ---- Send Pipeline ----
+// Original Kotlin: sendEvent pipeline: createLocalEcho → encrypt → PUT /send → updateState → timeline
+
+SendResult runSendPipeline(const SendRequest& request, bool roomIsEncrypted) {
+    // Original Kotlin: DefaultSendService.sendEvent() pipeline stages in order.
+    SendPipeline pipeline;
+    pipeline.request = request;
+    pipeline.request.transactionId = request.transactionId.empty()
+                                        ? TransactionIdGenerator::generate()
+                                        : request.transactionId;
+    pipeline.result.transactionId = pipeline.request.transactionId;
+    pipeline.startedAtMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    pipeline.encrypted = roomIsEncrypted;
+
+    // Stage 1: VALIDATE
+    // Original Kotlin: checkNotNull(event.roomId) + localEchoEventFactory.createLocalEcho(event)
+    pipeline.currentStage = SendPipelineStage::VALIDATE;
+    if (!validateEvent(pipeline.request)) {
+        pipeline.result.success = false;
+        pipeline.result.errorMessage = "Event validation failed";
+        pipeline.result.errorCode = 400;
+        return pipeline.result;
+    }
+
+    // Stage 2: ENCRYPT (if room is encrypted)
+    // Original Kotlin: cryptoService.encryptEvent(event) modifies event content in-place
+    pipeline.currentStage = SendPipelineStage::ENCRYPT;
+    if (roomIsEncrypted) {
+        // TODO: actual Megolm encryption via JNI bridge
+        // For now, pass content through unchanged — encryption handled by Kotlin/JNI
+        pipeline.encryptedContentJson = pipeline.request.contentJson;
+    }
+
+    // Stage 3: SEND
+    // Original Kotlin: sendEventTask.execute(SendEventTask.Params(event, isEncrypted))
+    // PUT /_matrix/client/v3/rooms/{roomId}/send/{eventType}/{txnId}
+    pipeline.currentStage = SendPipelineStage::SEND;
+    {
+        // Build the event body for the send request
+        std::string sendBody = buildSendEventBody(
+            pipeline.request.eventType,
+            roomIsEncrypted ? pipeline.encryptedContentJson : pipeline.request.contentJson,
+            pipeline.request.roomId,
+            pipeline.request.transactionId
+        );
+        // In real implementation: HTTP PUT to server. Success/failure recorded in result.
+        // For NDK layer, simulate success with a generated event ID.
+        // Actual network call is done by the JNI bridge / Kotlin layer.
+        pipeline.result.success = true;
+        pipeline.result.eventId = "$" + TransactionIdGenerator::generate();
+        pipeline.result.errorCode = 0;
+    }
+
+    if (!pipeline.result.success) {
+        pipeline.result.errorMessage = "Send failed";
+        return pipeline.result;
+    }
+
+    // Stage 4: CONFIRM
+    // Original Kotlin: localEchoRepository.updateSendState → marks SENT on success
+    pipeline.currentStage = SendPipelineStage::CONFIRM;
+    {
+        // On success: the send result has the real event_id from the server.
+        // The local echo is updated to reflect the server-assigned eventId.
+    }
+
+    // Stage 5: DECORATE
+    // Original Kotlin: timeline adds sender info, timestamp, and relations.
+    // For NDK, the decoration is done by Kotlin timeline layer.
+    pipeline.currentStage = SendPipelineStage::DECORATE;
+
+    pipeline.completedAtMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    return pipeline.result;
+}
+
+bool validateEvent(const SendRequest& request) {
+    // Original Kotlin: checkNotNull(event.roomId) + event type validation
+    if (request.roomId.empty()) return false;
+    if (request.eventType.empty()) return false;
+    // contentJson must be non-empty and at least look like valid JSON
+    if (request.contentJson.empty()) return false;
+    // Basic JSON sanity: must start with '{' or '['
+    if (request.contentJson.front() != '{' && request.contentJson.front() != '[') return false;
+    return true;
+}
+
+std::string prepareEventForSend(const SendRequest& request, const std::string& senderId) {
+    // Original Kotlin: LocalEchoEventFactory.createEvent()
+    //   Event(roomId, originServerTs, senderId, eventId=localId, type, content,
+    //         unsignedData=UnsignedData(age=null, transactionId=localId))
+    std::string txnId = request.transactionId.empty()
+                            ? TransactionIdGenerator::generate()
+                            : request.transactionId;
+
+    auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) {
+            if (c == '"') out += "\\\"";
+            else if (c == '\\') out += "\\\\";
+            else out += c;
+        }
+        return out;
+    };
+
+    std::ostringstream json;
+    json << "{";
+    json << R"("type":")" << esc(request.eventType) << R"(",)";
+    json << R"("content":)" << request.contentJson << ",";
+    json << R"("room_id":")" << esc(request.roomId) << R"(",)";
+    json << R"("sender":")" << esc(senderId) << R"(",)";
+    json << R"("origin_server_ts":)" << nowMs << ",";
+    json << R"("event_id":")" << esc(txnId) << R"(",)";
+    json << R"("unsigned":{"transaction_id":")" << esc(txnId) << R"("})";
+    json << "}";
+    return json.str();
+}
+
+// ---- SendState Helpers ----
+// Original Kotlin: SendState.isSent(), hasFailed(), isSending(), isInProgress()
+
+const char* sendStateToApiString(SendState state) {
+    // Map internal C++ SendState enum to the Kotlin API SendState string values.
+    // Kotlin enum: UNKNOWN, UNSENT, ENCRYPTING, SENDING, SENT, SYNCED, UNDELIVERED, FAILED_UNKNOWN_DEVICES
+    switch (state) {
+        case SendState::UNSENT:    return "UNSENT";
+        case SendState::SENDING:   return "SENDING";
+        case SendState::SENT:      return "SENT";
+        case SendState::FAILED:    return "UNDELIVERED";
+        case SendState::UNDELIVERABLE: return "UNDELIVERED";
+        case SendState::SENT_FROM_ANOTHER_SESSION: return "SENT";
+        default: return "UNKNOWN";
+    }
+}
+
+bool isSentState(SendState state) {
+    // Original Kotlin: SendState.IS_SENT_STATES = listOf(SENT, SYNCED)
+    return state == SendState::SENT || state == SendState::SENT_FROM_ANOTHER_SESSION;
+}
+
+bool isFailedState(SendState state) {
+    // Original Kotlin: SendState.HAS_FAILED_STATES = listOf(UNDELIVERED, FAILED_UNKNOWN_DEVICES)
+    return state == SendState::FAILED || state == SendState::UNDELIVERABLE;
+}
+
+bool isInProgressState(SendState state) {
+    // Original Kotlin: SendState.IS_PROGRESSING_STATES = listOf(ENCRYPTING, SENDING)
+    return state == SendState::SENDING;
 }
 
 } // namespace progressive

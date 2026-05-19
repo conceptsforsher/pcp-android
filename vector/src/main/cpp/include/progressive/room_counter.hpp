@@ -8,6 +8,10 @@
 
 namespace progressive {
 
+// Forward declarations from room_summary.hpp
+struct RoomSummaryInfo;
+struct RoomSummaryQueryParams;
+
 // ==== Room Counter — Advanced Room Counting & Numbering ====
 //
 // Provides room count aggregation (total, per-account, unique),
@@ -127,5 +131,84 @@ struct ExportPreset {
 
 std::string exportPresetToJson(const ExportPreset& preset);
 ExportPreset exportPresetFromJson(const std::string& json);
+
+// ================================================================
+// Room Counters — Notification Aggregation (EXPAND)
+//
+// Ported from RoomAggregateNotificationCount.kt (RoomSummaryDataSource),
+// notification badge formatting, and push rule notification mode logic.
+// ================================================================
+
+// Original Kotlin (RoomAggregateNotificationCount.kt):
+//   data class RoomAggregateNotificationCount(notificationCount: Int, highlightCount: Int)
+// Extended here to split by direct vs group rooms and to include invite count.
+struct RoomCounters {
+    int totalNotifications = 0;          // sum of all notification_count
+    int totalHighlights = 0;             // sum of all highlight_count
+    int totalDirectNotifications = 0;    // notifications from DM rooms
+    int totalDirectHighlights = 0;       // highlights from DM rooms
+    int totalGroupNotifications = 0;     // notifications from group rooms
+    int totalGroupHighlights = 0;        // highlights from group rooms
+    int totalInvites = 0;                // number of rooms in invite state
+};
+
+// Original Kotlin: RoomSummaryDataSource.getNotificationCountForRooms()
+// Aggregates notification counts across all rooms matching filter.
+// This is the C++ equivalent for offline computation.
+RoomCounters computeRoomCounters(
+    const std::vector<struct RoomSummaryInfo>& rooms,
+    const struct RoomSummaryQueryParams& queryParams
+);
+
+// Original Kotlin: per-room notification delta for updating badge counts.
+// Captures what changed in a single room's notification state.
+struct RoomCounterDelta {
+    std::string roomId;                  // room whose counts changed
+    int prevCount = 0;                   // previous notification_count
+    int newCount = 0;                    // new notification_count
+    int prevHighlights = 0;              // previous highlight_count
+    int newHighlights = 0;               // new highlight_count
+};
+
+// Original Kotlin: compare old vs new notification state for a room.
+// Returns the delta (all zeros if no change).
+RoomCounterDelta compareRoomCounters(
+    const RoomSummaryInfo& oldRoom,
+    const RoomSummaryInfo& newRoom
+);
+
+// Original Kotlin: notification badge string — "99+" for overflow,
+// empty string for zero, or the numeric count as a string.
+std::string formatCounterBadge(int count);
+
+// ==== Notification Mode (Push Rules) ====
+//
+// Ported from push rule evaluation logic — determines whether to notify
+// the user for an event based on the room's notification mode.
+
+// Original Kotlin: PushRule kind → notification mode mapping.
+// In Element Android, the push rule actions (notify, dont_notify, coalesce)
+// combined with room-specific overrides determine how notifications behave.
+enum class RoomNotificationMode {
+    ALL_MESSAGES,    // notify for every message (default / no push rule override)
+    MENTIONS_ONLY,   // notify only for @mentions and keyword hits (mute with highlights)
+    MUTED            // no notifications at all (dont_notify push rule)
+};
+
+// Original Kotlin: derive notification mode from push rules string.
+// Accepts a raw push rule actions JSON or simple string like "dont_notify".
+RoomNotificationMode getRoomNotificationMode(const std::string& pushRuleActionsJson);
+
+// Original Kotlin: event filtering per notification mode.
+// Returns true if the notification should fire for this event given the room's mode.
+// For ALL_MESSAGES → always notify
+// For MENTIONS_ONLY → notify only if event has mention/highlight of current user
+// For MUTED → never notify
+bool shouldNotifyForEvent(
+    RoomNotificationMode mode,
+    const std::string& eventType,
+    const std::string& eventContent,
+    const std::string& currentUserId
+);
 
 } // namespace progressive

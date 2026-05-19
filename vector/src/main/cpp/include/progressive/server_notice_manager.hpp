@@ -181,4 +181,131 @@ private:
     static bool extractBool(const std::string& json, const std::string& key);
 };
 
+// ================================================================
+// Server Notice Types — structured notice model
+//
+// Original Kotlin: ServerNotice.kt, ServerNoticeAction.kt
+// ================================================================
+
+// ---- Server Notice Type ----
+// Original Kotlin: ServerNotice.Type enum
+
+enum class ServerNoticeType {
+    MESSAGE = 0,         // Informational message from server admin
+    USAGE_LIMIT = 1,     // Resource/usage limit warning or block
+    POLICY_UPDATE = 2,   // Terms of service / policy changes
+    MAINTENANCE = 3,     // Planned maintenance / downtime
+    VERSION_UPGRADE = 4, // Client version upgrade required
+    SECURITY = 5,        // Security notice or alert
+};
+
+const char* serverNoticeTypeToString(ServerNoticeType type);
+ServerNoticeType serverNoticeTypeFromString(const std::string& s);
+
+// ---- Server Notice Priority ----
+// Original Kotlin: ServerNotice.Priority enum
+
+enum class ServerNoticePriority {
+    LOW = 0,
+    NORMAL = 1,
+    HIGH = 2,
+    CRITICAL = 3,
+};
+
+const char* serverNoticePriorityToString(ServerNoticePriority priority);
+ServerNoticePriority serverNoticePriorityFromString(const std::string& s);
+
+// ---- Server Notice Action Type ----
+// Original Kotlin: ServerNoticeAction.Type enum
+
+enum class ServerNoticeActionType {
+    OPEN_URL = 0,
+    DISMISS = 1,
+    SETTINGS = 2,
+};
+
+const char* serverNoticeActionTypeToString(ServerNoticeActionType type);
+ServerNoticeActionType serverNoticeActionTypeFromString(const std::string& s);
+
+// ---- Server Notice Action ----
+// Original Kotlin: ServerNoticeAction data class
+
+struct ServerNoticeAction {
+    std::string label;
+    std::string url;
+    ServerNoticeActionType type = ServerNoticeActionType::OPEN_URL;
+};
+
+// ---- Server Notice ----
+// Original Kotlin: ServerNotice data class
+
+struct ServerNotice {
+    std::string noticeId;
+    ServerNoticeType type = ServerNoticeType::MESSAGE;
+    ServerNoticePriority priority = ServerNoticePriority::NORMAL;
+    std::string title;
+    std::string message;
+    std::string adminContact;
+    std::string actionUrl;
+    std::string actionLabel;
+    bool dismissable = true;
+    int64_t expiresAt = 0;           // Unix epoch millis, 0 = no expiry
+    int64_t createdAt = 0;           // Unix epoch millis
+};
+
+// ---- Server Notice List ----
+// Original Kotlin: ServerNoticeList wrapper
+
+struct ServerNoticeList {
+    std::vector<ServerNotice> notices;
+    int totalCount = 0;
+    int unreadCount = 0;
+};
+
+// ---- Server Notice Consent ----
+// Original Kotlin: UserConsent data class
+
+struct ServerNoticeConsent {
+    std::string noticeId;
+    bool consentGiven = false;
+    int64_t consentedAt = 0;         // Unix epoch millis
+    std::string consentVersion;
+};
+
+// ================================================================
+// Server Notice free functions
+// ================================================================
+
+// Parse a server notice state event content JSON.
+// Original Kotlin: parse m.server_notice event content
+ServerNotice parseServerNoticeEvent(const std::string& contentJson);
+
+// Format a structured ServerNotice for user display.
+// Original Kotlin: ServerNotice.format() display string
+std::string formatServerNotice(const ServerNotice& notice);
+
+// Check if a notice has been dismissed by the user.
+// Original Kotlin: persist dismissed notice IDs in local store
+bool isServerNoticeDismissed(const std::string& noticeId);
+
+// Mark a notice as dismissed by the user.
+// Original Kotlin: dismiss notice — store in local state
+void dismissServerNotice(const std::string& noticeId);
+
+// Get all active (non-dismissed, non-expired) notices from a list.
+// Original Kotlin: ServerNoticeManager.getActiveNotices()
+ServerNoticeList getActiveNotices(const ServerNoticeList& list);
+
+// Get the available actions for a server notice.
+// Original Kotlin: ServerNotice.getActions()
+std::vector<ServerNoticeAction> getNoticeActions(const ServerNotice& notice);
+
+// Build JSON body for a server notice state event.
+// Original Kotlin: build m.server_notice state event content
+std::string buildServerNoticeContent(const ServerNotice& notice);
+
+// Record user consent for a server notice.
+// Original Kotlin: record consent for policy/terms notice
+void recordConsent(const std::string& noticeId, const std::string& consentVersion);
+
 } // namespace progressive

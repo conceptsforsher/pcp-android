@@ -131,6 +131,17 @@ std::string callCapabilitiesToJson(const CallCapabilities& caps) {
         json << "\"m.call.use_stereo\": true";
         first = false;
     }
+    if (caps.supportsScreenSharing) {
+        if (!first) json << ",";
+        json << "\"m.call.screen_sharing\": true";
+        first = false;
+    }
+    // supportsVideo and hasVideo are implicitly true — not serialized unless false
+    if (!caps.supportsVideo) {
+        if (!first) json << ",";
+        json << "\"m.call.video\": false";
+        first = false;
+    }
     json << "}";
     return json.str();
 }
@@ -141,6 +152,15 @@ CallCapabilities parseCallCapabilities(const std::string& json) {
     caps.transferee = extractJsonBool(json, "m.call.transferee");
     caps.supportsDtmf = extractJsonBool(json, "m.call.dtmf");
     caps.useStereo = extractJsonBool(json, "m.call.use_stereo");
+    caps.supportsScreenSharing = extractJsonBool(json, "m.call.screen_sharing");
+
+    // Video is implicitly supported unless explicitly disabled
+    auto v = extractJsonBool(json, "m.call.video");
+    caps.supportsVideo = true; // default true — most WebRTC clients support video
+    if (json.find("\"m.call.video\": false") != std::string::npos ||
+        json.find("\"m.call.video\":false") != std::string::npos)
+        caps.supportsVideo = false;
+
     return caps;
 }
 

@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <ctime>
+#include <unordered_set>
 
 namespace progressive {
 
@@ -312,7 +313,7 @@ std::string ServerNoticeManager::serverNoticeToJson(const ServerNoticeInfo& info
        << R"(","admin_contact":")" << esc(info.adminContact)
        << R"(","consent_uri":")" << esc(info.consentUri)
        << R"(,"retry_after_ms":)" << info.retryAfterMs
-       << R"(,"banner_color":")" << getBannerColor(info) << R"(")
+       << R"(,"banner_color":")" << getBannerColor(info) << R"(")"
        << "}";
     return os.str();
 }
@@ -330,9 +331,315 @@ std::string ServerNoticeManager::resourceLimitToJson(const ServerNoticeInfo& inf
        << R"(","message":")" << esc(formatResourceLimitError(info, info.mode))
        << R"(","admin_contact":")" << esc(formatAdminContactText(info.adminContact))
        << R"(","admin_link":")" << esc(formatAdminContactLink(info.adminContact))
-       << R"(","banner_color":")" << getBannerColor(info) << R"(")
+       << R"(","banner_color":")" << getBannerColor(info) << R"(")"
        << "}";
     return os.str();
+}
+
+// ================================================================
+// Expanded Server Notice — structured types, dismiss, consent
+// ================================================================
+
+// ====== Server Notice Type conversions ======
+// Original Kotlin: ServerNotice.Type enum
+
+const char* serverNoticeTypeToString(ServerNoticeType type) {
+    switch (type) {
+        case ServerNoticeType::MESSAGE: return "message";
+        case ServerNoticeType::USAGE_LIMIT: return "usage_limit";
+        case ServerNoticeType::POLICY_UPDATE: return "policy_update";
+        case ServerNoticeType::MAINTENANCE: return "maintenance";
+        case ServerNoticeType::VERSION_UPGRADE: return "version_upgrade";
+        case ServerNoticeType::SECURITY: return "security";
+    }
+    return "message";
+}
+
+ServerNoticeType serverNoticeTypeFromString(const std::string& s) {
+    if (s == "usage_limit") return ServerNoticeType::USAGE_LIMIT;
+    if (s == "policy_update") return ServerNoticeType::POLICY_UPDATE;
+    if (s == "maintenance") return ServerNoticeType::MAINTENANCE;
+    if (s == "version_upgrade") return ServerNoticeType::VERSION_UPGRADE;
+    if (s == "security") return ServerNoticeType::SECURITY;
+    return ServerNoticeType::MESSAGE;
+}
+
+// ====== Server Notice Priority conversions ======
+// Original Kotlin: ServerNotice.Priority enum
+
+const char* serverNoticePriorityToString(ServerNoticePriority priority) {
+    switch (priority) {
+        case ServerNoticePriority::LOW: return "low";
+        case ServerNoticePriority::NORMAL: return "normal";
+        case ServerNoticePriority::HIGH: return "high";
+        case ServerNoticePriority::CRITICAL: return "critical";
+    }
+    return "normal";
+}
+
+ServerNoticePriority serverNoticePriorityFromString(const std::string& s) {
+    if (s == "low") return ServerNoticePriority::LOW;
+    if (s == "high") return ServerNoticePriority::HIGH;
+    if (s == "critical") return ServerNoticePriority::CRITICAL;
+    return ServerNoticePriority::NORMAL;
+}
+
+// ====== Server Notice Action Type conversions ======
+// Original Kotlin: ServerNoticeAction.Type enum
+
+const char* serverNoticeActionTypeToString(ServerNoticeActionType type) {
+    switch (type) {
+        case ServerNoticeActionType::OPEN_URL: return "open_url";
+        case ServerNoticeActionType::DISMISS: return "dismiss";
+        case ServerNoticeActionType::SETTINGS: return "settings";
+    }
+    return "open_url";
+}
+
+ServerNoticeActionType serverNoticeActionTypeFromString(const std::string& s) {
+    if (s == "dismiss") return ServerNoticeActionType::DISMISS;
+    if (s == "settings") return ServerNoticeActionType::SETTINGS;
+    return ServerNoticeActionType::OPEN_URL;
+}
+
+// ====== JSON escape helper ======
+
+static std::string escStr(const std::string& s) {
+    std::string out;
+    for (char c : s) {
+        if (c == '"' || c == '\\') out += '\\';
+        out += c;
+    }
+    return out;
+}
+
+// File-scoped JSON extraction helpers (mirror ServerNoticeManager:: private statics).
+// Needed because free functions cannot access private static members.
+
+static std::string extractStr(const std::string& json, const std::string& key) {
+    auto pp = json.find("\"" + key + "\"");
+    if (pp == std::string::npos) return "";
+    pp = json.find('"', pp + key.size() + 2);
+    if (pp == std::string::npos) return "";
+    pp++;
+    size_t e = pp;
+    while (e < json.size() && json[e] != '"') e++;
+    return json.substr(pp, e - pp);
+}
+
+static int64_t extractInt(const std::string& json, const std::string& key, int64_t def = 0) {
+    auto pp = json.find("\"" + key + "\"");
+    if (pp == std::string::npos) return def;
+    pp = json.find(':', pp);
+    if (pp == std::string::npos) return def;
+    pp++;
+    while (pp < json.size() && (json[pp] == ' ' || json[pp] == '\t')) pp++;
+    int64_t v = 0;
+    while (pp < json.size() && json[pp] >= '0' && json[pp] <= '9') { v=v*10+(json[pp]-'0'); pp++; }
+    return v;
+}
+
+static bool extractBool(const std::string& json, const std::string& key) {
+    return json.find("\"" + key + "\":true") != std::string::npos;
+}
+
+// ====== Dismissal State ======
+// Original Kotlin: local store for dismissed notice IDs
+
+static std::unordered_set<std::string> g_dismissedNoticeIds;
+
+// ====== Consent State ======
+// Original Kotlin: local store for consent records
+
+static std::unordered_map<std::string, ServerNoticeConsent> g_consentRecords;
+
+// ====== Parse Server Notice Event ======
+// Original Kotlin: parse m.server_notice event content JSON
+
+ServerNotice parseServerNoticeEvent(const std::string& contentJson) {
+    ServerNotice notice;
+
+    notice.noticeId = extractStr(contentJson, "id");
+    if (notice.noticeId.empty()) notice.noticeId = extractStr(contentJson, "notice_id");
+
+    auto typeStr = extractStr(contentJson, "notice_type");
+    if (typeStr.empty()) typeStr = extractStr(contentJson, "type");
+    notice.type = serverNoticeTypeFromString(typeStr);
+
+    auto priorityStr = extractStr(contentJson, "priority");
+    notice.priority = serverNoticePriorityFromString(priorityStr);
+
+    notice.title = extractStr(contentJson, "title");
+    notice.message = extractStr(contentJson, "message");
+    if (notice.message.empty()) notice.message = extractStr(contentJson, "body");
+
+    notice.adminContact = extractStr(contentJson, "admin_contact");
+    notice.actionUrl = extractStr(contentJson, "action_url");
+    notice.actionLabel = extractStr(contentJson, "action_label");
+    notice.dismissable = !extractBool(contentJson, "not_dismissable");
+
+    notice.expiresAt = extractInt(contentJson, "expires_at");
+    notice.createdAt = extractInt(contentJson, "created_at");
+
+    if (notice.createdAt == 0) {
+        // Fallback: use origin_server_ts
+        notice.createdAt = extractInt(contentJson, "origin_server_ts");
+    }
+
+    return notice;
+}
+
+// ====== Format Server Notice ======
+// Original Kotlin: ServerNotice.format() user-facing display
+
+std::string formatServerNotice(const ServerNotice& notice) {
+    std::ostringstream os;
+
+    if (!notice.title.empty()) {
+        os << "[" << notice.title << "] ";
+    } else {
+        // Original Kotlin: prefix based on type
+        switch (notice.type) {
+            case ServerNoticeType::SECURITY: os << "[Security Alert] "; break;
+            case ServerNoticeType::MAINTENANCE: os << "[Maintenance] "; break;
+            case ServerNoticeType::VERSION_UPGRADE: os << "[Upgrade Required] "; break;
+            case ServerNoticeType::POLICY_UPDATE: os << "[Policy Update] "; break;
+            case ServerNoticeType::USAGE_LIMIT: os << "[Usage Limit] "; break;
+            default: os << "[Server Notice] "; break;
+        }
+    }
+
+    os << notice.message;
+
+    if (!notice.adminContact.empty()) {
+        os << " (Contact: " << notice.adminContact << ")";
+    }
+
+    if (!notice.actionLabel.empty() && !notice.actionUrl.empty()) {
+        os << " [" << notice.actionLabel << ": " << notice.actionUrl << "]";
+    }
+
+    return os.str();
+}
+
+// ====== Dismissal Functions ======
+// Original Kotlin: persist dismissed notice IDs in local state
+
+bool isServerNoticeDismissed(const std::string& noticeId) {
+    return g_dismissedNoticeIds.find(noticeId) != g_dismissedNoticeIds.end();
+}
+
+void dismissServerNotice(const std::string& noticeId) {
+    g_dismissedNoticeIds.insert(noticeId);
+}
+
+// ====== Get Active Notices ======
+// Original Kotlin: filter non-dismissed, non-expired notices
+
+ServerNoticeList getActiveNotices(const ServerNoticeList& list) {
+    ServerNoticeList active;
+    active.totalCount = list.totalCount;
+
+    for (const auto& notice : list.notices) {
+        // Check dismissed
+        if (isServerNoticeDismissed(notice.noticeId)) continue;
+
+        // Check expired
+        if (notice.expiresAt > 0) {
+            // Use time_t for epoch seconds comparison (simplified)
+            int64_t nowMs = static_cast<int64_t>(std::time(nullptr)) * 1000;
+            if (nowMs > notice.expiresAt) continue;
+        }
+
+        active.notices.push_back(notice);
+        active.unreadCount++;
+    }
+
+    active.totalCount = static_cast<int>(active.notices.size());
+    return active;
+}
+
+// ====== Get Notice Actions ======
+// Original Kotlin: ServerNotice.getActions() — available action list
+
+std::vector<ServerNoticeAction> getNoticeActions(const ServerNotice& notice) {
+    std::vector<ServerNoticeAction> actions;
+
+    // Always add dismiss action if dismissable
+    if (notice.dismissable) {
+        ServerNoticeAction dismissAction;
+        dismissAction.label = "Dismiss";
+        dismissAction.type = ServerNoticeActionType::DISMISS;
+        actions.push_back(dismissAction);
+    }
+
+    // Add primary action if URL and label provided
+    if (!notice.actionUrl.empty() && !notice.actionLabel.empty()) {
+        ServerNoticeAction primaryAction;
+        primaryAction.label = notice.actionLabel;
+        primaryAction.url = notice.actionUrl;
+        primaryAction.type = ServerNoticeActionType::OPEN_URL;
+        actions.push_back(primaryAction);
+    }
+
+    // Add settings action if applicable
+    if (notice.type == ServerNoticeType::VERSION_UPGRADE || notice.type == ServerNoticeType::POLICY_UPDATE) {
+        ServerNoticeAction settingsAction;
+        settingsAction.label = "Settings";
+        settingsAction.type = ServerNoticeActionType::SETTINGS;
+        actions.push_back(settingsAction);
+    }
+
+    return actions;
+}
+
+// ====== Build Server Notice Content ======
+// Original Kotlin: build m.server_notice state event content JSON
+
+std::string buildServerNoticeContent(const ServerNotice& notice) {
+    std::ostringstream os;
+    os << "{";
+    os << R"("notice_id":")" << escStr(notice.noticeId) << R"(")";
+    os << R"(,"notice_type":")" << serverNoticeTypeToString(notice.type) << R"(")";
+    os << R"(,"priority":")" << serverNoticePriorityToString(notice.priority) << R"(")";
+
+    if (!notice.title.empty()) {
+        os << R"(,"title":")" << escStr(notice.title) << R"(")";
+    }
+
+    os << R"(,"message":")" << escStr(notice.message) << R"(")";
+
+    if (!notice.adminContact.empty()) {
+        os << R"(,"admin_contact":")" << escStr(notice.adminContact) << R"(")";
+    }
+    if (!notice.actionUrl.empty()) {
+        os << R"(,"action_url":")" << escStr(notice.actionUrl) << R"(")";
+    }
+    if (!notice.actionLabel.empty()) {
+        os << R"(,"action_label":")" << escStr(notice.actionLabel) << R"(")";
+    }
+
+    os << R"(,"dismissable":)" << (notice.dismissable ? "true" : "false");
+
+    if (notice.expiresAt > 0) {
+        os << R"(,"expires_at":)" << notice.expiresAt;
+    }
+
+    os << R"(,"created_at":)" << notice.createdAt;
+    os << "}";
+    return os.str();
+}
+
+// ====== Record Consent ======
+// Original Kotlin: record user consent for policy/terms notice
+
+void recordConsent(const std::string& noticeId, const std::string& consentVersion) {
+    ServerNoticeConsent consent;
+    consent.noticeId = noticeId;
+    consent.consentGiven = true;
+    consent.consentedAt = static_cast<int64_t>(std::time(nullptr)) * 1000;
+    consent.consentVersion = consentVersion;
+    g_consentRecords[noticeId] = consent;
 }
 
 } // namespace progressive

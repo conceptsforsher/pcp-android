@@ -1,8 +1,13 @@
+#pragma once
 #ifndef PROGRESSIVE_CONTENT_GUARD_HPP
 #define PROGRESSIVE_CONTENT_GUARD_HPP
 
 #include <string>
+#include <string_view>
 #include <vector>
+#include <unordered_set>
+#include <cstdint>
+#include <functional>
 
 namespace progressive {
 
@@ -79,6 +84,96 @@ std::string formatMediaCollapseLabel(int count);
 
 // Check if a Unicode codepoint is an emoji.
 bool isEmojiCodePoint(int codepoint);
+
+// ==================== Content Trust & Guard Policies ====================
+
+// Original Kotlin: enum class ContentTrustPolicy
+enum class ContentTrustPolicy : int {
+    TRUST_ALL = 0,
+    SCAN_REQUIRED = 1,
+    MODERATION_REQUIRED = 2,
+    BLOCK_ALL = 3
+};
+
+// Original Kotlin: enum class ContentTrustDecision
+enum class ContentTrustDecision : int {
+    ALLOW = 0,
+    BLOCK = 1,
+    QUARANTINE = 2,
+    SCAN_PENDING = 3
+};
+
+// Original Kotlin: enum class ContentWarningType
+enum class ContentWarningType : int {
+    EXPLICIT = 0,
+    VIOLENCE = 1,
+    SPAM = 2,
+    PHISHING = 3,
+    NSFW = 4,
+    CUSTOM = 5
+};
+
+// Original Kotlin: enum class ContentRuleAction
+enum class ContentRuleAction : int {
+    BLOCK = 0,
+    WARN = 1,
+    ALLOW = 2,
+    QUARANTINE = 3,
+    REPORT = 4
+};
+
+// Original Kotlin: data class ContentValidationRule
+struct ContentValidationRule {
+    std::string ruleId;
+    std::string ruleType;       // "keyword", "regex", "domain", "sender", "metadata"
+    std::string condition;      // the matching condition/expression
+    std::string description;    // human-readable rule description
+    ContentRuleAction action = ContentRuleAction::BLOCK;
+    bool enabled = true;
+};
+
+// Original Kotlin: data class ContentGuardConfig
+struct ContentGuardConfig {
+    ContentTrustPolicy policy = ContentTrustPolicy::TRUST_ALL;
+    std::vector<ContentValidationRule> rules;
+    bool scanEnabled = false;
+    bool moderationEnabled = false;
+    std::unordered_set<std::string> explicitAllowed;  // mxc URLs or patterns
+    std::unordered_set<std::string> explicitBlocked;
+};
+
+// Original Kotlin: data class ContentGuardResult
+struct ContentGuardResult {
+    ContentTrustDecision decision = ContentTrustDecision::ALLOW;
+    std::string reason;
+    std::vector<std::string> violatedRules;  // rule IDs that were triggered
+    bool scanRequired = false;
+    ContentWarningType warningType = ContentWarningType::CUSTOM;
+};
+
+// Original Kotlin: evaluateContent — run all rules against content
+ContentGuardResult evaluateContent(const std::string& contentBody,
+                                   const std::string& senderId,
+                                   const std::string& mxcUrl,
+                                   const ContentGuardConfig& config);
+
+// Original Kotlin: isContentBlocked — quick check
+bool isContentBlocked(const ContentGuardResult& result);
+
+// Original Kotlin: isContentAllowed — quick check
+bool isContentAllowed(const ContentGuardResult& result);
+
+// Original Kotlin: shouldPromptUser — show warning before viewing
+bool shouldPromptUser(const ContentGuardResult& result);
+
+// Original Kotlin: getWarningMessage — localized warning text
+std::string getWarningMessage(ContentWarningType type, const std::string& customText = "");
+
+// Original Kotlin: addToBlockList — manage explicit block list
+void addToBlockList(ContentGuardConfig& config, const std::string& pattern);
+
+// Original Kotlin: removeFromBlockList — remove from block list
+void removeFromBlockList(ContentGuardConfig& config, const std::string& pattern);
 
 } // namespace progressive
 

@@ -354,4 +354,218 @@ std::string roomListStatsToJson(const RoomListStats& stats) {
     return json.str();
 }
 
+// ================================================================
+// Room Summary Query (EXPAND)
+//
+// Ported from RoomSummaryDataSource.kt roomSummariesQuery() +
+// RoomSummaryQueryParams.kt
+// ================================================================
+
+std::string buildRoomSummaryQuery(const RoomSummaryQueryParams& params) {
+    // Original Kotlin: RoomSummaryDataSource.roomSummariesQuery() builds a Realm query
+    // with multiple filter clauses. We serialize to a JSON filter spec.
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+    std::ostringstream json;
+    json << "{";
+
+    // memberships filter
+    if (!params.memberships.empty()) {
+        json << R"("memberships":[)";
+        for (size_t i = 0; i < params.memberships.size(); i++) {
+            if (i > 0) json << ",";
+            json << R"(")" << esc(params.memberships[i]) << R"(")";
+        }
+        json << "]";
+    } else {
+        json << R"("memberships":[])";
+    }
+
+    // roomIds filter
+    if (!params.roomIds.empty()) {
+        json << R"(,"roomIds":[)";
+        for (size_t i = 0; i < params.roomIds.size(); i++) {
+            if (i > 0) json << ",";
+            json << R"(")" << esc(params.roomIds[i]) << R"(")";
+        }
+        json << "]";
+    }
+
+    json << R"(,"includeDrafts":)" << (params.includeDrafts ? "true" : "false");
+    json << R"(,"excludeVirtual":)" << (params.excludeVirtual ? "true" : "false");
+    json << R"(,"onlyDirect":)" << (params.onlyDirect ? "true" : "false");
+    json << R"(,"onlyGroups":)" << (params.onlyGroups ? "true" : "false");
+    json << R"(,"onlyWithNotifications":)" << (params.onlyWithNotifications ? "true" : "false");
+    json << R"(,"onlyFavourites":)" << (params.onlyFavourites ? "true" : "false");
+    json << R"(,"onlySpaces":)" << (params.onlySpaces ? "true" : "false");
+    json << R"(,"excludeSpaces":)" << (params.excludeSpaces ? "true" : "false");
+
+    if (!params.spaceId.empty())
+        json << R"(,"spaceId":")" << esc(params.spaceId) << R"(")";
+
+    json << R"(,"orphanRooms":)" << (params.orphanRooms ? "true" : "false");
+
+    if (!params.displayNameFilter.empty())
+        json << R"(,"displayNameFilter":")" << esc(params.displayNameFilter) << R"(")";
+
+    if (!params.canonicalAliasFilter.empty())
+        json << R"(,"canonicalAliasFilter":")" << esc(params.canonicalAliasFilter) << R"(")";
+
+    json << "}";
+    return json.str();
+}
+
+bool roomSummaryMatchesFilter(const RoomSummaryInfo& room, const RoomSummaryQueryParams& params) {
+    // Original Kotlin: RoomSummaryDataSource.roomSummariesQuery() Realm filter chain
+    // Evaluated in-memory in C++ for offline/embedded use.
+
+    // Hidden rooms are always excluded (corresponds to IS_HIDDEN_FROM_USER == false)
+    if (room.isHiddenFromUser) return false;
+
+    // Membership filter
+    if (!params.memberships.empty()) {
+        bool found = false;
+        for (const auto& m : params.memberships) {
+            if (room.membership == m) { found = true; break; }
+        }
+        if (!found) return false;
+    }
+
+    // Room ID filter (exact match in list)
+    if (!params.roomIds.empty()) {
+        bool found = false;
+        for (const auto& rid : params.roomIds) {
+            if (room.roomId == rid) { found = true; break; }
+        }
+        if (!found) return false;
+    }
+
+    // Draft filter
+    if (!params.includeDrafts && room.hasDraft) return false;
+
+    // Virtual / local-echo exclusion
+    if (params.excludeVirtual && room.isHiddenFromUser) return false;
+
+    // Direct / Group filter (mutually exclusive in Kotlin RoomCategoryFilter)
+    if (params.onlyDirect && !room.isDirect) return false;
+    if (params.onlyGroups && room.isDirect) return false;
+    if (params.onlyGroups && room.isSpace) return false;
+
+    // Notifications filter
+    if (params.onlyWithNotifications && room.notificationCount == 0) return false;
+
+    // Favourites filter
+    if (params.onlyFavourites && !room.isFavourite) return false;
+
+    // Space filter
+    if (params.onlySpaces && !room.isSpace) return false;
+    if (params.excludeSpaces && room.isSpace) return false;
+
+    // Display name fuzzy filter
+    if (!params.displayNameFilter.empty()) {
+        if (room.displayName.find(params.displayNameFilter) == std::string::npos)
+            return false;
+    }
+
+    // Canonical alias exact filter
+    if (!params.canonicalAliasFilter.empty()) {
+        if (room.canonicalAlias != params.canonicalAliasFilter)
+            return false;
+    }
+
+    return true;
+}
+
+// ================================================================
+// Room Summary Update Batch (EXPAND)
+//
+// Ported from RoomSummaryUpdater.kt sync diff logic:
+// When sync returns, we compare current summaries against new ones
+// to emit add/update/remove events for the UI.
+// ================================================================
+
+RoomSummaryUpdateBatch computeRoomSummaryDiff(
+    const std::vector<RoomSummaryInfo>& oldList,
+    const std::vector<RoomSummaryInfo>& newList)
+{
+    // Original Kotlin: RoomSummaryUpdater iterates realm results and
+    // detects which rooms were added, changed, or removed.
+    RoomSummaryUpdateBatch batch;
+
+    // Build lookup maps by roomId
+    std::unordered_map<std::string, const RoomSummaryInfo*> oldMap;
+    for (const auto& r : oldList) oldMap[r.roomId] = &r;
+
+    std::unordered_map<std::string, const RoomSummaryInfo*> newMap;
+    for (const auto& r : newList) newMap[r.roomId] = &r;
+
+    // Detect added and updated rooms
+    for (const auto& nr : newList) {
+        auto it = oldMap.find(nr.roomId);
+        if (it == oldMap.end()) {
+            // Room not in old list → ADDED
+            batch.added.push_back(nr.roomId);
+        } else {
+            // Room in both lists — check for changes
+            const auto* orp = it->second;
+            if (orp->displayName != nr.displayName ||
+                orp->notificationCount != nr.notificationCount ||
+                orp->highlightCount != nr.highlightCount ||
+                orp->lastActivityTs != nr.lastActivityTs ||
+                orp->membership != nr.membership ||
+                orp->hasUnread != nr.hasUnread ||
+                orp->isDirect != nr.isDirect ||
+                orp->isFavourite != nr.isFavourite ||
+                orp->isPublic != nr.isPublic ||
+                orp->topic != nr.topic ||
+                orp->canonicalAlias != nr.canonicalAlias ||
+                orp->avatarUrl != nr.avatarUrl ||
+                orp->isEncrypted != nr.isEncrypted ||
+                orp->joinedMembers != nr.joinedMembers ||
+                orp->invitedMembers != nr.invitedMembers) {
+                batch.updated.push_back(nr.roomId);
+            }
+        }
+    }
+
+    // Detect removed rooms
+    for (const auto& or_ : oldList) {
+        if (newMap.find(or_.roomId) == newMap.end()) {
+            batch.removed.push_back(or_.roomId);
+        }
+    }
+
+    return batch;
+}
+
+RoomSummaryUpdateEvent getRoomSummaryUpdateType(
+    const RoomSummaryInfo* oldRoom,
+    const RoomSummaryInfo* newRoom)
+{
+    // Original Kotlin: inferred from single-room live data update callback
+    if (!oldRoom && newRoom) return RoomSummaryUpdateEvent::ADDED;
+    if (oldRoom && !newRoom) return RoomSummaryUpdateEvent::REMOVED;
+    if (!oldRoom && !newRoom) return RoomSummaryUpdateEvent::NONE;
+
+    // Both exist — check for material changes
+    if (oldRoom->displayName != newRoom->displayName ||
+        oldRoom->notificationCount != newRoom->notificationCount ||
+        oldRoom->highlightCount != newRoom->highlightCount ||
+        oldRoom->lastActivityTs != newRoom->lastActivityTs ||
+        oldRoom->membership != newRoom->membership ||
+        oldRoom->hasUnread != newRoom->hasUnread ||
+        oldRoom->isDirect != newRoom->isDirect ||
+        oldRoom->isFavourite != newRoom->isFavourite ||
+        oldRoom->topic != newRoom->topic ||
+        oldRoom->canonicalAlias != newRoom->canonicalAlias ||
+        oldRoom->isEncrypted != newRoom->isEncrypted ||
+        oldRoom->joinedMembers != newRoom->joinedMembers ||
+        oldRoom->invitedMembers != newRoom->invitedMembers) {
+        return RoomSummaryUpdateEvent::UPDATED;
+    }
+
+    return RoomSummaryUpdateEvent::NONE;
+}
+
 } // namespace progressive

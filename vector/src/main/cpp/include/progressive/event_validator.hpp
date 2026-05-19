@@ -1,5 +1,4 @@
-#ifndef PROGRESSIVE_EVENT_VALIDATOR_HPP
-#define PROGRESSIVE_EVENT_VALIDATOR_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -8,6 +7,8 @@
 namespace progressive {
 
 // ---- Matrix Event Validation ----
+
+// Original Kotlin: EventValidation, EventContent, MatrixPatterns
 
 struct EventValidation {
     bool valid = false;
@@ -74,6 +75,77 @@ bool isReasonableTimestamp(const std::string& originServerTs, int64_t maxFutureM
 // Format validation result as JSON.
 std::string eventValidationToJson(const EventValidation& validation);
 
-} // namespace progressive
+// ============================================================================
+// NEW: Enhanced Event Validation
+// ============================================================================
 
-#endif // PROGRESSIVE_EVENT_VALIDATOR_HPP
+// Original Kotlin: EventValidationRule, EventValidationResult
+
+// Enumeration of possible validation rules.
+// Each rule checks a specific aspect of an event.
+enum class EventValidationRule {
+    ROOM_ID_REQUIRED = 0,
+    SENDER_REQUIRED = 1,
+    TYPE_REQUIRED = 2,
+    EVENT_ID_REQUIRED = 3,
+    CONTENT_REQUIRED = 4,
+    STATE_KEY_FOR_STATE = 5,
+    TIMESTAMP_NON_NEGATIVE = 6,
+    EVENT_ID_FORMAT = 7,
+    ROOM_ID_FORMAT = 8,
+    USER_ID_FORMAT = 9,
+    REDACTION_HAS_REASON = 10
+};
+
+// Result of comprehensive validation with per-rule failures.
+// Original Kotlin: EventValidationResult
+struct EventValidationResult {
+    bool isValid = true;
+    std::vector<EventValidationRule> ruleFailures;
+    std::vector<std::string> warnings;
+};
+
+// Comprehensive validation with multiple configurable rules.
+// Original Kotlin: validateEvent(eventJson, rules)
+EventValidationResult validateEvent(
+    const std::string& eventJson,
+    const std::vector<EventValidationRule>& rules
+);
+
+// Just required fields (eventId, type, sender, roomId, originServerTs, content).
+// Original Kotlin: validateEventBasic(eventJson)
+EventValidationResult validateEventBasic(const std::string& eventJson);
+
+// All validation rules.
+// Original Kotlin: validateEventFull(eventJson)
+EventValidationResult validateEventFull(const std::string& eventJson);
+
+// Format all rule failures as human-readable error strings.
+// Original Kotlin: getValidationErrors(result)
+std::vector<std::string> getValidationErrors(const EventValidationResult& result);
+
+// Regex-free pattern checks for well-formed Matrix identifiers.
+// Original Kotlin: MatrixPatterns.isWellFormed*
+bool isWellFormedEventId(const std::string& eventId);
+bool isWellFormedRoomId(const std::string& roomId);
+bool isWellFormedUserId(const std::string& userId);
+bool isWellFormedEventType(const std::string& eventType);
+
+// Event integrity checks (signature+hash, stub for NDK).
+// Original Kotlin: EventIntegrityChecker
+struct EventIntegrityCheck {
+    bool passesSignatureCheck = false;
+    bool passesHashCheck = false;
+    int passingCount = 0;
+    int violationCount = 0;
+};
+
+EventIntegrityCheck checkEventIntegrity(const std::string& eventJson);
+
+// Specialized validation for specific event types.
+// Original Kotlin: validateRedactionEvent, validateStateEvent, validateEncryptedEvent
+EventValidationResult validateRedactionEvent(const std::string& eventJson);
+EventValidationResult validateStateEvent(const std::string& eventJson);
+EventValidationResult validateEncryptedEvent(const std::string& eventJson);
+
+} // namespace progressive

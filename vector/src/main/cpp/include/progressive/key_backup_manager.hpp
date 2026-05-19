@@ -4,6 +4,9 @@
 #include <vector>
 #include <unordered_map>
 #include <cstdint>
+#include <utility>
+
+#include "progressive/key_backup.hpp"
 
 namespace progressive {
 
@@ -26,6 +29,66 @@ namespace progressive {
 //   9. Delete backup (buildDeleteBackupRequest)
 //   10. Trust management (markBackupAsTrusted)
 // ================================================================
+
+// ---- Key Backup State Machine ----
+// Original Kotlin (KeysBackupState.kt:53-101):
+//   enum class KeysBackupState {
+//       Unknown, CheckingBackUpOnHomeserver, WrongBackUpVersion,
+//       Disabled, NotTrusted, Enabling, ReadyToBackUp, WillBackUp, BackingUp
+//   }
+
+enum class KeyBackupState {
+    UNKNOWN = 0,             // Need to check backup version on homeserver
+    CHECKING_BACKUP = 1,     // Checking if backup is enabled
+    WRONG_VERSION = 2,       // Different version detected on server
+    DISABLED = 3,            // Backup is not enabled
+    NOT_TRUSTED = 4,         // Backup exists but not trusted
+    ENABLING = 5,            // Creating backup version on server
+    ENABLED = 6,             // Backup is enabled (ReadyToBackUp)
+    WILL_BACKUP = 7,         // Will send keys to backup soon
+    BACKING_UP = 8,          // Keys are being uploaded
+    DISABLING = 9,           // Backup is being disabled/deleted
+    ERROR = 10               // Backup is in error state
+};
+
+// ---- Key Backup Status ----
+// Original Kotlin (KeysBackupStateManager.kt:25-60 + KeysBackupService.kt):
+//   Aggregated status including state, counts, timing, errors
+
+struct KeyBackupStatus {
+    KeyBackupState state = KeyBackupState::UNKNOWN;
+    int totalKeys = 0;               // Total megolm sessions locally
+    int backedUpKeys = 0;            // Sessions already backed up to server
+    int64_t lastBackupTime = 0;      // Unix millis of last successful backup
+    std::string errorMessage;        // Human-readable error
+    std::string currentVersion;      // Current backup version string (e.g., "0")
+    bool isEnabled = false;          // Shorthand: state ∈ {ENABLED, WILL_BACKUP, BACKING_UP}
+    bool isStuck = false;            // Shorthand: state ∈ {UNKNOWN, DISABLED, WRONG_VERSION, NOT_TRUSTED}
+};
+
+// ---- Key Backup Trust Level ----
+// Original Kotlin (KeysBackupVersionTrust.kt:22-33):
+//   data class KeysBackupVersionTrust(usable: Boolean, signatures: List<...>)
+
+enum class KeyBackupTrust {
+    TRUSTED = 0,             // Signature valid and from trusted device
+    UNTRUSTED = 1,           // Signature invalid or from untrusted device
+    UNKNOWN = 2              // Trust has not been evaluated
+};
+
+// ---- Key Backup Operation Result ----
+// Original Kotlin (BackupKeysResult.kt + KeysBackup.kt):
+//   Result of a backup upload/restore operation
+
+struct KeyBackupOperationResult {
+    bool success = false;
+    int keysUploaded = 0;
+    int keysDownloaded = 0;
+    int keysDecrypted = 0;
+    int keysFailed = 0;
+    std::string errorMessage;
+    std::string errorCode;           // e.g., "M_NOT_FOUND", "M_UNKNOWN"
+};
 
 // ---- Backup Configuration ----
 
@@ -287,6 +350,36 @@ public:
     void advanceImported(int count = 1);
     void markComplete();
     void markError(const std::string& error);
+
+    // ====== Key Backup Status & Decision Logic ======
+    // Original Kotlin (KeysBackupStateManager.kt + KeysBackup.kt)
+
+    // Compute aggregate backup status from current version info and local session count.
+    // Combines version validity, trust level, and key counts into a single status struct.
+    KeyBackupStatus computeKeyBackupStatus(int totalLocalKeys, int backedUpKeys) const;
+
+    // Determine whether keys should be backed up at this point.
+    // Decision: backup enabled, state is ENABLED/WILL_BACKUP/BACKING_UP,
+    // and there are keys that need backing up.
+    bool shouldBackupKeys() const;
+
+    // Compute the list of megolm session IDs that need to be backed up
+    // (locally known sessions minus already-backed-up sessions).
+    // Returns: list of {roomId, sessionId} pairs that need backup.
+    std::vector<std::pair<std::string, std::string>> getKeysToBackup(
+        const std::vector<std::pair<std::string, std::string>>& localSessionIds,
+        const std::vector<KeyBackupRoomSessions>& remoteSessions) const;
+
+    // ====== Key Backup Config Serialization ======
+    // Original Kotlin (KeysBackup.kt + MegolmBackupCreationInfo.kt)
+
+    // Build JSON representation of the current KeyBackupConfig.
+    // Output: {"algorithm":"...","auth_data":"...","version":0,"created_at":...}
+    std::string buildKeyBackupConfig() const;
+
+    // Parse KeyBackupConfig from JSON (e.g., from account data or server response).
+    // Returns a populated KeyBackupConfig struct.
+    KeyBackupConfig parseKeyBackupConfig(const std::string& configJson) const;
 
     // ====== Serialization ======
 

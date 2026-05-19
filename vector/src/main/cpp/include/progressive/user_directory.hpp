@@ -189,4 +189,128 @@ std::string userStatusToJson(const UserStatus& status);
 // Original Kotlin: GetPresenceTask response
 UserStatus parseUserStatus(const std::string& userId, const std::string& json);
 
+// ================================================================
+// User Search Filter — expanded filter options
+//
+// Original Kotlin: UserSearchFilter.kt, UserListViewModel.kt
+// ================================================================
+
+// ---- User Search Filter ----
+
+// Original Kotlin: UserListViewModel.SearchFilter
+struct UserSearchFilter {
+    std::string searchTerm;
+    std::vector<std::string> excludeUserIds;
+    std::vector<std::string> excludeRoomIds;
+    int limit = 20;
+    bool includeDisplayNames = true;
+    bool includeAvatars = false;
+    bool onlyJoinedRoom = false;
+    std::string roomId;              // context room for joined-room search
+};
+
+// ---- User Search Order By ----
+
+// Original Kotlin: UserSearchOptions.OrderBy
+enum class UserSearchOrderBy {
+    NAME,
+    RELEVANCE
+};
+
+// ---- User Search Options ----
+
+// Original Kotlin: UserSearchOptions data class
+struct UserSearchOptions {
+    UserSearchFilter filter;
+    UserSearchOrderBy orderBy = UserSearchOrderBy::RELEVANCE;
+    bool caseSensitive = false;
+};
+
+// ---- User Directory Server ----
+
+// Original Kotlin: UserDirectoryServer model
+struct UserDirectoryServer {
+    std::string serverName;
+    bool isAvailable = false;
+    int64_t lastChecked = 0;
+};
+
+// ---- User Search Pagination ----
+
+// Original Kotlin: UserSearchPagination model
+struct UserSearchPagination {
+    int totalResults = 0;
+    int returnedResults = 0;
+    bool hasMore = false;
+    std::string nextBatch;
+};
+
+// ---- User Profile Batch ----
+
+// Original Kotlin: ProfileService batch type
+struct UserProfileBatch {
+    std::unordered_map<std::string, UserProfile> profiles;
+    std::vector<std::string> failedIds;
+};
+
+// Build a basic search request body for /user_directory/search.
+// Original Kotlin: SearchUsersParams.kt
+std::string buildUserSearchRequest(const std::string& searchTerm, int limit = 20);
+
+// Build the expanded search request body for /user_directory/search.
+// Original Kotlin: UserDirectoryService.searchUsers(filter, options)
+std::string buildUserSearchRequest(const UserSearchFilter& filter, const UserSearchOptions& options);
+
+// Parse search response from /user_directory/search (free function).
+// Original Kotlin: SearchUsersResponse.kt + SearchUser.kt
+UserSearchResponse parseUserSearchResponse(const std::string& json);
+
+// Get the configured user directory (identity) server.
+// Original Kotlin: ID server from session configuration
+UserDirectoryServer getConfiguredUserDirectory(const std::string& serverName, bool isAvailable = false);
+
+// Parse search pagination metadata from response.
+// Original Kotlin: parse search response pagination fields
+UserSearchPagination parseUserSearchPagination(const std::string& json);
+
+// Build a batch profile fetch request body (POST /profile/batch or equivalent).
+// Original Kotlin: ProfileService.fetchUserProfilesBatch(userIds)
+std::string fetchUserProfiles(const std::vector<std::string>& userIds);
+
+// Parse batch profile response.
+// Original Kotlin: parse batch profile response JSON
+UserProfileBatch parseUserProfileBatch(const std::string& json);
+
+// ---- User Display Name Cache ----
+
+// Original Kotlin: UserDisplayNameCache — local cache for user display names
+class UserDisplayNameCache {
+public:
+    UserDisplayNameCache();
+
+    // Get cached display name for userId.
+    std::string getCachedDisplayName(const std::string& userId) const;
+
+    // Set cached display name for userId.
+    void setCachedDisplayName(const std::string& userId, const std::string& displayName);
+
+    // Clear all cached entries.
+    void invalidateCache();
+
+    // Remove a specific user from cache.
+    void invalidateUser(const std::string& userId);
+
+    // Check if a user is in the cache.
+    bool isCached(const std::string& userId) const;
+
+private:
+    std::unordered_map<std::string, std::string> cache_;
+};
+
+// Convenience: get cached display name via global cache singleton.
+// Original Kotlin: UserDisplayNameCache accessor
+std::string getCachedDisplayName(const std::string& userId);
+void setCachedDisplayName(const std::string& userId, const std::string& displayName);
+void invalidateCache();
+
 } // namespace progressive

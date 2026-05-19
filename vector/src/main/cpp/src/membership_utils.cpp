@@ -2,6 +2,8 @@
 #include "progressive/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
+#include <unordered_set>
+#include <cctype>
 
 namespace progressive {
 
@@ -258,6 +260,337 @@ MemberStateDiff computeMemberStateDiff(
 
     diff.hasChanged = diff.isJoin || diff.isPart || diff.isDisplaynameChange || diff.isAvatarChange;
     return diff;
+}
+
+// ==== Member Event Handling (from RoomMemberEventHandler.kt:37-153) ====
+
+MemberChangeAction computeMemberChangeAction(
+    const std::string& oldMembership,
+    const std::string& newMembership,
+    bool isSelfAction)
+{
+    // Original Kotlin: membership transition logic in handleIncrementalSync
+    // + Membership.toMembershipChangeState() from RoomChangeMembershipStateDataSource
+    bool membershipChanged = (oldMembership != newMembership);
+
+    if (membershipChanged) {
+        if (newMembership == "join")   return MemberChangeAction::JOINED;
+        if (newMembership == "invite") return MemberChangeAction::INVITED;
+        if (newMembership == "leave")  return isSelfAction ? MemberChangeAction::LEFT : MemberChangeAction::KICKED;
+        if (newMembership == "ban")    return MemberChangeAction::BANNED;
+        if (newMembership == "knock")  return MemberChangeAction::KNOCKED;
+    } else if (newMembership == "join") {
+        return MemberChangeAction::PROFILE_CHANGED;
+    }
+    return MemberChangeAction::UNKNOWN;
+}
+
+MemberChangeInfo processMemberEvent(
+    const std::string& roomId,
+    const std::string& eventJson,
+    const std::string& prevContentJson,
+    bool isInitialSync)
+{
+    // Original Kotlin: RoomMemberEventHandler.handle()
+    MemberChangeInfo info;
+    info.roomId = roomId;
+
+    // Extract userId from stateKey
+    info.userId = parseJsonStringValue(eventJson, "state_key");
+    if (info.userId.empty()) return info;
+
+    // Extract sender
+    info.senderId = parseJsonStringValue(eventJson, "sender");
+
+    // Extract timestamp
+    auto ts = parseJsonStringValue(eventJson, "origin_server_ts");
+    if (!ts.empty()) info.timestamp = std::stoll(ts);
+
+    // Parse membership content
+    auto content = parseJsonStringValue(eventJson, "content");
+    std::string contentJson = "{" + content + "}";
+
+    info.membership    = parseJsonStringValue(contentJson, "membership");
+    info.displayName   = parseJsonStringValue(contentJson, "displayname");
+    info.avatarUrl     = parseJsonStringValue(contentJson, "avatar_url");
+    info.reason        = parseJsonStringValue(contentJson, "reason");
+    info.prevMembership = info.membership;
+
+    // For incremental sync, diff against prevContent
+    if (!isInitialSync && !prevContentJson.empty()) {
+        info.prevMembership = parseJsonStringValue(prevContentJson, "membership");
+        std::string prevName  = parseJsonStringValue(prevContentJson, "displayname");
+        std::string prevAvatar = parseJsonStringValue(prevContentJson, "avatar_url");
+
+        bool membershipChanged = (info.prevMembership != info.membership);
+        if (membershipChanged) {
+            // Original: computeMemberStateDiff → detect join/part/leave/ban
+            bool isSelf = (info.senderId == info.userId);
+            info.action = computeMemberChangeAction(info.prevMembership, info.membership, isSelf);
+        } else {
+            // No membership change, check for profile changes
+            // Original: userIdsToFetch for profile diffs
+            if ((!prevName.empty() && prevName != info.displayName) ||
+                (!prevAvatar.empty() && prevAvatar != info.avatarUrl)) {
+                info.isProfileChange = true;
+                if (prevName != info.displayName && prevAvatar != info.avatarUrl) {
+                    info.action = MemberChangeAction::PROFILE_CHANGED;
+                } else if (prevName != info.displayName) {
+                    info.action = MemberChangeAction::DISPLAY_NAME_CHANGED;
+                } else {
+                    info.action = MemberChangeAction::AVATAR_CHANGED;
+                }
+            }
+        }
+    } else {
+        // Initial sync: no diff, just record the join/invite
+        if (info.membership == "join")  info.action = MemberChangeAction::JOINED;
+        if (info.membership == "invite") info.action = MemberChangeAction::INVITED;
+        if (info.membership == "leave")  info.action = MemberChangeAction::LEFT;
+        if (info.membership == "ban")    info.action = MemberChangeAction::BANNED;
+        if (info.membership == "knock")  info.action = MemberChangeAction::KNOCKED;
+    }
+
+    info.isValid = true;
+    return info;
+}
+
+// ==== Room Display Name Resolution (from RoomDisplayNameResolver.kt:59-166) ====
+
+static std::string normalizeForCompare(const std::string& s) {
+    std::string out = s;
+    for (char& c : out) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    return out;
+}
+
+std::string formatMemberNameList(const std::vector<std::string>& names, int maxNames) {
+    // Original Kotlin: roomDisplayNameFallbackProvider.getNameForXmembers()
+    // Formats "A", "A and B", "A, B and C", "A, B, C and +N more"
+    if (names.empty()) return "";
+
+    std::ostringstream out;
+    size_t count = names.size();
+
+    if (count == 1) {
+        out << names[0];
+    } else if (count == 2) {
+        out << names[0] << " and " << names[1];
+    } else if (count == 3) {
+        out << names[0] << ", " << names[1] << " and " << names[2];
+    } else {
+        // More than 3: show first maxNames, then "+N more"
+        if (maxNames < 1) maxNames = 1;
+        size_t shown = std::min(static_cast<size_t>(maxNames), count);
+        for (size_t i = 0; i < shown; i++) {
+            if (i > 0) out << ", ";
+            out << names[i];
+        }
+        out << " and " << (count - shown) << " others";
+    }
+    return out.str();
+}
+
+std::string formatRoomHeroesList(
+    const std::vector<std::string>& heroIds,
+    const std::vector<MemberInfo>& members,
+    int maxToShow)
+{
+    // Original: heroes list from room summary → resolve names → format
+    std::vector<std::string> heroNames;
+    for (const auto& heroId : heroIds) {
+        bool found = false;
+        for (const auto& m : members) {
+            if (m.userId == heroId) {
+                heroNames.push_back(m.displayName.empty() ? m.userId : m.displayName);
+                found = true;
+                break;
+            }
+        }
+        if (!found) heroNames.push_back(heroId);
+    }
+    return formatMemberNameList(heroNames, maxToShow);
+}
+
+RoomNameResult resolveRoomDisplayName(
+    const std::string& roomName,
+    const std::string& canonicalAlias,
+    const std::string& currentMembership,
+    bool isDirectRoom,
+    const std::string& directUserId,
+    const std::vector<std::string>& heroes,
+    const std::vector<MemberInfo>& activeMembers,
+    const std::vector<MemberInfo>& leftMembers,
+    const std::string& currentUserId,
+    const std::vector<std::string>& excludedUserIds,
+    const RoomDisplayNameConfig& config)
+{
+    // Original Kotlin: RoomDisplayNameResolver.resolve()
+    // Matrix algorithm per js-sdk calculateRoomName()
+    RoomNameResult result;
+
+    // 1) m.room.name
+    if (!roomName.empty()) {
+        result.displayName = roomName;
+        result.normalizedName = normalizeForCompare(roomName);
+        result.source = RoomNameSource::STATE_EVENT;
+        result.isFromState = true;
+        return result;
+    }
+
+    // 2) Canonical alias
+    if (!canonicalAlias.empty()) {
+        result.displayName = canonicalAlias;
+        result.normalizedName = normalizeForCompare(canonicalAlias);
+        result.source = RoomNameSource::ALIAS;
+        return result;
+    }
+
+    // Build set of excluded userIds for quick lookup
+    std::unordered_set<std::string> excludedSet(excludedUserIds.begin(), excludedUserIds.end());
+
+    // Helper: check if a user is excluded
+    auto isExcluded = [&](const std::string& uid) -> bool {
+        return excludedSet.find(uid) != excludedSet.end();
+    };
+
+    // 3) Invite case: show inviter name
+    if (currentMembership == "invite") {
+        // For invited rooms, the name is typically the inviter
+        // Look for active members, prefer one who is NOT current user
+        for (const auto& m : activeMembers) {
+            if (m.userId != currentUserId && !isExcluded(m.userId)) {
+                std::string name = m.displayName.empty() ? m.userId : m.displayName;
+                result.displayName = name;
+                result.normalizedName = normalizeForCompare(name);
+                result.source = RoomNameSource::MEMBERS;
+                return result;
+            }
+        }
+        // Fallback: use roomId
+        result.displayName = config.emptyRoomName;
+        result.normalizedName = normalizeForCompare(result.displayName);
+        result.source = RoomNameSource::GENERATED;
+        return result;
+    }
+
+    // 4) Joined room: compute name from members
+    // Build a filtered list of "other members" (not current user, not excluded)
+    std::vector<const MemberInfo*> otherMembers;
+    for (const auto& m : activeMembers) {
+        if (m.userId != currentUserId && !isExcluded(m.userId)) {
+            otherMembers.push_back(&m);
+        }
+    }
+
+    // If there are heroes, prefer them first
+    std::vector<const MemberInfo*> displayMembers;
+    if (config.showHeroesFirst && !heroes.empty()) {
+        for (const auto& heroId : heroes) {
+            for (const auto& m : activeMembers) {
+                if (m.userId == heroId && !isExcluded(m.userId) && m.userId != currentUserId) {
+                    displayMembers.push_back(&m);
+                    break;
+                }
+            }
+        }
+    }
+
+    // If no heroes matched or heroes disabled, use all other members (limit 5)
+    if (displayMembers.empty()) {
+        for (auto* m : otherMembers) {
+            if (displayMembers.size() < 5) {
+                displayMembers.push_back(m);
+            }
+        }
+    }
+
+    size_t otherCount = displayMembers.size();
+
+    // Collect display names from displayMembers
+    std::vector<std::string> names;
+    for (auto* m : displayMembers) {
+        names.push_back(m->displayName.empty() ? m->userId : m->displayName);
+    }
+
+    // Also collect left member names for fallback
+    std::vector<std::string> leftNames;
+    for (const auto& m : leftMembers) {
+        if (!isExcluded(m.userId)) {
+            leftNames.push_back(m.displayName.empty() ? m.userId : m.displayName);
+        }
+    }
+
+    if (otherCount == 0) {
+        // Empty room: try left members or DM userId
+        if (isDirectRoom && !directUserId.empty()) {
+            result.displayName = directUserId;
+            result.normalizedName = normalizeForCompare(directUserId);
+            result.source = RoomNameSource::DIRECT_USER;
+        } else if (!leftNames.empty()) {
+            result.displayName = formatMemberNameList(leftNames, config.maxMembersToShow);
+            result.normalizedName = normalizeForCompare(result.displayName);
+            result.source = RoomNameSource::MEMBERS;
+        } else {
+            result.displayName = config.emptyRoomName;
+            result.normalizedName = normalizeForCompare(config.emptyRoomName);
+            result.source = RoomNameSource::GENERATED;
+        }
+    } else {
+        result.displayName = formatMemberNameList(names, config.maxMembersToShow);
+        result.normalizedName = normalizeForCompare(result.displayName);
+        result.source = (config.showHeroesFirst && !heroes.empty())
+            ? RoomNameSource::HEROES : RoomNameSource::MEMBERS;
+    }
+
+    return result;
+}
+
+// ==== Room Avatar Resolution (from RoomAvatarResolver.kt:48-84) ====
+
+std::string resolveRoomAvatar(
+    const std::string& roomAvatarUrl,
+    bool isDirectRoom,
+    const std::vector<MemberInfo>& activeMembers,
+    const std::vector<MemberInfo>& leftMembers,
+    const std::string& currentUserId,
+    const std::vector<std::string>& excludedUserIds)
+{
+    // Original Kotlin: RoomAvatarResolver.resolve()
+    // 1) Use m.room.avatar if set
+    if (!roomAvatarUrl.empty()) return roomAvatarUrl;
+
+    // 2) For DM rooms, use the other member's avatar
+    if (isDirectRoom) {
+        std::unordered_set<std::string> excludedSet(excludedUserIds.begin(), excludedUserIds.end());
+        auto isExcluded = [&](const std::string& uid) {
+            return excludedSet.find(uid) != excludedSet.end();
+        };
+
+        // Count active members excluding excluded and current user
+        std::vector<const MemberInfo*> others;
+        for (const auto& m : activeMembers) {
+            if (m.userId != currentUserId && !isExcluded(m.userId)) {
+                others.push_back(&m);
+            }
+        }
+
+        if (others.size() == 1) {
+            // Single other member: use their avatar, or fallback to a left member
+            if (!others[0]->avatarUrl.empty()) return others[0]->avatarUrl;
+            for (const auto& m : leftMembers) {
+                if (!m.avatarUrl.empty() && !isExcluded(m.userId)) {
+                    return m.avatarUrl;
+                }
+            }
+            return others[0]->avatarUrl; // might be empty
+        } else if (others.size() == 2) {
+            for (const auto& m : others) {
+                if (!m->avatarUrl.empty()) return m->avatarUrl;
+            }
+        }
+    }
+
+    return "";
 }
 
 } // namespace progressive

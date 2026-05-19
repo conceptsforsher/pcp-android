@@ -452,6 +452,177 @@ inline RoomDirectoryVisibility directoryVisibilityFromString(const std::string& 
 
 std::string buildDirectoryVisibilityContent(RoomDirectoryVisibility visibility);
 
+// ==== Room Members Load Status ====
+// Original Kotlin (RoomMembersLoadStatusType.kt:19-22):
+//   internal enum class RoomMembersLoadStatusType { NONE, LOADING, LOADED }
+
+enum class RoomMembersLoadStatus {
+    NONE,
+    LOADING,
+    LOADED
+};
+
+inline const char* roomMembersLoadStatusToString(RoomMembersLoadStatus s) {
+    switch (s) {
+        case RoomMembersLoadStatus::NONE:    return "NONE";
+        case RoomMembersLoadStatus::LOADING: return "LOADING";
+        case RoomMembersLoadStatus::LOADED:  return "LOADED";
+    }
+    return "UNKNOWN";
+}
+
+// ==== Room Member State (from RoomDataSource.kt + RoomMemberSummaryEntity) ====
+// Original Kotlin: RoomMemberSummaryEntity fields
+//   data class RoomMemberSummaryEntity(primaryKey, userId, roomId, displayName,
+//       avatarUrl, membership, userPresenceEntity, isRoomCreator, joinedTs, invitedBy)
+
+struct RoomMemberState {
+    std::string userId;
+    std::string displayName;
+    std::string avatarUrl;
+    Membership membership = Membership::NONE;
+    int powerLevel = 0;
+    bool isRoomCreator = false;
+    int64_t joinedTs = 0;
+    std::string invitedBy;          // userId of inviter (for invited members)
+    std::string userPresence;       // "online", "offline", etc.
+};
+
+// Snapshot of all room members, ported from the aggregate member state.
+// Original Kotlin: the merged state from RoomMemberHelper queries
+struct RoomMembersState {
+    std::string roomId;
+    std::vector<RoomMemberState> members;
+    int totalCount = 0;
+    int joinedCount = 0;
+    int invitedCount = 0;
+    int leftCount = 0;
+    int bannedCount = 0;
+    RoomMembersLoadStatus loadStatus = RoomMembersLoadStatus::NONE;
+    bool isTruncated = false;     // server-side truncation
+};
+
+// Query room members from a raw JSON API response.
+// Ported from RoomDataSource + LoadRoomMembersTask response parsing.
+// @param roomId — the room ID
+// @param apiResponseJson — the raw /members response JSON
+// @param isTruncated — whether the server truncated the result
+// @param loadStatus — current load status of the member list
+RoomMembersState queryRoomMembers(
+    const std::string& roomId,
+    const std::string& apiResponseJson,
+    bool isTruncated,
+    RoomMembersLoadStatus loadStatus = RoomMembersLoadStatus::LOADED);
+
+// Get active members (joined + invited) filtered from RoomMembersState.
+// Ported from RoomMemberHelper.queryActiveRoomMembersEvent()
+std::vector<RoomMemberState> getActiveMembers(const RoomMembersState& state);
+
+// Get all members except the current user.
+std::vector<RoomMemberState> getOtherMembers(const RoomMembersState& state, const std::string& currentUserId);
+
+// Check if a user is a member (joined or invited) in the room.
+// Ported from RoomMemberHelper.getActiveRoomMemberIds().contains()
+bool isMemberInRoom(const RoomMembersState& state, const std::string& userId);
+
+// Get the count of joined members.
+inline int getMemberCount(const RoomMembersState& state) {
+    return state.joinedCount;
+}
+
+// Get the count of invited members.
+inline int getInvitedMemberCount(const RoomMembersState& state) {
+    return state.invitedCount;
+}
+
+// Get all joined member userIds.
+std::vector<std::string> getJoinedMemberIds(const RoomMembersState& state);
+
+// Get all active (joined+invited) member userIds.
+std::vector<std::string> getActiveMemberIds(const RoomMembersState& state);
+
+// Serialize RoomMembersState to JSON.
+std::string roomMembersStateToJson(const RoomMembersState& state);
+
+// ================================================================
+// Power Levels Extended (EXPAND)
+//
+// Ported from PowerLevelsContent.kt, RoomMemberHelper.kt power level
+// lookup, and room state change diff logic.
+// ================================================================
+
+// Original Kotlin (PowerLevelsContent.kt notifications sub-object):
+//   "notifications": { "room": 50 }
+// Extended from the basic RoomPowerLevelsContent in room_content.hpp
+// with proper notification sub-object support.
+struct PowerLevelsNotifications {
+    int room = 50;             // "notifications.room" — default 50
+    int message = 0;           // "notifications" — maps to room notification level
+};
+
+// Original Kotlin (PowerLevelsContent.kt:27-68) — extended struct with notifications sub-object.
+struct RoomPowerLevelsContent {
+    std::unordered_map<std::string, int> users;    // "users" key — per-user power levels
+    int usersDefault = 0;                          // "users_default" — default PL for users
+    std::unordered_map<std::string, int> events;   // "events" key — per-event-type PL required
+    int eventsDefault = 0;                         // "events_default" — default PL for sending events
+    int stateDefault = 50;                         // "state_default" — default PL for state events
+    int ban = 50;                                  // "ban" key — default 50
+    int kick = 50;                                 // "kick" key — default 50
+    int redact = 50;                               // "redact" key — default 50
+    int invite = 0;                                // "invite" key — default 0
+    PowerLevelsNotifications notifications;        // "notifications" sub-object {room, message}
+
+    // Original Kotlin: setUserPowerLevel(userId, powerLevel)
+    void setUserPowerLevel(const std::string& userId, int powerLevel) {
+        if (powerLevel == usersDefault) {
+            users.erase(userId);
+        } else {
+            users[userId] = powerLevel;
+        }
+    }
+
+    // Original Kotlin: notificationLevel(key)
+    int notificationLevel(const std::string& key) const {
+        if (key == "room") return notifications.room;
+        return 0;
+    }
+};
+
+// Original Kotlin: ContentMapper.map(...).toModel<PowerLevelsContent>()
+// Parse m.room.power_levels event content JSON with full notifications sub-object.
+RoomPowerLevelsContent parsePowerLevelsContent(const std::string& contentJson);
+
+// Original Kotlin: build power_levels event content for PUT /state/m.room.power_levels
+std::string buildPowerLevelsContent(const RoomPowerLevelsContent& content);
+
+// Original Kotlin: RoomMemberHelper power level lookup — what PL is needed for an action?
+// Returns the minimum power level required for the given action string.
+// E.g., "m.room.name" → checks events map, then eventsDefault, then stateDefault.
+int getMinimumPowerLevelForAction(const RoomPowerLevelsContent& pl, const std::string& action);
+
+// Original Kotlin: RoomMemberHelper canUserPerformAction check
+// Returns true if userLevel >= minimum required level for the action.
+bool canUserPerformAction(const RoomPowerLevelsContent& pl, int userLevel, const std::string& action);
+
+// Original Kotlin: PowerLevelsChange tracking from state event changes.
+// Captures what changed between two power level states.
+struct PowerLevelsChange {
+    std::string userId;              // user who had PL changed
+    int oldLevel = 0;                // previous power level
+    int newLevel = 0;                // new power level
+    std::string changedBy;           // user ID of who made the change
+};
+
+// Original Kotlin: compute power level diff between two state snapshots.
+// Compares prevContent (old PL state) against newContent (current PL state).
+// Returns list of changes per user, including newly added and removed users.
+std::vector<PowerLevelsChange> computePowerLevelsChange(
+    const RoomPowerLevelsContent& prevContent,
+    const RoomPowerLevelsContent& newContent,
+    const std::string& changedBy
+);
+
 } // namespace progressive
 
 #endif // PROGRESSIVE_ROOM_STATE_HPP

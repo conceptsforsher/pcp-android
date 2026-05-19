@@ -64,6 +64,55 @@ private:
     std::unordered_map<std::string, int64_t> eventTimestamps_;
 };
 
+// ---- Desync Check Result ----
+
+// Original Kotlin: result of a multi-factor desync check
+struct DesyncCheckResult {
+    bool isDesynchronized = false;
+    std::string reason;                  // human-readable explanation
+    std::string suggestedAction;         // "re-sync", "clear_cache", "re-login"
+    int64_t lastSyncAgeMs = 0;           // ms since last successful sync
+    int missingEvents = 0;               // events found missing in local timeline
+    int extraEvents = 0;                 // events found locally but not on server
+};
+
+// Run a multi-factor desync check:
+//   - Stream ordering gaps
+//   - Missing events in timeline
+//   - Read marker conflicts
+//   - Membership inconsistencies
+DesyncCheckResult checkSyncDesynchronization(
+    const std::string& roomId,
+    int64_t lastSyncMs,
+    const std::vector<std::string>& localEventIds,
+    const std::vector<std::string>& serverEventIds,
+    const std::string& localReadMarker,
+    const std::string& serverReadMarker,
+    const std::string& localMembership,
+    const std::string& serverMembership
+);
+
+// ---- Desync Cause Classification ----
+
+// Original Kotlin: heuristic classification of desync root cause
+enum class DesyncCause {
+    NETWORK_GAP,
+    CACHE_CORRUPTION,
+    SERVER_BUG,
+    RACE_CONDITION,
+    UNKNOWN
+};
+
+// Diagnose the root cause of a desync from the check result.
+DesyncCause diagnoseDesyncCause(const DesyncCheckResult& result);
+
+// Get the recommended recovery action string based on the diagnosed cause.
+// Returns: "re-sync", "clear_cache", "re-login", or "none"
+std::string getDesyncRecoveryAction(DesyncCause cause);
+
+// Get the recovery action from a DesyncCheckResult directly.
+std::string getDesyncRecoveryAction(const DesyncCheckResult& result);
+
 } // namespace progressive
 
 #endif // PROGRESSIVE_DESYNC_DETECTOR_HPP

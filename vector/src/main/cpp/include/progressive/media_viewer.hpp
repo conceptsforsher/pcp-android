@@ -22,6 +22,9 @@ namespace progressive {
 //   5. Media type detection
 //   6. Zoom/pan constraints
 //   7. Media size formatting
+//   8. MediaViewerItem / MediaViewerList
+//   9. Download state tracking
+//  10. Cache path computation
 // ================================================================
 
 // ---- Media Type ----
@@ -49,14 +52,45 @@ enum class ExifOrientation {
     ROTATE_270 = 7,      // 8 — 270° CW (or 90° CCW)
 };
 
-// Convert raw EXIF orientation value (1-8) to enum.
-ExifOrientation exifFromRaw(int rawValue);
+// ---- Media Download State ----
 
-// Get rotation degrees from EXIF orientation (0/90/180/270).
-int exifRotationDegrees(ExifOrientation orient);
+// Original Kotlin: MediaViewerViewModel.kt — download progress tracking
+enum class MediaDownloadState {
+    NOT_DOWNLOADED = 0,
+    DOWNLOADING = 1,
+    DOWNLOADED = 2,
+    FAILED = 3
+};
 
-// Check if EXIF orientation requires flip.
-bool exifRequiresFlip(ExifOrientation orient);
+// Original Kotlin: MediaViewerViewModel.kt
+struct MediaDownloadProgress {
+    int64_t bytesDownloaded = 0;
+    int64_t totalBytes = 0;
+    double percentage = 0.0;        // 0.0 - 100.0
+};
+
+// ---- Media Viewer Item ----
+
+// Original Kotlin: MediaViewerItem.kt, MediaViewerListItem.kt
+struct MediaViewerItem {
+    std::string url;                // mxc:// or http URL
+    std::string mimeType;
+    std::string title;
+    std::string description;
+    int width = 0;
+    int height = 0;
+    int64_t fileSize = 0;
+    bool isDownloaded = false;
+    std::string thumbnailUrl;
+    std::string authorInfo;         // sender display name or user ID
+};
+
+// Original Kotlin: MediaViewerList.kt
+struct MediaViewerList {
+    std::vector<MediaViewerItem> items;
+    int startIndex = 0;             // which item to show first
+    std::string roomTitle;
+};
 
 // ---- Media Info ----
 
@@ -100,7 +134,18 @@ struct ViewportState {
     int mediaHeight = 1080;          // Media height (after rotation)
 };
 
-// ---- Media Viewer Utilities ----
+// ---- Conversion helpers ----
+
+// Convert raw EXIF orientation value (1-8) to enum.
+ExifOrientation exifFromRaw(int rawValue);
+
+// Get rotation degrees from EXIF orientation (0/90/180/270).
+int exifRotationDegrees(ExifOrientation orient);
+
+// Check if EXIF orientation requires flip.
+bool exifRequiresFlip(ExifOrientation orient);
+
+// ---- MXC URL Utilities ----
 
 // Resolve MXC URL to HTTP download URL.
 // mxc://example.org/abc123 → https://example.org/_matrix/media/r0/download/example.org/abc123
@@ -148,11 +193,9 @@ std::string formatMediaDuration(int durationMs);
 // ---- EXIF / Rotation ----
 
 // Apply EXIF rotation to get actual display dimensions.
-// If EXIF says rotate 90°, swap width/height.
 void applyExifRotation(MediaInfo& info);
 
 // Get the display dimensions after EXIF rotation.
-// Returns (displayWidth, displayHeight).
 struct DisplayDimensions {
     int width = 0;
     int height = 0;
@@ -183,5 +226,34 @@ bool canGenerateThumbnail(const std::string& mimeType);
 
 // Get recommended thumbnail size for the given screen density.
 ThumbnailConfig getRecommendedThumbnailConfig(int screenDensity = 320);
+
+// ---- Media Viewer List Builder ----
+
+// Original Kotlin: MediaViewerViewModel.kt — build viewer list from timeline events
+MediaViewerList buildMediaViewerList(
+    const std::vector<std::string>& eventContentsJson,   // array of content JSON strings
+    const std::string& roomTitle,
+    int startIndex = 0
+);
+
+// Original Kotlin: ImageViewerViewModel.kt — find adjacent media events
+// Returns (prevIndex, nextIndex) relative to the current item.
+// (-1 means not found)
+struct AdjacentMedia {
+    int prevIndex = -1;
+    int nextIndex = -1;
+};
+AdjacentMedia findAdjacentMedia(const MediaViewerList& list, int currentIndex);
+
+// ---- Media Download Utils ----
+
+// Original Kotlin: MediaDownloader.kt, MediaViewerViewModel.kt
+bool isMediaDownloadable(const std::string& mxcUrl);
+
+// Original Kotlin: FileService.kt, MediaCache.kt
+// Compute cache file path for a media item.
+// Uses cacheDir/mxc_media/{serverName}_{mediaId}_{filename}
+std::string getMediaCachePath(const std::string& mxcUrl, const std::string& cacheDir,
+                              const std::string& fileName = "");
 
 } // namespace progressive

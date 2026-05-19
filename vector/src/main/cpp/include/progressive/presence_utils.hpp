@@ -138,4 +138,62 @@ std::vector<PresenceUserInfo> parsePresenceList(const std::string& json);
 // e.g. "active now", "5m ago", "2h ago", "3d ago", "Jan 5"
 std::string formatLastActiveTime(int64_t lastActiveAgoMs, bool currentlyActive);
 
+// ---- PresenceSyncResult (from sync) ----
+
+// Original Kotlin: PresenceSyncHandler.kt — processed presence events from /sync
+struct PresenceSyncResult {
+    std::vector<PresenceUserInfo> usersChanged;  // users whose presence changed
+    int totalUsers = 0;                          // total presence events in this sync batch
+};
+
+// Process presence events from a /sync presence block.
+// Iterates over presence events, parses each, and returns the aggregated result.
+PresenceSyncResult processPresenceSync(const std::vector<Event>& events);
+
+// Merge a PresenceUserInfo from sync into a local presence map (insert or update).
+// Returns true if the presence actually changed (user was new or state differed).
+bool updatePresenceInfo(std::unordered_map<std::string, PresenceUserInfo>& localState,
+                        const PresenceUserInfo& incoming);
+
+// ---- Presence List Request / Response ----
+
+// Original Kotlin: POST /presence/list/{userId}
+struct PresenceListRequest {
+    std::vector<std::string> userIds;  // user IDs to query presence for
+};
+
+// Build JSON body for POST /presence/list/{userId} — list of user IDs to query.
+std::string buildPresenceListRequest(const std::vector<std::string>& userIds);
+
+// Original Kotlin: response from POST /presence/list/{userId}
+struct PresenceListResponse {
+    std::unordered_map<std::string, PresenceUserInfo> presenceList;  // userId -> presence info
+};
+
+// Parse the response from POST /presence/list/{userId}.
+PresenceListResponse parsePresenceListResponse(const std::string& json);
+
+// Original Kotlin: PUT /presence/{userId}/status
+// Build JSON body for updating own presence status.
+std::string buildSetPresenceRequest(UserPresence presence, const std::string& statusMsg = "");
+
+// ---- Presence Update Info (for cache) ----
+
+// Original Kotlin: combined presence update with timestamp
+struct PresenceUpdateInfo {
+    std::string userId;
+    UserPresence presence = UserPresence::OFFLINE;
+    std::string statusMsg;
+    bool currentlyActive = false;
+    int64_t lastActiveAgoMs = 0;
+    int64_t ts = 0;  // epoch ms of this update
+};
+
+// Format presence timestamp in human-readable form:
+// "Active now", "Active 5m ago", "Active 2h ago", "Inactive"
+std::string formatPresenceTimestamp(const PresenceUpdateInfo& info);
+
+// Check if a user is currently active (active within the last 5 minutes).
+bool isCurrentlyActive(const PresenceUpdateInfo& info);
+
 } // namespace progressive

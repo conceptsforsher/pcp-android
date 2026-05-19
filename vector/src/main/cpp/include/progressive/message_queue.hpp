@@ -147,6 +147,11 @@ public:
     bool markAsSent(const std::string& localId);
     bool markAsFailed(const std::string& localId);
 
+    // Update a specific entry (identified by localId) with new field values.
+    // The updated entry replaces the existing one in the queue.
+    // Returns true if the entry was found and updated.
+    bool updateEntry(const std::string& localId, const QueueEntry& updated);
+
     // Get queue statistics.
     SendQueueStats getStats() const;
 
@@ -213,6 +218,196 @@ private:
 //   - 5xx Server Error → retry
 //   - 4xx Client Error → do NOT retry
 bool isRetryableSendError(int httpErrorCode, bool isNetworkError);
+
+// ---- Send Orchestration ----
+// Ported from: org.matrix.android.sdk.api.session.room.send.SendService
+//              org.matrix.android.sdk.internal.session.room.send.DefaultSendService
+//              org.matrix.android.sdk.internal.session.room.send.queue.EventSenderProcessor
+
+// Original Kotlin: SendService.sendEvent(eventType, content) → Cancelable
+struct SendRequest {
+    std::string roomId;
+    std::string eventType;
+    std::string contentJson;
+    std::string transactionId;  // assigned by submitEvent
+    int priority = 0;          // lower = higher priority (0 = normal, <0 = high)
+};
+
+// Original Kotlin: Event.result → SendState.SENT or UNDELIVERED
+struct SendResult {
+    std::string eventId;         // server-assigned event ID on success
+    std::string transactionId;   // client-assigned transaction ID
+    bool success = false;
+    std::string errorMessage;
+    int errorCode = 0;           // HTTP status code (0 = network error)
+};
+
+// Original Kotlin: EventSenderProcessorCoroutine + DefaultSendService
+// Manages the full lifecycle of event sending: validation, encryption,
+// submission, confirmation, and decoration.
+class SendQueueManager {
+public:
+    // Submit an event for sending. Generates a transactionId and enqueues the event.
+    // Returns the transactionId for tracking.
+    std::string submitEvent(const SendRequest& request);
+
+    // Cancel a specific event by transaction ID.
+    // Returns true if the event was found and cancelled/removed.
+    bool cancelEvent(const std::string& transactionId);
+
+    // Cancel all pending events for a specific room.
+    // Returns the number of events cancelled.
+    int cancelAllInRoom(const std::string& roomId);
+
+    // Get counts of various queue states.
+    int getPendingCount() const;
+    int getFailedCount() const;
+    int getSendingCount() const;
+
+    // Process the pending queue: dequeue UNSENT events in priority order,
+    // mark them SENDING, and return results.
+    // Each event runs through the send pipeline stages.
+    std::vector<SendResult> processQueue();
+
+    // Re-queue all FAILED/UNDELIVERABLE events for retry.
+    // Sets their state back to UNSENT and resets attempt counters.
+    // Returns the number of events re-queued.
+    int requeueFailed();
+
+    // Get all events currently in FAILED or UNDELIVERABLE state.
+    std::vector<QueueEntry> getFailedEvents() const;
+
+    // Get all events in UNSENT or SENDING state.
+    std::vector<QueueEntry> getPendingEvents() const;
+
+    // Get queue statistics (counts per state).
+    SendQueueStats getStats() const;
+
+    // Get the underlying queue entries (for persistence/memento).
+    std::vector<QueueEntry> getAll() const;
+
+    // Update the send state for a specific event by transactionId.
+    bool updateState(const std::string& transactionId, SendState newState);
+
+    // Check if an event with the given transactionId exists.
+    bool hasEvent(const std::string& transactionId) const;
+
+    // Clear all entries from the queue.
+    void clear();
+
+    // Get the number of total entries.
+    int count() const;
+
+private:
+    MessageQueue queue_;
+};
+
+// Original Kotlin: LocalEchoRepository.updateSendState → tracks per-event transitions
+// Tracks the full lifecycle: UNSENT → ENCRYPTING → SENDING → SENT (or FAILED/UNDELIVERED)
+struct SendStateTracker {
+    std::string eventId;
+    std::string transactionId;
+    std::string roomId;
+    SendState currentState = SendState::UNSENT;
+    int64_t stateChangedAtMs = 0;
+    std::string errorMessage;
+    int errorCode = 0;
+
+    // Terminal states: no further transitions possible (except manual resend)
+    bool isTerminal() const {
+        return currentState == SendState::SENT ||
+               currentState == SendState::SENT_FROM_ANOTHER_SESSION ||
+               currentState == SendState::FAILED ||
+               currentState == SendState::UNDELIVERABLE;
+    }
+
+    // In-flight states: event is still being processed
+    bool isInFlight() const {
+        return currentState == SendState::UNSENT ||
+               currentState == SendState::SENDING;
+    }
+
+    // Has this event permanently failed?
+    bool hasFailed() const {
+        return currentState == SendState::FAILED ||
+               currentState == SendState::UNDELIVERABLE;
+    }
+
+    // Transition to a new state and record the timestamp.
+    void transitionTo(SendState newState, int64_t nowMs) {
+        currentState = newState;
+        stateChangedAtMs = nowMs;
+    }
+};
+
+// ---- Send Pipeline ----
+// Ported from: DefaultSendService sendEvent pipeline
+//              + LocalEchoEventFactory.createLocalEcho (validation)
+//              + CryptoService.encryptEvent (encryption)
+//              + SendEventTask.execute (network send)
+//              + localEchoRepository.updateSendState (confirmation)
+//              + timeline decoration (decorate)
+
+// Original Kotlin: Pipeline stages matching the send lifecycle
+// Corresponds to: createLocalEcho → encrypt → PUT /send → updateState → decorate
+enum class SendPipelineStage {
+    VALIDATE,    // Check event content, room state, permissions
+    ENCRYPT,     // Encrypt event content if room is encrypted
+    SEND,        // Send to server via PUT /_matrix/client/v3/rooms/{roomId}/send/{eventType}/{txnId}
+    CONFIRM,     // Update local echo state based on server response (event_id, send state)
+    DECORATE     // Add timeline metadata (sender, timestamp, relations, age)
+};
+
+// Original Kotlin: Pipeline state carried through each stage
+struct SendPipeline {
+    SendRequest request;
+    SendResult result;
+    SendPipelineStage currentStage = SendPipelineStage::VALIDATE;
+    int64_t startedAtMs = 0;
+    int64_t completedAtMs = 0;
+    bool encrypted = false;
+    std::string encryptedContentJson;  // ciphertext content (set after ENCRYPT stage)
+
+    // Advance to the next stage. Returns false if already at the last stage.
+    bool advanceStage() {
+        switch (currentStage) {
+            case SendPipelineStage::VALIDATE: currentStage = SendPipelineStage::ENCRYPT; return true;
+            case SendPipelineStage::ENCRYPT:  currentStage = SendPipelineStage::SEND; return true;
+            case SendPipelineStage::SEND:     currentStage = SendPipelineStage::CONFIRM; return true;
+            case SendPipelineStage::CONFIRM:  currentStage = SendPipelineStage::DECORATE; return true;
+            case SendPipelineStage::DECORATE: return false;
+        }
+        return false;
+    }
+};
+
+// Execute all pipeline stages for a send request sequentially.
+// Returns the SendResult after all stages complete (or after first failure).
+// roomIsEncrypted: if true, the ENCRYPT stage will be active.
+SendResult runSendPipeline(const SendRequest& request, bool roomIsEncrypted = false);
+
+// Validate event content before sending.
+// Checks: roomId non-empty, eventType non-empty, contentJson is valid JSON.
+// Returns true if the event is valid to send.
+bool validateEvent(const SendRequest& request);
+
+// Prepare an event for sending: generate transaction ID, add timestamp, format for server.
+// Returns the prepared event body JSON string suitable for the PUT /send endpoint.
+// Adds origin_server_ts and unsigned.transaction_id if not already present.
+std::string prepareEventForSend(const SendRequest& request, const std::string& senderId);
+
+// Convert SendState enum to its API-level string representation.
+// Maps to the Kotlin SendState.name values: UNSENT, SENDING, SENT, etc.
+const char* sendStateToApiString(SendState state);
+
+// Check if a send state is one of the "has sent" states (SENT, SYNCED, SENT_FROM_ANOTHER_SESSION).
+bool isSentState(SendState state);
+
+// Check if a send state is one of the "has failed" states (UNDELIVERED, FAILED_UNKNOWN_DEVICES).
+bool isFailedState(SendState state);
+
+// Check if a send state is one of the "in progress" states (ENCRYPTING, SENDING).
+bool isInProgressState(SendState state);
 
 } // namespace progressive
 

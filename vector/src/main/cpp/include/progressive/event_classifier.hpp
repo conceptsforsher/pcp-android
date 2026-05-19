@@ -1,8 +1,8 @@
-#ifndef PROGRESSIVE_EVENT_CLASSIFIER_HPP
-#define PROGRESSIVE_EVENT_CLASSIFIER_HPP
+#pragma once
 
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace progressive {
 
@@ -80,6 +80,9 @@ namespace EventTypeStr {
     constexpr const char* POLL_RESPONSE = "m.poll.response";
     constexpr const char* POLL_END = "m.poll.end";
 
+    // Voice Broadcast
+    constexpr const char* STATE_ROOM_VOICE_BROADCAST_INFO = "io.element.voice_broadcast_info";
+
     // Other
     constexpr const char* DUMMY = "m.dummy";
 }
@@ -101,6 +104,66 @@ namespace MessageTypeStr {
     constexpr const char* CONFETTI = "nic.custom.confetti";
     constexpr const char* SNOWFALL = "io.element.effect.snowfall";
 }
+
+// ==== EventClass enum ====
+//
+// Original Kotlin: Event type routing — determines which renderer/bubble to use.
+// Derived from EventType.kt classification + TimelineEventController display logic.
+
+enum class EventClass {
+    MESSAGE = 0,
+    STATE = 1,
+    CALL = 2,
+    POLL = 3,
+    STICKER = 4,
+    ENCRYPTED = 5,
+    REACTION = 6,
+    REDACTION = 7,
+    VERIFICATION = 8,
+    LOCATION = 9,
+    VOICE_BROADCAST = 10,
+    WIDGET = 11,
+    UNKNOWN = 12
+};
+
+const char* eventClassToString(EventClass ec);
+EventClass eventClassFromString(const std::string& s);
+
+// ==== EventImportance enum ====
+//
+// Original Kotlin: NotifPriority / display priority — higher = more prominent in timeline.
+// HIGH: direct mentions, room invites, calls
+// NORMAL: regular messages
+// LOW: reactions, read receipts, typing
+// MINIMAL: hidden events, redundant state
+
+enum class EventImportance {
+    HIGH = 0,
+    NORMAL = 1,
+    LOW = 2,
+    MINIMAL = 3
+};
+
+const char* eventImportanceToString(EventImportance ei);
+EventImportance eventImportanceFromString(const std::string& s);
+
+// ==== EventTextType enum ====
+//
+// Original Kotlin (MessageType.kt:27-36): msgtype → display category
+// TEXT: m.text — regular message
+// EMOTE: m.emote — /me action
+// NOTICE: m.notice — server/system notice
+// BOT: m.bot or from bot options — bot message
+
+enum class EventTextType {
+    TEXT = 0,
+    EMOTE = 1,
+    NOTICE = 2,
+    BOT = 3
+};
+
+const char* eventTextTypeToString(EventTextType ett);
+EventTextType eventTextTypeFromString(const std::string& s);
 
 // ==== Classification Functions (from EventType.kt:122-145) ====
 
@@ -168,8 +231,6 @@ bool isAudioMessage(const std::string& msgType);
 bool isFileMessage(const std::string& msgType);
 bool isLocationMessage(const std::string& msgType);
 bool isAttachmentMessage(const std::string& msgType);     // image|audio|video|file
-bool isPollEvent(const std::string& eventType);            // already declared
-bool isStickerEvent(const std::string& t);                 // already declared
 
 // Check if event supports notifications.
 bool supportsNotification(const std::string& eventType);
@@ -190,6 +251,63 @@ bool isReplyRelation(const std::string& contentJson);
 // Check if event should render in thread (is reply AND isFallingBack==false).
 bool shouldRenderInThread(const std::string& contentJson);
 
-} // namespace progressive
+// ==== classifyEvent — determine event class from type + content ====
+//
+// Original Kotlin: EventType.kt routing + TimelineEventController classification
+// Routes an event to its display class based on type string and content hints.
+EventClass classifyEvent(const std::string& eventType, const std::string& contentJson);
 
-#endif // PROGRESSIVE_EVENT_CLASSIFIER_HPP
+// ==== getEventImportance — compute display priority ====
+//
+// Original Kotlin: NotifPriority logic + PushRuleEvaluator score mapping
+// HIGH: @mentions, calls, invites, room tombstones
+// NORMAL: regular messages, media, stickers, polls
+// LOW: reactions, receipts, member joins/leaves
+// MINIMAL: redundant memberships, m.typing, hidden events
+EventImportance getEventImportance(const std::string& eventType, const std::string& contentJson,
+    const std::string& myUserId = "", bool isDirectMention = false);
+
+// ==== isRedactedEvent — check if event content indicates redaction ====
+//
+// Original Kotlin: unsignedData?.redactedEvent != null
+// Checks for "redacted_because" in unsigned data JSON or redacted_because event_id.
+bool isRedactedEvent(const std::string& contentJson, const std::string& unsignedJson);
+
+// ==== isReplacedEvent — check if event has been edited/replaced ====
+//
+// Original Kotlin: m.relates_to with rel_type == "m.replace"
+// An edit event replaces prior content — check if this event has a substitute.
+bool isReplacedEvent(const std::string& contentJson);
+
+// ==== getEventTextType — determine from msgtype in content ====
+//
+// Original Kotlin (MessageType.kt): msgtype routing
+// Extracts msgtype from content JSON and classifies as TEXT/EMOTE/NOTICE/BOT.
+EventTextType getEventTextType(const std::string& eventType, const std::string& contentJson);
+
+// ==== shouldDisplayEvent — filter out hidden/irrelevant events ====
+//
+// Original Kotlin: DefaultTimeline + TimelineEventVisibilityFilter
+// Filters out: redundant m.room.member (displayname/avatar-url only changes),
+// m.receipt, m.typing, dummy events, non-displayable encrypted events without keys.
+bool shouldDisplayEvent(const std::string& eventType, const std::string& contentJson,
+    const std::string& prevContentJson = "");
+
+// ==== isDisplayableEvent — check if event should appear in timeline ====
+//
+// Original Kotlin: TimelineEvent.isDisplayable()
+// Returns true if the event has visible content: non-redacted messages,
+// state events with meaningful change, reactions, stickers, etc.
+bool isDisplayableEvent(const std::string& eventType, const std::string& contentJson,
+    bool isRedacted = false, bool isEncrypted = false);
+
+// ==== JSON Serialization ====
+
+std::string eventClassToJson(EventClass ec);
+EventClass eventClassFromJson(const std::string& json);
+std::string eventImportanceToJson(EventImportance ei);
+EventImportance eventImportanceFromJson(const std::string& json);
+std::string eventTextTypeToJson(EventTextType ett);
+EventTextType eventTextTypeFromJson(const std::string& json);
+
+} // namespace progressive

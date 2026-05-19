@@ -217,7 +217,7 @@ std::string buildPublicRoomsFilter(const std::string& searchTerm) {
     return os.str();
 }
 
-// Original Kotlin: PublicRoomsParams.kt
+// Original Kotlin: PublicRoomsParams.kt (simple overload)
 //   {"limit": 10, "since": "token", "filter": {...}, "include_all_networks": false}
 std::string buildPublicRoomsRequest(
     int limit,
@@ -357,6 +357,202 @@ RoomDirectoryVisibilityState parseRoomVisibilityResponse(const std::string& json
         return RoomDirectoryVisibilityState::PUBLIC;
     }
     return RoomDirectoryVisibilityState::PRIVATE;
+}
+
+// ================================================================
+// Expanded Room Directory — structured filter, result, pagination, networks
+// ================================================================
+
+// Original Kotlin: PublicRoomsParams with full PublicRoomFilter fields
+std::string buildPublicRoomsRequest(const PublicRoomFilter& filter) {
+    std::ostringstream os;
+    os << "{";
+
+    if (filter.limit > 0) {
+        os << R"("limit":)" << filter.limit << ",";
+    }
+
+    if (!filter.since.empty()) {
+        os << R"("since":")" << escapeJson(filter.since) << R"(",)";
+    }
+
+    if (!filter.searchTerm.empty()) {
+        os << R"("filter":)" << buildPublicRoomsFilter(filter.searchTerm) << ",";
+    }
+
+    if (!filter.server.empty()) {
+        os << R"("server":")" << escapeJson(filter.server) << R"(",)";
+    }
+
+    if (!filter.thirdPartyInstanceId.empty()) {
+        os << R"("third_party_instance_id":")" << escapeJson(filter.thirdPartyInstanceId) << R"(",)";
+    }
+
+    os << R"("include_all_networks":)" << (filter.includeAllNetworks ? "true" : "false");
+
+    os << "}";
+    return os.str();
+}
+
+// Original Kotlin: parse full RoomDirectoryResult from /publicRooms response
+RoomDirectoryResult parseRoomDirectoryResult(const std::string& json) {
+    RoomDirectoryResult result;
+
+    // Check for error
+    auto err = extractStr(json, "errcode");
+    if (!err.empty()) {
+        return result; // caller checks for empty rooms + error
+    }
+
+    result.nextBatch = extractStr(json, "next_batch");
+    result.prevBatch = extractStr(json, "prev_batch");
+    result.totalCount = extractIntVal(json, "total_room_count_estimate");
+    result.server = extractStr(json, "server");
+
+    // Parse chunk array
+    size_t pos = json.find("\"chunk\"");
+    if (pos == std::string::npos) return result;
+
+    pos = json.find('[', pos);
+    if (pos == std::string::npos) return result;
+
+    pos++;
+    while (pos < json.size()) {
+        while (pos < json.size() && (json[pos] == ' ' || json[pos] == ',' || json[pos] == '\n')) pos++;
+        if (pos >= json.size() || json[pos] == ']') break;
+
+        size_t objStart = pos;
+        int depth = 0;
+        while (pos < json.size()) {
+            if (json[pos] == '{') depth++;
+            else if (json[pos] == '}') depth--;
+            if (depth == 0 && json[pos] == '}') { pos++; break; }
+            pos++;
+        }
+        std::string roomJson = json.substr(objStart, pos - objStart);
+
+        PublicRoom room;
+        room.roomId = extractStr(roomJson, "room_id");
+        room.name = extractStr(roomJson, "name");
+        room.topic = extractStr(roomJson, "topic");
+        room.numJoinedMembers = extractIntVal(roomJson, "num_joined_members");
+        room.worldReadable = extractBool(roomJson, "world_readable");
+        room.guestCanJoin = extractBool(roomJson, "guest_can_join");
+        room.avatarUrl = extractStr(roomJson, "avatar_url");
+        room.canonicalAlias = extractStr(roomJson, "canonical_alias");
+        room.isFederated = !extractBool(roomJson, "m.federate") ? true :
+            (roomJson.find("\"m.federate\":false") == std::string::npos);
+
+        // Parse aliases array
+        size_t aliasesPos = roomJson.find("\"aliases\"");
+        if (aliasesPos != std::string::npos) {
+            aliasesPos = roomJson.find('[', aliasesPos);
+            if (aliasesPos != std::string::npos) {
+                aliasesPos++;
+                while (aliasesPos < roomJson.size()) {
+                    while (aliasesPos < roomJson.size() && (roomJson[aliasesPos] == ' ' || roomJson[aliasesPos] == ',' || roomJson[aliasesPos] == '\n')) aliasesPos++;
+                    if (aliasesPos >= roomJson.size() || roomJson[aliasesPos] == ']') break;
+                    if (roomJson[aliasesPos] == '"') {
+                        aliasesPos++;
+                        size_t aliasEnd = aliasesPos;
+                        while (aliasEnd < roomJson.size() && roomJson[aliasEnd] != '"') aliasEnd++;
+                        room.aliases.push_back(roomJson.substr(aliasesPos, aliasEnd - aliasesPos));
+                        aliasesPos = aliasEnd + 1;
+                    } else {
+                        aliasesPos++;
+                    }
+                }
+            }
+        }
+
+        if (!room.roomId.empty()) result.rooms.push_back(room);
+    }
+
+    return result;
+}
+
+// Original Kotlin: extract pagination fields from response
+RoomDirectoryPagination parseRoomDirectoryPagination(const std::string& json) {
+    RoomDirectoryPagination pagination;
+    pagination.nextBatch = extractStr(json, "next_batch");
+    pagination.prevBatch = extractStr(json, "prev_batch");
+    pagination.hasMore = !pagination.nextBatch.empty();
+    pagination.totalAvailable = extractIntVal(json, "total_room_count_estimate");
+    return pagination;
+}
+
+// Original Kotlin: get next page request filter JSON
+std::string getNextPage(const std::string& nextBatch, int limit) {
+    if (nextBatch.empty()) return "";
+    std::ostringstream os;
+    os << R"({"since":")" << escapeJson(nextBatch) << R"(",)";
+    if (limit > 0) os << R"("limit":)" << limit << ",";
+    os << R"("include_all_networks":false})";
+    return os.str();
+}
+
+// Original Kotlin: get previous page request filter JSON
+std::string getPreviousPage(const std::string& prevBatch, int limit) {
+    if (prevBatch.empty()) return "";
+    std::ostringstream os;
+    os << R"({"since":")" << escapeJson(prevBatch) << R"(",)";
+    if (limit > 0) os << R"("limit":)" << limit << ",";
+    os << R"("include_all_networks":false})";
+    return os.str();
+}
+
+// Original Kotlin: parse third-party network list response
+// Response: [{"id": "irc", "display_name": "IRC", "room_count": 42, ...}]
+std::vector<RoomNetworkInfo> getRoomNetworks(const std::string& json) {
+    std::vector<RoomNetworkInfo> networks;
+
+    size_t pos = 0;
+    // Find the first array
+    pos = json.find('[');
+    if (pos == std::string::npos) return networks;
+
+    pos++;
+    while (pos < json.size()) {
+        while (pos < json.size() && (json[pos] == ' ' || json[pos] == ',' || json[pos] == '\n')) pos++;
+        if (pos >= json.size() || json[pos] == ']') break;
+
+        size_t objStart = pos;
+        int depth = 0;
+        while (pos < json.size()) {
+            if (json[pos] == '{') depth++;
+            else if (json[pos] == '}') depth--;
+            if (depth == 0 && json[pos] == '}') { pos++; break; }
+            pos++;
+        }
+        std::string networkJson = json.substr(objStart, pos - objStart);
+
+        RoomNetworkInfo network;
+        network.networkId = extractStr(networkJson, "id");
+        network.networkName = extractStr(networkJson, "display_name");
+        network.roomCount = extractIntVal(networkJson, "room_count");
+        network.isFederated = !extractBool(networkJson, "m.federate") ? true :
+            (networkJson.find("\"m.federate\":false") == std::string::npos);
+
+        if (!network.networkId.empty()) networks.push_back(network);
+    }
+
+    return networks;
+}
+
+// Original Kotlin: POST /thirdparty/protocol/{protocol} request body
+// {"search_term": "...", "limit": 50, "fields": [...]}
+std::string buildThirdPartyRoomRequest(const std::string& networkId, const std::string& searchTerm, int limit) {
+    std::ostringstream os;
+    os << "{";
+    os << R"("protocol":")" << escapeJson(networkId) << R"(")";
+    if (!searchTerm.empty()) {
+        os << R"(,"search_term":")" << escapeJson(searchTerm) << R"(")";
+    }
+    if (limit > 0) {
+        os << R"(,"limit":)" << limit;
+    }
+    os << "}";
+    return os.str();
 }
 
 } // namespace progressive

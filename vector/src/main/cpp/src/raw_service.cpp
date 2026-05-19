@@ -1,5 +1,7 @@
 #include "progressive/raw_service.hpp"
 #include "progressive/login_utils.hpp"
+#include <algorithm>
+#include <cstdio>
 
 namespace progressive {
 
@@ -137,6 +139,305 @@ std::string cacheKeyForUrl(const std::string& url) {
     // Simple hash: use the URL itself as key (encoding-safe)
     // For longer URLs, use a truncated hash
     return url;
+}
+
+// ================================================================
+// HttpMethod
+// ================================================================
+
+const char* httpMethodToString(HttpMethod method) {
+    switch (method) {
+        case HttpMethod::GET:     return "GET";
+        case HttpMethod::POST:    return "POST";
+        case HttpMethod::PUT:     return "PUT";
+        case HttpMethod::DELETE_: return "DELETE";
+        case HttpMethod::PATCH:   return "PATCH";
+        case HttpMethod::HEAD:    return "HEAD";
+    }
+    return "GET";
+}
+
+// ================================================================
+// RawRequest / RawResponse
+// ================================================================
+
+RawRequest buildRawRequest(HttpMethod method, const std::string& url,
+    const std::unordered_map<std::string, std::string>& headers,
+    const std::string& body, int timeoutMs)
+{
+    RawRequest req;
+    req.method = method;
+    req.url = url;
+    req.headers = headers;
+    req.body = body;
+    req.timeoutMs = timeoutMs;
+    return req;
+}
+
+// Simple percent-encode for query string values.
+static std::string percentEncode(const std::string& s) {
+    std::string result;
+    for (unsigned char c : s) {
+        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+            (c >= '0' && c <= '9') || c == '-' || c == '_' ||
+            c == '.' || c == '~') {
+            result += c;
+        } else {
+            char hex[4];
+            snprintf(hex, sizeof(hex), "%%%02X", c);
+            result += hex;
+        }
+    }
+    return result;
+}
+
+// Parse raw HTTP response text into RawResponse.
+// Expects: "HTTP/1.1 200 OK\r\nHeader: value\r\n\r\nbody"
+RawResponse parseRawResponse(const std::string& rawHttpResponse) {
+    RawResponse resp;
+
+    size_t headerEnd = rawHttpResponse.find("\r\n\r\n");
+    if (headerEnd == std::string::npos) {
+        headerEnd = rawHttpResponse.find("\n\n");
+        if (headerEnd == std::string::npos) return resp;
+        headerEnd += 2; // past \n\n
+    } else {
+        headerEnd += 4; // past \r\n\r\n
+    }
+
+    // Parse status line: "HTTP/1.1 200 OK"
+    auto statusEnd = rawHttpResponse.find("\r\n");
+    if (statusEnd == std::string::npos)
+        statusEnd = rawHttpResponse.find('\n');
+    std::string statusLine = rawHttpResponse.substr(0, statusEnd);
+
+    // Extract status code
+    auto codeStart = statusLine.find(' ');
+    if (codeStart != std::string::npos) {
+        codeStart++;
+        auto codeEnd = statusLine.find(' ', codeStart);
+        std::string codeStr = statusLine.substr(codeStart, codeEnd - codeStart);
+        resp.statusCode = std::stoi(codeStr);
+        if (codeEnd != std::string::npos) {
+            resp.statusMessage = statusLine.substr(codeEnd + 1);
+        }
+    }
+
+    // Parse headers
+    size_t pos = statusEnd + 2; // skip \r\n
+    while (pos < headerEnd && rawHttpResponse[pos] != '\r' && rawHttpResponse[pos] != '\n') {
+        size_t lineEnd = rawHttpResponse.find("\r\n", pos);
+        if (lineEnd == std::string::npos || lineEnd > headerEnd)
+            lineEnd = rawHttpResponse.find('\n', pos);
+        if (lineEnd == std::string::npos || lineEnd > headerEnd)
+            break;
+
+        std::string line = rawHttpResponse.substr(pos, lineEnd - pos);
+        auto colon = line.find(':');
+        if (colon != std::string::npos) {
+            std::string key = line.substr(0, colon);
+            std::string val = line.substr(colon + 1);
+            // Trim val
+            while (!val.empty() && (val.front() == ' ' || val.front() == '\t'))
+                val.erase(0, 1);
+            while (!val.empty() && (val.back() == ' ' || val.back() == '\t' ||
+                                     val.back() == '\r'))
+                val.pop_back();
+            resp.headers[key] = val;
+        }
+
+        pos = lineEnd + 2; // skip \r\n
+        if (pos >= rawHttpResponse.size()) break;
+    }
+
+    // Body starts after headers
+    if (headerEnd < rawHttpResponse.size()) {
+        resp.body = rawHttpResponse.substr(headerEnd);
+    }
+
+    return resp;
+}
+
+void addAuthHeader(std::unordered_map<std::string, std::string>& headers,
+    const std::string& token)
+{
+    headers["Authorization"] = "Bearer " + token;
+}
+
+void addContentTypeHeader(std::unordered_map<std::string, std::string>& headers,
+    const std::string& contentType)
+{
+    headers["Content-Type"] = contentType;
+}
+
+std::string buildQueryString(
+    const std::unordered_map<std::string, std::string>& params)
+{
+    if (params.empty()) return "";
+
+    std::string result = "?";
+    bool first = true;
+    for (const auto& [key, val] : params) {
+        if (!first) result += "&";
+        first = false;
+        result += percentEncode(key) + "=" + percentEncode(val);
+    }
+    return result;
+}
+
+std::string buildFormBody(
+    const std::unordered_map<std::string, std::string>& params)
+{
+    std::string result;
+    bool first = true;
+    for (const auto& [key, val] : params) {
+        if (!first) result += "&";
+        first = false;
+        result += percentEncode(key) + "=" + percentEncode(val);
+    }
+    return result;
+}
+
+std::string buildMultipartBody(
+    const std::vector<MultipartPart>& parts,
+    const std::string& boundary)
+{
+    std::string bd = boundary;
+    if (bd.empty()) {
+        bd = "----ProgressiveMultipartBoundary";
+    }
+
+    std::string result;
+    for (const auto& part : parts) {
+        result += "--" + bd + "\r\n";
+        result += "Content-Disposition: form-data; name=\"" + part.name + "\"";
+        if (!part.filename.empty()) {
+            result += "; filename=\"" + part.filename + "\"";
+        }
+        result += "\r\n";
+        if (!part.contentType.empty()) {
+            result += "Content-Type: " + part.contentType + "\r\n";
+        }
+        result += "\r\n";
+        result += part.body;
+        result += "\r\n";
+    }
+    result += "--" + bd + "--\r\n";
+    return result;
+}
+
+// ================================================================
+// Retry Policy
+// ================================================================
+
+bool applyRetryPolicy(const RetryPolicy& policy, int statusCode, int retryCount) {
+    if (retryCount >= policy.maxRetries) return false;
+    if (policy.retryableStatusCodes.empty()) {
+        // Default: retry on 429 and 5xx
+        return statusCode == 429 || (statusCode >= 500 && statusCode < 600);
+    }
+    for (int c : policy.retryableStatusCodes) {
+        if (c == statusCode) return true;
+    }
+    return false;
+}
+
+int calcRetryDelay(const RetryPolicy& policy, int retryCount) {
+    if (retryCount <= 0) return 0;
+
+    int delay = policy.baseDelayMs;
+    switch (policy.backoffStrategy) {
+        case BackoffStrategy::NONE:
+            return 0;
+        case BackoffStrategy::FIXED:
+            return policy.baseDelayMs;
+        case BackoffStrategy::LINEAR:
+            delay = policy.baseDelayMs * retryCount;
+            break;
+        case BackoffStrategy::EXPONENTIAL: {
+            int factor = 1;
+            for (int i = 0; i < retryCount; i++) factor *= 2;
+            delay = policy.baseDelayMs * factor;
+            break;
+        }
+    }
+    if (delay > policy.maxDelayMs) delay = policy.maxDelayMs;
+    return delay;
+}
+
+// ================================================================
+// Request Logger
+// ================================================================
+
+void RequestLogger::addLog(const RequestLog& log) {
+    if (logs_.size() >= MAX_LOG_ENTRIES) {
+        logs_.pop_front();
+    }
+    logs_.push_back(log);
+}
+
+std::vector<RequestLog> RequestLogger::getLogs() const {
+    return {logs_.begin(), logs_.end()};
+}
+
+std::vector<RequestLog> RequestLogger::getRecentLogs(size_t count) const {
+    if (count >= logs_.size()) return {logs_.begin(), logs_.end()};
+    return {logs_.end() - static_cast<ptrdiff_t>(count), logs_.end()};
+}
+
+void RequestLogger::clear() {
+    logs_.clear();
+}
+
+size_t RequestLogger::size() const {
+    return logs_.size();
+}
+
+// ================================================================
+// Request Metrics
+// ================================================================
+
+RequestMetrics computeRequestMetrics(const std::vector<RequestLog>& logs) {
+    RequestMetrics m;
+    if (logs.empty()) return m;
+
+    std::vector<double> latencies;
+    latencies.reserve(logs.size());
+
+    for (const auto& log : logs) {
+        m.totalRequests++;
+        if (log.response.isOk()) {
+            m.successfulRequests++;
+        } else {
+            m.failedRequests++;
+        }
+        latencies.push_back(static_cast<double>(log.durationMs));
+    }
+
+    // Average
+    double sum = 0.0;
+    for (double l : latencies) sum += l;
+    m.avgLatencyMs = sum / latencies.size();
+
+    // Percentiles
+    std::sort(latencies.begin(), latencies.end());
+    size_t n = latencies.size();
+    auto pct = [&](double p) -> double {
+        size_t idx = static_cast<size_t>(n * p / 100.0);
+        if (idx >= n) idx = n - 1;
+        return latencies[idx];
+    };
+
+    m.p50LatencyMs = pct(50.0);
+    m.p95LatencyMs = pct(95.0);
+    m.p99LatencyMs = pct(99.0);
+
+    if (!logs.empty()) {
+        m.firstRequestTs = logs.front().timestampMs;
+        m.lastRequestTs = logs.back().timestampMs;
+    }
+
+    return m;
 }
 
 } // namespace progressive

@@ -676,4 +676,66 @@ std::string buildRoomAliasesContent(const std::string& roomId, const std::vector
 
 std::string buildCanonicalAliasContent(const std::string& canonicalAlias, const std::vector<std::string>& altAliases);
 
+// ==== Room Alias Resolution (EXPAND) ====
+//
+// Ported from RoomAliasDescription.kt, GetRoomIdByAliasTask.kt,
+// DirectoryAPI.kt (resolveAlias, createAlias, deleteAlias endpoints).
+
+// Original Kotlin (RoomAliasDescription.kt:26-34):
+//   data class RoomAliasDescription(roomId: String, servers: List<String>)
+struct RoomAliasMapping {
+    std::string roomId;                          // resolved room ID
+    std::vector<std::string> servers;            // servers that know about this alias
+    std::string canonicalAlias;                  // canonical alias for the room
+    std::vector<std::string> aliases;            // all known aliases for the room
+};
+
+// Original Kotlin: GetRoomIdByAliasTask — GET /_matrix/client/r0/directory/room/{alias}
+// Resolve a room alias to a room ID. Returns empty RoomAliasMapping.roomId on failure.
+RoomAliasMapping resolveRoomAlias(const std::string& roomAlias, const std::string& apiResponseJson);
+
+// Original Kotlin: Retrofit @GET("directory/room/{alias}")
+// Build the request URL path for alias resolution.
+// Returns the endpoint path: "/_matrix/client/r0/directory/room/{alias}"
+std::string buildAliasResolveRequest(const std::string& roomAlias);
+
+// Original Kotlin: Parse API response {"room_id": "...", "servers": [...]}
+// Manual JSON parser for the alias resolution response.
+RoomAliasMapping parseAliasResolveResponse(const std::string& responseJson);
+
+// Original Kotlin: DirectoryAPI.setRoomAlias — PUT /directory/room/{alias}
+// Build the JSON body: {"room_id": "!abc:server"}
+std::string buildCreateAliasRequest(const std::string& roomAlias, const std::string& roomId);
+
+// Original Kotlin: DirectoryAPI.deleteRoomAlias — DELETE /directory/room/{alias}
+// Build the request path for alias deletion.
+// Returns the endpoint path: "/_matrix/client/r0/directory/room/{alias}"
+std::string buildDeleteAliasRequest(const std::string& roomAlias);
+
+// ==== Alias Parsing Utilities (EXPAND) ====
+//
+// Ported from RoomAliasLocalpart.kt alias validation/formatting helpers.
+
+// Original Kotlin: alias parsing — split "#localpart:domain" into parts.
+struct RoomAliasLocalpart {
+    std::string localpart;                       // e.g. "myroom" from #myroom:example.org
+    std::string domain;                          // e.g. "example.org"
+};
+
+// Original Kotlin: parse an alias string into localpart and domain components.
+// Input: "#myroom:example.org" → localpart="myroom", domain="example.org"
+RoomAliasLocalpart parseAliasLocalpart(const std::string& roomAlias);
+
+// Original Kotlin: format "#localpart:domain" from components.
+std::string formatRoomAlias(const std::string& localpart, const std::string& domain);
+
+// Original Kotlin: validate alias format — must start with '#', contain ':',
+// have non-empty localpart and domain.
+bool isValidAlias(const std::string& roomAlias);
+
+// Original Kotlin: check if alias is available based on API response.
+// Returns true if the response indicates the alias is NOT currently in use.
+// (An empty room_id in the response means the alias is available.)
+bool isAliasAvailable(const std::string& responseJson);
+
 } // namespace progressive

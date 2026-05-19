@@ -172,4 +172,94 @@ std::string buildRoomVisibilityRequest(RoomDirectoryVisibilityState visibility);
 //   Response: {"visibility": "public"}
 RoomDirectoryVisibilityState parseRoomVisibilityResponse(const std::string& json);
 
+// ================================================================
+// Expanded Room Directory — servers, pagination, networks
+//
+// Original Kotlin: RoomDirectoryServer.kt, RoomDirectoryPagination.kt,
+//   RoomNetworkInfo.kt
+// ================================================================
+
+// ---- Room Directory Server ----
+// Original Kotlin: RoomDirectoryServer model
+
+struct RoomDirectoryServer {
+    std::string serverName;
+    bool isAvailable = false;
+};
+
+// ---- Public Room Filter (structured) ----
+// Original Kotlin: PublicRoomsFilter structured request
+
+struct PublicRoomFilter {
+    std::string searchTerm;
+    std::string server;              // specific homeserver to query
+    int limit = 50;
+    std::string since;               // pagination token
+    bool includeAllNetworks = false;
+    std::string thirdPartyInstanceId;
+};
+
+// ---- Room Directory Result ----
+// Original Kotlin: RoomDirectoryResult wrapper
+
+struct RoomDirectoryResult {
+    std::vector<PublicRoom> rooms;
+    int totalCount = 0;
+    std::string nextBatch;
+    std::string prevBatch;
+    std::string server;              // server queried
+};
+
+// ---- Room Directory Pagination ----
+// Original Kotlin: RoomDirectoryPagination model
+
+struct RoomDirectoryPagination {
+    bool hasMore = false;
+    std::string nextBatch;
+    std::string prevBatch;
+    int totalAvailable = 0;
+};
+
+// ---- Room Network Info ----
+// Original Kotlin: RoomNetworkInfo — third-party network
+
+struct RoomNetworkInfo {
+    std::string networkId;
+    std::string networkName;
+    int roomCount = 0;
+    bool isFederated = true;
+};
+
+// ================================================================
+// Expanded Room Directory Functions
+// ================================================================
+
+// Build the full JSON body for POST /publicRooms using a structured filter.
+// Original Kotlin: PublicRoomsParams with full PublicRoomFilter fields
+std::string buildPublicRoomsRequest(const PublicRoomFilter& filter);
+
+// Parse a /publicRooms response into a structured result.
+// Original Kotlin: parse full RoomDirectoryResult from response
+RoomDirectoryResult parseRoomDirectoryResult(const std::string& json);
+
+// Get pagination info from a response.
+// Original Kotlin: extract pagination fields from response
+RoomDirectoryPagination parseRoomDirectoryPagination(const std::string& json);
+
+// Compute the filter for the next page of results.
+// Original Kotlin: get next page request filter
+std::string getNextPage(const std::string& nextBatch, int limit);
+
+// Compute the filter for the previous page of results.
+// Original Kotlin: get previous page request filter
+std::string getPreviousPage(const std::string& prevBatch, int limit);
+
+// Get available third-party room networks.
+// Original Kotlin: parse third-party network list response
+std::vector<RoomNetworkInfo> getRoomNetworks(const std::string& json);
+
+// Build JSON body for a third-party protocol room request.
+// Original Kotlin: POST /_matrix/client/r0/thirdparty/protocol/{protocol}
+std::string buildThirdPartyRoomRequest(const std::string& networkId, const std::string& searchTerm, int limit = 50);
+
 } // namespace progressive

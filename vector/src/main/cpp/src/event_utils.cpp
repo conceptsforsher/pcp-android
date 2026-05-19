@@ -1,6 +1,11 @@
 #include "progressive/event_utils.hpp"
+#include "progressive/json_parser.hpp"
 #include <algorithm>
 #include <sstream>
+#include <chrono>
+#include <ctime>
+#include <unordered_set>
+#include <cmath>
 
 namespace progressive {
 
@@ -148,12 +153,12 @@ ReadMarkerPosition calculateReadMarker(
     }
 
     if (readIndex < 0) {
-        // Nothing read — everything is unread
+        // Nothing read -- everything is unread
         result.eventIndex = -1;
         result.unreadCount = (int)eventIds.size();
         result.allRead = false;
     } else if (readIndex == (int)eventIds.size() - 1) {
-        // Last event is read — everything read
+        // Last event is read -- everything read
         result.eventIndex = -1;
         result.unreadCount = 0;
         result.allRead = true;
@@ -413,7 +418,7 @@ std::string formatPowerLevelDiff(const std::string& senderName,
     std::string who = sentByCurrentUser ? "You" : senderName;
     std::string result = who + " changed power levels";
 
-    // Helper: power level → role name
+    // Helper: power level -> role name
     auto roleName = [](int pl) -> std::string {
         if (pl >= 100) return "Admin";
         if (pl >= 50) return "Moderator";
@@ -463,6 +468,413 @@ std::string formatHistoryVisibilityNotice(const std::string& senderName, const s
 std::string formatGuestAccessNotice(const std::string& senderName, bool guestsAllowed, bool sentByCurrentUser) {
     std::string who = sentByCurrentUser ? "You" : senderName;
     return guestsAllowed ? who + " allowed guests to join" : who + " restricted guest access";
+}
+
+// ============================================================================
+// NEW: Event Batching, Sorting, Filtering & Statistics
+// ============================================================================
+
+// ----- JSON helpers (local, NDK 21 compatible, no regex) -----
+
+static std::string localExtractJsonString(const std::string& json, const std::string& key) {
+    auto pos = json.find("\"" + key + "\"");
+    if (pos == std::string::npos) return "";
+    pos = json.find(':', pos);
+    if (pos == std::string::npos) return "";
+    pos++;
+    while (pos < json.size() && (json[pos] == ' ' || json[pos] == '\t' || json[pos] == '\n')) pos++;
+    if (pos >= json.size() || json[pos] != '"') return "";
+    pos++;
+    std::string out;
+    while (pos < json.size() && json[pos] != '"') {
+        if (json[pos] == '\\' && pos + 1 < json.size()) {
+            pos++;
+            out += json[pos];
+        } else {
+            out += json[pos];
+        }
+        pos++;
+    }
+    return out;
+}
+
+static int64_t localExtractJsonInt64(const std::string& json, const std::string& key) {
+    auto pos = json.find("\"" + key + "\"");
+    if (pos == std::string::npos) return 0;
+    pos = json.find(':', pos);
+    if (pos == std::string::npos) return 0;
+    pos++;
+    while (pos < json.size() && (json[pos] == ' ' || json[pos] == '\t' || json[pos] == '\n')) pos++;
+    if (pos >= json.size()) return 0;
+    int64_t val = 0;
+    bool neg = false;
+    if (json[pos] == '-') { neg = true; pos++; }
+    while (pos < json.size() && json[pos] >= '0' && json[pos] <= '9') {
+        val = val * 10 + (json[pos] - '0');
+        pos++;
+    }
+    return neg ? -val : val;
+}
+
+static bool localExtractJsonBool(const std::string& json, const std::string& key) {
+    auto pos = json.find("\"" + key + "\"");
+    if (pos == std::string::npos) return false;
+    pos = json.find(':', pos);
+    if (pos == std::string::npos) return false;
+    pos++;
+    while (pos < json.size() && (json[pos] == ' ' || json[pos] == '\t' || json[pos] == '\n')) pos++;
+    return json.compare(pos, 4, "true") == 0;
+}
+
+// ----- Sort Event List -----
+// Original Kotlin: sortEventsBy(sortOrder)
+
+std::vector<std::string> sortEventList(
+    const std::vector<std::string>& events,
+    EventListSortOrder order)
+{
+    auto sorted = events;
+
+    switch (order) {
+        case EventListSortOrder::CHRONOLOGICAL: {
+            std::sort(sorted.begin(), sorted.end(),
+                [](const std::string& a, const std::string& b) {
+                    return localExtractJsonInt64(a, "origin_server_ts") <
+                           localExtractJsonInt64(b, "origin_server_ts");
+                });
+            break;
+        }
+        case EventListSortOrder::REVERSE_CHRONOLOGICAL: {
+            std::sort(sorted.begin(), sorted.end(),
+                [](const std::string& a, const std::string& b) {
+                    return localExtractJsonInt64(a, "origin_server_ts") >
+                           localExtractJsonInt64(b, "origin_server_ts");
+                });
+            break;
+        }
+        case EventListSortOrder::BY_SENDER: {
+            std::sort(sorted.begin(), sorted.end(),
+                [](const std::string& a, const std::string& b) {
+                    std::string sa = localExtractJsonString(a, "sender");
+                    std::string sb = localExtractJsonString(b, "sender");
+                    if (sa != sb) return sa < sb;
+                    return localExtractJsonInt64(a, "origin_server_ts") <
+                           localExtractJsonInt64(b, "origin_server_ts");
+                });
+            break;
+        }
+        case EventListSortOrder::BY_TYPE: {
+            std::sort(sorted.begin(), sorted.end(),
+                [](const std::string& a, const std::string& b) {
+                    std::string ta = localExtractJsonString(a, "type");
+                    std::string tb = localExtractJsonString(b, "type");
+                    if (ta != tb) return ta < tb;
+                    return localExtractJsonInt64(a, "origin_server_ts") <
+                           localExtractJsonInt64(b, "origin_server_ts");
+                });
+            break;
+        }
+    }
+
+    return sorted;
+}
+
+// ----- Group Events By Sender -----
+// Original Kotlin: groupEventsBySender(events)
+
+std::vector<std::pair<std::string, std::vector<std::string>>> groupEventsBySender(
+    const std::vector<std::string>& events)
+{
+    std::vector<std::pair<std::string, std::vector<std::string>>> groups;
+
+    std::string currentSender;
+    std::vector<std::string> currentGroup;
+
+    for (const auto& ev : events) {
+        std::string sender = localExtractJsonString(ev, "sender");
+
+        if (sender != currentSender && !currentGroup.empty()) {
+            groups.emplace_back(currentSender, currentGroup);
+            currentGroup.clear();
+        }
+
+        currentSender = sender;
+        currentGroup.push_back(ev);
+    }
+
+    if (!currentGroup.empty()) {
+        groups.emplace_back(currentSender, currentGroup);
+    }
+
+    return groups;
+}
+
+// ----- Group Events By Day -----
+// Original Kotlin: groupEventsByDay(events)
+
+std::vector<EventDay> groupEventsByDay(
+    const std::vector<std::string>& events,
+    int64_t nowMs)
+{
+    if (nowMs <= 0) {
+        nowMs = static_cast<int64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count());
+    }
+
+    int64_t dayMs = 86400000LL;
+    std::vector<EventDay> days;
+
+    for (const auto& ev : events) {
+        int64_t ts = localExtractJsonInt64(ev, "origin_server_ts");
+        int64_t localDayStart = nowMs / dayMs * dayMs;
+        int64_t evDayStart = ts / dayMs * dayMs;
+        int64_t diffDays = (localDayStart - evDayStart) / dayMs;
+
+        std::string dateStr;
+        {
+            time_t t = ts / 1000;
+            struct tm result;
+            gmtime_r(&t, &result);
+            char buf[16];
+            strftime(buf, sizeof(buf), "%F", &result);
+            dateStr = buf;
+        }
+
+        std::string label;
+        if (diffDays == 0) {
+            label = "Today";
+        } else if (diffDays == 1) {
+            label = "Yesterday";
+        } else {
+            time_t t = ts / 1000;
+            struct tm result;
+            gmtime_r(&t, &result);
+            char buf[16];
+            strftime(buf, sizeof(buf), "%b %d", &result);
+            label = buf;
+        }
+
+        // Find or create the day bucket
+        bool found = false;
+        for (auto& day : days) {
+            if (day.date == dateStr) {
+                day.events.push_back(ev);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            EventDay day;
+            day.date = dateStr;
+            day.label = label;
+            day.events.push_back(ev);
+            days.push_back(day);
+        }
+    }
+
+    return days;
+}
+
+// ----- Filter Events By Type -----
+// Original Kotlin: filterEventsByType(events, types)
+
+std::vector<std::string> filterEventsByType(
+    const std::vector<std::string>& events,
+    const std::vector<std::string>& types)
+{
+    if (types.empty()) return events;
+
+    std::vector<std::string> filtered;
+    for (const auto& ev : events) {
+        std::string t = localExtractJsonString(ev, "type");
+        for (const auto& wanted : types) {
+            if (t == wanted) {
+                filtered.push_back(ev);
+                break;
+            }
+        }
+    }
+    return filtered;
+}
+
+// ----- Filter Events Excluding Redacted -----
+// Original Kotlin: filterEventsExcludingRedacted(events)
+
+std::vector<std::string> filterEventsExcludingRedacted(
+    const std::vector<std::string>& events)
+{
+    std::vector<std::string> filtered;
+    for (const auto& ev : events) {
+        auto redactPos = ev.find("\"redacted_because\"");
+        if (redactPos != std::string::npos) {
+            // Check if it's actually set and not in a nested structure accidentally
+            auto colon = ev.find(':', redactPos);
+            if (colon != std::string::npos) {
+                for (size_t i = colon + 1; i < ev.size(); i++) {
+                    if (ev[i] == '{' || ev[i] == '[') break;
+                    if (ev[i] == 'n' || ev[i] == 'N') continue; // skip "null"
+                    if (ev[i] != ' ' && ev[i] != '\t' && ev[i] != '\n') {
+                        // non-null redacted_because -> skip
+                        goto skipEvent;
+                    }
+                }
+            }
+        }
+        filtered.push_back(ev);
+        skipEvent:;
+    }
+    return filtered;
+}
+
+// ----- Get Event Age (ms) -----
+// Original Kotlin: getEventAgeMs(event)
+
+int64_t getEventAgeMs(const std::string& eventJson, int64_t nowMs) {
+    if (nowMs <= 0) {
+        nowMs = static_cast<int64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count());
+    }
+    int64_t ts = localExtractJsonInt64(eventJson, "origin_server_ts");
+    if (ts <= 0) return 0;
+    return nowMs - ts;
+}
+
+// ----- Is Recent Event -----
+// Original Kotlin: isRecentEvent(event, thresholdMs)
+
+bool isRecentEvent(const std::string& eventJson, int64_t thresholdMs, int64_t nowMs) {
+    int64_t age = getEventAgeMs(eventJson, nowMs);
+    return age >= 0 && age <= thresholdMs;
+}
+
+// ----- Format Event Count -----
+// Original Kotlin: formatEventCount(count)
+
+std::string formatEventCount(int count) {
+    if (count == 1) return "1 message";
+    return std::to_string(count) + " messages";
+}
+
+// ----- Compute Event Stats -----
+// Original Kotlin: computeEventStats(events)
+
+EventStats computeEventStats(const std::vector<std::string>& events) {
+    EventStats stats;
+    stats.totalEvents = static_cast<int>(events.size());
+
+    std::unordered_set<std::string> senders;
+
+    for (const auto& ev : events) {
+        std::string type = localExtractJsonString(ev, "type");
+
+        // Message vs state
+        if (type == "m.room.message" || type == "m.sticker" ||
+            type.find("m.poll.") == 0 || type.find("m.call.") == 0) {
+            stats.messageCount++;
+        } else if (type.find("m.room.") == 0 &&
+                   type != "m.room.message" &&
+                   type != "m.room.encrypted" &&
+                   type != "m.room.redaction") {
+            stats.stateEventCount++;
+        }
+
+        // Encrypted
+        if (type == "m.room.encrypted" ||
+            localExtractJsonString(ev, "algorithm").find("megolm") != std::string::npos ||
+            localExtractJsonString(ev, "algorithm").find("olm") != std::string::npos) {
+            stats.encryptedCount++;
+        }
+
+        // Redacted
+        if (localExtractJsonString(ev, "redacted_because").find("redacts") != std::string::npos) {
+            stats.redactedCount++;
+        }
+
+        // Unique senders
+        std::string sender = localExtractJsonString(ev, "sender");
+        if (!sender.empty()) {
+            senders.insert(sender);
+        }
+    }
+
+    stats.senderCount = static_cast<int>(senders.size());
+    return stats;
+}
+
+// ----- Search Event Text -----
+// Original Kotlin: searchEventText(events, query)
+
+std::vector<EventSearchResult> searchEventText(
+    const std::vector<std::string>& events,
+    const std::string& query,
+    int maxResults)
+{
+    std::vector<EventSearchResult> results;
+
+    if (query.empty()) return results;
+
+    std::string qLower = query;
+    for (auto& c : qLower) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+
+    for (const auto& ev : events) {
+        if (static_cast<int>(results.size()) >= maxResults) break;
+
+        std::string body = localExtractJsonString(ev, "body");
+        // Fallback: search content nested object
+        if (body.empty()) {
+            auto cp = ev.find("\"content\"");
+            if (cp != std::string::npos) {
+                auto ob = ev.find('{', cp);
+                if (ob != std::string::npos) {
+                    auto ib = localExtractJsonString(ev.substr(ob), "body");
+                    if (!ib.empty()) body = ib;
+                }
+            }
+        }
+
+        std::string bodyLower = body;
+        for (auto& c : bodyLower) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+
+        auto pos = bodyLower.find(qLower);
+        if (pos != std::string::npos) {
+            EventSearchResult res;
+            res.eventId = localExtractJsonString(ev, "event_id");
+            res.roomId = localExtractJsonString(ev, "room_id");
+            res.timestamp = localExtractJsonInt64(ev, "origin_server_ts");
+
+            // Extract match text with context
+            size_t start = (pos > 30) ? pos - 30 : 0;
+            size_t len = std::min(body.size() - start, size_t(80));
+            res.matchText = body.substr(pos, query.size());
+            res.matchContext = body.substr(start, len);
+
+            results.push_back(res);
+        }
+    }
+
+    return results;
+}
+
+// ============================================================================
+// Event JSON Field Extractors
+// ============================================================================
+
+// Original Kotlin: extract* from Event JSON
+
+std::string extractEventType(const std::string& eventJson) {
+    return localExtractJsonString(eventJson, "type");
+}
+
+std::string extractEventSender(const std::string& eventJson) {
+    return localExtractJsonString(eventJson, "sender");
+}
+
+std::string extractEventRoomId(const std::string& eventJson) {
+    return localExtractJsonString(eventJson, "room_id");
+}
+
+int64_t extractEventTimestamp(const std::string& eventJson) {
+    return localExtractJsonInt64(eventJson, "origin_server_ts");
 }
 
 } // namespace progressive

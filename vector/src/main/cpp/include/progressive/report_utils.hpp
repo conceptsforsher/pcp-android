@@ -39,9 +39,6 @@ enum class ReportReasonCode {
     CUSTOM,             // Fully custom reason string
 };
 
-// Alias for backward compatibility and spec compliance
-using ReportReason = ReportReasonCode;
-
 // String constants for each reason code
 namespace ReportReasonStr {
     constexpr const char* SPAM = "m.spam";
@@ -215,5 +212,98 @@ bool detectShake(const std::vector<RageshakeEvent>& events, double threshold = 1
 
 // Check if recent shakes exceed threshold for rageshake trigger.
 bool shouldTriggerRageshake(const std::vector<RageshakeEvent>& events);
+
+// ================================================================
+// Expanded Report Types — categories, results, history, validation
+//
+// Original Kotlin: ReportCategory.kt, ReportResult.kt,
+//   ReportHistory.kt, ReportConfig.kt
+// ================================================================
+
+// ---- Report Category ----
+// Original Kotlin: ReportCategory enum (UI-facing categories)
+
+enum class ReportCategory {
+    SPAM = 0,
+    HARASSMENT = 1,
+    INAPPROPRIATE = 2,
+    VIOLENCE = 3,
+    SELF_HARM = 4,
+    ILLEGAL = 5,
+    IMPERSONATION = 6,
+    COPYRIGHT = 7,
+    CUSTOM = 8,
+};
+
+const char* reportCategoryToString(ReportCategory category);
+ReportCategory reportCategoryFromString(const std::string& s);
+
+// ---- Report Status ----
+// Original Kotlin: ReportStatus enum
+
+enum class ReportStatus {
+    PENDING = 0,
+    REVIEWED = 1,
+    RESOLVED = 2,
+    DISMISSED = 3,
+};
+
+const char* reportStatusToString(ReportStatus status);
+ReportStatus reportStatusFromString(const std::string& s);
+
+// ---- Report Result ----
+// Original Kotlin: ReportResult data class (success/failure wrapper)
+
+struct ReportResult {
+    bool success = false;
+    std::string reportId;
+    std::string errorMessage;
+    std::string errorCode;
+};
+
+// ---- Report Config ----
+// Original Kotlin: ReportConfig — server-reported reporting configuration
+
+struct ReportConfig {
+    std::vector<std::string> availableReasons;
+    bool requireDescription = false;
+    int maxDescriptionLength = 500;
+};
+
+// ---- Report History Entry ----
+// Original Kotlin: ReportHistoryEntry data class
+
+struct ReportHistoryEntry {
+    std::string reportId;
+    std::string eventId;
+    std::string roomId;
+    std::string reason;
+    int64_t timestamp = 0;       // Unix epoch millis
+    ReportStatus status = ReportStatus::PENDING;
+};
+
+// ---- Report History ----
+// Original Kotlin: ReportHistory wrapper
+
+struct ReportHistory {
+    std::vector<ReportHistoryEntry> reports;
+    int totalCount = 0;
+};
+
+// ================================================================
+// Expanded Report Functions
+// ================================================================
+
+// Validate a report request for submission.
+// Original Kotlin: ReportValidator.validate(report)
+bool validateReport(const ReportRequest& request, const ReportConfig& config);
+
+// Format a report reason as a user-facing readable string.
+// Original Kotlin: report reason -> display string
+std::string formatReportReason(const std::string& reasonCode);
+
+// Get the list of default Matrix specification report reasons.
+// Original Kotlin: Matrix spec section 13.33.1 reason strings
+std::vector<std::string> getDefaultReportReasons();
 
 } // namespace progressive

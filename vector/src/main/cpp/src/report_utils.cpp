@@ -305,4 +305,133 @@ bool shouldTriggerRageshake(const std::vector<RageshakeEvent>& events) {
     return detectShake(events, 15.0, 3, 500);
 }
 
+// ================================================================
+// Expanded Report Functions — categories, validation, history
+// ================================================================
+
+// ====== Report Category conversions ======
+// Original Kotlin: ReportCategory enum
+
+const char* reportCategoryToString(ReportCategory category) {
+    switch (category) {
+        case ReportCategory::SPAM: return "spam";
+        case ReportCategory::HARASSMENT: return "harassment";
+        case ReportCategory::INAPPROPRIATE: return "inappropriate";
+        case ReportCategory::VIOLENCE: return "violence";
+        case ReportCategory::SELF_HARM: return "self_harm";
+        case ReportCategory::ILLEGAL: return "illegal";
+        case ReportCategory::IMPERSONATION: return "impersonation";
+        case ReportCategory::COPYRIGHT: return "copyright";
+        case ReportCategory::CUSTOM: return "custom";
+    }
+    return "custom";
+}
+
+ReportCategory reportCategoryFromString(const std::string& s) {
+    if (s == "spam") return ReportCategory::SPAM;
+    if (s == "harassment") return ReportCategory::HARASSMENT;
+    if (s == "inappropriate") return ReportCategory::INAPPROPRIATE;
+    if (s == "violence") return ReportCategory::VIOLENCE;
+    if (s == "self_harm") return ReportCategory::SELF_HARM;
+    if (s == "illegal") return ReportCategory::ILLEGAL;
+    if (s == "impersonation") return ReportCategory::IMPERSONATION;
+    if (s == "copyright") return ReportCategory::COPYRIGHT;
+    return ReportCategory::CUSTOM;
+}
+
+// ====== Report Status conversions ======
+// Original Kotlin: ReportStatus enum
+
+const char* reportStatusToString(ReportStatus status) {
+    switch (status) {
+        case ReportStatus::PENDING: return "pending";
+        case ReportStatus::REVIEWED: return "reviewed";
+        case ReportStatus::RESOLVED: return "resolved";
+        case ReportStatus::DISMISSED: return "dismissed";
+    }
+    return "pending";
+}
+
+ReportStatus reportStatusFromString(const std::string& s) {
+    if (s == "reviewed") return ReportStatus::REVIEWED;
+    if (s == "resolved") return ReportStatus::RESOLVED;
+    if (s == "dismissed") return ReportStatus::DISMISSED;
+    return ReportStatus::PENDING;
+}
+
+// ====== Validate Report ======
+// Original Kotlin: ReportValidator.validate(report, config)
+
+bool validateReport(const ReportRequest& request, const ReportConfig& config) {
+    // Check that a reason is provided
+    if (request.reason.empty()) return false;
+
+    // Check that the reason is in the allowed list (if server restricts)
+    if (!config.availableReasons.empty()) {
+        bool found = false;
+        for (const auto& allowed : config.availableReasons) {
+            if (allowed == request.reason) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) return false;
+    }
+
+    // Check description length if required
+    if (config.requireDescription && config.maxDescriptionLength > 0) {
+        if (static_cast<int>(request.reason.size()) > config.maxDescriptionLength) return false;
+    }
+
+    // Score must be in valid range [-100, 0]
+    if (request.score < -100 || request.score > 0) return false;
+
+    // Room ID is required
+    if (request.roomId.empty()) return false;
+
+    return true;
+}
+
+// ====== Format Report Reason ======
+// Original Kotlin: format report reason code as user-facing text
+
+std::string formatReportReason(const std::string& reasonCode) {
+    if (reasonCode == ReportReasonStr::SPAM) return "Spam";
+    if (reasonCode == ReportReasonStr::INAPPROPRIATE) return "Inappropriate content";
+    if (reasonCode == ReportReasonStr::OFFENSIVE) return "Offensive or abusive";
+    if (reasonCode == ReportReasonStr::ILLEGAL) return "Illegal content";
+    if (reasonCode == ReportReasonStr::VIOLENCE) return "Violence or threat";
+    if (reasonCode == ReportReasonStr::HARASSMENT) return "Harassment or bullying";
+    if (reasonCode == ReportReasonStr::SUICIDE) return "Self-harm content";
+    if (reasonCode == ReportReasonStr::IMPERSONATION) return "Impersonation";
+    if (reasonCode == ReportReasonStr::CHILD_ABUSE) return "Child abuse material";
+    if (reasonCode == ReportReasonStr::TERRORISM) return "Terrorism or extremism";
+    if (reasonCode == ReportReasonStr::COPYRIGHT) return "Copyright infringement";
+    if (reasonCode == ReportReasonStr::OTHER) return "Other reason";
+    return reasonCode; // custom reason passed through
+}
+
+// ====== Get Default Report Reasons ======
+// Original Kotlin: Matrix spec section 13.33.1 standard reason strings
+//   "m.spam", "m.inappropriate", "m.offensive", "m.illegal",
+//   "m.violence", "m.harassment", "m.suicide", "m.impersonation",
+//   "m.child_abuse", "m.terrorism", "m.copyright", "m.other"
+
+std::vector<std::string> getDefaultReportReasons() {
+    return {
+        ReportReasonStr::SPAM,
+        ReportReasonStr::INAPPROPRIATE,
+        ReportReasonStr::OFFENSIVE,
+        ReportReasonStr::ILLEGAL,
+        ReportReasonStr::VIOLENCE,
+        ReportReasonStr::HARASSMENT,
+        ReportReasonStr::SUICIDE,
+        ReportReasonStr::IMPERSONATION,
+        ReportReasonStr::CHILD_ABUSE,
+        ReportReasonStr::TERRORISM,
+        ReportReasonStr::COPYRIGHT,
+        ReportReasonStr::OTHER,
+    };
+}
+
 } // namespace progressive

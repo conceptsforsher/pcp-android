@@ -1,5 +1,6 @@
 #include "progressive/room_state.hpp"
 #include <sstream>
+#include <cctype>
 
 namespace progressive {
 
@@ -790,6 +791,456 @@ std::string buildDirectoryVisibilityContent(RoomDirectoryVisibility visibility) 
     std::ostringstream json;
     json << R"({"visibility":")" << val << R"("})";
     return json.str();
+}
+
+} // namespace progressive
+
+//==== Room Member State (from RoomDataSource.kt + LoadRoomMembersTask) ====
+
+namespace progressive {
+
+// Helper: extract string value from JSON (local copy to avoid dependency)
+static std::string _extractStr(const std::string& json, const std::string& field) {
+    auto search = "\"" + field + "\":\"";
+    auto pos = json.find(search);
+    if (pos == std::string::npos) {
+        search = "\"" + field + "\": \"";
+        pos = json.find(search);
+    }
+    if (pos == std::string::npos) return "";
+    pos += search.size();
+    auto end = json.find('"', pos);
+    if (end == std::string::npos) return "";
+    return json.substr(pos, end - pos);
+}
+
+static bool _extractBool(const std::string& json, const std::string& field, bool defaultVal = false) {
+    auto search = "\"" + field + "\":";
+    auto pos = json.find(search);
+    if (pos == std::string::npos) return defaultVal;
+    pos += search.size();
+    while (pos < json.size() && (json[pos] == ' ' || json[pos] == '\t')) pos++;
+    if (json.find("true", pos) == pos) return true;
+    if (json.find("false", pos) == pos) return false;
+    return defaultVal;
+}
+
+RoomMembersState queryRoomMembers(
+    const std::string& roomId,
+    const std::string& apiResponseJson,
+    bool isTruncated,
+    RoomMembersLoadStatus loadStatus)
+{
+    // Original Kotlin: LoadRoomMembersTask.insertInDb() parses RoomMembersResponse
+    //   response.roomMemberEvents (List<Event>) → RoomMemberSummaryEntity entries
+    RoomMembersState state;
+    state.roomId = roomId;
+    state.isTruncated = isTruncated;
+    state.loadStatus = loadStatus;
+
+    // Parse each event in the "chunk" array
+    size_t pos = 0;
+    while (true) {
+        // Find a member event object in the response
+        pos = apiResponseJson.find("\"user_id\"", pos);
+        if (pos == std::string::npos) {
+            pos = apiResponseJson.find("\"state_key\"", pos);
+            if (pos == std::string::npos) break;
+        }
+
+        // Backtrack to the start of this event object
+        auto objStart = apiResponseJson.rfind('{', pos);
+        if (objStart == std::string::npos) break;
+
+        int depth = 0;
+        auto objEnd = objStart;
+        while (objEnd < apiResponseJson.size()) {
+            if (apiResponseJson[objEnd] == '{') ++depth;
+            else if (apiResponseJson[objEnd] == '}') --depth;
+            if (depth == 0) break;
+            ++objEnd;
+        }
+        if (objEnd >= apiResponseJson.size()) break;
+
+        std::string eventJson = apiResponseJson.substr(objStart, objEnd - objStart + 1);
+
+        RoomMemberState member;
+        member.userId = _extractStr(eventJson, "state_key");
+        if (member.userId.empty()) member.userId = _extractStr(eventJson, "user_id");
+
+        // Extract content
+        auto contentStr = _extractStr(eventJson, "content");
+        if (!contentStr.empty()) {
+            std::string contentJson = "{" + contentStr + "}";
+            member.membership = membershipFromString(_extractStr(contentJson, "membership"));
+            member.displayName = _extractStr(contentJson, "displayname");
+            member.avatarUrl = _extractStr(contentJson, "avatar_url");
+        }
+
+        // Extract sender as potential inviter
+        auto sender = _extractStr(eventJson, "sender");
+        if (member.membership == Membership::INVITE && !sender.empty()) {
+            member.invitedBy = sender;
+        }
+
+        // Extract timestamp
+        auto ts = _extractStr(eventJson, "origin_server_ts");
+        if (!ts.empty()) member.joinedTs = std::stoll(ts);
+
+        if (!member.userId.empty()) state.members.push_back(member);
+        pos = objEnd + 1;
+    }
+
+    // Compute counts
+    for (const auto& m : state.members) {
+        switch (m.membership) {
+            case Membership::JOIN:   state.joinedCount++; break;
+            case Membership::INVITE: state.invitedCount++; break;
+            case Membership::LEAVE:  state.leftCount++; break;
+            case Membership::BAN:    state.bannedCount++; break;
+            default: break;
+        }
+    }
+    state.totalCount = static_cast<int>(state.members.size());
+
+    return state;
+}
+
+std::vector<RoomMemberState> getActiveMembers(const RoomMembersState& state) {
+    // Original Kotlin: RoomMemberHelper.queryActiveRoomMembersEvent()
+    //   membership == JOIN or INVITE
+    std::vector<RoomMemberState> result;
+    for (const auto& m : state.members) {
+        if (isActiveMembership(m.membership)) {
+            result.push_back(m);
+        }
+    }
+    return result;
+}
+
+std::vector<RoomMemberState> getOtherMembers(const RoomMembersState& state, const std::string& currentUserId) {
+    // Original Kotlin: activeMembers.where().notEqualTo(USER_ID, userId)
+    std::vector<RoomMemberState> result;
+    for (const auto& m : state.members) {
+        if (m.userId != currentUserId && isActiveMembership(m.membership)) {
+            result.push_back(m);
+        }
+    }
+    return result;
+}
+
+bool isMemberInRoom(const RoomMembersState& state, const std::string& userId) {
+    for (const auto& m : state.members) {
+        if (m.userId == userId && isActiveMembership(m.membership)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::vector<std::string> getJoinedMemberIds(const RoomMembersState& state) {
+    std::vector<std::string> ids;
+    for (const auto& m : state.members) {
+        if (m.membership == Membership::JOIN) {
+            ids.push_back(m.userId);
+        }
+    }
+    return ids;
+}
+
+std::vector<std::string> getActiveMemberIds(const RoomMembersState& state) {
+    std::vector<std::string> ids;
+    for (const auto& m : state.members) {
+        if (isActiveMembership(m.membership)) {
+            ids.push_back(m.userId);
+        }
+    }
+    return ids;
+}
+
+std::string roomMembersStateToJson(const RoomMembersState& state) {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+    std::ostringstream json;
+    json << R"({"roomId":")" << esc(state.roomId) << R"(")";
+    json << R"(,"totalCount":)" << state.totalCount;
+    json << R"(,"joinedCount":)" << state.joinedCount;
+    json << R"(,"invitedCount":)" << state.invitedCount;
+    json << R"(,"leftCount":)" << state.leftCount;
+    json << R"(,"bannedCount":)" << state.bannedCount;
+    json << R"(,"loadStatus":")" << roomMembersLoadStatusToString(state.loadStatus) << R"(")";
+    json << R"(,"isTruncated":)" << (state.isTruncated ? "true" : "false");
+    json << R"(,"members":[)";
+    for (size_t i = 0; i < state.members.size(); i++) {
+        if (i > 0) json << ",";
+        const auto& m = state.members[i];
+        json << R"({"userId":")" << esc(m.userId) << R"(")";
+        json << R"(,"displayName":")" << esc(m.displayName) << R"(")";
+        json << R"(,"avatarUrl":")" << esc(m.avatarUrl) << R"(")";
+        json << R"(,"membership":")" << esc(membershipToString(m.membership)) << R"(")";
+        json << R"(,"powerLevel":)" << m.powerLevel;
+        json << R"(,"isRoomCreator":)" << (m.isRoomCreator ? "true" : "false");
+        json << R"(,"joinedTs":)" << m.joinedTs;
+        json << R"(,"invitedBy":")" << esc(m.invitedBy) << R"(")";
+        json << R"(,"userPresence":")" << esc(m.userPresence) << R"("})";
+    }
+    json << "]}";
+    return json.str();
+}
+
+// ================================================================
+// Power Levels Extended (EXPAND)
+//
+// Ported from PowerLevelsContent.kt, RoomMemberHelper.kt power level
+// lookup methods, and the state change diff used by RoomSummaryUpdater.
+// ================================================================
+
+RoomPowerLevelsContent parsePowerLevelsContent(const std::string& json) {
+    // Original Kotlin (PowerLevelsContent.kt:27-68):
+    //   data class PowerLevelsContent(ban, kick, invite, redact,
+    //       events_default, events, users_default, users,
+    //       state_default, notifications)
+    RoomPowerLevelsContent c;
+
+    // Simple integer fields with defaults
+    c.ban = [&]() {
+        auto s = extractStr(json, "ban"); return s.empty() ? 50 : std::stoi(s);
+    }();
+    c.kick = [&]() {
+        auto s = extractStr(json, "kick"); return s.empty() ? 50 : std::stoi(s);
+    }();
+    c.invite = [&]() {
+        auto s = extractStr(json, "invite"); return s.empty() ? 0 : std::stoi(s);
+    }();
+    c.redact = [&]() {
+        auto s = extractStr(json, "redact"); return s.empty() ? 50 : std::stoi(s);
+    }();
+    c.eventsDefault = [&]() {
+        auto s = extractStr(json, "events_default"); return s.empty() ? 0 : std::stoi(s);
+    }();
+    c.usersDefault = [&]() {
+        auto s = extractStr(json, "users_default"); return s.empty() ? 0 : std::stoi(s);
+    }();
+    c.stateDefault = [&]() {
+        auto s = extractStr(json, "state_default"); return s.empty() ? 50 : std::stoi(s);
+    }();
+
+    // Parse "events" map
+    auto eventsJson = [&]() -> std::string {
+        auto pos = json.find("\"events\"");
+        if (pos == std::string::npos) return "";
+        pos = json.find('{', pos);
+        if (pos == std::string::npos) return "";
+        int depth = 1;
+        size_t start = pos;
+        pos++;
+        while (pos < json.size() && depth > 0) {
+            if (json[pos] == '{') depth++;
+            else if (json[pos] == '}') depth--;
+            pos++;
+        }
+        return json.substr(start, pos - start);
+    }();
+    if (!eventsJson.empty()) {
+        size_t pos2 = 1;
+        while (pos2 < eventsJson.size()) {
+            while (pos2 < eventsJson.size() && (eventsJson[pos2] == ' ' || eventsJson[pos2] == ',')) pos2++;
+            if (pos2 >= eventsJson.size() || eventsJson[pos2] == '}') break;
+            if (eventsJson[pos2] == '"') {
+                pos2++;
+                size_t keyEnd = pos2;
+                while (keyEnd < eventsJson.size() && eventsJson[keyEnd] != '"') keyEnd++;
+                std::string key = eventsJson.substr(pos2, keyEnd - pos2);
+                pos2 = keyEnd + 1;
+                while (pos2 < eventsJson.size() && eventsJson[pos2] != ':') pos2++;
+                pos2++;
+                while (pos2 < eventsJson.size() && (eventsJson[pos2] == ' ' || eventsJson[pos2] == '\t')) pos2++;
+                int val = 0;
+                while (pos2 < eventsJson.size() && eventsJson[pos2] >= '0' && eventsJson[pos2] <= '9') {
+                    val = val * 10 + (eventsJson[pos2] - '0');
+                    pos2++;
+                }
+                c.events[key] = val;
+            }
+        }
+    }
+
+    // Parse "users" map
+    auto usersJson = [&]() -> std::string {
+        auto pos = json.find("\"users\"");
+        if (pos == std::string::npos) return "";
+        pos = json.find('{', pos);
+        if (pos == std::string::npos) return "";
+        int depth = 1;
+        size_t start = pos;
+        pos++;
+        while (pos < json.size() && depth > 0) {
+            if (json[pos] == '{') depth++;
+            else if (json[pos] == '}') depth--;
+            pos++;
+        }
+        return json.substr(start, pos - start);
+    }();
+    if (!usersJson.empty()) {
+        size_t pos2 = 1;
+        while (pos2 < usersJson.size()) {
+            while (pos2 < usersJson.size() && (usersJson[pos2] == ' ' || usersJson[pos2] == ',')) pos2++;
+            if (pos2 >= usersJson.size() || usersJson[pos2] == '}') break;
+            if (usersJson[pos2] == '"') {
+                pos2++;
+                size_t keyEnd = pos2;
+                while (keyEnd < usersJson.size() && usersJson[keyEnd] != '"') keyEnd++;
+                std::string key = usersJson.substr(pos2, keyEnd - pos2);
+                pos2 = keyEnd + 1;
+                while (pos2 < usersJson.size() && usersJson[pos2] != ':') pos2++;
+                pos2++;
+                while (pos2 < usersJson.size() && (usersJson[pos2] == ' ' || usersJson[pos2] == '\t')) pos2++;
+                int val = 0;
+                while (pos2 < usersJson.size() && usersJson[pos2] >= '0' && usersJson[pos2] <= '9') {
+                    val = val * 10 + (usersJson[pos2] - '0');
+                    pos2++;
+                }
+                c.users[key] = val;
+            }
+        }
+    }
+
+    // Parse "notifications" sub-object { "room": 50 }
+    auto notifJson = [&]() -> std::string {
+        auto pos = json.find("\"notifications\"");
+        if (pos == std::string::npos) return "";
+        pos = json.find('{', pos);
+        if (pos == std::string::npos) return "";
+        int depth = 1;
+        size_t start = pos;
+        pos++;
+        while (pos < json.size() && depth > 0) {
+            if (json[pos] == '{') depth++;
+            else if (json[pos] == '}') depth--;
+            pos++;
+        }
+        return json.substr(start, pos - start);
+    }();
+    if (!notifJson.empty()) {
+        auto roomStr = extractStr(notifJson, "room");
+        if (!roomStr.empty()) c.notifications.room = std::stoi(roomStr);
+    }
+
+    return c;
+}
+
+std::string buildPowerLevelsContent(const RoomPowerLevelsContent& content) {
+    // Original Kotlin: PowerLevelsContent serialization for PUT /state/m.room.power_levels
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+    std::ostringstream json;
+    json << "{";
+    json << R"("ban":)" << content.ban;
+    json << R"(,"kick":)" << content.kick;
+    json << R"(,"invite":)" << content.invite;
+    json << R"(,"redact":)" << content.redact;
+    json << R"(,"events_default":)" << content.eventsDefault;
+    json << R"(,"users_default":)" << content.usersDefault;
+    json << R"(,"state_default":)" << content.stateDefault;
+
+    // events map
+    json << R"(,"events":{)";
+    bool firstEvent = true;
+    for (const auto& [type, level] : content.events) {
+        if (!firstEvent) json << ",";
+        firstEvent = false;
+        json << R"(")" << esc(type) << R"(":)" << level;
+    }
+    json << "}";
+
+    // users map
+    json << R"(,"users":{)";
+    bool firstUser = true;
+    for (const auto& [uid, level] : content.users) {
+        if (!firstUser) json << ",";
+        firstUser = false;
+        json << R"(")" << esc(uid) << R"(":)" << level;
+    }
+    json << "}";
+
+    // notifications sub-object
+    json << R"(,"notifications":{)";
+    json << R"("room":)" << content.notifications.room;
+    json << "}";
+
+    json << "}";
+    return json.str();
+}
+
+int getMinimumPowerLevelForAction(const RoomPowerLevelsContent& pl, const std::string& action) {
+    // Original Kotlin: RoomMemberHelper power level lookup
+    // Checks per-event PL first, then eventsDefault, then stateDefault for state events,
+    // or eventsDefault for message events.
+    //
+    // State event actions (m.room.* events) use stateDefault as fallback.
+    // Message events use eventsDefault.
+    // Specific event type overrides are in the events map.
+
+    // Check for specific event type override
+    auto it = pl.events.find(action);
+    if (it != pl.events.end()) {
+        return it->second;
+    }
+
+    // State events use stateDefault as ultimate fallback
+    if (action.find("m.room.") == 0 ||
+        action.find("m.space.") == 0) {
+        return pl.stateDefault;
+    }
+
+    // Ban, kick, redact, invite are special actions
+    if (action == "ban") return pl.ban;
+    if (action == "kick") return pl.kick;
+    if (action == "redact") return pl.redact;
+    if (action == "invite") return pl.invite;
+
+    // Default: eventsDefault covers sending generic events
+    return pl.eventsDefault;
+}
+
+bool canUserPerformAction(const RoomPowerLevelsContent& pl, int userLevel, const std::string& action) {
+    // Original Kotlin: RoomMemberHelper.canSendStateEvent() etc.
+    // User must have at least the minimum power level for the action.
+    int minLevel = getMinimumPowerLevelForAction(pl, action);
+    return userLevel >= minLevel;
+}
+
+std::vector<PowerLevelsChange> computePowerLevelsChange(
+    const RoomPowerLevelsContent& prevContent,
+    const RoomPowerLevelsContent& newContent,
+    const std::string& changedBy)
+{
+    // Original Kotlin: diff logic for power levels state change
+    // Compares all user PLs between prev and new to emit change events.
+    std::vector<PowerLevelsChange> changes;
+
+    // Collect all user IDs from both maps
+    std::unordered_set<std::string> allUserIds;
+    for (const auto& [uid, level] : prevContent.users) allUserIds.insert(uid);
+    for (const auto& [uid, level] : newContent.users) allUserIds.insert(uid);
+
+    for (const auto& userId : allUserIds) {
+        int oldLevel = prevContent.usersDefault;
+        auto oldIt = prevContent.users.find(userId);
+        if (oldIt != prevContent.users.end()) oldLevel = oldIt->second;
+
+        int newLevel = newContent.usersDefault;
+        auto newIt = newContent.users.find(userId);
+        if (newIt != newContent.users.end()) newLevel = newIt->second;
+
+        if (oldLevel != newLevel) {
+            changes.push_back({userId, oldLevel, newLevel, changedBy});
+        }
+    }
+
+    return changes;
 }
 
 } // namespace progressive

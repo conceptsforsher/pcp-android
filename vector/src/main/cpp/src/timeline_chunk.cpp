@@ -538,4 +538,229 @@ TimelineChunkManager deserializeChunkManager(const std::string& /*json*/, const 
     return TimelineChunkManager(roomId);
 }
 
+// ==== mergeChunk ====
+// Original Kotlin: TokenChunkEventPersistor.insertInDb()
+// Creates links between prev/next chunks, inserts events via manager, returns result
+
+ChunkLoadResult mergeChunk(
+    TimelineChunkManager& manager,
+    const TimelineChunkData& incoming,
+    TimelineDirection direction,
+    const std::string& chunkId)
+{
+    ChunkLoadResult result;
+    result.chunk = incoming;
+    result.prevToken = incoming.prevToken;
+    result.nextToken = incoming.nextToken;
+    result.isLimited = true;
+
+    std::string id = chunkId.empty()
+        ? ("merged_" + incoming.prevToken + "_" + incoming.nextToken)
+        : chunkId;
+
+    int added = manager.addChunk(id, incoming.events, incoming.prevToken,
+        incoming.nextToken, direction);
+
+    result.newEvents = added;
+    result.reachedForwardEnd = incoming.isLastForward ||
+        (direction == TimelineDirection::FORWARDS && incoming.events.empty());
+    result.reachedBackwardEnd = incoming.isLastBackward ||
+        (direction == TimelineDirection::BACKWARDS && incoming.events.empty());
+
+    if (incoming.events.empty() && !incoming.isLastBackward && !incoming.isLastForward) {
+        result.isLimited = true;
+    } else if (incoming.isLastBackward || incoming.isLastForward) {
+        result.isLimited = false;
+    }
+
+    return result;
+}
+
+// ==== splitChunk ====
+// Original Kotlin: chunk splitting for permalink event insertion mid-chunk
+
+std::pair<TimelineChunkData, TimelineChunkData> splitChunk(
+    const TimelineChunkData& chunk,
+    const std::string& splitEventId)
+{
+    TimelineChunkData before = chunk;
+    TimelineChunkData after = chunk;
+    before.events.clear();
+    after.events.clear();
+
+    bool found = false;
+    for (const auto& ev : chunk.events) {
+        if (!found) {
+            if (ev.eventId == splitEventId) {
+                found = true;
+                after.events.push_back(ev);
+            } else {
+                before.events.push_back(ev);
+            }
+        } else {
+            after.events.push_back(ev);
+        }
+    }
+
+    if (!before.events.empty()) {
+        before.nextToken = "";
+        before.nextChunkIdx = -1;
+        before.isLastForward = false;
+    }
+    if (!after.events.empty()) {
+        after.prevToken = "";
+        after.prevChunkIdx = -1;
+        after.isLastBackward = false;
+    }
+
+    if (!found) {
+        return {chunk, TimelineChunkData{}};
+    }
+
+    return {before, after};
+}
+
+// ==== ChunkPaginationController ====
+// Original Kotlin: TimelineChunk.loadMore() + PaginationTask integration
+
+ChunkPaginationController::ChunkPaginationController(TimelineChunkManager* manager)
+    : manager_(manager)
+{
+    if (manager_) {
+        forwardToken_ = manager_->getNextToken();
+        backwardToken_ = manager_->getPrevToken();
+    }
+}
+
+PaginationResult ChunkPaginationController::loadForward(int count) {
+    // Original Kotlin: timelineChunk?.loadMore(count, FORWARDS, fetchOnServerIfNeeded)
+    if (!fetchCallback_) {
+        PaginationResult r;
+        r.state = PaginationState::ERROR;
+        return r;
+    }
+    if (!hasMoreForward()) {
+        PaginationResult r;
+        r.state = PaginationState::REACHED_END;
+        r.reachedEnd = true;
+        return r;
+    }
+
+    loadState_.isLoadingForward = true;
+
+    PaginationResult result = fetchCallback_(forwardToken_, "f", count);
+    forwardToken_ = result.nextToken;
+
+    if (result.reachedEnd || result.eventJsons.empty()) {
+        loadState_.hasMoreForward = false;
+    }
+
+    loadState_.isLoadingForward = false;
+    loadState_.loadedChunks++;
+    loadState_.totalEvents += static_cast<int>(result.eventJsons.size());
+
+    return result;
+}
+
+PaginationResult ChunkPaginationController::loadBackward(int count) {
+    // Original Kotlin: timelineChunk?.loadMore(count, BACKWARDS, fetchOnServerIfNeeded)
+    if (!fetchCallback_) {
+        PaginationResult r;
+        r.state = PaginationState::ERROR;
+        return r;
+    }
+    if (!hasMoreBackward()) {
+        PaginationResult r;
+        r.state = PaginationState::REACHED_END;
+        r.reachedEnd = true;
+        return r;
+    }
+
+    loadState_.isLoadingBackward = true;
+
+    PaginationResult result = fetchCallback_(backwardToken_, "b", count);
+    backwardToken_ = result.prevToken;
+
+    if (result.reachedEnd || result.eventJsons.empty()) {
+        loadState_.hasMoreBackward = false;
+    }
+
+    loadState_.isLoadingBackward = false;
+    loadState_.loadedChunks++;
+    loadState_.totalEvents += static_cast<int>(result.eventJsons.size());
+
+    return result;
+}
+
+PaginationResult ChunkPaginationController::loadAround(const std::string& eventId, int count) {
+    // Original Kotlin: DefaultTimeline.openAround(eventId) → GetContextOfEventTask
+    if (!fetchCallback_) {
+        PaginationResult r;
+        r.state = PaginationState::ERROR;
+        return r;
+    }
+
+    loadState_.isLoadingBackward = true;
+    loadState_.isLoadingForward = true;
+
+    // Contextual load: fetch around event, set up both tokens for subsequent pagination
+    PaginationResult ctxResult = fetchCallback_("", "b", count);
+    backwardToken_ = ctxResult.prevToken;
+    forwardToken_ = ctxResult.nextToken;
+
+    if (ctxResult.reachedEnd || ctxResult.eventJsons.empty()) {
+        loadState_.hasMoreBackward = false;
+        loadState_.hasMoreForward = false;
+    }
+
+    loadState_.isLoadingBackward = false;
+    loadState_.isLoadingForward = false;
+    loadState_.loadedChunks++;
+    loadState_.totalEvents += static_cast<int>(ctxResult.eventJsons.size());
+
+    return ctxResult;
+}
+
+bool ChunkPaginationController::hasMoreForward() const {
+    // Original Kotlin: DefaultTimeline.hasMoreToLoad(FORWARDS)
+    if (!manager_) return false;
+    return loadState_.hasMoreForward && manager_->canLoadMore(TimelineDirection::FORWARDS);
+}
+
+bool ChunkPaginationController::hasMoreBackward() const {
+    // Original Kotlin: DefaultTimeline.hasMoreToLoad(BACKWARDS)
+    if (!manager_) return false;
+    return loadState_.hasMoreBackward && manager_->canLoadMore(TimelineDirection::BACKWARDS);
+}
+
+TimelineRange ChunkPaginationController::getDisplayRange() const {
+    // Original Kotlin: viewport calculation from loaded display indices
+    if (!manager_) return TimelineRange{};
+    return computeTimelineRange(0, -1, manager_->totalEventCount());
+}
+
+void ChunkPaginationController::setForwardToken(const std::string& token) {
+    forwardToken_ = token;
+}
+
+void ChunkPaginationController::setBackwardToken(const std::string& token) {
+    backwardToken_ = token;
+}
+
+std::string ChunkPaginationController::getForwardToken() const {
+    return forwardToken_;
+}
+
+std::string ChunkPaginationController::getBackwardToken() const {
+    return backwardToken_;
+}
+
+void ChunkPaginationController::setFetchCallback(FetchCallback cb) {
+    fetchCallback_ = std::move(cb);
+}
+
+TimelineLoadState ChunkPaginationController::getLoadState() const {
+    return loadState_;
+}
+
 } // namespace progressive

@@ -163,4 +163,85 @@ std::string formatProgressBar(double percent, int width) {
     return bar;
 }
 
+// ---- SyncProgress ----
+
+SyncProgress computeSyncProgress(int totalRooms, int processedRooms,
+                                  const std::string& currentRoomId,
+                                  const std::string& currentStep) {
+    SyncProgress progress;
+    progress.totalRooms = totalRooms;
+    progress.processedRooms = processedRooms;
+    progress.currentRoomId = currentRoomId;
+    progress.currentStep = currentStep;
+
+    if (totalRooms <= 0) {
+        progress.estimatedTimeRemainingMs = 0;
+        return progress;
+    }
+
+    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+
+    // Conservative estimate: 200ms per room if no rate data available
+    int remaining = totalRooms - processedRooms;
+    if (remaining < 0) remaining = 0;
+    progress.estimatedTimeRemainingMs = static_cast<int64_t>(remaining) * 200;
+
+    return progress;
+}
+
+// ---- SyncMetrics ----
+
+SyncMetrics computeSyncMetrics(const SyncResponse& response, int64_t startMs, int64_t endMs,
+                                int errorCount) {
+    SyncMetrics metrics;
+    metrics.startTimeMs = startMs;
+    metrics.endTimeMs = endMs;
+    metrics.errorCount = errorCount;
+
+    // Count events across all sections
+    metrics.presenceEvents = static_cast<int>(response.presence.events.size());
+    metrics.toDeviceEvents = static_cast<int>(response.toDevice.events.size());
+    metrics.accountDataEvents = static_cast<int>(response.accountData.events.size());
+
+    for (const auto& [roomId, room] : response.rooms.join) {
+        ++metrics.roomCount;
+        metrics.stateEvents += static_cast<int>(room.state.events.size());
+        metrics.timelineEvents += static_cast<int>(room.timeline.events.size());
+        if (room.ephemeral.state == EphemeralState::PARSED) {
+            metrics.ephemeralEvents += static_cast<int>(room.ephemeral.parsed.events.size());
+        }
+    }
+
+    for (const auto& [roomId, room] : response.rooms.leave) {
+        ++metrics.roomCount;
+        metrics.stateEvents += static_cast<int>(room.state.events.size());
+        metrics.timelineEvents += static_cast<int>(room.timeline.events.size());
+    }
+
+    for (const auto& [roomId, room] : response.rooms.invite) {
+        ++metrics.roomCount;
+        metrics.stateEvents += static_cast<int>(room.inviteState.events.size());
+    }
+
+    metrics.totalEvents = metrics.stateEvents + metrics.timelineEvents +
+                           metrics.ephemeralEvents + metrics.accountDataEvents +
+                           metrics.toDeviceEvents + metrics.presenceEvents;
+
+    return metrics;
+}
+
+bool isSyncComplete(const InitSyncProgress& progress) {
+    return progress.isComplete && progress.totalRooms > 0 &&
+           progress.processedRooms >= progress.totalRooms;
+}
+
+double getSyncSpeed(const SyncMetrics& metrics) {
+    int64_t durationMs = metrics.endTimeMs - metrics.startTimeMs;
+    if (durationMs <= 0) return 0.0;
+
+    double durationSec = static_cast<double>(durationMs) / 1000.0;
+    return static_cast<double>(metrics.totalEvents) / durationSec;
+}
+
 } // namespace progressive

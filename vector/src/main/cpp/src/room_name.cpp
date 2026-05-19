@@ -5,6 +5,189 @@
 
 namespace progressive {
 
+// ==== Room Name Error Functions ====
+
+std::string getRoomNameError(RoomNameError error) {
+    // Original Kotlin: human-readable error descriptions for UI
+    switch (error) {
+        case RoomNameError::NONE:
+            return "";
+        case RoomNameError::TOO_LONG:
+            return "Room name is too long (maximum 255 characters)";
+        case RoomNameError::TOO_SHORT:
+            return "Room name is too short";
+        case RoomNameError::INVALID_CHARS:
+            return "Room name contains invalid characters";
+        case RoomNameError::EMPTY:
+            return "Room name cannot be empty";
+        case RoomNameError::DUPLICATE:
+            return "Room name is the same as the current name";
+    }
+    return "Unknown error";
+}
+
+// ==== Room Name Config ====
+
+RoomNameConfig getDefaultRoomNameConfig() {
+    // Original Kotlin: standard Matrix room name limits
+    RoomNameConfig config;
+    config.maxLength = 255;
+    config.minLength = 1;
+    // Matrix spec: common disallowed chars for room names
+    config.disallowedRegex = "[<>]";
+    return config;
+}
+
+// ==== Room Name Event Validator ====
+
+RoomNameError RoomNameEventValidator::validateRoomName(
+    const std::string& name,
+    const RoomNameConfig& config,
+    const std::string& currentName)
+{
+    // Original Kotlin: validate room name changes against Matrix limits
+
+    // Check emptiness
+    bool allSpace = true;
+    for (char c : name) {
+        if (!std::isspace(static_cast<unsigned char>(c))) {
+            allSpace = false;
+            break;
+        }
+    }
+    if (name.empty() || allSpace) {
+        return RoomNameError::EMPTY;
+    }
+
+    // Check min length
+    if ((int)name.size() < config.minLength) {
+        return RoomNameError::TOO_SHORT;
+    }
+
+    // Check max length
+    if ((int)name.size() > config.maxLength) {
+        return RoomNameError::TOO_LONG;
+    }
+
+    // Check disallowed characters
+    if (!config.disallowedRegex.empty()) {
+        // Simple disallowed char check: < and >
+        for (char c : name) {
+            if (c == '<' || c == '>') {
+                return RoomNameError::INVALID_CHARS;
+            }
+        }
+    }
+
+    // Check if name starts or ends with whitespace
+    if (!name.empty()) {
+        if (std::isspace(static_cast<unsigned char>(name.front())) ||
+            std::isspace(static_cast<unsigned char>(name.back()))) {
+            return RoomNameError::INVALID_CHARS;
+        }
+    }
+
+    // Check duplicate (same as current)
+    if (!currentName.empty() && name == currentName) {
+        return RoomNameError::DUPLICATE;
+    }
+
+    return RoomNameError::NONE;
+}
+
+std::string RoomNameEventValidator::sanitizeRoomName(
+    const std::string& name,
+    const RoomNameConfig& config)
+{
+    // Original Kotlin: strip invalid characters and trim whitespace
+
+    // Trim leading whitespace
+    size_t start = 0;
+    while (start < name.size() && std::isspace(static_cast<unsigned char>(name[start]))) {
+        start++;
+    }
+
+    // Trim trailing whitespace
+    size_t end = name.size();
+    while (end > start && std::isspace(static_cast<unsigned char>(name[end - 1]))) {
+        end--;
+    }
+
+    std::string result;
+    result.reserve(end - start);
+
+    // Strip disallowed chars
+    for (size_t i = start; i < end; i++) {
+        char c = name[i];
+        if (c == '<' || c == '>') continue;  // Always strip < >
+        result += c;
+    }
+
+    // Truncate to max length
+    if ((int)result.size() > config.maxLength) {
+        result.resize(config.maxLength);
+    }
+
+    // Trim again after stripping
+    while (!result.empty() && std::isspace(static_cast<unsigned char>(result.front()))) {
+        result.erase(0, 1);
+    }
+    while (!result.empty() && std::isspace(static_cast<unsigned char>(result.back()))) {
+        result.pop_back();
+    }
+
+    return result;
+}
+
+// ==== Room Name History ====
+
+std::string RoomNameHistory::currentName() const {
+    // Original Kotlin: most recent name in history
+    if (entries.empty()) return "";
+    return entries.back().name;
+}
+
+std::string RoomNameHistory::previousName() const {
+    // Original Kotlin: name before the current one
+    if (entries.size() < 2) return "";
+    return entries[entries.size() - 2].name;
+}
+
+bool RoomNameHistory::wasRenamed() const {
+    // Original Kotlin: was the room ever renamed?
+    return entries.size() > 1;
+}
+
+void trackRoomNameChange(
+    RoomNameHistory& history,
+    const std::string& roomId,
+    const std::string& newName,
+    int64_t timestampMs)
+{
+    // Original Kotlin: record a name change in history
+    history.roomId = roomId;
+    history.entries.push_back({newName, timestampMs});
+}
+
+std::string formatRoomNameHistory(const RoomNameHistory& history) {
+    // Original Kotlin: human-readable name change history
+    if (history.entries.empty()) return "No name changes";
+    if (history.entries.size() == 1) {
+        return "Room created as '" + history.entries[0].name + "'";
+    }
+
+    int count = static_cast<int>(history.entries.size());
+    std::string newest = history.entries[count - 1].name;
+    std::string oldest = history.entries[0].name;
+
+    if (count == 2) {
+        return "Renamed from '" + oldest + "' to '" + newest + "'";
+    }
+
+    return "Renamed " + std::to_string(count - 1) + " times from '" +
+           oldest + "' to '" + newest + "'";
+}
+
 // ---- Room Name Calculation ----
 // Original algorithm from matrix-js-sdk:
 //   1. Room state name → use if set

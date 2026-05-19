@@ -1,5 +1,4 @@
-#ifndef PROGRESSIVE_BACKUP_UTILS_HPP
-#define PROGRESSIVE_BACKUP_UTILS_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -69,6 +68,60 @@ bool hasCrossSigningSecrets(const std::string& accountDataJson);
 // Returns JSON: {"valid":bool, "formatted":"EsTj 4fGz...", "error":"..."}
 std::string validateAndFormatRecoveryKey(const std::string& rawKey);
 
-} // namespace progressive
+// ---- Backup Recovery Key (higher-level, structured) ----
+// Original Kotlin (RecoveryKey.kt + BackupRecoveryKey.kt + IBackupRecoveryKey.kt):
+//   interface IBackupRecoveryKey { toBase58(), toBase64(), decryptV1(...), megolmV1PublicKey() }
+//   class BackupRecoveryKey : IBackupRecoveryKey { fromBase58, fromBase64, fromPassphrase, newFromPassphrase }
 
-#endif // PROGRESSIVE_BACKUP_UTILS_HPP
+struct BackupRecoveryKey {
+    std::string keyBase58;               // Base58-encoded recovery key (e.g., "EsTc 2FZd ...")
+    std::string keyBytes;                // Raw binary key material (Curve25519 private key, 32 bytes)
+    std::string algorithm;               // "m.megolm_backup.v1.curve25519-aes-sha2"
+    bool fromPassphrase = false;         // true if derived from passphrase, not random
+    std::string passphraseSalt;          // salt used for PBKDF2 (if fromPassphrase)
+    int passphraseIterations = 0;        // PBKDF2 iterations (if fromPassphrase)
+};
+
+// ---- Recovery Key Info (validation result) ----
+// Original Kotlin (RecoveryKey.kt + UI validation in KeysBackupSetupSharedViewModel.kt):
+//   Result of validating/parsing a user-entered recovery key.
+//   Tracks whether the key is complete, which chars are missing, and its formatted form.
+
+struct RecoveryKeyInfo {
+    std::string keyBase58;               // Cleaned-up base58 key (no spaces, uppercase)
+    bool isComplete = false;             // true if the key is fully entered and valid
+    std::string missingChars;            // placeholder chars for partially-entered keys (e.g., "EsTc ???")
+    std::string format;                  // formatted for display: groups of 4 (e.g., "EsTc 2FZd ...")
+    bool hasValidChecksum = false;       // true if the parity/checksum check passes
+    std::string errorMessage;            // human-readable error if validation fails
+};
+
+// Generate a new random recovery key (Curve25519 private key → base58 recovery key).
+// Uses a secure random number generator to create the 32-byte key.
+// Original Kotlin (RecoveryKey.kt:computeRecoveryKey + random key generation):
+//   fun computeRecoveryKey(curve25519Key: ByteArray): String
+BackupRecoveryKey generateRecoveryKey();
+
+// Validate a recovery key for format, header bytes, and checksum.
+// Returns RecoveryKeyInfo with detailed validation results.
+// Works on the parsed BackupRecoveryKey struct.
+// Original Kotlin (RecoveryKey.kt:isValidRecoveryKey + extractCurveKeyFromRecoveryKey):
+//   fun isValidRecoveryKey(recoveryKey: String?): Boolean
+RecoveryKeyInfo validateRecoveryKeyInfo(const BackupRecoveryKey& key);
+
+// Format a recovery key for display: groups of 4 characters separated by spaces.
+// e.g., "EsTc2FZdJsdf4Gt7..." → "EsTc 2FZd Jsdf 4Gt7 ..."
+// Works on the structured BackupRecoveryKey.
+// Original Kotlin (KeysBackupSetupSharedViewModel.kt):
+//   fun formatRecoveryKey(raw: String): String { return raw.chunked(4).joinToString(" ") }
+std::string formatRecoveryKeyDisplay(const BackupRecoveryKey& key);
+
+// Parse a recovery key from raw user input.
+// Handles: removing spaces, converting to uppercase, validating base58 characters,
+// extracting the key bytes, checking header and parity.
+// Returns a BackupRecoveryKey struct with keyBytes populated if valid.
+// Original Kotlin (RecoveryKey.kt:extractCurveKeyFromRecoveryKey):
+//   fun extractCurveKeyFromRecoveryKey(recoveryKey: String?): ByteArray?
+BackupRecoveryKey parseRecoveryKey(const std::string& input);
+
+} // namespace progressive

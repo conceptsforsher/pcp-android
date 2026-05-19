@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <cstdint>
+#include "progressive/call_models.hpp"
 
 namespace progressive {
 
@@ -115,6 +116,8 @@ struct CallSession {
     std::string callerName;
     std::string calleeId;        // Who we're calling (for outgoing)
     std::string calleeName;
+    std::string opponentUserId;  // The other party's MXID
+    std::string opponentDisplayName; // Display name of opponent
     std::vector<std::string> participants;
     CallType type = CallType::VOICE;
     CallManagerCallState state = CallManagerCallState::IDLE;
@@ -122,6 +125,7 @@ struct CallSession {
     bool isMuted = false;
     bool isSpeakerOn = true;
     bool isVideoOn = false;      // Local video enabled
+    bool isHeld = false;         // Call is on hold
     int64_t createdAtMs = 0;     // When the call was created
     int64_t startedAtMs = 0;     // When the call started ringing
     int64_t answeredAtMs = 0;    // When answered
@@ -138,6 +142,94 @@ struct CallSession {
     bool hasRemoteVideo = false; // Peer is sending video
     bool isConference = false;   // Multi-party call
 };
+
+// ---- Call Participant ----
+//
+// Original Kotlin: CallParticipant from group call / Jitsi integration
+struct CallParticipant {
+    std::string userId;          // Matrix user ID
+    std::string displayName;     // Display name
+    std::string avatarUrl;       // Avatar URL
+    bool isMuted = false;        // Audio muted
+    bool isVideoOn = false;      // Video enabled
+    bool isSpeaking = false;     // Currently speaking (dominant speaker)
+    std::string deviceId;        // Device ID (for VoIP v1 party_id)
+};
+
+// ---- Call Signaling State ----
+//
+// Original Kotlin: WebRTC signaling state machine
+enum class CallSignalingState {
+    STABLE = 0,              // "stable" — no offer/answer exchange in progress
+    HAVE_LOCAL_OFFER = 1,    // "have-local-offer" — local SDP offer sent
+    HAVE_REMOTE_OFFER = 2,   // "have-remote-offer" — remote SDP offer received
+    CLOSED = 3               // "closed" — connection closed
+};
+
+const char* callSignalingStateToString(CallSignalingState s);
+CallSignalingState callSignalingStateFromString(const std::string& s);
+
+// ---- Call Ice Candidate (high level) ----
+//
+// Original Kotlin: WebRTC RTCIceCandidate wrapper
+struct CallIceCandidate {
+    std::string sdpMid;          // Media stream identification tag
+    int sdpMLineIndex = 0;       // Media line index (0-based)
+    std::string candidate;       // Candidate string (a=candidate:...)
+    std::string serverUrl;       // Optional: STUN/TURN server URL
+
+    bool isValid() const { return !sdpMid.empty() && !candidate.empty(); }
+};
+
+// ---- Call Session Description ----
+//
+// Original Kotlin: WebRTC RTCSessionDescription wrapper
+struct CallSessionDescription {
+    std::string type;            // "offer", "answer", "pranswer", "rollback"
+    std::string sdp;             // Full SDP text
+
+    bool isValid() const { return !type.empty() && !sdp.empty(); }
+    bool isOffer() const { return type == "offer"; }
+    bool isAnswer() const { return type == "answer"; }
+};
+
+// ---- Group Call Info ----
+//
+// Original Kotlin: GroupCall / conference call models
+struct GroupCallInfo {
+    std::string groupId;         // Group/conference identifier
+    std::string roomId;          // Room where the group call is active
+    std::vector<CallParticipant> participants; // Current participants
+    std::string state;           // "creating", "active", "ended"
+    bool isActive = false;       // Whether the group call is active
+
+    int participantCount() const { return static_cast<int>(participants.size()); }
+};
+
+// ---- Group Call State ----
+//
+// Original Kotlin: GroupCallState enum
+enum class GroupCallState {
+    CREATING = 0,  // "creating" — group call is being set up
+    ACTIVE = 1,    // "active" — group call is live
+    ENDED = 2      // "ended" — group call has finished
+};
+
+const char* groupCallStateToString(GroupCallState s);
+GroupCallState groupCallStateFromString(const std::string& s);
+
+// ---- Call Participant State ----
+//
+// Original Kotlin: individual peer state within group call
+enum class CallParticipantState {
+    CONNECTING = 0,    // "connecting" — establishing connection
+    CONNECTED = 1,     // "connected" — media flowing
+    DISCONNECTED = 2,  // "disconnected" — connection lost
+    LEFT = 3           // "left" — participant left
+};
+
+const char* callParticipantStateToString(CallParticipantState s);
+CallParticipantState callParticipantStateFromString(const std::string& s);
 
 // ---- Call Event Types ----
 
@@ -288,6 +380,48 @@ public:
     // Format all calls as JSON array.
     std::string allCallsToJson() const;
 
+    // ====== Call Event Processing ======
+    //
+    // Original Kotlin: CallEventProcessor.kt / CallSignalingHandler.kt
+
+    // Process an incoming m.call.invite event.
+    // Returns the call ID, or empty if ignored.
+    std::string processCallInvite(const std::string& roomId, const std::string& senderId,
+                                   const std::string& contentJson, int64_t timestampMs);
+
+    // Process an incoming m.call.answer event.
+    // Returns true if the call state was updated.
+    bool processCallAnswer(const std::string& contentJson);
+
+    // Process an incoming m.call.hangup event.
+    // Returns true if the call state was updated.
+    bool processCallHangup(const std::string& contentJson);
+
+    // Process an incoming m.call.candidates event.
+    // Returns the number of candidates added.
+    int processCallCandidates(const std::string& contentJson);
+
+    // Process an incoming m.call.negotiate event.
+    // Returns true if the call state was updated.
+    bool processCallNegotiate(const std::string& contentJson);
+
+    // Check if an event type string is a call event type.
+    bool isCallEvent(const std::string& eventType) const;
+
+    // ==== Call Display ====
+
+    // Get a human-readable display name for a call.
+    // Uses room name if available, otherwise opponent name/ID.
+    std::string getCallDisplayName(const CallSession& call) const;
+
+    // ==== Hold / Resume ====
+
+    // Set a call on hold.
+    void setCallOnHold(const std::string& callId);
+
+    // Resume a call that is on hold.
+    void resumeCall(const std::string& callId);
+
     // ====== Call Event History ======
 
     // Parse a call event from the timeline.
@@ -299,6 +433,7 @@ public:
 
 private:
     std::vector<CallSession> calls_;
+    std::vector<GroupCallInfo> groupCalls_;
 
     CallSession* findCall(const std::string& callId);
     const CallSession* findCall(const std::string& callId) const;
@@ -306,6 +441,57 @@ private:
     std::string generateCallId() const;
     bool isValidStateTransition(CallManagerCallState from, CallManagerCallState to) const;
     int64_t nowMs() const;
+};
+
+// ================================================================
+// CallSessionManager — convenience wrapper with listener-oriented API
+//
+// Original Kotlin: MxCallFactory.kt / ActiveCallHandler.kt
+// ================================================================
+
+class CallSessionManager {
+public:
+    CallSessionManager();
+
+    // Create a new outgoing call.
+    std::string createCall(const std::string& roomId, const std::string& opponentUserId,
+                            const std::string& opponentName, bool isVideoCall);
+
+    // Answer an incoming call by call ID.
+    std::string answerCall(const std::string& callId, const std::string& sdpAnswer);
+
+    // Hang up an active call.
+    std::string hangupCall(const std::string& callId, const std::string& reason = "");
+
+    // Reject an incoming call.
+    std::string rejectCall(const std::string& callId);
+
+    // Handle events from the timeline (via CallListener pattern).
+    void onCallInviteReceived(const std::string& roomId, const std::string& senderId,
+                               const std::string& senderName, const std::string& contentJson,
+                               int64_t timestampMs);
+    void onCallAnswerReceived(const std::string& contentJson);
+    void onCallHangupReceived(const std::string& contentJson);
+
+    // Get the currently active call if any.
+    bool getActiveCall(CallSession& out) const;
+
+    // Get all calls for a specific room.
+    std::vector<CallSession> getCallsForRoom(const std::string& roomId) const;
+
+    // Hold / Resume helpers.
+    void setCallOnHold(const std::string& callId);
+    void resumeCall(const std::string& callId);
+
+    // Check events from the timeline.
+    bool isCallEvent(const std::string& eventType) const;
+
+    // Get underlying manager for advanced access.
+    CallManager& manager() { return manager_; }
+    const CallManager& manager() const { return manager_; }
+
+private:
+    CallManager manager_;
 };
 
 // JNI compat aliases (1055949e JNI uses old type names)

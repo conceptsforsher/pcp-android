@@ -153,4 +153,153 @@ std::vector<std::string> getStatusSuggestions() {
     };
 }
 
+// ==== UserStatusPreset ====
+
+std::vector<UserStatusPreset> UserStatusPreset::getPresets() {
+    // Original Kotlin: predefined status presets
+    return {
+        {"Available", "🟢", UserStatusType::ONLINE},
+        {"Away", "🟡", UserStatusType::AWAY},
+        {"Do Not Disturb", "🔴", UserStatusType::BUSY},
+        {"Invisible", "⚫", UserStatusType::OFFLINE}
+    };
+}
+
+UserStatusPreset UserStatusPreset::getPreset(UserStatusType type) {
+    // Original Kotlin: get preset by type
+    for (const auto& p : getPresets()) {
+        if (p.type == type) return p;
+    }
+    return {"Offline", "⚫", UserStatusType::OFFLINE};
+}
+
+// ==== Status Icons and Colors ====
+
+std::string getStatusIcon(UserStatusType type) {
+    // Original Kotlin: emoji icon for status type
+    return UserStatusPreset::getPreset(type).emoji;
+}
+
+std::string getStatusColor(UserStatusType type) {
+    // Original Kotlin: color hex for status indicator
+    switch (type) {
+        case UserStatusType::ONLINE: return "#4CAF50";    // Green
+        case UserStatusType::AWAY:   return "#FFC107";    // Amber
+        case UserStatusType::BUSY:   return "#F44336";    // Red
+        case UserStatusType::CUSTOM: return "#2196F3";    // Blue
+        case UserStatusType::OFFLINE: return "#9E9E9E";   // Grey
+    }
+    return "#9E9E9E";
+}
+
+// ==== User Activity Status ====
+
+UserActivityStatus computeUserActivityStatus(
+    bool isCurrentlyTyping,
+    int64_t lastTypingTs,
+    int64_t lastReadTs,
+    int64_t lastPresenceTs)
+{
+    // Original Kotlin: derive user activity from multiple signals
+    UserActivityStatus s;
+    s.lastTypingTs = lastTypingTs;
+    s.lastReadTs = lastReadTs;
+    s.lastPresenceTs = lastPresenceTs;
+    s.isActive = isCurrentlyTyping;
+    return s;
+}
+
+// ==== Set / Parse / Format User Status ====
+
+std::string setUserStatus(const std::string& userId, const UserStatusMessage& msg, int64_t nowMs) {
+    // Original Kotlin: build m.user_status event content JSON
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+    std::ostringstream json;
+    json << R"({"userId": ")" << esc(userId) << R"(")";
+    json << R"(,"message": ")" << esc(msg.message) << R"(")";
+    if (!msg.emoji.empty()) {
+        json << R"(,"emoji": ")" << esc(msg.emoji) << R"(")";
+    }
+    json << R"(,"isAutoReply": )" << (msg.isAutoReply ? "true" : "false");
+    json << R"(,"lastChangedMs": )" << nowMs;
+    json << "}";
+    return json.str();
+}
+
+UserStatusInfo parseUserStatusEvent(const std::string& eventJson) {
+    // Original Kotlin: parse m.user_status event from timeline
+    UserStatusInfo info;
+
+    auto extractStr = [&](const std::string& key) -> std::string {
+        auto search = "\"" + key + "\":\"";
+        auto pos = eventJson.find(search);
+        if (pos == std::string::npos) {
+            search = "\"" + key + "\": \"";
+            pos = eventJson.find(search);
+        }
+        if (pos == std::string::npos) return "";
+        pos += search.size();
+        auto end = eventJson.find('"', pos);
+        return (end != std::string::npos) ? eventJson.substr(pos, end - pos) : "";
+    };
+
+    auto extractInt64 = [&](const std::string& key) -> int64_t {
+        auto search = "\"" + key + "\":";
+        auto pos = eventJson.find(search);
+        if (pos == std::string::npos) return 0;
+        pos += search.size();
+        while (pos < eventJson.size() && (eventJson[pos] == ' ' || eventJson[pos] == '\t')) pos++;
+        int64_t val = 0;
+        while (pos < eventJson.size() && eventJson[pos] >= '0' && eventJson[pos] <= '9') {
+            val = val * 10 + (eventJson[pos] - '0'); pos++;
+        }
+        return val;
+    };
+
+    info.userId = extractStr("userId");
+
+    std::string statusStr = extractStr("status");
+    if (statusStr == "online") info.status = UserStatusType::ONLINE;
+    else if (statusStr == "offline") info.status = UserStatusType::OFFLINE;
+    else if (statusStr == "away") info.status = UserStatusType::AWAY;
+    else if (statusStr == "busy") info.status = UserStatusType::BUSY;
+    else if (statusStr == "custom") info.status = UserStatusType::CUSTOM;
+    else info.status = UserStatusType::OFFLINE;
+
+    info.message.message = extractStr("message");
+    info.message.emoji = extractStr("emoji");
+
+    std::string autoReplyStr = extractStr("isAutoReply");
+    info.message.isAutoReply = (autoReplyStr == "true");
+
+    info.lastChangedMs = extractInt64("lastChangedMs");
+    info.expiresAtMs = extractInt64("expiresAtMs");
+
+    return info;
+}
+
+std::string formatUserStatus(const UserStatusInfo& info) {
+    // Original Kotlin: human-readable status description
+    std::string base;
+    switch (info.status) {
+        case UserStatusType::ONLINE:  base = info.userId + " is online"; break;
+        case UserStatusType::OFFLINE: base = info.userId + " is offline"; break;
+        case UserStatusType::AWAY:    base = info.userId + " is away"; break;
+        case UserStatusType::BUSY:    base = info.userId + " is busy"; break;
+        case UserStatusType::CUSTOM:  base = info.userId; break;
+    }
+
+    if (info.hasCustomMessage()) {
+        if (info.status == UserStatusType::CUSTOM) {
+            base += " — " + info.message.emoji + " " + info.message.message;
+        } else {
+            base += " (" + info.message.emoji + " " + info.message.message + ")";
+        }
+    }
+
+    return base;
+}
+
 } // namespace progressive

@@ -1,5 +1,6 @@
 #include "progressive/space_utils.hpp"
 #include "progressive/json_parser.hpp"
+#include "progressive/space_graph.hpp"   // For SpaceChildWithOrder
 #include <sstream>
 #include <algorithm>
 
@@ -149,6 +150,277 @@ std::string buildSpaceParentContent(const std::string& parentSpaceId, bool canon
     json << R"("parent": ")" << parentSpaceId << R"(")";
     json << "}";
     return json.str();
+}
+
+// ================================================================
+// Room filter helpers
+// Original Kotlin: SpaceFilter.kt, SpaceListViewModel filtering
+// ================================================================
+
+std::vector<std::string> filterRoomsBySpace(
+    const std::vector<std::string>& roomIds,
+    const SpaceRoomFilter& filter,
+    const std::unordered_map<std::string, std::vector<std::string>>& flattenParentIds)
+{
+    // Original Kotlin: spaceFilterActiveSpace → filter by flattenParentIds containing spaceId
+    // Original Kotlin: spaceFilterExcludeSpace → exclude those containing spaceId
+    // Original Kotlin: spaceFilterOrphanRooms → rooms with empty flattenParentIds
+    if (filter.type == SpaceRoomFilter::NONE) return roomIds;
+
+    std::vector<std::string> result;
+
+    for (const auto& roomId : roomIds) {
+        auto it = flattenParentIds.find(roomId);
+        const auto& parents = (it != flattenParentIds.end()) ? it->second
+            : std::vector<std::string>{};
+
+        switch (filter.type) {
+            case SpaceRoomFilter::ACTIVE_SPACE: {
+                // Include if the specific space is in the room's flattenParentIds
+                if (std::find(parents.begin(), parents.end(), filter.spaceId) != parents.end()) {
+                    result.push_back(roomId);
+                }
+                break;
+            }
+            case SpaceRoomFilter::EXCLUDE_SPACE: {
+                // Include if the specific space is NOT in the room's flattenParentIds
+                if (std::find(parents.begin(), parents.end(), filter.spaceId) == parents.end()) {
+                    result.push_back(roomId);
+                }
+                break;
+            }
+            case SpaceRoomFilter::ORPHAN: {
+                // Include only rooms with no flattenParentIds (not in any space)
+                if (parents.empty()) {
+                    result.push_back(roomId);
+                }
+                break;
+            }
+            case SpaceRoomFilter::NONE:
+            default:
+                result.push_back(roomId);
+                break;
+        }
+    }
+
+    return result;
+}
+
+// ================================================================
+// Suggested rooms / orphaned rooms
+// Original Kotlin: SpaceListViewModel, RoomListViewModel filtering
+// ================================================================
+
+std::vector<std::string> getSuggestedRooms(
+    const std::unordered_map<std::string, std::vector<SpaceChildWithOrder>>& spaceChildren)
+{
+    // Original Kotlin: collect all childRoomIds where suggested=true
+    std::vector<std::string> result;
+    for (const auto& [spaceId, children] : spaceChildren) {
+        for (const auto& child : children) {
+            if (child.suggested) {
+                // De-duplicate
+                if (std::find(result.begin(), result.end(), child.childRoomId) == result.end()) {
+                    result.push_back(child.childRoomId);
+                }
+            }
+        }
+    }
+    return result;
+}
+
+std::vector<std::string> getOrphanedRooms(
+    const std::unordered_map<std::string, std::vector<std::string>>& allFlattenParentIds,
+    const std::unordered_set<std::string>& spaceRoomIds)
+{
+    // Original Kotlin: rooms that have no parent space
+    // (i.e., flattenParentIds is empty or doesn't exist, and it's not a space itself)
+    std::vector<std::string> result;
+    for (const auto& [roomId, parentIds] : allFlattenParentIds) {
+        if (parentIds.empty() && spaceRoomIds.find(roomId) == spaceRoomIds.end()) {
+            result.push_back(roomId);
+        }
+    }
+    return result;
+}
+
+// ================================================================
+// Space child / parent event builders — full event JSON
+// Original Kotlin: Space.kt addChildren/removeChildren, DefaultSpaceService.kt setSpaceParent
+// ================================================================
+
+std::string buildSpaceChildEvent(const std::string& stateKey,
+                                 bool suggested,
+                                 const std::string& order,
+                                 const std::vector<std::string>& via)
+{
+    // Original Kotlin: SpaceChildContent → toContent() → sendStateEvent
+    // PUT /_matrix/client/r0/rooms/{roomId}/state/m.space.child/{stateKey}
+    // Event JSON: {"type":"m.space.child","state_key":"!child:org","content":{...}}
+    std::ostringstream json;
+    json << R"({"type":"m.space.child","state_key":")";
+    // Escape stateKey
+    for (char c : stateKey) {
+        if (c == '"') json << "\\\"";
+        else if (c == '\\') json << "\\\\";
+        else json << c;
+    }
+    json << R"(","content":{)";
+
+    // via
+    json << R"("via":[)";
+    for (size_t i = 0; i < via.size(); i++) {
+        if (i > 0) json << ",";
+        json << R"(")";
+        for (char c : via[i]) {
+            if (c == '"') json << "\\\"";
+            else json << c;
+        }
+        json << R"(")";
+    }
+    json << "]";
+
+    // suggested
+    if (suggested) {
+        json << R"(,"suggested":true)";
+    }
+
+    // order (validated: ASCII \x20-\x7E, max 50 chars)
+    if (!order.empty()) {
+        std::string validOrder = parseSpaceChildOrder(order);
+        if (!validOrder.empty()) {
+            json << R"(,"order":")";
+            for (char c : validOrder) {
+                if (c == '"') json << "\\\"";
+                else if (c == '\\') json << "\\\\";
+                else json << c;
+            }
+            json << R"(")";
+        }
+    }
+
+    json << "}}";
+    return json.str();
+}
+
+std::string buildSpaceParentEvent(const std::string& parentSpaceId,
+                                  bool canonical,
+                                  const std::vector<std::string>& via)
+{
+    // Original Kotlin: SpaceParentContent → toContent() → sendStateEvent
+    // PUT /_matrix/client/r0/rooms/{roomId}/state/m.space.parent/{parentSpaceId}
+    std::ostringstream json;
+    json << R"({"type":"m.space.parent","state_key":")";
+    for (char c : parentSpaceId) {
+        if (c == '"') json << "\\\"";
+        else if (c == '\\') json << "\\\\";
+        else json << c;
+    }
+    json << R"(","content":{)";
+
+    // via
+    json << R"("via":[)";
+    for (size_t i = 0; i < via.size(); i++) {
+        if (i > 0) json << ",";
+        json << R"(")";
+        for (char c : via[i]) {
+            if (c == '"') json << "\\\"";
+            else json << c;
+        }
+        json << R"(")";
+    }
+    json << "]";
+
+    // canonical
+    if (canonical) {
+        json << R"(,"canonical":true)";
+    }
+
+    json << "}}";
+    return json.str();
+}
+
+// ================================================================
+// Space child / parent event parsers — full event JSON → structured data
+// Original Kotlin: SpaceChildSummaryEvent.kt, SpaceChildContent.kt, SpaceParentContent.kt
+// ================================================================
+
+SpaceChildWithOrder parseSpaceChildEvent(const std::string& eventJson) {
+    // Original Kotlin: SpaceChildSummaryEvent → content.toModel<SpaceChildContent>()
+    // Event JSON: {"type":"m.space.child","state_key":"!room:org","content":{...},"sender":"@user:org",...}
+    SpaceChildWithOrder result;
+
+    result.childRoomId = parseJsonStringValue(eventJson, "state_key");
+    result.order = parseSpaceChildOrder(parseJsonStringValue(eventJson, "order"));
+    result.suggested = parseJsonBoolValue(eventJson, "suggested", false);
+
+    // Parse via array from content
+    // Look for "via":[ ... ] in the JSON
+    size_t viaPos = eventJson.find("\"via\"");
+    if (viaPos != std::string::npos) {
+        size_t bracket = eventJson.find('[', viaPos);
+        if (bracket != std::string::npos) {
+            bracket++;
+            while (bracket < eventJson.size()) {
+                while (bracket < eventJson.size()
+                    && (eventJson[bracket] == ' ' || eventJson[bracket] == ',' || eventJson[bracket] == '\n')) {
+                    bracket++;
+                }
+                if (bracket >= eventJson.size() || eventJson[bracket] == ']') break;
+                if (eventJson[bracket] == '"') {
+                    bracket++;
+                    size_t endQuote = bracket;
+                    while (endQuote < eventJson.size() && eventJson[endQuote] != '"') endQuote++;
+                    result.viaServers.push_back(eventJson.substr(bracket, endQuote - bracket));
+                    bracket = endQuote + 1;
+                } else {
+                    // Skip non-string values
+                    while (bracket < eventJson.size()
+                        && eventJson[bracket] != ',' && eventJson[bracket] != ']') bracket++;
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+std::pair<std::string, SpaceParentEntry> parseSpaceParentEvent(const std::string& eventJson) {
+    // Original Kotlin: stateKey = parent space ID, content → SpaceParentContent
+    // Event JSON: {"type":"m.space.parent","state_key":"!space:org","content":{...},"sender":"@user:org",...}
+    std::string spaceId = parseJsonStringValue(eventJson, "state_key");
+
+    SpaceParentEntry entry;
+    entry.spaceId = spaceId;
+    entry.canonical = parseJsonBoolValue(eventJson, "canonical", false);
+
+    // Parse via array from content
+    size_t viaPos = eventJson.find("\"via\"");
+    if (viaPos != std::string::npos) {
+        size_t bracket = eventJson.find('[', viaPos);
+        if (bracket != std::string::npos) {
+            bracket++;
+            while (bracket < eventJson.size()) {
+                while (bracket < eventJson.size()
+                    && (eventJson[bracket] == ' ' || eventJson[bracket] == ',' || eventJson[bracket] == '\n')) {
+                    bracket++;
+                }
+                if (bracket >= eventJson.size() || eventJson[bracket] == ']') break;
+                if (eventJson[bracket] == '"') {
+                    bracket++;
+                    size_t endQuote = bracket;
+                    while (endQuote < eventJson.size() && eventJson[endQuote] != '"') endQuote++;
+                    entry.via.push_back(eventJson.substr(bracket, endQuote - bracket));
+                    bracket = endQuote + 1;
+                } else {
+                    while (bracket < eventJson.size()
+                        && eventJson[bracket] != ',' && eventJson[bracket] != ']') bracket++;
+                }
+            }
+        }
+    }
+
+    return {spaceId, entry};
 }
 
 } // namespace progressive

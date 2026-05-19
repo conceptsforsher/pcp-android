@@ -1,13 +1,14 @@
-#ifndef PROGRESSIVE_SPELLCHECK_HPP
-#define PROGRESSIVE_SPELLCHECK_HPP
+#pragma once
 
 #include <string>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
+#include <cstdint>
 
 namespace progressive {
 
-// ---- Simple Spell Checker (Damerau-Levenshtein) ----
+// ---- Existing types ----
 
 struct SpellCandidate {
     std::string word;
@@ -17,31 +18,16 @@ struct SpellCandidate {
 
 class SpellChecker {
 public:
-    // Load a dictionary word list (one word per line).
     void loadDictionary(const std::string& words);
-
-    // Check if a word is in the dictionary.
-    bool isKnown(const std::string& word) const;
-
-    // Find corrections for a misspelled word.
-    std::vector<SpellCandidate> suggest(const std::string& word, int maxResults = 5) const;
-
-    // Add a custom word to the dictionary.
+    [[nodiscard]] bool isKnown(const std::string& word) const;
+    [[nodiscard]] std::vector<SpellCandidate> suggest(const std::string& word, int maxResults = 5) const;
     void addWord(const std::string& word);
-
-    // Remove a custom word.
     void removeWord(const std::string& word);
-
-    size_t wordCount() const { return dictionary_.size(); }
+    [[nodiscard]] size_t wordCount() const { return dictionary_.size(); }
     void clear();
 
-    // Compute Damerau-Levenshtein edit distance.
     static int editDistance(const std::string& a, const std::string& b);
-
-    // Compute Jaro-Winkler similarity (0.0 to 1.0).
     static double jaroWinkler(const std::string& a, const std::string& b);
-
-    // Check if two strings are phonetically similar (Soundex).
     static std::string soundex(const std::string& word);
     static bool phoneticMatch(const std::string& a, const std::string& b);
 
@@ -49,23 +35,87 @@ private:
     std::unordered_set<std::string> dictionary_;
 };
 
-// ---- Typo Detection ----
-
 struct TypoResult {
     bool hasTypo = false;
     std::string word;
     std::vector<SpellCandidate> suggestions;
 };
 
-// Detect typos in a sentence and suggest corrections.
 std::vector<TypoResult> detectTypos(const std::string& sentence, const SpellChecker& checker);
-
-// Tokenize a sentence into words (respects punctuation).
 std::vector<std::string> tokenizeForSpellcheck(const std::string& sentence);
-
-// Check if a word is likely misspelled (heuristic: uncommon letter patterns).
 bool looksTypo(const std::string& word);
 
-} // namespace progressive
+// ---- New types and functions ----
 
-#endif // PROGRESSIVE_SPELLCHECK_HPP
+// Original Kotlin: SpellCheck.kt — language configuration
+struct SpellCheckLanguage {
+    std::string code;      // e.g. "en", "ru", "fr"
+    std::string name;      // e.g. "English", "Russian", "French"
+    std::vector<std::string> dictionary; // word list
+};
+
+// Original Kotlin: SpellCheck.kt — result for a single spelling check
+struct SpellCheckResult {
+    std::string word;
+    std::vector<std::string> suggestions;
+    bool isCorrect = false;
+    int position = -1; // byte offset in original text
+};
+
+// Original Kotlin: SpellCheck.kt — configuration
+struct SpellCheckConfig {
+    bool enabled = true;
+    std::vector<std::string> languages; // e.g. {"en", "ru"}
+    bool ignoreCapitalized = true;
+    bool ignoreNumbers = true;
+    bool ignoreUrls = true;
+    int maxSuggestions = 5;
+};
+
+// Original Kotlin: SpellCheck.kt — check spelling of text with config
+// Returns a list of results for misspelled words.
+std::vector<SpellCheckResult> checkSpelling(
+    const std::string& text,
+    const SpellCheckConfig& config,
+    SpellChecker& checker);
+
+// Original Kotlin: SpellCheck.kt — get suggestions using Levenshtein distance
+std::vector<std::string> getSpellSuggestions(
+    const std::string& word,
+    const std::unordered_set<std::string>& dictionary,
+    int maxSuggestions = 5);
+
+// Original Kotlin: SpellCheck.kt — compute Levenshtein distance
+int computeLevenshteinDistance(const std::string& a, const std::string& b);
+
+// Original Kotlin: SpellCheck.kt — dictionary lookup helper
+bool isWordInDictionary(const std::string& word, const std::unordered_set<std::string>& dictionary);
+
+// Load dictionary from word list vector
+void loadDictionary(const std::string& wordList, std::unordered_set<std::string>& outDict);
+
+// Original Kotlin: SpellCheck.kt — list of available languages
+std::vector<SpellCheckLanguage> getSupportedLanguages();
+
+// Original Kotlin: SpellCheck.kt — basic language detection from text sample
+std::string detectLanguage(const std::string& text);
+
+// Original Kotlin: SpellCheck.kt — position-based error mark
+struct SpellCheckMark {
+    std::string word;
+    int startPos = 0;
+    int endPos = 0;
+    std::vector<std::string> suggestions;
+};
+
+// Original Kotlin: SpellCheck.kt — find and mark spelling errors in text with positions
+std::vector<SpellCheckMark> markSpellingErrors(
+    const std::string& text,
+    const SpellCheckConfig& config,
+    SpellChecker& checker);
+
+// Original Kotlin: SpellCheck.kt — build word list from frequency data
+// Input: space-separated or newline-separated words, optionally with counts.
+std::vector<std::string> buildDictionaryWordList(const std::string& frequencyData);
+
+} // namespace progressive

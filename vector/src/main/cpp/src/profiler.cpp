@@ -2,6 +2,9 @@
 #include <sstream>
 #include <algorithm>
 #include <iomanip>
+#include <thread>
+#include <cmath>
+#include <numeric>
 
 namespace progressive {
 
@@ -53,11 +56,21 @@ void Profiler::reset() {
 // ====== Measurement ======
 
 int Profiler::start(const std::string& name) {
+    return start(name, "", "");
+}
+
+int Profiler::start(const std::string& name, const std::string& parentName,
+    const std::string& metadata)
+{
     ProfilerEntry entry;
     entry.name = name;
     entry.startTimeNs = nowNs();
     entry.active = true;
     entry.callCount = 1;
+    entry.parentName = parentName;
+    entry.threadId = static_cast<int>(
+        std::hash<std::thread::id>{}(std::this_thread::get_id()));
+    entry.metadata = metadata;
 
     // Update summary
     auto& summ = summaries_[name];
@@ -146,9 +159,17 @@ void Profiler::recordDealloc(int64_t bytes) {
 MemorySnapshot Profiler::takeMemorySnapshot(const std::string& label) {
     MemorySnapshot snap;
     snap.timestampNs = nowNs();
+    snap.heapSize = trackedMemory_ * 2;  // rough estimate: heap ~ 2x tracked
     snap.allocatedBytes = trackedMemory_;
+    snap.deallocatedBytes = 0;           // set after comparison
     snap.allocateCount = allocCount_;
     snap.deallocateCount = deallocCount_;
+    snap.liveObjects = allocCount_ - deallocCount_;
+    if (allocCount_ > 0) {
+        snap.fragments = deallocCount_;
+        snap.fragmentationPercent =
+            static_cast<double>(deallocCount_) / allocCount_ * 100.0;
+    }
     snap.label = label;
     memorySnapshots_.push_back(snap);
     return snap;
@@ -644,6 +665,254 @@ std::string Profiler::colorForFps(double fps) {
     if (fps >= 30.0) return "#FFC107";   // Yellow: acceptable
     if (fps >= 15.0) return "#FF9800";   // Orange: laggy
     return "#F44336";                      // Red: slideshow
+}
+
+// ================================================================
+// ProfileScope — RAII
+// ================================================================
+
+ProfileScope::ProfileScope(const std::string& name,
+    const std::string& parentName,
+    const std::string& metadata)
+    : name_(name)
+    , startNs_(Profiler::nowNs())
+{
+    entryIndex_ = Profiler::instance().start(name, parentName, metadata);
+}
+
+ProfileScope::~ProfileScope() {
+    if (!stopped_) {
+        Profiler::instance().stop(entryIndex_);
+        stopped_ = true;
+    }
+}
+
+int64_t ProfileScope::elapsedNs() const {
+    return Profiler::nowNs() - startNs_;
+}
+
+// ================================================================
+// ProfilerSession
+// ================================================================
+
+void ProfilerSession::startProfiling() {
+    profiling_ = true;
+}
+
+void ProfilerSession::stopProfiling() {
+    profiling_ = false;
+}
+
+void ProfilerSession::reset() {
+    entries_.clear();
+    summaries_.clear();
+    profiling_ = false;
+}
+
+int ProfilerSession::start(const std::string& name, const std::string& parentName) {
+    ProfilerEntry entry;
+    entry.name = name;
+    entry.startTimeNs = Profiler::nowNs();
+    entry.active = true;
+    entry.callCount = 1;
+    entry.parentName = parentName;
+    entry.threadId = static_cast<int>(
+        std::hash<std::thread::id>{}(std::this_thread::get_id()));
+
+    auto& summ = summaries_[name];
+    summ.name = name;
+    summ.callCount++;
+
+    entries_.push_back(entry);
+    return static_cast<int>(entries_.size()) - 1;
+}
+
+int64_t ProfilerSession::stop(const std::string& name) {
+    for (auto it = entries_.rbegin(); it != entries_.rend(); ++it) {
+        if (it->active && it->name == name) {
+            it->endTimeNs = Profiler::nowNs();
+            it->active = false;
+            it->durationNs = it->endTimeNs - it->startTimeNs;
+
+            auto& summ = summaries_[name];
+            summ.totalTimeNs += it->durationNs;
+            if (it->durationNs < summ.minTimeNs) summ.minTimeNs = it->durationNs;
+            if (it->durationNs > summ.maxTimeNs) summ.maxTimeNs = it->durationNs;
+            summ.avgTimeNs = summ.totalTimeNs / summ.callCount;
+
+            return it->durationNs;
+        }
+    }
+    return 0;
+}
+
+std::vector<ProfilerEntry> ProfilerSession::getEntries() const {
+    return entries_;
+}
+
+int64_t ProfilerSession::getTotalTime() const {
+    int64_t total = 0;
+    for (const auto& [name, s] : summaries_) total += s.totalTimeNs;
+    return total;
+}
+
+int64_t ProfilerSession::getEntryTime(const std::string& name) const {
+    auto it = summaries_.find(name);
+    if (it != summaries_.end()) return it->second.totalTimeNs;
+    return 0;
+}
+
+std::vector<ProfileSummary> ProfilerSession::getHotPaths() const {
+    std::vector<ProfileSummary> result;
+    for (const auto& [name, s] : summaries_) {
+        result.push_back(s);
+    }
+    // Sort by total time descending
+    std::sort(result.begin(), result.end(),
+        [](const ProfileSummary& a, const ProfileSummary& b) {
+            return a.totalTimeNs > b.totalTimeNs;
+        });
+    return result;
+}
+
+// ================================================================
+// ProfilerStats
+// ================================================================
+
+ProfilerStats computeProfilerStats(const ProfileSummary& summary) {
+    ProfilerStats s;
+    s.name = summary.name;
+    s.totalCalls = summary.callCount;
+    s.totalTimeMs = summary.totalTimeNs / 1000000.0;
+    s.avgTimeMs = summary.avgTimeNs / 1000000.0;
+    s.minTimeMs = summary.minTimeNs / 1000000.0;
+    s.maxTimeMs = summary.maxTimeNs / 1000000.0;
+    return s;
+}
+
+// ================================================================
+// Memory Snapshot Utilities
+// ================================================================
+
+MemorySnapshotDelta compareMemorySnapshots(
+    const MemorySnapshot& older,
+    const MemorySnapshot& newer)
+{
+    MemorySnapshotDelta delta;
+    delta.elapsedNs = newer.timestampNs - older.timestampNs;
+    delta.heapDelta = newer.heapSize - older.heapSize;
+    delta.allocDelta = newer.allocatedBytes - older.allocatedBytes;
+    delta.deallocDelta = newer.deallocatedBytes - older.deallocatedBytes;
+    delta.liveObjectsDelta = newer.liveObjects - older.liveObjects;
+    delta.fragmentationDelta = newer.fragmentationPercent - older.fragmentationPercent;
+    return delta;
+}
+
+std::vector<MemoryLeakInfo> detectMemoryLeaks(
+    const std::vector<MemorySnapshot>& snapshots,
+    int64_t growthThresholdBytes)
+{
+    std::vector<MemoryLeakInfo> leaks;
+    if (snapshots.size() < 2) return leaks;
+
+    // Compare consecutive snapshots
+    for (size_t i = 1; i < snapshots.size(); i++) {
+        auto delta = compareMemorySnapshots(snapshots[i - 1], snapshots[i]);
+        if (delta.heapDelta > growthThresholdBytes) {
+            MemoryLeakInfo leak;
+            leak.allocationSite = snapshots[i].label;
+            leak.bytesLeaked = delta.heapDelta;
+            leak.allocationsLeaked = delta.allocDelta > 0 ?
+                static_cast<int>(delta.allocDelta) : 0;
+            leak.firstSeen = snapshots[i].timestampNs;
+            if (delta.elapsedNs > 0) {
+                leak.growthRate = static_cast<double>(delta.heapDelta) /
+                    (delta.elapsedNs / 1000000000.0);
+            }
+            leaks.push_back(leak);
+        }
+    }
+
+    return leaks;
+}
+
+// ================================================================
+// Performance Thresholds
+// ================================================================
+
+std::vector<PerformanceThreshold> checkPerformanceThresholds(
+    const std::vector<PerformanceThreshold>& thresholds,
+    const std::unordered_map<std::string, double>& currentValues)
+{
+    std::vector<PerformanceThreshold> results;
+    for (auto t : thresholds) {
+        auto it = currentValues.find(t.metric);
+        if (it != currentValues.end()) {
+            t.currentValue = it->second;
+            t.exceeded = it->second > t.thresholdValue;
+            if (t.exceeded) {
+                std::ostringstream msg;
+                msg << t.metric << " exceeded threshold: "
+                    << it->second << " > " << t.thresholdValue
+                    << " (" << t.severity << ")";
+                t.message = msg.str();
+            }
+        }
+        results.push_back(t);
+    }
+    return results;
+}
+
+// ================================================================
+// Flame Graph Generation
+// ================================================================
+
+std::string generateProfilerFlameGraph(const Profiler& profiler) {
+    auto report = profiler.generateReport();
+    std::ostringstream os;
+    // Flamegraph JSON format: array of stack frames
+    // Each frame: {name, value, children[]}
+    // We flatten profiler entries into this format.
+
+    os << R"({"name":"root","value":)" << report.totalTimeNs
+       << R"(,"children":[)";
+
+    bool first = true;
+    for (const auto& entry : report.entries) {
+        if (entry.callCount == 0) continue;
+        if (!first) os << ","; first = false;
+        os << R"({"name":")" << entry.name
+           << R"(","value":)" << entry.totalTimeNs
+           << R"(,"children":[]})";
+    }
+
+    os << "]}";
+    return os.str();
+}
+
+std::string generateProfilerFlameGraph(const ProfilerSession& session) {
+    auto entries = session.getEntries();
+    auto totalTime = session.getTotalTime();
+    std::ostringstream os;
+
+    os << R"({"name":"root","value":)" << totalTime
+       << R"(,"children":[)";
+
+    bool first = true;
+    std::unordered_map<std::string, int64_t> aggTimes;
+    for (const auto& e : entries) {
+        aggTimes[e.name] += e.durationNs;
+    }
+
+    for (const auto& [name, total] : aggTimes) {
+        if (!first) os << ","; first = false;
+        os << R"({"name":")" << name
+           << R"(","value":)" << total
+           << R"(,"children":[]})";
+    }
+
+    os << "]}";
+    return os.str();
 }
 
 } // namespace progressive

@@ -6,6 +6,10 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
+#include <functional>
+#include <utility>
+
+#include "progressive/timeline_utils.hpp"
 
 namespace progressive {
 
@@ -231,5 +235,91 @@ std::string serializeChunkManager(const TimelineChunkManager& mgr);
 
 // Restore chunk manager from persisted state.
 TimelineChunkManager deserializeChunkManager(const std::string& json, const std::string& roomId);
+
+// ---- Chunk Load Result (from TokenChunkEventPersistor.kt) ----
+// Original Kotlin: TokenChunkEventPersistor.Result (SHOULD_FETCH_MORE, REACHED_END, SUCCESS)
+// Original Kotlin: insertInDb returns Result after chunk linking
+
+struct ChunkLoadResult {
+    TimelineChunkData chunk;
+    int newEvents = 0;           // number of new events added in this load
+    std::string prevToken;       // pagination token for older events
+    std::string nextToken;       // pagination token for newer events
+    bool isLimited = false;      // Original Kotlin: receivedChunk.hasMore() — server has more
+    bool reachedForwardEnd = false;
+    bool reachedBackwardEnd = false;
+};
+
+// Merge an incoming chunk into an existing chunk list via TimelineChunkManager.
+// Handles dedup, linking, and token propagation.
+// Original Kotlin: TokenChunkEventPersistor.insertInDb() — chunk linking logic
+ChunkLoadResult mergeChunk(
+    TimelineChunkManager& manager,
+    const TimelineChunkData& incoming,
+    TimelineDirection direction,
+    const std::string& chunkId = "");
+
+// Split a chunk into two at a specific event. The split event goes to the second chunk.
+// Returns (beforeChunk, afterChunk). beforeChunk contains events before the split point.
+// afterChunk contains the split event and events after it.
+// Original Kotlin: used for permalink insertion when an event arrives mid-chunk
+std::pair<TimelineChunkData, TimelineChunkData> splitChunk(
+    const TimelineChunkData& chunk,
+    const std::string& splitEventId);
+
+// ---- Chunk Pagination Controller ----
+// Manages chunk-based pagination (forward/backward/around).
+// Wraps TimelineChunkManager with pagination token management and fetch delegation.
+// Original Kotlin: TimelineChunk.loadMore() + PaginationTask + FetchTokenAndPaginateTask
+// Original Kotlin: DefaultTimeline routes loadMore() → strategy.loadMore() → timelineChunk.loadMore()
+
+class ChunkPaginationController {
+public:
+    explicit ChunkPaginationController(TimelineChunkManager* manager);
+
+    // Load more events in the given direction. Returns paginated result.
+    // Updates internal pagination tokens on success.
+    // Original Kotlin: timelineChunk?.loadMore(count, direction, fetchOnServerIfNeeded)
+    PaginationResult loadForward(int count = 20);
+    PaginationResult loadBackward(int count = 20);
+
+    // Open the timeline around a specific event (permalink mode).
+    // Loads context around the event, then can page in both directions.
+    // Original Kotlin: DefaultTimeline.openAround(eventId) + GetContextOfEventTask
+    PaginationResult loadAround(const std::string& eventId, int count = 20);
+
+    // Check if more events can be loaded in each direction.
+    // Original Kotlin: DefaultTimeline.hasMoreToLoad(direction)
+    bool hasMoreForward() const;
+    bool hasMoreBackward() const;
+
+    // Get the display range of currently loaded events.
+    // Original Kotlin: used for UI viewport / RecyclerView range calculation
+    TimelineRange getDisplayRange() const;
+
+    // Set/get pagination tokens (used to resume pagination after context load).
+    void setForwardToken(const std::string& token);
+    void setBackwardToken(const std::string& token);
+    std::string getForwardToken() const;
+    std::string getBackwardToken() const;
+
+    // Fetch callback: called when the controller needs to fetch events from the server.
+    // Receives (from_token, direction_str, limit) and returns a PaginationResult.
+    // Original Kotlin: PaginationTask.execute(Params(roomId, from, direction, limit))
+    using FetchCallback = std::function<PaginationResult(
+        const std::string& from, const std::string& direction, int limit)>;
+    void setFetchCallback(FetchCallback cb);
+
+    // Get current load state for external monitoring.
+    // Original Kotlin: DefaultTimeline.getPaginationState(direction)
+    TimelineLoadState getLoadState() const;
+
+private:
+    TimelineChunkManager* manager_;
+    std::string forwardToken_;
+    std::string backwardToken_;
+    FetchCallback fetchCallback_;
+    TimelineLoadState loadState_;
+};
 
 } // namespace progressive

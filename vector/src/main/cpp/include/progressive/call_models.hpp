@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdint>
 #include "progressive/message_content.hpp"
 
 namespace progressive {
@@ -49,14 +50,48 @@ enum class EndCallReason {
 const char* endCallReasonToString(EndCallReason r);
 EndCallReason endCallReasonFromString(const std::string& s);
 
+// ==== CallEndReason (high-level UI reason) ====
+//
+// Original Kotlin: CallEndReason (deduced from EndCallReason + call state)
+enum class CallEndReason {
+    UNKNOWN = 0,             // "unknown"
+    HUNG_UP = 1,             // "hung_up"
+    REJECTED = 2,            // "rejected"
+    BUSY = 3,                // "busy"
+    TIMEOUT = 4,             // "timeout"
+    ANSWERED_ELSEWHERE = 5,  // "answered_elsewhere"
+    ICE_FAILED = 6,          // "ice_failed"
+    INVITE_EXPIRED = 7       // "invite_expired"
+};
+
+const char* callEndReasonToString(CallEndReason r);
+CallEndReason callEndReasonFromString(const std::string& s);
+
+// ==== CallRingInfo — Incoming Call UI ====
+//
+// Original Kotlin: CallRingInfo / incoming call notification data
+struct CallRingInfo {
+    std::string callId;            // call ID
+    std::string callerName;        // display name of caller
+    std::string callerAvatar;      // avatar URL of caller
+    std::string roomName;          // room display name
+    bool isVideoCall = false;      // whether it's a video call
+    bool isGroupCall = false;      // whether it's a group call
+    int inviteLifetimeMs = 120000; // how long the invite is valid
+};
+
 // Original Kotlin (CallCapabilities.kt:25-32):
 //   data class CallCapabilities(@Json(name="m.call.transferee") transferee: Boolean?)
 struct CallCapabilities {
-    bool transferee = false;   // "m.call.transferee" — supports call transfer
-    bool supportsDtmf = false; // "m.call.dtmf" — supports DTMF tones
-    bool useStereo = false;    // "m.call.use_stereo" — stereo audio support
+    bool transferee = false;        // "m.call.transferee" — supports call transfer
+    bool supportsDtmf = false;      // "m.call.dtmf" — supports DTMF tones
+    bool useStereo = false;         // "m.call.use_stereo" — stereo audio support
+    bool supportsVideo = true;      // implicit — almost all clients support video
+    bool supportsScreenSharing = false; // "m.call.screen_sharing" — screen sharing
 
     bool supportsCallTransfer() const { return transferee; }
+    bool hasVideo() const { return supportsVideo; }
+    bool hasScreenSharing() const { return supportsScreenSharing; }
 };
 
 // Original Kotlin (CallCandidate.kt:25-36):

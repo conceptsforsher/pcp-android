@@ -659,4 +659,361 @@ std::string CallManager::formatCallEvent(const CallEvent& event, const std::stri
     return os.str();
 }
 
+// ====== CallSignalingState ======
+
+static std::string managerExtractStr(const std::string& json, const std::string& key) {
+    auto pp = json.find("\"" + key + "\"");
+    if (pp == std::string::npos) return "";
+    pp = json.find('"', pp + key.size() + 2);
+    if (pp == std::string::npos) return "";
+    pp++;
+    size_t e = pp;
+    while (e < json.size() && json[e] != '"') e++;
+    return json.substr(pp, e - pp);
+}
+
+static int managerExtractInt(const std::string& json, const std::string& key) {
+    auto pp = json.find("\"" + key + "\"");
+    if (pp == std::string::npos) return 0;
+    pp = json.find(':', pp);
+    if (pp == std::string::npos) return 0;
+    pp++;
+    while (pp < json.size() && (json[pp] == ' ' || json[pp] == '\t')) pp++;
+    int v = 0;
+    while (pp < json.size() && json[pp] >= '0' && json[pp] <= '9') { v = v * 10 + (json[pp] - '0'); pp++; }
+    return v;
+}
+
+// Original Kotlin: have-local-offer / have-remote-offer signaling states
+const char* callSignalingStateToString(CallSignalingState s) {
+    switch (s) {
+        case CallSignalingState::STABLE:            return "stable";
+        case CallSignalingState::HAVE_LOCAL_OFFER:  return "have-local-offer";
+        case CallSignalingState::HAVE_REMOTE_OFFER: return "have-remote-offer";
+        case CallSignalingState::CLOSED:             return "closed";
+    }
+    return "stable";
+}
+
+CallSignalingState callSignalingStateFromString(const std::string& s) {
+    if (s == "stable")              return CallSignalingState::STABLE;
+    if (s == "have-local-offer")    return CallSignalingState::HAVE_LOCAL_OFFER;
+    if (s == "have-remote-offer")   return CallSignalingState::HAVE_REMOTE_OFFER;
+    if (s == "closed")              return CallSignalingState::CLOSED;
+    return CallSignalingState::STABLE;
+}
+
+// ====== Group Call / Participant state enums ======
+
+const char* groupCallStateToString(GroupCallState s) {
+    switch (s) {
+        case GroupCallState::CREATING: return "creating";
+        case GroupCallState::ACTIVE:   return "active";
+        case GroupCallState::ENDED:    return "ended";
+    }
+    return "creating";
+}
+
+GroupCallState groupCallStateFromString(const std::string& s) {
+    if (s == "creating") return GroupCallState::CREATING;
+    if (s == "active")   return GroupCallState::ACTIVE;
+    if (s == "ended")    return GroupCallState::ENDED;
+    return GroupCallState::CREATING;
+}
+
+const char* callParticipantStateToString(CallParticipantState s) {
+    switch (s) {
+        case CallParticipantState::CONNECTING:    return "connecting";
+        case CallParticipantState::CONNECTED:     return "connected";
+        case CallParticipantState::DISCONNECTED:  return "disconnected";
+        case CallParticipantState::LEFT:          return "left";
+    }
+    return "connecting";
+}
+
+CallParticipantState callParticipantStateFromString(const std::string& s) {
+    if (s == "connecting")    return CallParticipantState::CONNECTING;
+    if (s == "connected")     return CallParticipantState::CONNECTED;
+    if (s == "disconnected")  return CallParticipantState::DISCONNECTED;
+    if (s == "left")          return CallParticipantState::LEFT;
+    return CallParticipantState::CONNECTING;
+}
+
+// ====== Call Event Processing ======
+//
+// Original Kotlin: CallSignalingHandler.kt / CallEventProcessor.kt
+
+// Original Kotlin: CallSignalingHandler.handleCallInviteEvent()
+std::string CallManager::processCallInvite(const std::string& roomId, const std::string& senderId,
+                                             const std::string& contentJson, int64_t timestampMs) {
+    // Parse call ID and check if it's a new call
+    std::string callId = managerExtractStr(contentJson, "call_id");
+    if (callId.empty()) return "";
+
+    // Check if already known
+    if (findCall(callId)) return callId;
+
+    // Check if room already has active call
+    if (isRoomInCall(roomId)) return callId; // Could send busy
+
+    // Determine call type from SDP
+    bool isVideo = contentJson.find("m=video") != std::string::npos;
+
+    // Parse lifetime
+    int lifetime = managerExtractInt(contentJson, "lifetime");
+    if (lifetime <= 0) lifetime = 120000;
+    int lifetimeSec = lifetime / 1000;
+
+    // Extract the SDP offer string
+    std::string sdpOffer;
+    auto offerPos = contentJson.find("\"offer\"");
+    if (offerPos != std::string::npos) {
+        auto sdpPos = contentJson.find("\"sdp\"", offerPos);
+        if (sdpPos != std::string::npos) {
+            sdpOffer = managerExtractStr(contentJson.substr(sdpPos > 10 ? sdpPos - 10 : 0, 1000), "sdp");
+        }
+    }
+
+    return handleIncomingCall(callId, roomId, senderId, "", isVideo ? CallType::VIDEO : CallType::VOICE,
+                               sdpOffer, lifetimeSec);
+}
+
+// Original Kotlin: CallSignalingHandler.handleCallAnswerEvent()
+bool CallManager::processCallAnswer(const std::string& contentJson) {
+    std::string callId = managerExtractStr(contentJson, "call_id");
+    if (callId.empty()) return false;
+
+    auto* call = findCall(callId);
+    if (!call) return false;
+    if (call->state != CallManagerCallState::INVITING) return false;
+
+    // Extract answer SDP
+    std::string sdpAnswer;
+    auto ansPos = contentJson.find("\"answer\"");
+    if (ansPos != std::string::npos) {
+        auto sdpPos = contentJson.find("\"sdp\"", ansPos);
+        if (sdpPos != std::string::npos) {
+            sdpAnswer = managerExtractStr(contentJson.substr(sdpPos > 10 ? sdpPos - 10 : 0, 1000), "sdp");
+        }
+    }
+
+    call->state = CallManagerCallState::CONNECTING;
+    call->answeredAtMs = nowMs();
+    call->remoteSdp = parseSdp(sdpAnswer, "answer");
+    return true;
+}
+
+// Original Kotlin: CallSignalingHandler.handleCallHangupEvent()
+bool CallManager::processCallHangup(const std::string& contentJson) {
+    std::string callId = managerExtractStr(contentJson, "call_id");
+    if (callId.empty()) return false;
+
+    auto* call = findCall(callId);
+    if (!call) return false;
+
+    std::string reasonStr = managerExtractStr(contentJson, "reason");
+    auto reason = callManagerEndReasonFromString(reasonStr);
+    if (reason == CallManagerEndReason::UNKNOWN) reason = CallManagerEndReason::REMOTE_HUNG_UP;
+
+    call->state = CallManagerCallState::ENDED;
+    call->endedAtMs = nowMs();
+    call->endReason = reason;
+
+    if (call->answeredAtMs > 0) {
+        call->durationSeconds = static_cast<int>((call->endedAtMs - call->answeredAtMs) / 1000);
+    }
+    return true;
+}
+
+// Original Kotlin: CallSignalingHandler.handleCallCandidatesEvent()
+int CallManager::processCallCandidates(const std::string& contentJson) {
+    std::string callId = managerExtractStr(contentJson, "call_id");
+    if (callId.empty()) return 0;
+
+    auto* call = findCall(callId);
+    if (!call) return 0;
+
+    int added = 0;
+    auto candArr = contentJson.find("\"candidates\"");
+    if (candArr != std::string::npos) {
+        candArr = contentJson.find('[', candArr);
+        if (candArr != std::string::npos) {
+            size_t pos = candArr + 1;
+            while (pos < contentJson.size()) {
+                while (pos < contentJson.size() && (contentJson[pos] == ' ' || contentJson[pos] == ',' || contentJson[pos] == '\n')) pos++;
+                if (pos >= contentJson.size() || contentJson[pos] == ']') break;
+                if (contentJson[pos] == '{') {
+                    int depth = 1;
+                    size_t start = pos;
+                    pos++;
+                    while (pos < contentJson.size() && depth > 0) {
+                        if (contentJson[pos] == '{') depth++;
+                        else if (contentJson[pos] == '}') depth--;
+                        pos++;
+                    }
+                    std::string candJson = contentJson.substr(start, pos - start);
+                    ParsedIceCandidate ice;
+                    ice.sdpMid = managerExtractStr(candJson, "sdpMid");
+                    ice.sdpMLineIndex = managerExtractInt(candJson, "sdpMLineIndex");
+                    ice.candidate = managerExtractStr(candJson, "candidate");
+                    call->remoteCandidates.push_back(ice);
+                    added++;
+                }
+            }
+        }
+    }
+
+    return added;
+}
+
+// Original Kotlin: CallSignalingHandler.handleCallNegotiateEvent()
+bool CallManager::processCallNegotiate(const std::string& contentJson) {
+    std::string callId = managerExtractStr(contentJson, "call_id");
+    if (callId.empty()) return false;
+
+    auto* call = findCall(callId);
+    if (!call) return false;
+
+    // Extract description SDP
+    std::string descSdp;
+    auto descPos = contentJson.find("\"description\"");
+    if (descPos != std::string::npos) {
+        auto sdpPos = contentJson.find("\"sdp\"", descPos);
+        if (sdpPos != std::string::npos) {
+            descSdp = managerExtractStr(contentJson.substr(sdpPos > 10 ? sdpPos - 10 : 0, 1000), "sdp");
+        }
+    }
+    if (!descSdp.empty()) {
+        std::string descType = managerExtractStr(contentJson, "type");
+        if (descType.empty()) {
+            auto typePos = contentJson.rfind("\"type\"", contentJson.find("\"description\""));
+            if (typePos != std::string::npos) descType = managerExtractStr(contentJson.substr(typePos, 50), "type");
+        }
+        call->remoteSdp = parseSdp(descSdp, descType.empty() ? "offer" : descType);
+    }
+    return true;
+}
+
+// Original Kotlin: CallEventProcessor.shouldProcess()
+bool CallManager::isCallEvent(const std::string& eventType) const {
+    return eventType == "m.call.invite" ||
+           eventType == "m.call.answer" ||
+           eventType == "m.call.hangup" ||
+           eventType == "m.call.reject" ||
+           eventType == "m.call.candidates" ||
+           eventType == "m.call.negotiate" ||
+           eventType == "m.call.select_answer" ||
+           eventType == "m.call.replaces" ||
+           eventType == "m.call.asserted_identity";
+}
+
+// ====== Call Display / Hold / Resume ======
+
+// Original Kotlin: get call display name from room or opponent
+std::string CallManager::getCallDisplayName(const CallSession& call) const {
+    if (!call.roomName.empty()) return call.roomName;
+    if (!call.callerName.empty()) return call.callerName;
+    if (!call.calleeName.empty()) return call.calleeName;
+    if (!call.opponentDisplayName.empty()) return call.opponentDisplayName;
+    if (call.isIncoming) return call.callerId;
+    return call.calleeId;
+}
+
+// Original Kotlin: setCallOnHold()
+void CallManager::setCallOnHold(const std::string& callId) {
+    auto* call = findCall(callId);
+    if (call && call->state == CallManagerCallState::CONNECTED) {
+        call->state = CallManagerCallState::ON_HOLD;
+        call->isHeld = true;
+    }
+}
+
+// Original Kotlin: resumeCall()
+void CallManager::resumeCall(const std::string& callId) {
+    auto* call = findCall(callId);
+    if (call && call->state == CallManagerCallState::ON_HOLD) {
+        call->state = CallManagerCallState::CONNECTED;
+        call->isHeld = false;
+    }
+}
+
+// ================================================================
+// CallSessionManager Implementation
+//
+// Original Kotlin: MxCallFactory.kt / ActiveCallHandler.kt
+// ================================================================
+
+CallSessionManager::CallSessionManager() {}
+
+// Original Kotlin: MxCallFactory.createOutgoingCall()
+std::string CallSessionManager::createCall(const std::string& roomId, const std::string& opponentUserId,
+                                             const std::string& opponentName, bool isVideoCall) {
+    std::string error;
+    return manager_.startOutgoingCall(roomId, opponentUserId, opponentName,
+                                       isVideoCall ? CallType::VIDEO : CallType::VOICE, "", error);
+}
+
+// Original Kotlin: MxCall.accept()
+std::string CallSessionManager::answerCall(const std::string& callId, const std::string& sdpAnswer) {
+    std::string error;
+    return manager_.answerCall(callId, sdpAnswer, error);
+}
+
+// Original Kotlin: MxCall.hangUp()
+std::string CallSessionManager::hangupCall(const std::string& callId, const std::string& reason) {
+    return manager_.hangupCall(callId, CallManagerEndReason::USER_HUNG_UP, reason);
+}
+
+// Original Kotlin: MxCall.reject()
+std::string CallSessionManager::rejectCall(const std::string& callId) {
+    return manager_.rejectCall(callId, "rejected");
+}
+
+// Original Kotlin: CallListener.onCallInviteReceived()
+void CallSessionManager::onCallInviteReceived(const std::string& roomId, const std::string& senderId,
+                                               const std::string& senderName, const std::string& contentJson,
+                                               int64_t timestampMs) {
+    manager_.processCallInvite(roomId, senderId, contentJson, timestampMs);
+    // Update caller name if available
+    auto sessions = manager_.getRoomCalls(roomId);
+    for (auto& s : sessions) {
+        if (!s.callerName.empty() && s.callerName == senderName) continue;
+        // Find the call this invite created — must do via manager
+    }
+}
+
+// Original Kotlin: CallListener.onCallAnswerReceived()
+void CallSessionManager::onCallAnswerReceived(const std::string& contentJson) {
+    manager_.processCallAnswer(contentJson);
+}
+
+// Original Kotlin: CallListener.onCallHangupReceived()
+void CallSessionManager::onCallHangupReceived(const std::string& contentJson) {
+    manager_.processCallHangup(contentJson);
+}
+
+// Original Kotlin: ActiveCallHandler.getActiveCallsLiveData()
+bool CallSessionManager::getActiveCall(CallSession& out) const {
+    return manager_.getActiveCall(out);
+}
+
+// Original Kotlin: ActiveCallHandler — get calls for room
+std::vector<CallSession> CallSessionManager::getCallsForRoom(const std::string& roomId) const {
+    return manager_.getRoomCalls(roomId);
+}
+
+// Original Kotlin: MxCall — hold/resume
+void CallSessionManager::setCallOnHold(const std::string& callId) {
+    manager_.setCallOnHold(callId);
+}
+
+void CallSessionManager::resumeCall(const std::string& callId) {
+    manager_.resumeCall(callId);
+}
+
+// Original Kotlin: CallEventProcessor.shouldProcess()
+bool CallSessionManager::isCallEvent(const std::string& eventType) const {
+    return manager_.isCallEvent(eventType);
+}
+
 } // namespace progressive

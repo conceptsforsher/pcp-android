@@ -141,4 +141,117 @@ void DesyncDetector::clear() {
     eventTimestamps_.clear();
 }
 
+// ---- DesyncCheckResult ----
+
+DesyncCheckResult checkSyncDesynchronization(
+    const std::string& roomId,
+    int64_t lastSyncMs,
+    const std::vector<std::string>& localEventIds,
+    const std::vector<std::string>& serverEventIds,
+    const std::string& localReadMarker,
+    const std::string& serverReadMarker,
+    const std::string& localMembership,
+    const std::string& serverMembership
+) {
+    DesyncCheckResult result;
+    (void)roomId; // roomId reserved for future logging / metric keying
+
+    // Factor 1: Check sync freshness
+    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    result.lastSyncAgeMs = now - lastSyncMs;
+
+    // Factor 2: Missing events in timeline
+    std::unordered_set<std::string> localSet(localEventIds.begin(), localEventIds.end());
+    for (const auto& eid : serverEventIds) {
+        if (localSet.find(eid) == localSet.end()) {
+            ++result.missingEvents;
+        }
+    }
+
+    // Factor 3: Extra events locally that are not on server
+    std::unordered_set<std::string> serverSet(serverEventIds.begin(), serverEventIds.end());
+    for (const auto& eid : localEventIds) {
+        if (serverSet.find(eid) == serverSet.end()) {
+            ++result.extraEvents;
+        }
+    }
+
+    // Factor 4: Read marker conflicts
+    bool readMarkerConflict = !localReadMarker.empty() && !serverReadMarker.empty() &&
+                               localReadMarker != serverReadMarker;
+
+    // Factor 5: Membership inconsistencies
+    bool membershipConflict = !localMembership.empty() && !serverMembership.empty() &&
+                               localMembership != serverMembership;
+
+    // Aggregate result
+    result.isDesynchronized = (result.missingEvents > 0) || (result.extraEvents > 0) ||
+                               readMarkerConflict || membershipConflict;
+
+    if (result.isDesynchronized) {
+        std::ostringstream reason;
+        if (result.missingEvents > 0) {
+            reason << result.missingEvents << " event(s) missing from local timeline; ";
+        }
+        if (result.extraEvents > 0) {
+            reason << result.extraEvents << " event(s) extra in local timeline; ";
+        }
+        if (readMarkerConflict) {
+            reason << "read marker conflict; ";
+        }
+        if (membershipConflict) {
+            reason << "membership inconsistency; ";
+        }
+        result.reason = reason.str();
+    } else {
+        result.reason = "No desync detected";
+    }
+
+    return result;
+}
+
+// ---- DesyncCause ----
+
+DesyncCause diagnoseDesyncCause(const DesyncCheckResult& result) {
+    if (!result.isDesynchronized) return DesyncCause::UNKNOWN;
+
+    // Cache corruption: extra events locally that server doesn't know about
+    if (result.extraEvents > 0 && result.missingEvents == 0) {
+        return DesyncCause::CACHE_CORRUPTION;
+    }
+
+    // Network gap: many missing events
+    if (result.missingEvents > 10) {
+        return DesyncCause::NETWORK_GAP;
+    }
+
+    // Race condition: few missing events, recently synced
+    if (result.missingEvents <= 3 && result.lastSyncAgeMs < 60000) {
+        return DesyncCause::RACE_CONDITION;
+    }
+
+    // Server bug / federation issue: events missing but no network gap
+    if (result.missingEvents > 0 && result.lastSyncAgeMs < 300000) {
+        return DesyncCause::SERVER_BUG;
+    }
+
+    return DesyncCause::UNKNOWN;
+}
+
+std::string getDesyncRecoveryAction(DesyncCause cause) {
+    switch (cause) {
+        case DesyncCause::NETWORK_GAP:     return "re-sync";
+        case DesyncCause::CACHE_CORRUPTION: return "clear_cache";
+        case DesyncCause::SERVER_BUG:       return "re-sync";
+        case DesyncCause::RACE_CONDITION:   return "re-sync";
+        default:                            return "none";
+    }
+}
+
+std::string getDesyncRecoveryAction(const DesyncCheckResult& result) {
+    if (!result.isDesynchronized) return "none";
+    return getDesyncRecoveryAction(diagnoseDesyncCause(result));
+}
+
 } // namespace progressive

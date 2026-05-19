@@ -1,6 +1,8 @@
 #include "progressive/content_guard.hpp"
 #include <sstream>
 #include <unordered_set>
+#include <algorithm>
+#include <cctype>
 
 namespace progressive {
 
@@ -181,6 +183,179 @@ std::vector<ContentMediaItem> groupMedia(
 std::string formatMediaCollapseLabel(int count) {
     if (count <= 0) return "";
     return std::to_string(count) + " media omitted";
+}
+
+// ==================== Content Trust & Guard Policies ====================
+
+// Original Kotlin: evaluateContent — run all validation rules
+ContentGuardResult evaluateContent(const std::string& contentBody,
+                                   const std::string& senderId,
+                                   const std::string& mxcUrl,
+                                   const ContentGuardConfig& config) {
+    ContentGuardResult result;
+
+    // Check explicit block list first
+    for (const auto& blocked : config.explicitBlocked) {
+        if (!mxcUrl.empty() && mxcUrl == blocked) {
+            result.decision = ContentTrustDecision::BLOCK;
+            result.reason = "Content URL is in block list.";
+            result.violatedRules.push_back("explicit_block_list");
+            return result;
+        }
+        if (!senderId.empty() && senderId == blocked) {
+            result.decision = ContentTrustDecision::BLOCK;
+            result.reason = "Sender is in block list.";
+            result.violatedRules.push_back("sender_block_list");
+            return result;
+        }
+    }
+
+    // Check explicit allow list
+    for (const auto& allowed : config.explicitAllowed) {
+        if (!mxcUrl.empty() && mxcUrl == allowed) {
+            result.decision = ContentTrustDecision::ALLOW;
+            result.reason = "Content URL is in allow list.";
+            return result;
+        }
+    }
+
+    // Apply trust policy
+    switch (config.policy) {
+        case ContentTrustPolicy::TRUST_ALL:
+            result.decision = ContentTrustDecision::ALLOW;
+            result.reason = "Trust-all policy in effect.";
+            break;
+
+        case ContentTrustPolicy::BLOCK_ALL:
+            result.decision = ContentTrustDecision::BLOCK;
+            result.reason = "Block-all policy in effect.";
+            break;
+
+        case ContentTrustPolicy::SCAN_REQUIRED:
+            if (!config.scanEnabled) {
+                result.decision = ContentTrustDecision::SCAN_PENDING;
+                result.reason = "Scan is required but not enabled.";
+                result.scanRequired = true;
+            } else {
+                result.decision = ContentTrustDecision::SCAN_PENDING;
+                result.reason = "Scan required before content can be accessed.";
+                result.scanRequired = true;
+            }
+            break;
+
+        case ContentTrustPolicy::MODERATION_REQUIRED:
+            if (!config.moderationEnabled) {
+                result.decision = ContentTrustDecision::QUARANTINE;
+                result.reason = "Moderation is required but not enabled — content quarantined.";
+            } else {
+                result.decision = ContentTrustDecision::QUARANTINE;
+                result.reason = "Awaiting moderation review.";
+            }
+            break;
+    }
+
+    // Run validation rules
+    for (const auto& rule : config.rules) {
+        if (!rule.enabled) continue;
+
+        bool matched = false;
+        auto lowerContent = [](const std::string& s) -> std::string {
+            std::string r = s;
+            std::transform(r.begin(), r.end(), r.begin(), ::tolower);
+            return r;
+        };
+
+        if (rule.ruleType == "keyword") {
+            auto lower = lowerContent(contentBody);
+            auto condLower = lowerContent(rule.condition);
+            matched = lower.find(condLower) != std::string::npos;
+        } else if (rule.ruleType == "sender") {
+            matched = (senderId == rule.condition);
+        } else if (rule.ruleType == "domain") {
+            matched = mxcUrl.find(rule.condition) != std::string::npos;
+        }
+
+        if (matched) {
+            result.violatedRules.push_back(rule.ruleId);
+
+            switch (rule.action) {
+                case ContentRuleAction::BLOCK:
+                    result.decision = ContentTrustDecision::BLOCK;
+                    result.reason = "Blocked by rule: " + rule.description;
+                    break;
+                case ContentRuleAction::WARN:
+                    if (result.decision == ContentTrustDecision::ALLOW) {
+                        result.warningType = ContentWarningType::CUSTOM;
+                    }
+                    break;
+                case ContentRuleAction::QUARANTINE:
+                    result.decision = ContentTrustDecision::QUARANTINE;
+                    result.reason = "Quarantined by rule: " + rule.description;
+                    break;
+                case ContentRuleAction::REPORT:
+                    // Report does not change decision but flags content
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    return result;
+}
+
+// Original Kotlin: isContentBlocked
+bool isContentBlocked(const ContentGuardResult& result) {
+    return result.decision == ContentTrustDecision::BLOCK;
+}
+
+// Original Kotlin: isContentAllowed
+bool isContentAllowed(const ContentGuardResult& result) {
+    return result.decision == ContentTrustDecision::ALLOW;
+}
+
+// Original Kotlin: shouldPromptUser
+bool shouldPromptUser(const ContentGuardResult& result) {
+    switch (result.decision) {
+        case ContentTrustDecision::BLOCK:
+        case ContentTrustDecision::QUARANTINE:
+        case ContentTrustDecision::SCAN_PENDING:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// Original Kotlin: getWarningMessage
+std::string getWarningMessage(ContentWarningType type, const std::string& customText) {
+    switch (type) {
+        case ContentWarningType::EXPLICIT:
+            return "This content may contain explicit material. View at your discretion.";
+        case ContentWarningType::VIOLENCE:
+            return "This content may contain depictions of violence.";
+        case ContentWarningType::SPAM:
+            return "This content has been flagged as potential spam.";
+        case ContentWarningType::PHISHING:
+            return "Warning: This content may be attempting to phish your information.";
+        case ContentWarningType::NSFW:
+            return "This content is not safe for work. Proceed with caution.";
+        case ContentWarningType::CUSTOM:
+            return customText.empty()
+                ? "This content has been flagged. Proceed with caution."
+                : customText;
+        default:
+            return "Content warning: proceed with caution.";
+    }
+}
+
+// Original Kotlin: addToBlockList
+void addToBlockList(ContentGuardConfig& config, const std::string& pattern) {
+    config.explicitBlocked.insert(pattern);
+}
+
+// Original Kotlin: removeFromBlockList
+void removeFromBlockList(ContentGuardConfig& config, const std::string& pattern) {
+    config.explicitBlocked.erase(pattern);
 }
 
 } // namespace progressive

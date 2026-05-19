@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 #include <cstdint>
 
 namespace progressive {
@@ -210,6 +211,74 @@ std::string getNotificationBadge(const RoomSummaryInfo& room);
 
 // Format room list stats as JSON.
 std::string roomListStatsToJson(const RoomListStats& stats);
+
+// ================================================================
+// Room Summary Query & Diff (EXPAND)
+//
+// Ported from RoomSummaryQueryParams.kt, RoomService.kt (getRoomSummaries),
+// RoomSummaryDataSource.kt roomSummariesQuery() filter logic.
+// ================================================================
+
+// Original Kotlin: RoomSummaryQueryParams (data class with queryString, roomId,
+// displayName, canonicalAlias, memberships, excludeType, includeType, roomCategoryFilter,
+// activeSpaceId, spaceFilter, roomTagQueryFilter)
+struct RoomSummaryQueryParams {
+    std::vector<std::string> roomIds;         // specific room IDs to match
+    std::vector<std::string> memberships;     // "join", "invite", "leave", "ban", "knock"
+    bool includeDrafts = true;                // include rooms with drafts
+    bool excludeVirtual = true;               // exclude virtual / local-echo rooms
+    bool onlyDirect = false;                  // RoomCategoryFilter.ONLY_DM
+    bool onlyGroups = false;                  // RoomCategoryFilter.ONLY_ROOMS
+    bool onlyWithNotifications = false;       // RoomCategoryFilter.ONLY_WITH_NOTIFICATIONS
+    bool onlyFavourites = false;              // tag filter: isFavourite
+    bool onlySpaces = false;                  // includeType: m.space
+    bool excludeSpaces = false;               // excludeType: m.space
+    std::string spaceId;                      // ActiveSpace filter (empty = no filter)
+    bool orphanRooms = false;                 // SpaceFilter.OrphanRooms
+    std::string displayNameFilter;            // fuzzy match display name
+    std::string canonicalAliasFilter;         // exact match canonical alias
+};
+
+// Original Kotlin: RoomSummaryDataSource.roomSummariesQuery() — builds Realm query
+// Translates query params into a JSON filter object for the /sync or local DB query.
+std::string buildRoomSummaryQuery(const RoomSummaryQueryParams& params);
+
+// Original Kotlin: implicit filter evaluation via Realm query on RoomSummaryEntity
+// Checks whether a given room summary matches the query params.
+bool roomSummaryMatchesFilter(const RoomSummaryInfo& room, const RoomSummaryQueryParams& params);
+
+// Original Kotlin: RoomSummaryUpdater diff computation when sync returns new room list.
+// Tracks added, updated, and removed room IDs between two snapshots.
+struct RoomSummaryUpdateBatch {
+    std::vector<std::string> added;           // new rooms not in previous list
+    std::vector<std::string> updated;         // rooms present in both with changed data
+    std::vector<std::string> removed;         // rooms in previous but not in current
+};
+
+// Original Kotlin: Diff algorithm comparing two sorted room ID lists.
+// Computes add/update/remove sets by comparing old vs new room summaries.
+// Uses roomId (string) and checks if displayName, notificationCount,
+// highlightCount, lastActivityTs, membership changed.
+RoomSummaryUpdateBatch computeRoomSummaryDiff(
+    const std::vector<RoomSummaryInfo>& oldList,
+    const std::vector<RoomSummaryInfo>& newList
+);
+
+// Original Kotlin: inferred from RoomSummaryUpdater live-data change detection.
+enum class RoomSummaryUpdateEvent {
+    ADDED,       // new room appeared
+    UPDATED,     // existing room changed (name, unread, membership, etc.)
+    REMOVED,     // room disappeared
+    NONE         // no change
+};
+
+// Original Kotlin: determine update type for a single room by comparing old vs new.
+// Returns ADDED if room wasn't in old list, REMOVED if not in new list,
+// UPDATED if key fields changed, or NONE if identical.
+RoomSummaryUpdateEvent getRoomSummaryUpdateType(
+    const RoomSummaryInfo* oldRoom,
+    const RoomSummaryInfo* newRoom
+);
 
 } // namespace progressive
 

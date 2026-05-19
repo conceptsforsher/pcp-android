@@ -1,16 +1,50 @@
-#ifndef PROGRESSIVE_URL_PREVIEW_HPP
-#define PROGRESSIVE_URL_PREVIEW_HPP
+#pragma once
 
 #include <string>
 #include <vector>
+#include <cstdint>
 #include "progressive/link_preview.hpp"
 
 namespace progressive {
 
-// ---- URL Preview / OpenGraph Parser ----
-// Ported from: im.vector.app.features.html.EventHtmlRenderer.kt
-//              im.vector.app.features.home.room.detail.timeline.helper.UrlPreviewer.kt
-//              org.matrix.android.sdk.api.session.room.model.urlpreview.UrlPreview
+// ---- URL Preview Type ----
+
+// Original Kotlin: UrlPreview.kt — preview type classification
+enum class UrlPreviewType {
+    OG_ARTICLE = 0,
+    OG_IMAGE = 1,
+    OG_VIDEO = 2,
+    TWITTER_CARD = 3,
+    O_EMBED = 4,
+    LINK = 5           // plain link, no rich preview
+};
+
+// ---- URL Preview Data ----
+
+// Original Kotlin: UrlPreviewData.kt — full preview data model
+struct UrlPreviewData {
+    std::string url;
+    std::string title;
+    std::string description;
+    std::string imageUrl;
+    int imageWidth = 0;
+    int imageHeight = 0;
+    std::string siteName;
+    std::string type;           // og:type value
+    std::string mimeType;       // e.g. "text/html", "image/jpeg"
+    UrlPreviewType previewType = UrlPreviewType::LINK;
+};
+
+// ---- URL Match ----
+
+// Original Kotlin: UrlUtils.kt — URL match with position info
+struct UrlMatch {
+    std::string url;
+    int startIndex = 0;
+    int endIndex = 0;
+};
+
+// ---- Existing UrlPreview struct (preserved) ----
 
 struct UrlPreview {
     std::string url;               // original URL
@@ -26,10 +60,52 @@ struct UrlPreview {
     bool valid = false;            // at least title or description present
 };
 
+// ---- OpenGraph / Twitter Card Parsers ----
+
+// Original Kotlin: org.matrix.android.sdk.api.session.room.model.urlpreview.UrlPreview
 // Parse OpenGraph tags from HTML content.
 // Original Kotlin (UrlPreviewer.kt):
 //   fun parseFromHtml(html: String, baseUrl: String): UrlPreview?
 UrlPreview parseUrlPreview(const std::string& html, const std::string& baseUrl);
+
+// Original Kotlin: OpenGraphParser.kt
+// Extract only OG tags as a UrlPreviewData struct (full fields).
+UrlPreviewData parseOpenGraphTags(const std::string& html, const std::string& baseUrl);
+
+// Original Kotlin: TwitterCardParser.kt
+// Extract Twitter Card tags from HTML.
+UrlPreviewData parseTwitterCardTags(const std::string& html, const std::string& baseUrl);
+
+// Original Kotlin: OEmbedParser.kt
+// Parse oEmbed JSON response: {"title":..., "thumbnail_url":..., ...}
+UrlPreviewData parseOEmbedResponse(const std::string& oembedJson, const std::string& originalUrl);
+
+// Original Kotlin: UrlPreview.kt — detect preview type from parsed tags
+UrlPreviewType detectUrlPreviewType(const UrlPreviewData& data);
+
+// ---- URL Preview Request / Response ----
+
+// Original Kotlin: PreviewUrlService.kt — build request JSON for GET /preview_url
+std::string buildUrlPreviewRequest(const std::string& url, int64_t ts = 0);
+
+// Original Kotlin: PreviewUrlService.kt — parse server /preview_url response
+UrlPreviewData parseUrlPreviewResponse(const std::string& responseJson);
+
+// ---- URL Utilities ----
+
+// Original Kotlin: UrlPreviewUtils.kt — check if URL supports preview
+bool isUrlPreviewable(const std::string& url);
+
+// Original Kotlin: EventHtmlRenderer.kt — generate HTML for preview display
+std::string formatUrlPreviewHtml(const UrlPreviewData& preview);
+
+// Original Kotlin: UrlUtils.kt — find first URL in plain text
+UrlMatch extractFirstUrl(const std::string& text);
+
+// Original Kotlin: UrlUtils.kt — find all URLs in plain text
+std::vector<UrlMatch> extractAllUrls(const std::string& text);
+
+// ---- Existing preserved functions ----
 
 // Extract the title from HTML <title> tag.
 std::string extractHtmlTitle(const std::string& html);
@@ -55,5 +131,3 @@ std::string truncateDescription(const std::string& text, size_t maxLen = 200);
 std::string urlPreviewToJson(const UrlPreview& preview);
 
 } // namespace progressive
-
-#endif // PROGRESSIVE_URL_PREVIEW_HPP

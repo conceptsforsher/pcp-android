@@ -202,4 +202,204 @@ std::string getBestDisplayName(const std::string& displayName, const std::string
     return "Unknown";
 }
 
+// ==== NameCollisionMap ====
+
+bool NameCollisionMap::registerName(const std::string& userId, const std::string& displayName) {
+    std::string lowerName = displayName;
+    std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+    // Remove old entry if user was already registered
+    removeUser(userId);
+
+    bool collision = false;
+    auto it = nameCounts_.find(lowerName);
+    if (it != nameCounts_.end()) {
+        collision = true;
+        it->second++;
+    } else {
+        nameCounts_[lowerName] = 1;
+    }
+
+    userNames_[userId] = lowerName;
+    nameToUsers_[lowerName].push_back(userId);
+    return collision;
+}
+
+void NameCollisionMap::removeUser(const std::string& userId) {
+    auto it = userNames_.find(userId);
+    if (it == userNames_.end()) return;
+
+    const std::string& lowerName = it->second;
+    auto countIt = nameCounts_.find(lowerName);
+    if (countIt != nameCounts_.end()) {
+        countIt->second--;
+        if (countIt->second <= 0) {
+            nameCounts_.erase(countIt);
+        }
+    }
+
+    auto usersIt = nameToUsers_.find(lowerName);
+    if (usersIt != nameToUsers_.end()) {
+        auto& vec = usersIt->second;
+        vec.erase(std::remove(vec.begin(), vec.end(), userId), vec.end());
+        if (vec.empty()) {
+            nameToUsers_.erase(usersIt);
+        }
+    }
+
+    userNames_.erase(it);
+}
+
+bool NameCollisionMap::hasCollision(const std::string& displayName) const {
+    std::string lowerName = displayName;
+    std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+    auto it = nameCounts_.find(lowerName);
+    return it != nameCounts_.end() && it->second > 1;
+}
+
+int NameCollisionMap::collisionCount(const std::string& displayName) const {
+    std::string lowerName = displayName;
+    std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+    auto it = nameCounts_.find(lowerName);
+    return (it != nameCounts_.end()) ? it->second : 0;
+}
+
+std::vector<std::string> NameCollisionMap::getCollidingUsers(const std::string& displayName) const {
+    std::string lowerName = displayName;
+    std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+    auto it = nameToUsers_.find(lowerName);
+    return (it != nameToUsers_.end()) ? it->second : std::vector<std::string>{};
+}
+
+void NameCollisionMap::clear() {
+    nameCounts_.clear();
+    userNames_.clear();
+    nameToUsers_.clear();
+}
+
+int NameCollisionMap::size() const {
+    return static_cast<int>(userNames_.size());
+}
+
+// ==== Display Name Change ====
+
+std::string formatDisplayNameChange(const DisplayNameChange& change) {
+    // Original Kotlin: human-readable format for display name changes
+    if (change.oldName.empty()) {
+        return change.userId + " set their name to " + change.newName;
+    }
+    if (change.isAmbiguous) {
+        return change.userId + " changed name from " + change.oldName +
+               " to " + change.newName + " (disambiguated as " + change.disambiguation + ")";
+    }
+    return change.userId + " changed their name from " + change.oldName + " to " + change.newName;
+}
+
+// ==== Disambiguated Display Name ====
+
+std::string getDisambiguatedDisplayName(
+    const std::string& displayName,
+    const std::string& userId,
+    DisambiguationStrategy strategy,
+    int memberNumber)
+{
+    // Original Kotlin: apply disambiguation based on strategy
+    switch (strategy) {
+        case DisambiguationStrategy::NONE:
+            return displayName;
+        case DisambiguationStrategy::APPEND_USERID:
+            return displayName + " (" + userId + ")";
+        case DisambiguationStrategy::USE_FULL_USERID:
+            return userId;
+        case DisambiguationStrategy::APPEND_MEMBER_NUMBER:
+            if (memberNumber > 0) {
+                return displayName + " (" + std::to_string(memberNumber) + ")";
+            }
+            return displayName + " (" + userId + ")";
+    }
+    return displayName;
+}
+
+// ==== Name Collision Functions ====
+
+bool checkNameCollision(
+    const std::string& displayName,
+    const std::vector<std::string>& existingNames)
+{
+    // Original Kotlin: case-insensitive name collision detection
+    auto lowerName = displayName;
+    std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+    for (const auto& name : existingNames) {
+        auto lowerExisting = name;
+        std::transform(lowerExisting.begin(), lowerExisting.end(), lowerExisting.begin(), ::tolower);
+        if (lowerExisting == lowerName) return true;
+    }
+    return false;
+}
+
+std::string resolveNameCollision(
+    const std::string& displayName,
+    const std::string& userId,
+    const NameCollisionMap& collisionMap,
+    DisambiguationStrategy strategy)
+{
+    // Original Kotlin: resolve collision by applying disambiguation
+    if (!collisionMap.hasCollision(displayName)) {
+        return displayName;
+    }
+    auto collidingUsers = collisionMap.getCollidingUsers(displayName);
+    int memberNumber = 0;
+    for (size_t i = 0; i < collidingUsers.size(); i++) {
+        if (collidingUsers[i] == userId) {
+            memberNumber = static_cast<int>(i + 1);
+            break;
+        }
+    }
+    return getDisambiguatedDisplayName(displayName, userId, strategy, memberNumber);
+}
+
+// ==== DisplayNameResolver ====
+
+std::string DisplayNameResolver::resolveDisplayName(
+    const std::string& userId,
+    const std::string& profileDisplayName,
+    const std::string& memberEventDisplayName)
+{
+    // Original Kotlin: main resolution entry point
+    // Priority: profile > member event > userId fallback
+    return resolveFromProfile(profileDisplayName, userId);
+}
+
+std::string DisplayNameResolver::resolveFromProfile(
+    const std::string& profileDisplayName,
+    const std::string& userId)
+{
+    // Original Kotlin: ProfileService.getProfile -> displayname key
+    if (!profileDisplayName.empty()) return profileDisplayName;
+    return resolveFromUserId(userId);
+}
+
+std::string DisplayNameResolver::resolveFromMemberEvent(
+    const std::string& memberEventDisplayName,
+    const std::string& userId)
+{
+    // Original Kotlin: m.room.member state event content.displayname
+    if (!memberEventDisplayName.empty()) return memberEventDisplayName;
+    return resolveFromUserId(userId);
+}
+
+std::string DisplayNameResolver::resolveFromUserId(const std::string& userId) {
+    // Original Kotlin: extract localpart from @localpart:domain
+    return userIdToDisplayName(userId);
+}
+
+bool DisplayNameResolver::isDisplayNameAmbiguous(
+    const std::string& displayName,
+    const std::vector<std::string>& otherMemberNames) const
+{
+    // Original Kotlin: check for ambiguous display names
+    return needsDisambiguation(displayName, otherMemberNames);
+}
+
 } // namespace progressive

@@ -1,8 +1,9 @@
-#ifndef PROGRESSIVE_DISPLAYNAME_UTILS_HPP
-#define PROGRESSIVE_DISPLAYNAME_UTILS_HPP
+#pragma once
 
 #include <string>
 #include <vector>
+#include <map>
+#include <cstdint>
 
 namespace progressive {
 
@@ -55,6 +56,127 @@ bool namesMatch(const std::string& a, const std::string& b);
 // Priority: displayName > userId localpart > userId
 std::string getBestDisplayName(const std::string& displayName, const std::string& userId);
 
-} // namespace progressive
+// ==== Disambiguation Strategy ====
+// Original Kotlin: DisplayNameResolver.kt disambiguation logic
 
-#endif // PROGRESSIVE_DISPLAYNAME_UTILS_HPP
+enum class DisambiguationStrategy {
+    NONE,                // No disambiguation needed
+    APPEND_USERID,       // "Alice (@alice:matrix.org)"
+    USE_FULL_USERID,     // Use full MXID instead of display name
+    APPEND_MEMBER_NUMBER // "Alice (2)" based on join order
+};
+
+// ==== Name Collision Map ====
+// Original Kotlin: tracks name collisions within a room
+
+class NameCollisionMap {
+public:
+    // Register a user's display name. Returns true if a collision was created.
+    bool registerName(const std::string& userId, const std::string& displayName);
+
+    // Remove a user from the map.
+    void removeUser(const std::string& userId);
+
+    // Check if a display name has collisions (used by >1 user).
+    bool hasCollision(const std::string& displayName) const;
+
+    // Get the number of users sharing a given display name.
+    int collisionCount(const std::string& displayName) const;
+
+    // Get all users that share a given display name.
+    std::vector<std::string> getCollidingUsers(const std::string& displayName) const;
+
+    // Clear all entries.
+    void clear();
+
+    // Get total user count.
+    int size() const;
+
+private:
+    // Map: displayName (lowercase) → count of users
+    std::map<std::string, int> nameCounts_;
+    // Map: userId → displayName (lowercase)
+    std::map<std::string, std::string> userNames_;
+    // Map: displayName (lowercase) → list of userIds
+    std::map<std::string, std::vector<std::string>> nameToUsers_;
+};
+
+// ==== Display Name Change ====
+// Original Kotlin: tracks display name change events
+
+struct DisplayNameChange {
+    std::string userId;           // who changed
+    std::string oldName;          // previous display name (empty if first set)
+    std::string newName;          // new display name
+    bool isAmbiguous = false;     // new name collides with another user
+    std::string disambiguation;   // disambiguated form if needed
+    int64_t timestampMs = 0;      // when the change occurred
+};
+
+// Format a display name change as human-readable description.
+// "Alice changed their name to Alice Cooper"
+// "Alice (was Alice Johnson)"
+std::string formatDisplayNameChange(const DisplayNameChange& change);
+
+// Get disambiguated display name based on strategy.
+// Original Kotlin: apply disambiguation suffix
+std::string getDisambiguatedDisplayName(
+    const std::string& displayName,
+    const std::string& userId,
+    DisambiguationStrategy strategy = DisambiguationStrategy::APPEND_USERID,
+    int memberNumber = 0);
+
+// Check for name collision in a list of names.
+// Returns true if the given displayName matches any existing name (case-insensitive).
+bool checkNameCollision(
+    const std::string& displayName,
+    const std::vector<std::string>& existingNames);
+
+// Resolve a name collision by applying disambiguation.
+// Returns the disambiguated name, or original if no collision.
+std::string resolveNameCollision(
+    const std::string& displayName,
+    const std::string& userId,
+    const NameCollisionMap& collisionMap,
+    DisambiguationStrategy strategy = DisambiguationStrategy::APPEND_USERID);
+
+// ==== Display Name Resolver ====
+// Original Kotlin: DisplayNameResolver.kt + member event resolution
+// Full display name resolution pipeline:
+//   1. Prefer display name from profile
+//   2. Fallback to member event display name
+//   3. Fallback to userId localpart extraction
+
+class DisplayNameResolver {
+public:
+    // Main entry: resolve the best display name for a user.
+    // Priority: profile displayName > member event displayName > userId fallback
+    std::string resolveDisplayName(
+        const std::string& userId,
+        const std::string& profileDisplayName,
+        const std::string& memberEventDisplayName);
+
+    // Resolve from user profile (server /profile API).
+    // Original Kotlin: ProfileService.getProfile -> displayname
+    std::string resolveFromProfile(
+        const std::string& profileDisplayName,
+        const std::string& userId);
+
+    // Resolve from m.room.member state event.
+    // Original Kotlin: member content.displayname
+    std::string resolveFromMemberEvent(
+        const std::string& memberEventDisplayName,
+        const std::string& userId);
+
+    // Resolve from userId — extract localpart from @localpart:domain.
+    // @alice_johnson:matrix.org → "Alice Johnson"
+    std::string resolveFromUserId(const std::string& userId);
+
+    // Check if a display name is ambiguous (same name as another user in room).
+    // Original Kotlin: isUniqueDisplayName check
+    bool isDisplayNameAmbiguous(
+        const std::string& displayName,
+        const std::vector<std::string>& otherMemberNames) const;
+};
+
+} // namespace progressive

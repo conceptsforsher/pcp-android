@@ -2,6 +2,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
+#include <cctype>
 
 namespace progressive {
 
@@ -28,6 +29,17 @@ static int64_t extractInt(const std::string& json, const std::string& key) {
     int64_t v = 0;
     while (pp < json.size() && json[pp] >= '0' && json[pp] <= '9') { v=v*10+(json[pp]-'0'); pp++; }
     return v;
+}
+
+static bool extractBool(const std::string& json, const std::string& key) {
+    auto pp = json.find("\"" + key + "\"");
+    if (pp == std::string::npos) return false;
+    pp = json.find(':', pp);
+    if (pp == std::string::npos) return false;
+    pp++;
+    while (pp < json.size() && (json[pp] == ' ' || json[pp] == '\t')) pp++;
+    if (pp < json.size() && json[pp] == 't' && json.substr(pp, 4) == "true") return true;
+    return false;
 }
 
 // ====== EXIF Orientation ======
@@ -309,7 +321,6 @@ void clampPan(ViewportState& state) {
     double scaledW = state.mediaWidth * state.scale;
     double scaledH = state.mediaHeight * state.scale;
 
-    // Allow some overscroll
     double maxOffsetX = std::max(0.0, (scaledW - state.viewportWidth) / 2.0);
     double maxOffsetY = std::max(0.0, (scaledH - state.viewportHeight) / 2.0);
 
@@ -332,12 +343,116 @@ bool canGenerateThumbnail(const std::string& mimeType) {
 
 ThumbnailConfig getRecommendedThumbnailConfig(int screenDensity) {
     ThumbnailConfig cfg;
-    // Scale based on screen density
     if (screenDensity >= 480) { cfg.width = 640; cfg.height = 480; }
     else if (screenDensity >= 320) { cfg.width = 320; cfg.height = 240; }
     else { cfg.width = 160; cfg.height = 120; }
     cfg.method = "scale";
     return cfg;
+}
+
+// ================================================================
+// Media Viewer List Builder
+// ================================================================
+
+// Original Kotlin: MediaViewerViewModel.kt — build viewer list from timeline events
+MediaViewerList buildMediaViewerList(
+    const std::vector<std::string>& eventContentsJson,
+    const std::string& roomTitle,
+    int startIndex) {
+
+    MediaViewerList list;
+    list.roomTitle = roomTitle;
+    list.startIndex = startIndex;
+
+    for (const auto& contentJson : eventContentsJson) {
+        MediaInfo info = parseMediaInfo(contentJson);
+
+        // Original Kotlin: filter out non-media events
+        if (info.mxcUrl.empty()) continue;
+        if (info.type != MediaType::IMAGE && info.type != MediaType::VIDEO &&
+            info.type != MediaType::GIF && info.type != MediaType::STICKER) continue;
+
+        MediaViewerItem item;
+        item.url = info.mxcUrl;
+        item.mimeType = info.mimeType;
+        item.title = info.fileName.empty() ? info.body : info.fileName;
+        item.description = info.body;
+        item.width = info.width;
+        item.height = info.height;
+        item.fileSize = info.sizeBytes;
+        item.isDownloaded = !info.downloadUrl.empty();
+        item.thumbnailUrl = info.thumbnailUrl;
+        // Original Kotlin: authorInfo set from sender display name (caller provides via body or content)
+        item.authorInfo = extractStr(contentJson, "sender_display_name");
+
+        list.items.push_back(std::move(item));
+    }
+
+    return list;
+}
+
+// Original Kotlin: ImageViewerViewModel.kt — find adjacent media
+AdjacentMedia findAdjacentMedia(const MediaViewerList& list, int currentIndex) {
+    AdjacentMedia adj;
+
+    // Previous: search backwards for first media item
+    for (int i = currentIndex - 1; i >= 0; i--) {
+        if (!list.items[i].url.empty()) {
+            adj.prevIndex = i;
+            break;
+        }
+    }
+
+    // Next: search forwards
+    int sz = static_cast<int>(list.items.size());
+    for (int i = currentIndex + 1; i < sz; i++) {
+        if (!list.items[i].url.empty()) {
+            adj.nextIndex = i;
+            break;
+        }
+    }
+
+    return adj;
+}
+
+// ================================================================
+// Media Download Utils
+// ================================================================
+
+// Original Kotlin: MediaDownloader.kt
+bool isMediaDownloadable(const std::string& mxcUrl) {
+    // mxc:// URLs are downloadable from the homeserver
+    if (mxcUrl.empty()) return false;
+    if (mxcUrl.compare(0, 6, "mxc://") == 0) return true;
+    // HTTP URLs are also downloadable
+    if (mxcUrl.compare(0, 7, "http://") == 0 || mxcUrl.compare(0, 8, "https://") == 0) return true;
+    return false;
+}
+
+// Original Kotlin: FileService.kt, MediaCache.kt
+std::string getMediaCachePath(const std::string& mxcUrl, const std::string& cacheDir,
+                              const std::string& fileName) {
+    std::ostringstream path;
+
+    // Remove trailing slash from cacheDir
+    std::string dir = cacheDir;
+    while (!dir.empty() && dir.back() == '/') dir.pop_back();
+    path << dir << "/mxc_media/";
+
+    auto serverName = extractMxcServerName(mxcUrl);
+    auto mediaId = extractMxcMediaId(mxcUrl);
+
+    // Original Kotlin: cache path = cacheDir/mxc_media/{serverName}_{mediaId}_{filename}
+    if (!fileName.empty()) {
+        // Extract base name from path (handle / separators)
+        auto lastSlash = fileName.rfind('/');
+        auto baseName = (lastSlash != std::string::npos) ? fileName.substr(lastSlash + 1) : fileName;
+        path << serverName << "_" << mediaId << "_" << baseName;
+    } else {
+        path << serverName << "_" << mediaId;
+    }
+
+    return path.str();
 }
 
 } // namespace progressive

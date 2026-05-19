@@ -217,6 +217,8 @@ add_library(
     src/oidc_auth.cpp
     src/olm.cpp
     src/openid_token.cpp
+    src/room_state_manager.cpp
+    src/space_graph.cpp
     src/jni_bridge.cpp
     src/eventdb.cpp
 )

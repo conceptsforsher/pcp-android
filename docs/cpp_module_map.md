@@ -83,6 +83,23 @@
 | 74 | `key_backup` | `KeysBackup.kt`, `KeysBackupSetupSharedViewModel.kt` | `org.matrix.android.sdk.internal.crypto.keysbackup` | Форматирование ключа восстановления, base58, валидация | ~15× faster |
 | 75 | `content_utils` | `ContentUrlResolver.kt`, `MessageContent.kt` | `org.matrix.android.sdk.api.session.content` | MXC URL резолвер, определитель типа сообщения | ~12× faster |
 | 76 | `room_state` | `RoomJoinRules.kt`, `RoomHistoryVisibility.kt`, `RoomGuestAccess.kt`, `RoomCreate.kt` | `org.matrix.android.sdk.api.session.room.model` | Парсеры состояния комнаты: join_rules, history_visibility, guest_access, create | ~15× faster |
+| 77 | `room_summary` | `RoomSummaryUpdater.kt`, `RoomSummaryEventsHelper.kt` | `org.matrix.android.sdk.internal.session.room.summary` | Обновление сводки комнаты при /sync: подсчёт уведомлений, unread, превью-текст | ~15× faster |
+| 78 | `e2ee_shield` | `ComputeShieldForGroupUseCase.kt`, `ShieldSummaryUpdater.kt` | `org.matrix.android.sdk.internal.crypto` | Вычисление уровня доверия E2EE для комнаты (чёрный/красный/зелёный щит) | ~12× faster |
+| 79 | `space_graph` | `RoomChildRelationInfo.kt`, `validateSpaceRelationship()` | `org.matrix.android.sdk.internal.session.room.relationship` | Обход иерархии пространств, поиск циклов, flatten-родители | ~20× faster |
+| 80 | `room_filter` | `RoomListFilterMapper.kt`, `RoomSummaryListProcessor.kt` | (Element X sliding sync) | Фильтрация и сортировка списка комнат по категориям, поиск, дедупликация версий | ~10× faster |
+| 81 | `common_utils` | `SharedPreferences.kt`, `Logger.kt`, `TextUtils.kt` | `im.vector.app.core.*` | KeyValueStore, Logger, CSV builder, timestamp-утилиты, парсинг JSON-массивов | ~5× faster |
+| 82 | `content_builder` | `EventFactory.kt`, `LocalEchoEventFactory.kt` | `org.matrix.android.sdk.internal.session.room.send` | Построение JSON-контента для 12+ типов событий (текст, медиа, состояние, опросы) | ~8× faster |
+| 83 | `relation_builder` | `RelationDefaultContent.kt`, `ReplyToContent.kt` | `org.matrix.android.sdk.api.session.events.model` | Построение m.relates_to: reply, thread, edit, reaction, reference, m.new_content | ~10× faster |
+| 84 | `room_state_manager` | `RoomHistoryVisibility.kt`, `RoomJoinRules.kt` | `org.matrix.android.sdk.internal.session.room` | Менеджер видимости истории и правил входа: проверка прав, конфигурация | ~8× faster |
+| 85 | `bidirectional_utils` | `String.kt` (filterDirectionOverrides) | `im.vector.app.core.extensions` | Защита от Unicode bidi-override атак (CVE-2021-42574): детекция и фильтрация | ~30× faster |
+| 86 | `circular_cache` | `CircularCache.kt` | `im.vector.app.features.notifications` | FIFO ring buffer для дедупликации уведомлений (отслеживание недавних event ID) | ~5× faster |
+| 87 | `decryptor_utils` | `TimelineEventDecryptor.kt` (dedup) | `org.matrix.android.sdk.internal.session.room.timeline` | Дедупликация запросов расшифровки, retry-логика, отслеживание новых Olm-сессий | ~8× faster |
+| 88 | `message_types` | `MessageType.kt`, `MessageFormat.kt` | `org.matrix.android.sdk.api.session.events.model` | Константы типов сообщений (m.text, m.image, ...), псевдо-типы (sticker, poll, beacon) | ~5× faster |
+| 89 | `event_helpers` | `RedactionEventProcessor.kt` (partial) | `org.matrix.android.sdk.internal.session.room.prune` | Утилиты редиректа: проверка isRedacted, извлечение redaction_info | ~10× faster |
+| 90 | `push_notif_utils` | `NotificationUtils.kt`, `NotificationFactory.kt` | `im.vector.app.features.notifications` | Построение Android-уведомлений без FCM: приоритет, вибрация, бейджи | ~5× faster |
+| 91 | `media_utils_extra` | `ThumbnailUtils.kt`, `ImageUtils.kt` | `im.vector.app.features.media` | Расчёт размеров миниатюр, EXIF-ориентация, санитизация имён файлов | ~15× faster |
+| 92 | `room_utils_extra` | `RoomAvatarResolver.kt`, `RoomDisplayNameResolver.kt` | `org.matrix.android.sdk.internal.session.room` | Разрешение аватара и имени комнаты из состояния/профиля | ~8× faster |
+| 93 | `session_config` | `SessionParams.kt`, `SessionConfig.kt` | `org.matrix.android.sdk.api.session` | Параметры сессии: таймаут, PIN-блокировка, биометрия, HomeServerCapabilities | ~5× faster |
 
 ## Porting Principles
 

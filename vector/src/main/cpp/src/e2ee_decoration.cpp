@@ -1,5 +1,6 @@
 #include "progressive/e2ee_decoration.hpp"
 #include <sstream>
+#include <unordered_map>
 
 namespace progressive {
 
@@ -88,6 +89,138 @@ std::string getE2eeAccessibility(E2eeState state, const std::string& errorReason
         return base + ": " + errorReason;
     }
     return base;
+}
+
+// ================================================================
+// Room-Level Shield Computation
+//
+// Ported from ComputeShieldForGroupUseCase.kt + ShieldSummaryUpdater.kt
+// ================================================================
+
+RoomEncryptionTrustLevel computeRoomShield(
+    const std::string& myUserId,
+    const std::vector<UserIdentityInfo>& userIdentities,
+    const std::vector<DeviceTrustInfo>& userDevices)
+{
+    // Original Kotlin (ComputeShieldForGroupUseCase.kt:28-70):
+    //   val myIdentity = olmMachine.getIdentity(myUserId)
+    //   val allTrustedUserIds = userIds
+    //       .filter { userId ->
+    //           val identity = olmMachine.getIdentity(userId)?.toMxCrossSigningInfo()
+    //           identity?.isTrusted() == true ||
+    //               identity?.wasTrustedOnce == true
+    //       }
+
+    // Step 1: Build identity map for quick lookup
+    std::unordered_map<std::string, const UserIdentityInfo*> identityMap;
+    for (const auto& id : userIdentities) {
+        identityMap[id.userId] = &id;
+    }
+
+    // Step 2: Filter trusted users
+    std::vector<std::string> trustedUserIds;
+    for (const auto& id : userIdentities) {
+        // Always include users that were previously verified
+        if (id.isTrusted || id.wasTrustedOnce) {
+            trustedUserIds.push_back(id.userId);
+        }
+    }
+
+    // Step 3: If no trusted users → Default (black shield)
+    // Original Kotlin:
+    //   return if (allTrustedUserIds.isEmpty()) RoomEncryptionTrustLevel.Default
+    if (trustedUserIds.empty()) {
+        return RoomEncryptionTrustLevel::Default;
+    }
+
+    // Step 4: Check all devices of trusted users for unverified devices
+    // Original Kotlin:
+    //   allTrustedUserIds.map { userId -> olmMachine.getUserDevices(userId) }
+    //       .flatten()
+    //       .let { allDevices ->
+    //           if (myIdentity != null) {
+    //               allDevices.any { !it.toCryptoDeviceInfo().trustLevel?.crossSigningVerified.orFalse() }
+    //           } else {
+    //               allDevices.any { !it.toCryptoDeviceInfo().isVerified }
+    //           }
+    //       }
+
+    bool hasUnverifiedDevice = false;
+    bool hasMyIdentity = !myUserId.empty() && identityMap.find(myUserId) != identityMap.end();
+
+    for (const auto& device : userDevices) {
+        // Only check devices of trusted users
+        bool deviceBelongsToTrustedUser = false;
+        for (const auto& uid : trustedUserIds) {
+            if (device.userId == uid) { deviceBelongsToTrustedUser = true; break; }
+        }
+        if (!deviceBelongsToTrustedUser) continue;
+
+        if (hasMyIdentity) {
+            // Cross-signing path: check if any device is NOT cross-signing verified
+            // Original: allDevices.any { !it.toCryptoDeviceInfo().trustLevel?.crossSigningVerified.orFalse() }
+            if (!device.isCrossSigningVerified) {
+                hasUnverifiedDevice = true;
+                break;
+            }
+        } else {
+            // Legacy path: check if any device is NOT verified
+            // Original: allDevices.any { !it.toCryptoDeviceInfo().isVerified }
+            if (!device.isVerified) {
+                hasUnverifiedDevice = true;
+                break;
+            }
+        }
+    }
+
+    // Step 5: Determine final trust level
+    // Original Kotlin:
+    //   .let { hasWarning ->
+    //       if (hasWarning) RoomEncryptionTrustLevel.Warning
+    //       else {
+    //           if (userIds.size == allTrustedUserIds.size) RoomEncryptionTrustLevel.Trusted
+    //           else RoomEncryptionTrustLevel.Default
+    //       }
+    //   }
+    if (hasUnverifiedDevice) {
+        return RoomEncryptionTrustLevel::Warning;
+    }
+
+    // All users are trusted and all devices are verified → green shield
+    if (userIdentities.size() == trustedUserIds.size()) {
+        return RoomEncryptionTrustLevel::Trusted;
+    }
+
+    return RoomEncryptionTrustLevel::Default;
+}
+
+const char* roomShieldToString(RoomEncryptionTrustLevel level) {
+    switch (level) {
+        case RoomEncryptionTrustLevel::Default:    return "Default (black shield)";
+        case RoomEncryptionTrustLevel::Warning:    return "Warning (red shield)";
+        case RoomEncryptionTrustLevel::Trusted:    return "Trusted (green shield)";
+        case RoomEncryptionTrustLevel::E2EWithUnsupportedAlgorithm:
+            return "E2EE with unsupported algorithm";
+        default: return "Unknown";
+    }
+}
+
+const char* roomShieldIconName(RoomEncryptionTrustLevel level) {
+    switch (level) {
+        case RoomEncryptionTrustLevel::Default:    return "ic_shield_black";
+        case RoomEncryptionTrustLevel::Warning:    return "ic_shield_warning";
+        case RoomEncryptionTrustLevel::Trusted:    return "ic_shield_trusted";
+        case RoomEncryptionTrustLevel::E2EWithUnsupportedAlgorithm:
+            return "ic_shield_unknown";
+        default: return "";
+    }
+}
+
+bool shieldLevelChanged(
+    RoomEncryptionTrustLevel oldLevel,
+    RoomEncryptionTrustLevel newLevel)
+{
+    return oldLevel != newLevel;
 }
 
 } // namespace progressive

@@ -219,6 +219,9 @@ add_library(
     src/openid_token.cpp
     src/room_state_manager.cpp
     src/space_graph.cpp
+    src/voice_broadcast.cpp
+    src/sync_handler.cpp
+    src/decryptor_utils.cpp
     src/jni_bridge.cpp
     src/eventdb.cpp
 )

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="300dp"
+    android:viewportWidth="300"
+    android:viewportHeight="300">
+
+    <!-- Base platform -->
+    <path
+        android:fillColor="#7986CB"
+        android:pathData="M110,270 L190,270 L200,255 L100,255 Z" />
+    <path
+        android:fillColor="#9FA8DA"
+        android:pathData="M115,255 L185,255 L180,250 L120,250 Z" />
+
+    <!-- Center pillar -->
+    <path
+        android:fillColor="#7986CB"
+        android:strokeColor="#7986CB"
+        android:strokeWidth="2"
+        android:pathData="M140,250 L140,70 L142,50 L148,40 L152,50 L150,70 L150,250 Z" />
+
+    <!-- Pillar top sphere -->
+    <path
+        android:fillColor="#7986CB"
+        android:pathData="M145,30 A10,10 0 1,1 145,50 A10,10 0 1,1 145,30 Z" />
+
+    <!-- Cross beam -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#7986CB"
+        android:strokeWidth="10"
+        android:strokeLineCap="round"
+        android:pathData="M40,100 L260,100" />
+
+    <!-- Beam end caps -->
+    <path
+        android:fillColor="#7986CB"
+        android:pathData="M35,92 L45,92 L45,108 L35,108 Z" />
+    <path
+        android:fillColor="#7986CB"
+        android:pathData="M255,92 L265,92 L265,108 L255,108 Z" />
+
+    <!-- Left chain ring -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#7986CB"
+        android:strokeWidth="4"
+        android:pathData="M40,108 A6,6 0 1,1 40,120 A6,6 0 1,1 40,108 Z" />
+
+    <!-- Right chain ring -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#7986CB"
+        android:strokeWidth="4"
+        android:pathData="M260,108 A6,6 0 1,1 260,120 A6,6 0 1,1 260,108 Z" />
+
+    <!-- Left chain lines -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#7986CB"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M40,126 L40,170 M40,126 L60,170" />
+
+    <!-- Right chain lines -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#7986CB"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M260,126 L260,170 M260,126 L240,170" />
+
+    <!-- Left pan -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#7986CB"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M10,170 Q30,250 90,170" />
+
+    <!-- Right pan -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#7986CB"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M210,170 Q270,250 290,170" />
+
+    <!-- Left weight (shield icon) -->
+    <path
+        android:fillColor="#FF8A65"
+        android:pathData="M35,190 A18,18 0 1,0 35,226 A18,18 0 1,0 35,190 Z" />
+    <path
+        android:fillColor="#263238"
+        android:pathData="M28,206 L35,214 L42,206 L40,202 L35,206 L30,202 Z" />
+
+    <!-- Right weight (lock icon) -->
+    <path
+        android:fillColor="#FF8A65"
+        android:pathData="M235,190 A18,18 0 1,0 235,226 A18,18 0 1,0 235,190 Z" />
+    <path
+        android:fillColor="#263238"
+        android:pathData="M230,204 L235,210 L240,204 L238,201 L235,204 L232,201 Z" />
+
+    <!-- Decorative rays -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#C5CAE9"
+        android:strokeWidth="1.5"
+        android:pathData="M150,15 L150,5 M140,18 L135,11 M160,18 L165,11 M125,25 L118,22 M175,25 L182,22" />
+
+</vector>

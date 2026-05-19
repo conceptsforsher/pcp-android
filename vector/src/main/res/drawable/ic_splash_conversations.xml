@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="300dp"
+    android:viewportWidth="300"
+    android:viewportHeight="300">
+
+    <!-- House body -->
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M100,150 L100,260 L200,260 L200,150 Z" />
+
+    <!-- House roof -->
+    <path
+        android:fillColor="#283593"
+        android:pathData="M80,155 L150,80 L220,155 Z" />
+
+    <!-- Door -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M135,200 L165,200 L165,260 L135,260 Z" />
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M160,225 A4,4 0 1,1 160,233 A4,4 0 1,1 160,225 Z" />
+
+    <!-- Window left -->
+    <path
+        android:fillColor="#C5CAE9"
+        android:pathData="M112,170 L132,170 L132,190 L112,190 Z" />
+    <path
+        android:fillColor="#1A237E"
+        android:strokeColor="#1A237E"
+        android:strokeWidth="2"
+        android:pathData="M122,170 L122,190 M112,180 L132,180" />
+
+    <!-- Window right -->
+    <path
+        android:fillColor="#C5CAE9"
+        android:pathData="M168,170 L188,170 L188,190 L168,190 Z" />
+    <path
+        android:fillColor="#1A237E"
+        android:strokeColor="#1A237E"
+        android:strokeWidth="2"
+        android:pathData="M178,170 L178,190 M168,180 L188,180" />
+
+    <!-- Shield on roof -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="M135,60 L150,50 L165,60 L165,80 Q150,95 135,80 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M143,65 L150,70 L157,65 L155,62 L150,65 L145,62 Z" />
+
+    <!-- Chat bubble left -->
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M40,220 Q40,180 80,180 L100,180 L100,230 L80,230 Q40,230 40,220 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M48,195 L78,195 M48,205 L72,205 M48,215 L62,215"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round" />
+
+    <!-- Chat bubble right -->
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M260,110 Q260,70 220,70 L200,70 L200,120 L220,120 Q260,120 260,110 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M208,82 L232,82 M208,92 L225,92 M208,102 L218,102"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round" />
+
+    <!-- Sun rays from top-right -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#9FA8DA"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M240,20 L240,10 M255,25 L262,18 M270,40 L278,35 M275,55 L285,55" />
+
+</vector>

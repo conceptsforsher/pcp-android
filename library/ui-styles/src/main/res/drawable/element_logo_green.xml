@@ -1,0 +1,26 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Chat bubble -->
+    <path
+        android:pathData="M12,12 h38 a4,4 0 0,1 4,4 v28 a4,4 0 0,1 -4,4 h-12 l-5,10 l1.5,-10 h-22.5 a4,4 0 0,1 -4,-4 v-28 a4,4 0 0,1 4,-4 z"
+        android:strokeColor="#10b981"
+        android:fillColor="@android:color/transparent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <!-- Chart line -->
+    <path
+        android:pathData="M18,42 L26,35 L33,28 L40,24 L48,20 L52,17"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#10b981"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <!-- Data dots -->
+    <path
+        android:pathData="M18,42 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0 M26,35 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0 M33,28 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0 M40,24 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0 M48,20 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0 M52,17 m-2.5,0 a2.5,2.5 0 1,1 5,0 a2.5,2.5 0 1,1 -5,0"
+        android:fillColor="#10b981" />
+</vector>

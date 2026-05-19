@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="notification_icon_style_entries">
+        <item>Element (default)</item>
+        <item>Progressive Chart (filled)</item>
+        <item>Progressive Chart (outline)</item>
+    </string-array>
+    <string-array name="notification_icon_style_values">
+        <item>element</item>
+        <item>chart_filled</item>
+        <item>chart_outline</item>
+    </string-array>
+</resources>

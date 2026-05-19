@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Scales of Justice -->
+    <!-- Center pillar -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="M24,4 L24,44 M24,4 L20,8 M24,4 L28,8" />
+    <!-- Cross beam -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF5722"
+        android:strokeWidth="2.5"
+        android:pathData="M8,12 L40,12" />
+    <!-- Left pan chains -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF5722"
+        android:strokeWidth="1.5"
+        android:pathData="M8,12 L8,20 M8,12 L12,20" />
+    <!-- Right pan chains -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF5722"
+        android:strokeWidth="1.5"
+        android:pathData="M40,12 L40,20 M40,12 L36,20" />
+    <!-- Left pan (arc) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF5722"
+        android:strokeWidth="2"
+        android:pathData="M4,20 Q8,28 16,20" />
+    <!-- Right pan (arc) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF5722"
+        android:strokeWidth="2"
+        android:pathData="M32,20 Q40,28 44,20" />
+    <!-- Left pan filled weight (path circle) -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="M10,21 A2,2 0 1,0 10,25 A2,2 0 1,0 10,21 Z" />
+</vector>

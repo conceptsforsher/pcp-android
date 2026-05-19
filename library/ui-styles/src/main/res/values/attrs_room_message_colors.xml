@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- room message colors -->
+    <attr name="vctr_unsent_message_text_color" format="color" />
+    <attr name="vctr_message_text_color" format="color" />
+    <attr name="vctr_notice_text_color" format="color" />
+    <attr name="vctr_notice_secondary" format="color" />
+    <attr name="vctr_encrypting_message_text_color" format="color" />
+    <attr name="vctr_sending_message_text_color" format="color" />
+    <attr name="vctr_markdown_block_background_color" format="color" />
+    <attr name="vctr_spoiler_background_color" format="color" />
+
+    <!-- ShieldChat / Progressive Chat theme attributes (Faraday-inspired) -->
+    <attr name="colorAccentPale" format="color" />
+    <attr name="sc_message_bg_incoming" format="color" />
+    <attr name="sc_message_bg_outgoing" format="color" />
+    <attr name="sc_notice_bg_incoming" format="color" />
+    <attr name="sc_notice_bg_outgoing" format="color" />
+    <attr name="code_block_bg_color" format="color" />
+    <attr name="message_highlight_bg_color" format="color" />
+    <attr name="quote_bar_color" format="color" />
+    <attr name="conference_animation_from" format="color" />
+    <attr name="conference_animation_to" format="color" />
+    <attr name="riotx_unread_unimportant_room_badge" format="color" />
+    <attr name="user_color_pl_0" format="color" />
+    <attr name="user_color_pl_1" format="color" />
+    <attr name="user_color_pl_50" format="color" />
+    <attr name="user_color_pl_51" format="color" />
+    <attr name="user_color_pl_95" format="color" />
+    <attr name="user_color_pl_100" format="color" />
+    <attr name="user_color_hash_01" format="color" />
+    <attr name="user_color_hash_02" format="color" />
+    <attr name="user_color_hash_03" format="color" />
+    <attr name="user_color_hash_04" format="color" />
+    <attr name="user_color_hash_05" format="color" />
+    <attr name="user_color_hash_06" format="color" />
+    <attr name="user_color_hash_07" format="color" />
+    <attr name="user_color_hash_08" format="color" />
+    <attr name="voice_message_playback_background_color" format="color" />
+    <attr name="shield_color_warning" format="color" />
+    <attr name="color_warning" format="color" />
+    <attr name="verification_request_background" format="color" />
+    <attr name="backgroundColorLight" format="reference|color" />
+    <attr name="timestamp_overlay_fg" format="color" />
+    <attr name="timestamp_overlay_bg" format="color" />
+    <attr name="dense_dropdown_text_input" format="reference" />
+    <attr name="room_color_hash_01" format="color" />
+    <attr name="room_color_hash_02" format="color" />
+    <attr name="room_color_hash_03" format="color" />
+    <attr name="room_color_hash_04" format="color" />
+    <attr name="room_color_hash_05" format="color" />
+    <attr name="room_color_hash_06" format="color" />
+    <attr name="room_color_hash_07" format="color" />
+    <attr name="room_color_hash_08" format="color" />
+    <attr name="sc_notice_text_color" format="color" />
+    <attr name="sc_tombstone_text_color" format="color" />
+    <attr name="sc_tombstone_bg" format="color" />
+    <attr name="sc_e2e_badge_bg" format="color" />
+    <attr name="sc_e2e_badge_text" format="color" />
+    <attr name="sc_read_receipts_bg" format="color" />
+    <attr name="sc_fab_scrim_color" format="color" />
+    <attr name="sc_link_color" format="color" />
+    <attr name="unread_line_unimportant" format="color" />
+    <attr name="boxStrokeColor" format="color" />
+    <attr name="chipBackgroundColor" format="color" />
+    <attr name="closeIconTint" format="color" />
+    <attr name="InReplyToViewParams" format="reference" />
+</resources>

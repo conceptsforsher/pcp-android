@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="300dp"
+    android:viewportWidth="300"
+    android:viewportHeight="300">
+
+    <!-- Person 1 (center-top) -->
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M150,90 A18,18 0 1,1 150,126 A18,18 0 1,1 150,90 Z" />
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M132,135 A22,18 0 0,0 168,135 L170,170 L130,170 Z" />
+
+    <!-- Person 2 (bottom-left) -->
+    <path
+        android:fillColor="#283593"
+        android:pathData="M80,200 A18,18 0 1,1 80,236 A18,18 0 1,1 80,200 Z" />
+    <path
+        android:fillColor="#283593"
+        android:pathData="M62,245 A22,18 0 0,0 98,245 L100,280 L60,280 Z" />
+
+    <!-- Person 3 (bottom-right) -->
+    <path
+        android:fillColor="#283593"
+        android:pathData="M220,200 A18,18 0 1,1 220,236 A18,18 0 1,1 220,200 Z" />
+    <path
+        android:fillColor="#283593"
+        android:pathData="M202,245 A22,18 0 0,0 238,245 L240,280 L200,280 Z" />
+
+    <!-- Connection lines -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#9FA8DA"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M150,170 L80,200" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#9FA8DA"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M150,170 L220,200" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#9FA8DA"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M80,280 L220,280" />
+
+    <!-- Chat dots on lines (communication active) -->
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M115,185 A4,4 0 1,1 115,193 A4,4 0 1,1 115,185 Z" />
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M185,185 A4,4 0 1,1 185,193 A4,4 0 1,1 185,193 Z" />
+    <path
+        android:fillColor="#1A237E"
+        android:pathData="M150,280 A4,4 0 1,1 150,288 A4,4 0 1,1 150,280 Z" />
+
+    <!-- Small building structure (background) -->
+    <path
+        android:fillColor="#C5CAE9"
+        android:pathData="M50,160 L50,190 L70,190 L70,175 L90,175 L90,190 L110,190 L110,160 Z" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#1A237E"
+        android:strokeWidth="1"
+        android:pathData="M55,170 L65,170 M55,178 L65,178 M75,178 L85,178 M95,170 L105,170" />
+
+    <!-- Small building right -->
+    <path
+        android:fillColor="#C5CAE9"
+        android:pathData="M190,160 L190,190 L210,190 L210,170 L230,170 L230,190 L250,190 L250,160 Z" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#1A237E"
+        android:strokeWidth="1"
+        android:pathData="M195,170 L205,170 M195,178 L205,178 M215,178 L225,178 M235,170 L245,170" />
+
+</vector>

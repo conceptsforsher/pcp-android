@@ -82,16 +82,44 @@ struct SyncRoomState {
     std::vector<Event> events;
 };
 
-// Original Kotlin (RoomSyncEphemeral.kt:25-31):
-//   data class RoomSyncEphemeral(events: List<Event>?)
-struct SyncRoomEphemeral {
-    std::vector<Event> events;             // typing, receipts
+// ==== Ephemeral Events (typed) ====
+//
+// Original Kotlin (EphemeralEvent.kt / TypingSyncEphemeralEvent.kt / ReceiptSyncEphemeralEvent.kt):
+//   Ephemeral events are room-level events that are not stored in the room history.
+//   They include typing notifications (m.typing) and read receipts (m.receipt).
+
+// Original Kotlin (TypingSyncEphemeralEvent.kt:22-30):
+//   data class TypingSyncEphemeralEvent(userIds: List<String>)
+struct SyncTypingEvent {
+    std::vector<std::string> userIds;      // users currently typing
 };
 
-// Original Kotlin (RoomSyncAccountData.kt:26-31):
-//   data class RoomSyncAccountData(events: List<Event>?)
-struct SyncRoomAccountData {
-    std::vector<Event> events;             // tags, etc.
+// Original Kotlin (ReceiptSyncEphemeralEvent.kt:22-28):
+//   data class ReceiptSyncEphemeralEvent(eventIdToReadReceipts: Map<String, ReadReceiptsData>)
+//   Where ReadReceiptsData = Map<String, ReceiptInfo> (userId -> ReceiptInfo)
+//   And ReceiptInfo(originalTs: Long?, threadId: String?)
+
+struct SyncReceiptInfo {
+    int64_t originalTs = 0;               // "ts" key — timestamp of the read event
+    std::string threadId;                  // "thread_id" key — for threaded receipts (MSC3771)
+};
+
+// Map from userId -> ReceiptInfo for a given event
+struct SyncReadReceiptsData {
+    std::unordered_map<std::string, SyncReceiptInfo> receipts;
+};
+
+// Original Kotlin (ReceiptSyncEphemeralEvent.kt):
+//   The ephemeral receipt data: event_id -> per-user receipt info
+struct SyncReceiptEvent {
+    std::unordered_map<std::string, SyncReadReceiptsData> eventIdToReceipts; // eventId -> {userId -> info}
+};
+
+// Discriminated ephemeral event: either typing or receipts (or other/unparsed)
+enum class SyncEphemeralEventType {
+    TYPING = 0,
+    RECEIPT = 1,
+    OTHER = 2
 };
 
 // Original Kotlin (LazyRoomSyncEphemeral.kt:22-25):
@@ -104,10 +132,22 @@ enum class EphemeralState {
     PARSED = 1      // Already parsed into SyncRoomEphemeral
 };
 
+// Original Kotlin (RoomSyncEphemeral.kt:25-31):
+//   data class RoomSyncEphemeral(events: List<Event>?)
+struct SyncRoomEphemeral {
+    std::vector<Event> events;             // typing, receipts
+};
+
 struct SyncLazyEphemeral {
     EphemeralState state = EphemeralState::STORED;
     SyncRoomEphemeral parsed;              // Only valid if state == PARSED
     std::string storedJson;                // Raw JSON if state == STORED
+};
+
+// Original Kotlin (RoomSyncAccountData.kt:26-31):
+//   data class RoomSyncAccountData(events: List<Event>?)
+struct SyncRoomAccountData {
+    std::vector<Event> events;             // tags, etc.
 };
 
 // Original Kotlin (RoomSync.kt:26-54):
@@ -167,6 +207,60 @@ struct SyncResponse {
         && rooms.invite.empty() && rooms.leave.empty(); }
 };
 
+// ==== User Account Data Event ====
+//
+// Original Kotlin (UserAccountDataEvent.kt:27-31):
+//   data class UserAccountDataEvent(type: String, content: Content)
+//   Simplified Event with just type and content for account data events.
+//   Used types are defined in UserAccountDataTypes.
+
+struct UserAccountDataEvent {
+    std::string type;                       // "type" key — e.g. "m.direct", "m.ignored_user_list"
+    std::string contentJson;                // "content" key — raw JSON content object
+};
+
+// ==== To-Device Event ====
+//
+// Original Kotlin (ToDeviceEvent.kt / ToDeviceSyncResponse.kt):
+//   To-device events are sent directly between devices without passing through rooms.
+//   Examples: m.room_key, m.room_key_request, m.new_device
+
+struct ToDeviceEvent {
+    std::string type;                       // "type" key — e.g. "m.room_key"
+    std::string senderId;                   // "sender" key
+    std::string contentJson;                // "content" key — raw JSON content object
+    std::string encrypted;                  // true if this is an olm-encrypted to-device msg
+};
+
+// Parsed to-device response (separate from inline SyncToDeviceResponse parsing)
+//
+// Original Kotlin (ToDeviceSyncResponse.kt:24-30):
+//   data class ToDeviceSyncResponse(events: List<Event>?)
+struct ParsedToDeviceResponse {
+    std::vector<ToDeviceEvent> events;
+};
+
+// ==== Device Info Update ====
+//
+// Original Kotlin (DeviceInfo.kt:25-55):
+//   data class DeviceInfo(userId, deviceId, displayName, lastSeenTs, lastSeenIp)
+//   This class describes the device information received from a device list update.
+
+struct DeviceInfoUpdate {
+    std::string userId;                     // "user_id" key
+    std::string deviceId;                   // "device_id" key
+    std::string displayName;                // "display_name" key
+    int64_t lastSeenTs = 0;                 // "last_seen_ts" key
+    std::string lastSeenIp;                 // "last_seen_ip" key
+};
+
+// Original Kotlin (DevicesListResponse.kt:22-23):
+//   data class DevicesListResponse(devices: List<DeviceInfo>?)
+//   Internal model for /devices endpoint response.
+struct ParsedDevicesListResponse {
+    std::vector<DeviceInfoUpdate> devices;
+};
+
 // ==== JSON Parsing ====
 
 SyncResponse parseSyncResponse(const std::string& json);
@@ -176,6 +270,32 @@ SyncRoomTimeline parseSyncTimeline(const std::string& json);
 SyncUnreadNotifications parseSyncUnreadNotifications(const std::string& json);
 SyncRoomSummary parseSyncRoomSummary(const std::string& json);
 SyncDeviceListResponse parseSyncDeviceList(const std::string& json);
+
+// Parse to-device events from a /sync to_device block
+//
+// Original Kotlin (ToDeviceSyncResponse adapter / ToDeviceEventsHandler.kt):
+//   parseToDeviceResponse(json) -> ParsedToDeviceResponse
+ParsedToDeviceResponse parseToDeviceResponse(const std::string& json);
+
+// Parse user account data events (simplified Event with type + content)
+//
+// Original Kotlin (UserAccountDataSync.kt adapter):
+//   parseUserAccountData(json) -> vector<UserAccountDataEvent>
+std::vector<UserAccountDataEvent> parseUserAccountData(const std::string& json);
+
+// Parse device list response from /devices API
+//
+// Original Kotlin (DevicesListResponse.kt adapter):
+//   parseDeviceListsResponse(json) -> ParsedDevicesListResponse
+ParsedDevicesListResponse parseDeviceListsResponse(const std::string& json);
+
+// Parse initial sync metadata from cached sync file
+//
+// Original Kotlin (InitialSyncResponseParser.kt:43-65):
+//   fun parse(syncStrategy, workingFile): SyncResponse
+//   The parser extracts next_batch, presence, account_data, etc. from a stored
+//   initial sync file to allow incremental sync to resume.
+InitialSyncStep parseInitialSyncMetadata(const std::string& json);
 
 // Serialize top-level sync response (for caching)
 std::string syncResponseToJson(const SyncResponse& response);

@@ -2,6 +2,8 @@
 #define PROGRESSIVE_DEVICE_NAMING_HPP
 
 #include <string>
+#include <cstdint>
+#include <vector>
 
 namespace progressive {
 
@@ -60,6 +62,47 @@ std::string formatSdkVersion(const std::string& sdkVersion);
 // Sanitize a component for user-agent (remove semicolons, parentheses).
 // User-Agent must not contain control characters.
 std::string sanitizeUserAgentComponent(const std::string& input);
+
+// ---- User Agent Info (expanded) ----
+// Ported from user agent parsing and formatting logic
+// Original Kotlin: Reverse of ComputeUserAgentUseCase.kt + device type detection
+
+struct UserAgentInfo {
+    std::string appName;
+    std::string appVersion;
+    std::string manufacturer;
+    std::string model;
+    std::string osName;        // "Android", "iOS", "Linux", "Windows", "macOS"
+    std::string osVersion;
+    std::string buildId;
+    std::string flavor;
+    std::string sdkVersion;
+};
+
+// Parse a user-agent string into its structured components.
+// Original Kotlin: inverse of ComputeUserAgentUseCase.kt format
+// Format: "AppName/Version (Mfr Model; OS Version; BuildId; Flavour Flavor; MatrixAndroidSdk2 Sdk)"
+UserAgentInfo parseUserAgent(const std::string& userAgent);
+
+// Format a user-agent string into a human-readable display form.
+// "Element/1.5.0 (Xiaomi Mi 9T; Android 11; ...)" → "Element Android 1.5.0 on Xiaomi Mi 9T"
+std::string formatUserAgent(const std::string& userAgent);
+
+// Detect device type from a user-agent string.
+// Returns: "Mobile", "Desktop", "Web", "Unknown"
+// Original Kotlin: detection logic spread across multiple UI components
+std::string guessDeviceType(const std::string& userAgent);
+
+// Map device type string to an icon resource name.
+// "Mobile" → "ic_device_mobile"
+// "Desktop" → "ic_device_desktop"
+// "Web" → "ic_device_web"
+// "Unknown" → "ic_device_unknown"
+std::string deviceIconName(const std::string& deviceType);
+
+// Check if a device is currently active (seen within the last 7 days).
+// Original Kotlin: UI logic for showing active/inactive status
+bool isDeviceActive(int64_t lastSeenMs, int64_t nowMs = 0);
 
 } // namespace progressive
 

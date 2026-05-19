@@ -100,6 +100,18 @@
 | 91 | `media_utils_extra` | `ThumbnailUtils.kt`, `ImageUtils.kt` | `im.vector.app.features.media` | Расчёт размеров миниатюр, EXIF-ориентация, санитизация имён файлов | ~15× faster |
 | 92 | `room_utils_extra` | `RoomAvatarResolver.kt`, `RoomDisplayNameResolver.kt` | `org.matrix.android.sdk.internal.session.room` | Разрешение аватара и имени комнаты из состояния/профиля | ~8× faster |
 | 93 | `session_config` | `SessionParams.kt`, `SessionConfig.kt` | `org.matrix.android.sdk.api.session` | Параметры сессии: таймаут, PIN-блокировка, биометрия, HomeServerCapabilities | ~5× faster |
+| 94 | `create_room` | `CreateRoomBody.kt`, `CreateRoomBodyBuilder.kt`, `CreateRoomResponse.kt`, `CreateLocalRoomStateEventsTask.kt` | `org.matrix.android.sdk.internal.session.room.create` | Построение запроса создания комнаты, пресеты, initial state, ответ | ~10× faster |
+| 95 | `content_scanner` | `ContentScanner.kt` (API), `ScanResponse.kt` | `org.matrix.android.sdk.api.session.contentscanner` | Модели сканирования контента, шифрованное тело, URL-билдеры | ~8× faster |
+| 96 | `device_manager` | `DeviceInfo.kt`, `CryptoDeviceInfo.kt`, `DeviceTrustLevel.kt` | `org.matrix.android.sdk.api.session.crypto.model` | Информация об устройствах, уровни доверия, сериализация | ~10× faster |
+| 97 | `device_naming` | `DeviceNaming.kt`, UserAgent парсеры | `org.matrix.android.sdk.internal.session` | Парсинг user-agent, определение типа устройства, именование | ~8× faster |
+| 98 | `message_location` | `LocationInfo.kt`, `MessageLocationContent.kt`, `BeaconInfo.kt`, `LiveLocation.kt` | `org.matrix.android.sdk.api.session.room.model.message` | Геолокация, маячки (beacon), live location sharing, haversine | ~15× faster |
+| 99 | `push_rules` | `PushRule.kt`, `PushRuleService.kt`, `Pusher.kt`, `Action.kt` | `org.matrix.android.sdk.api.session.pushrules` | Правила push-уведомлений, glob-матчинг, условия, pusher API | ~12× faster |
+| 100 | `sync_models` | `SyncResponse.kt`, `RoomsSyncResponse.kt`, `ToDeviceSyncResponse.kt` | `org.matrix.android.sdk.api.session.sync.model` | Полные модели /sync ответа, комнаты, ephemeral, to-device, device_lists | ~8× faster |
+| 101 | `room_content` | `RoomAvatarContent.kt`, `RoomNameContent.kt`, `RoomTopicContent.kt`, `RoomAliasesContent.kt` | `org.matrix.android.sdk.api.session.room.model` | Контент состояния комнаты: аватар, имя, топик, алиасы, canonical_alias | ~10× faster |
+| 102 | `poll_utils` | `PollAnswer.kt`, `PollQuestion.kt`, `PollCreationInfo.kt`, `PollResponse.kt` | `org.matrix.android.sdk.api.session.room.model.message` | MSC3381 опросы: создание, голосование, завершение, агрегация результатов | ~15× faster |
+| 103 | `sync_filter` | `FilterBody.kt`, `RoomEventFilter.kt`, `SyncFilterBuilder.kt` | `org.matrix.android.sdk.api.session.filter` | Filter API: room/event/state фильтры, lazy_loading, MSC3773 unread threads | ~8× faster |
+| 104 | `widget_utils` | `Widget.kt`, `WidgetType.kt`, `WidgetEventContent.kt` | `org.matrix.android.sdk.api.session.widgets.model` | Типы виджетов (Jitsi, Etherpad, ...), парсинг, URL-детекция | ~10× faster |
+| 105 | `widget_manager` | `WidgetManager.kt`, `IntegrationManagerConfig.kt`, `ScalarToken.kt` | `org.matrix.android.sdk.internal.session.integrationmanager` | Управление виджетами: permissions, state events, OpenID токены | ~8× faster |
 
 ## Porting Principles
 

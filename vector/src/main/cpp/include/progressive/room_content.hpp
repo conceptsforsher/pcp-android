@@ -612,4 +612,68 @@ inline bool areGuestsAllowed(const RoomGuestAccessContent& access) {
     return access.guestAccess == GuestAccess::CAN_JOIN;
 }
 
+// ==== Room Event Content Wrappers ====
+//
+// These types represent the complete event content JSON for room state events.
+// They extend the simple state content structs with full Matrix event content fields.
+
+// ==== RoomTopicEventContent ====
+// Original Kotlin (RoomTopicContent.kt:26-27):
+//   data class RoomTopicContent(@Json(name="topic") topic: String?)
+// Full event content for m.room.topic
+
+struct RoomTopicEventContent {
+    std::string topic;
+};
+
+RoomTopicEventContent parseRoomTopicEventContent(const std::string& contentJson);
+std::string buildRoomTopicEventContent(const RoomTopicEventContent& content);
+
+// ==== RoomAvatarEventContent ====
+// Original Kotlin (RoomAvatarContent.kt:26-27):
+//   data class RoomAvatarContent(@Json(name="url") avatarUrl: String?)
+// Full event content for m.room.avatar, with thumbnail info sub-object
+
+struct RoomAvatarInfo {
+    int w = 0;
+    int h = 0;
+    int size = 0;
+    std::string mimetype;
+};
+
+struct RoomAvatarEventContent {
+    std::string url;
+    std::string thumbnailUrl;
+    RoomAvatarInfo thumbnailInfo;
+};
+
+RoomAvatarEventContent parseRoomAvatarEventContent(const std::string& contentJson);
+std::string buildRoomAvatarEventContent(const RoomAvatarEventContent& content);
+
+// ==== RoomNameEventContent ====
+// Original Kotlin (RoomNameContent.kt:26-27):
+//   data class RoomNameContent(@Json(name="name") name: String?)
+// Full event content for m.room.name
+
+struct RoomNameEventContent {
+    std::string name;
+};
+
+RoomNameEventContent parseRoomNameEventContent(const std::string& contentJson);
+std::string buildRoomNameEventContent(const RoomNameEventContent& content);
+
+// ==== Room Aliases Event Content Builders ====
+// Original Kotlin (RoomAliasesContent.kt:28-30):
+//   data class RoomAliasesContent(@Json(name="aliases") aliases: List<String>)
+// Builder for m.room.aliases event content (deprecated but still used)
+
+std::string buildRoomAliasesContent(const std::string& roomId, const std::vector<std::string>& aliases);
+
+// ==== Room Canonical Alias Event Content Builder ====
+// Original Kotlin (RoomCanonicalAliasContent.kt:25-37):
+//   data class RoomCanonicalAliasContent(alias: String?, alt_aliases: List<String>?)
+// Builder for m.room.canonical_alias event content
+
+std::string buildCanonicalAliasContent(const std::string& canonicalAlias, const std::vector<std::string>& altAliases);
+
 } // namespace progressive

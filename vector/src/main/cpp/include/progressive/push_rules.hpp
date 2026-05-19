@@ -184,6 +184,189 @@ bool conditionMatches(const PushCondition& condition,
     const std::string& roomId, const std::string& body,
     const std::string& myDisplayName, const std::string& myUserId);
 
+// ==== Push Rule Action Tweak ====
+//
+// Original Kotlin: Action.kt
+//   Action.Sound(sound: String) → sound tweak
+//   Action.Highlight(highlight: Boolean) → highlight tweak
+
+struct PushRuleActionTweak {
+    std::string tweakKey;    // "sound", "highlight", or custom
+    std::string value;       // for sound: "default", "ring"; for highlight: "true"/"false"
+    bool highlight = false;  // parsed highlight boolean
+};
+
+// ==== Push Notification Action Constants ====
+//
+// Original Kotlin: Action.kt companion object
+//   ACTION_NOTIFY          = "notify"
+//   ACTION_DONT_NOTIFY     = "dont_notify"
+//   ACTION_COALESCE        = "coalesce"
+//   ACTION_OBJECT_SET_TWEAK_KEY = "set_tweak"
+//   ACTION_OBJECT_SET_TWEAK_VALUE_SOUND = "sound"
+//   ACTION_OBJECT_SET_TWEAK_VALUE_HIGHLIGHT = "highlight"
+
+namespace PushActionConst {
+    constexpr const char* NOTIFY       = "notify";
+    constexpr const char* DONT_NOTIFY  = "dont_notify";
+    constexpr const char* COALESCE     = "coalesce";
+    constexpr const char* SET_TWEAK    = "set_tweak";
+    constexpr const char* TWEAK_SOUND     = "sound";
+    constexpr const char* TWEAK_HIGHLIGHT = "highlight";
+    constexpr const char* VALUE_KEY    = "value";
+    constexpr const char* VALUE_DEFAULT = "default";
+    constexpr const char* VALUE_RING   = "ring";
+}
+
+// ==== Pusher Data Models ====
+//
+// Original Kotlin:
+//   pushers/Pusher.kt (Pusher data class, PusherData data class, PusherState enum)
+//   pushers/HttpPusher.kt (HttpPusher data class)
+//   internal/session/pushers/JsonPusher.kt (JsonPusher data class)
+//   internal/session/pushers/JsonPusherData.kt (JsonPusherData data class)
+
+enum class PusherState {
+    UNREGISTERED,
+    REGISTERING,
+    UNREGISTERING,
+    REGISTERED,
+    FAILED_TO_REGISTER
+};
+
+struct PusherData {
+    std::string url;          // "url" — push gateway URL
+    std::string format;       // "format" — "event_id_only" or empty
+    std::string brand;        // "brand" — email branding (for email pushers)
+    std::string lang;         // "lang" — preferred language
+
+    // Original Kotlin: PusherData.isValid()
+    bool isValid() const { return !url.empty(); }
+};
+
+struct Pusher {
+    std::string pushKey;            // "pushkey" — FCM token or email
+    std::string kind;               // "kind" — "http" or "email"
+    std::string appId;              // "app_id" — reverse-DNS app identifier
+    std::string appDisplayName;     // "app_display_name"
+    std::string deviceDisplayName;  // "device_display_name"
+    std::string profileTag;         // "profile_tag" — device-specific rule set
+    std::string lang;               // "lang" — e.g. "en" or "en-US"
+    PusherData data;                // "data" — url/format
+    std::string deviceId;           // "org.matrix.msc3881.device_id"
+    bool enabled = true;            // "org.matrix.msc3881.enabled"
+    bool append = false;            // "append"
+    PusherState state = PusherState::UNREGISTERED;
+
+    // Original Kotlin: Pusher companion KIND_ constants
+    static constexpr const char* KIND_HTTP  = "http";
+    static constexpr const char* KIND_EMAIL = "email";
+    static constexpr const char* APP_ID_EMAIL = "m.email";
+};
+
+// Build JSON for POST /pushers/set API.
+// Original Kotlin: JsonPusher (137 lines) — serialises to JSON for /pushers/set
+std::string buildPusherJson(const Pusher& pusher);
+
+// Parse a single pusher from JSON.
+// Original Kotlin: GetPushersResponse.kt + JsonPusher.kt
+Pusher parsePusher(const std::string& json);
+
+// ==== Push Rules Response ====
+//
+// Original Kotlin: GetPushRulesResponse.kt (33 lines)
+//   /pushrules response: { "global": RuleSet, ...device_specific }
+
+struct PushRulesResponse {
+    RuleSet global;                                          // "global"
+    std::vector<RuleSet> deviceSpecificSets;                  // future device-specific rules
+    std::string rawJson;                                     // original response for caching
+
+    bool isEmpty() const;
+    size_t totalRuleCount() const;
+};
+
+PushRulesResponse parsePushRulesResponse(const std::string& json);
+
+// ==== Push Rule Matching ====
+//
+// Original Kotlin:
+//   EventMatchCondition.kt (105 lines) — isSatisfied() with glob matching
+//   PushRuleFinder.kt (35 lines) — fulfilledBingRule()
+//   internal/util/Glob.kt (39 lines) — simpleGlobToRegExp()
+
+// Glob pattern matching. Supports * (any chars), ? (any single char).
+// Original Kotlin: Glob.kt :: simpleGlobToRegExp — converts glob to regex
+// // Matches are case-insensitive.
+bool globMatch(const std::string& pattern, const std::string& text);
+
+// Convert a glob pattern to a regex-compatible string.
+// Original Kotlin: simpleGlobToRegExp(glob: String): String
+// // * → .*   ? → .   . → \\.   \\ → \\\\
+std::string globToRegex(const std::string& glob);
+
+// Evaluate all conditions of a push rule against an event.
+// Returns true if ALL conditions are satisfied (AND logic).
+// Original Kotlin: PushRuleFinder.kt :: fulfilledBingRule()
+bool evaluatePushConditions(
+    const std::vector<RestPushCondition>& conditions,
+    const std::string& eventJson,
+    const std::string& myDisplayName,
+    const std::string& myUserId);
+
+// Check if a rule kind implicitly matches an event property.
+// e.g., "room" rules match events in the specified room.
+// Original Kotlin: room-specific rules have implicit room ID match.
+bool kindMatches(const std::string& kind,
+    const std::string& roomId, const std::string& ruleId,
+    const std::string& senderId, const std::string& myUserId);
+
+// Match a single push rule against an event.
+// Returns true if the rule's conditions AND implicit kind matching are satisfied.
+bool matchPushRule(const RestPushRule& rule, const std::string& eventJson,
+    const std::string& myDisplayName, const std::string& myUserId,
+    const std::string& roomId);
+
+// ==== Push Rule Content Builder ====
+//
+// Original Kotlin:
+//   UpdatePushRuleEnableStatusTask.kt (47 lines) — PUT with EnabledBody
+//   UpdatePushRuleActionsTask.kt (55 lines) — PUT with actions
+//   AddPushRuleTask.kt (42 lines) — PUT to add rule
+
+struct PushRuleContentBuilder {
+    // Build JSON body: { "enabled": true/false }
+    // Original Kotlin: EnabledBody.kt (25 lines)
+    static std::string buildEnabledBody(bool enabled);
+
+    // Build JSON body: { "actions": [...] }
+    // Original Kotlin: UpdatePushRuleActionsTask.kt :: updateRuleActions()
+    static std::string buildActionsBody(const std::vector<std::string>& actions);
+
+    // Build JSON body for adding a content rule:
+    // { "pattern": "...", "actions": [...], "conditions": [...], "enabled": true }
+    // Original Kotlin: AddPushRuleTask.kt :: addRule()
+    static std::string buildAddRuleBody(const std::string& ruleId,
+        const std::string& pattern, const std::vector<std::string>& actions,
+        const std::vector<std::string>& conditionsJson);
+
+    // Build JSON body for setting rule actions:
+    // { "actions": [...] }
+    // Original Kotlin: updateRuleActions() — PUT /pushrules/global/{kind}/{ruleId}/actions
+    static std::string buildSetActionsBody(const std::vector<PushRuleActionTweak>& tweaks,
+        bool notify, bool highlight, const std::string& soundName);
+
+    // Build JSON for enable/disable PUT.
+    static std::string buildEnablePushRuleAction(bool enabled);
+
+    // Build JSON for adding a push rule via PUT.
+    static std::string buildAddPushRuleAction(const std::string& ruleId,
+        const std::string& pattern, const RestPushRule& rule);
+
+    // Build JSON for setting push rule actions array.
+    static std::string buildSetPushRuleActions(const std::vector<std::string>& actions);
+};
+
 } // namespace progressive
 
 #endif // PROGRESSIVE_PUSH_RULES_HPP

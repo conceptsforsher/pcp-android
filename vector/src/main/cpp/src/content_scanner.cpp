@@ -43,6 +43,283 @@ std::string formatScanResult(const ScanResult& result) {
     return out.str();
 }
 
+// ==================== Expanded Scanner Implementations ====================
+
+// ---- ScanState conversion ----
+// Original Kotlin: ScanState enum name-to-string (used for Realm serialization)
+
+ScanState scanStateFromString(const std::string& str) {
+    if (str == "TRUSTED") return ScanState::TRUSTED;
+    if (str == "INFECTED") return ScanState::INFECTED;
+    if (str == "IN_PROGRESS") return ScanState::IN_PROGRESS;
+    return ScanState::UNKNOWN;
+}
+
+// ---- Expanded Scan Request Builder ----
+// Original Kotlin: ScanMediaTask.execute() + ScanEncryptedTask.execute()
+// For plain media, body = {"url": "mxc://..."}
+// For encrypted media, body = DownloadBody JSON with EncryptedFileInfo
+
+std::string buildScanRequest(const std::string& mxcUri,
+                             const EncryptedFileInfo* fileInfo) {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+
+    if (fileInfo != nullptr) {
+        // Original Kotlin: scan_encrypted POST — body is Download JSON
+        // {"file":{"url":"...","iv":"...","hashes":{"sha256":"..."},"key":{...},"v":"v2"}}
+        std::ostringstream json;
+        json << R"({"file":{)";
+        json << R"("url":")" << esc(fileInfo->url) << R"(",)";
+        json << R"("iv":")" << esc(fileInfo->iv) << R"(",)";
+        json << R"("hashes":{"sha256":")" << esc(fileInfo->sha256) << R"("},)";
+        json << R"("key":{)";
+        json << R"("k":")" << esc(fileInfo->key.k) << R"(",)";
+        json << R"("alg":")" << esc(fileInfo->key.alg) << R"(",)";
+        json << R"("key_ops":[)";
+        // Original Kotlin: listOf("encrypt","decrypt") → JSON array
+        json << R"(")" << esc(fileInfo->key.keyOps) << R"("],)";
+        json << R"("kty":")" << esc(fileInfo->key.kty) << R"(",)";
+        json << R"("ext":)" << (fileInfo->key.ext ? "true" : "false");
+        json << R"(},)";
+        json << R"("v":")" << esc(fileInfo->v) << R"(")";
+        json << R"(}})";
+        return json.str();
+    }
+
+    // Original Kotlin: plain scan — {"url":"mxc://..."}
+    return R"({"url": ")" + esc(mxcUri) + R"("})";
+}
+
+// ---- Parse Scan Response ----
+// Original Kotlin: ScanResponse from server — {"clean":true,"info":"..."}
+
+ScanResult parseScanResponse(const std::string& apiResponseJson) {
+    ScanResult result;
+    result.scanned = true;
+
+    bool isClean = parseJsonStringValue(apiResponseJson, "clean") == "true";
+    result.clean = isClean;
+
+    // info contains human-readable scanner result
+    // Example: "File clean at 6/7/2018, 6:02:40 PM"
+    auto info = parseJsonStringValue(apiResponseJson, "info");
+    if (!info.empty()) {
+        // info may contain description (threat name) and recommendation
+        std::string wrapped = "{" + info + "}";
+        result.threat = parseJsonStringValue(wrapped, "description");
+        result.recommendation = parseJsonStringValue(wrapped, "recommendation");
+    }
+
+    result.serverName = parseJsonStringValue(apiResponseJson, "server");
+
+    return result;
+}
+
+// Original Kotlin: ScanResponse.info field extraction
+std::string parseScanInfo(const std::string& apiResponseJson) {
+    return parseJsonStringValue(apiResponseJson, "info");
+}
+
+// ---- MXC URI Split Helper ----
+// Original Kotlin: params.mxcUrl.removeMxcPrefix().split("/")
+// Decomposes "mxc://server.org/QNDpzLopkoQYNikJfoZCQuCXJ"
+// into {domain = "server.org", mediaId = "QNDpzLopkoQYNikJfoZCQuCXJ"}
+
+namespace {
+struct MxcParts {
+    std::string domain;
+    std::string mediaId;
+};
+
+MxcParts splitMxcUri(const std::string& mxcUri) {
+    MxcParts parts;
+    // Original Kotlin: mxcUrl.removeMxcPrefix()
+    const char* prefix = "mxc://";
+    auto pos = mxcUri.find(prefix);
+    if (pos != 0) return parts;
+
+    auto content = mxcUri.substr(6); // after "mxc://"
+
+    // Original Kotlin: remove fragment (#fragment)
+    auto fragPos = content.find('#');
+    if (fragPos != std::string::npos) {
+        content = content.substr(0, fragPos);
+    }
+
+    auto slashPos = content.find('/');
+    if (slashPos == std::string::npos) return parts;
+
+    parts.domain = content.substr(0, slashPos);
+    parts.mediaId = content.substr(slashPos + 1);
+    return parts;
+}
+} // anonymous namespace
+
+// ---- Scanner URL Builders ----
+// Original Kotlin: ContentScannerApi Retrofit endpoints
+
+std::string buildScanUrl(const std::string& scannerBaseUrl, const std::string& mxcUri) {
+    // Original Kotlin: GET scan/{domain}/{mediaId}
+    auto parts = splitMxcUri(mxcUri);
+    if (parts.domain.empty() || parts.mediaId.empty()) return "";
+
+    std::string base = scannerBaseUrl;
+    if (!base.empty() && base.back() != '/') base += '/';
+    return base + std::string(PATH_SCAN_MEDIA) + parts.domain + "/" + parts.mediaId;
+}
+
+std::string buildDownloadEncryptedUrl(const std::string& scannerBaseUrl) {
+    // Original Kotlin: POST download_encrypted
+    std::string base = scannerBaseUrl;
+    if (!base.empty() && base.back() != '/') base += '/';
+    return base + std::string(PATH_DOWNLOAD_ENCRYPTED);
+}
+
+std::string buildPublicKeyUrl(const std::string& scannerBaseUrl) {
+    // Original Kotlin: GET public_key
+    std::string base = scannerBaseUrl;
+    if (!base.empty() && base.back() != '/') base += '/';
+    return base + std::string(PATH_PUBLIC_KEY);
+}
+
+// ---- Trust Check Utilities ----
+// Original Kotlin: RealmContentScannerStore uses internal util isUrlValid()
+
+bool isScannerUrlValid(const std::string& url) {
+    if (url.empty()) return false;
+    // Original Kotlin: trusted scanners must use HTTPS
+    return url.find("https://") == 0 || url.find("http://") == 0;
+}
+
+// Original Kotlin: isScannerEnabled() checks both flag and valid URL
+bool isScannerConfigured(const ContentScannerConfig& config) {
+    return config.enabled && isScannerUrlValid(config.serverUrl);
+}
+
+// ---- Scan State Mapping ----
+// Original Kotlin: scanResponse.clean → ScanState.TRUSTED / INFECTED
+
+ScanState scanResponseToState(bool clean) {
+    return clean ? ScanState::TRUSTED : ScanState::INFECTED;
+}
+
+// ---- Download Body JSON Builders ----
+// Original Kotlin: DownloadBody.toJson() — produces POST body for scan_encrypted
+
+std::string buildDownloadBodyJson(const DownloadBody& body) {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+
+    std::ostringstream json;
+    json << R"({)";
+
+    // file section
+    json << R"("file":{)";
+    json << R"("url":")" << esc(body.file.url) << R"(",)";
+    json << R"("iv":")" << esc(body.file.iv) << R"(",)";
+    json << R"("hashes":{"sha256":")" << esc(body.file.sha256) << R"("},)";
+    json << R"("key":{)";
+    json << R"("k":")" << esc(body.file.key.k) << R"(",)";
+    json << R"("alg":")" << esc(body.file.key.alg) << R"(",)";
+    json << R"("key_ops":[)";
+    // Original Kotlin: keyOps = listOf("encrypt","decrypt") → ["encrypt","decrypt"]
+    json << R"(")" << esc(body.file.key.keyOps) << R"("],)";
+    json << R"("kty":")" << esc(body.file.key.kty) << R"(",)";
+    json << R"("ext":)" << (body.file.key.ext ? "true" : "false");
+    json << R"(},)";
+    json << R"("v":")" << esc(body.file.v) << R"(")";
+    json << R"(})";
+
+    // encrypted_body section (optional, present when server PK is used)
+    // Original Kotlin: pkEncryption.encrypt() → EncryptedBody
+    if (body.hasEncryptedBody) {
+        json << R"(,"encrypted_body":{)";
+        json << R"("ciphertext":")" << esc(body.encryptedBody.ciphertext) << R"(",)";
+        json << R"("mac":")" << esc(body.encryptedBody.mac) << R"(",)";
+        json << R"("ephemeral":")" << esc(body.encryptedBody.ephemeral) << R"(")";
+        json << R"(})";
+    }
+
+    json << R"(})";
+    return json.str();
+}
+
+// Original Kotlin: DownloadBody.toCanonicalJson() — keys sorted, no extra whitespace
+// Used to sign the body before PK encryption against the scanner's public key.
+
+std::string buildDownloadBodyCanonicalJson(const DownloadBody& body) {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+
+    if (body.hasEncryptedBody) {
+        // Original Kotlin: canonical order when encrypted_body is present
+        std::ostringstream json;
+        json << R"({)";
+        // "encrypted_body" comes before "file" (alphabetically: e < f)
+        json << R"("encrypted_body":{)";
+        json << R"("ciphertext":")" << esc(body.encryptedBody.ciphertext) << R"(",)";
+        json << R"("ephemeral":")" << esc(body.encryptedBody.ephemeral) << R"(",)";
+        json << R"("mac":")" << esc(body.encryptedBody.mac) << R"(")";
+        json << R"(},)";
+        json << R"("file":{)";
+        json << R"("hashes":{"sha256":")" << esc(body.file.sha256) << R"("},)";
+        json << R"("iv":")" << esc(body.file.iv) << R"(",)";
+        json << R"("key":{)";
+        json << R"("alg":")" << esc(body.file.key.alg) << R"(",)";
+        json << R"("ext":)" << (body.file.key.ext ? "true" : "false") << R"(,)";
+        json << R"("k":")" << esc(body.file.key.k) << R"(",)";
+        json << R"("key_ops":[)";
+        json << R"(")" << esc(body.file.key.keyOps) << R"("],)";
+        json << R"("kty":")" << esc(body.file.key.kty) << R"(")";
+        json << R"(},)";
+        json << R"("url":")" << esc(body.file.url) << R"(",)";
+        json << R"("v":")" << esc(body.file.v) << R"(")";
+        json << R"(}})";
+        return json.str();
+    }
+
+    // Original Kotlin: canonical order when only file is present
+    std::ostringstream json;
+    json << R"({"file":{)";
+    json << R"("hashes":{"sha256":")" << esc(body.file.sha256) << R"("},)";
+    json << R"("iv":")" << esc(body.file.iv) << R"(",)";
+    json << R"("key":{)";
+    json << R"("alg":")" << esc(body.file.key.alg) << R"(",)";
+    json << R"("ext":)" << (body.file.key.ext ? "true" : "false") << R"(,)";
+    json << R"("k":")" << esc(body.file.key.k) << R"(",)";
+    json << R"("key_ops":[)";
+    json << R"(")" << esc(body.file.key.keyOps) << R"("],)";
+    json << R"("kty":")" << esc(body.file.key.kty) << R"(")";
+    json << R"(},)";
+    json << R"("url":")" << esc(body.file.url) << R"(",)";
+    json << R"("v":")" << esc(body.file.v) << R"(")";
+    json << R"(}})";
+    return json.str();
+}
+
+// Original Kotlin: GetServerPublicKeyTask — parse public key from JSON
+ServerPublicKeyResponse parseServerPublicKeyResponse(const std::string& json) {
+    ServerPublicKeyResponse resp;
+    resp.publicKey = parseJsonStringValue(json, "public_key");
+    return resp;
+}
+
+// Original Kotlin: build EncryptedBody JSON fragment
+std::string buildEncryptedBodyJson(const EncryptedBody& body) {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+    std::ostringstream json;
+    json << R"({"ciphertext":")" << esc(body.ciphertext) << R"(",)";
+    json << R"("mac":")" << esc(body.mac) << R"(",)";
+    json << R"("ephemeral":")" << esc(body.ephemeral) << R"("})";
+    return json.str();
+}
+
 ServerNotice parseServerNotice(const std::string& eventContentJson, const std::string& eventId) {
     ServerNotice notice;
     notice.eventId = eventId;

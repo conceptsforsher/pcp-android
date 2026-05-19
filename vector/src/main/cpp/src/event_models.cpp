@@ -1,4 +1,6 @@
 #include "progressive/event_models.hpp"
+#include <chrono>
+#include <cstdlib>
 
 namespace progressive {
 
@@ -147,6 +149,57 @@ UnsignedData parseUnsignedData(const std::string& json) {
     }
 
     return u;
+}
+
+// ==== Serialize UnsignedData ====
+//
+// Original Kotlin (UnsignedData.kt:25-47): Manually serialize UnsignedData to JSON
+
+std::string unsignedDataToJson(const UnsignedData& u) {
+    std::string json = "{";
+    bool first = true;
+
+    if (u.age > 0) {
+        json += "\"age\":" + std::to_string(u.age);
+        first = false;
+    }
+    if (!u.transactionId.empty()) {
+        if (!first) json += ",";
+        json += "\"transaction_id\":\"" + u.transactionId + "\"";
+        first = false;
+    }
+    if (!u.replacesState.empty()) {
+        if (!first) json += ",";
+        json += "\"replaces_state\":\"" + u.replacesState + "\"";
+        first = false;
+    }
+    if (!u.prevContentJson.empty()) {
+        if (!first) json += ",";
+        json += "\"prev_content\":" + u.prevContentJson;
+        first = false;
+    }
+    if (u.isRedacted()) {
+        if (!first) json += ",";
+        json += "\"redacted_because\":{\"event_id\":\"" + u.redactedEventId
+            + "\",\"sender\":\"" + u.redactedSenderId + "\"}";
+        first = false;
+    }
+    if (!u.relations.chunks.empty()) {
+        if (!first) json += ",";
+        json += "\"m.relations\":{";
+        bool firstRel = true;
+        for (size_t i = 0; i < u.relations.chunks.size(); i++) {
+            const auto& c = u.relations.chunks[i];
+            if (!firstRel) json += ",";
+            json += "\"" + c.type + "\":{\"key\":\"" + c.key
+                + "\",\"count\":" + std::to_string(c.count) + "}";
+            firstRel = false;
+        }
+        json += "}";
+        first = false;
+    }
+    json += "}";
+    return json;
 }
 
 // ==== Parse Event ====
@@ -395,6 +448,22 @@ MediaContentAttachmentData parseContentAttachmentData(const std::string& json) {
     else if (typeStr == "VOICE_MESSAGE") d.type = AttachmentType::VOICE_MESSAGE;
 
     return d;
+}
+
+// ==== Create Local Echo ID ====
+//
+// Original Kotlin (LocalEcho.kt:27): fun createLocalEchoId() = "${PREFIX}${UUID.randomUUID()}"
+
+std::string createLocalEchoId() {
+    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    std::string id = "$local.";
+    std::srand(static_cast<unsigned int>(now));
+    const char hexChars[] = "0123456789abcdef";
+    for (int i = 0; i < 16; i++) {
+        id += hexChars[std::rand() % 16];
+    }
+    return id;
 }
 
 } // namespace progressive

@@ -58,6 +58,275 @@ bool isAutoApprovedCapability(WidgetCapability cap, const std::string& widgetTyp
     return false;
 }
 
+// ==================================================================
+// New: WidgetApiPermission conversions
+// ==================================================================
+
+const char* widgetApiPermissionToString(WidgetApiPermission p) {
+    switch (p) {
+        case WidgetApiPermission::SCALAR_TOKEN:    return "scalar_token";
+        case WidgetApiPermission::ROOM_VISIBILITY: return "room_visibility";
+        case WidgetApiPermission::MEMBERSHIP:      return "membership";
+        case WidgetApiPermission::IDENTITY:        return "identity";
+        case WidgetApiPermission::SEND_EVENT:      return "send_event";
+    }
+    return "unknown";
+}
+
+WidgetApiPermission widgetApiPermissionFromString(const std::string& s) {
+    if (s == "scalar_token")    return WidgetApiPermission::SCALAR_TOKEN;
+    if (s == "room_visibility") return WidgetApiPermission::ROOM_VISIBILITY;
+    if (s == "membership")      return WidgetApiPermission::MEMBERSHIP;
+    if (s == "identity")        return WidgetApiPermission::IDENTITY;
+    if (s == "send_event")      return WidgetApiPermission::SEND_EVENT;
+    return WidgetApiPermission::SCALAR_TOKEN; // safest default
+}
+
+// ==================================================================
+// New: buildWidgetActionRequest
+// Original Kotlin: builds a widget→client or client→widget action message
+// ==================================================================
+
+std::string buildWidgetActionRequest(const std::string& widgetId,
+                                     const std::string& action,
+                                     const std::string& data) {
+    // Original Kotlin: create an action request JSON for widget postMessage API
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) { if (c == '"') out += "\\\""; else out += c; }
+        return out;
+    };
+    std::ostringstream msg;
+    msg << R"({"api":"fromWidget",)"
+        << R"("widgetId":")" << esc(widgetId) << R"(",)";
+    msg << R"("action":")" << esc(action) << R"(",)";
+    msg << R"("data":)" << (data.empty() ? "{}" : data) << ",";
+    msg << R"("requestId":")" << widgetId << "_" << std::time(nullptr) << R"(")";
+    msg << "}";
+    return msg.str();
+}
+
+// ==================================================================
+// New: validateWidgetPermission
+// Original Kotlin: checks whether a widget type is permitted an API action
+// ==================================================================
+
+bool validateWidgetPermission(const std::string& /*widgetId*/,
+                              WidgetApiPermission perm,
+                              const std::string& widgetType) {
+    // Original Kotlin: permission gating based on widget type and capability
+    // Jitsi / Etherpad / ElementCall are trusted integration types
+    bool isTrusted = isJitsiWidget(widgetType) ||
+                     isEtherpadWidget(widgetType) ||
+                     widgetType == "io.element.call";
+
+    switch (perm) {
+        case WidgetApiPermission::SCALAR_TOKEN:
+            // Only integration-manager-registered widgets get a scalar token
+            return widgetType == "m.integration_manager";
+        case WidgetApiPermission::ROOM_VISIBILITY:
+            // Trusted widgets can query room visibility
+            return isTrusted;
+        case WidgetApiPermission::MEMBERSHIP:
+            // Trusted widgets can access membership data
+            return isTrusted;
+        case WidgetApiPermission::IDENTITY:
+            // All widgets can access identity (OpenID connect)
+            return true;
+        case WidgetApiPermission::SEND_EVENT:
+            // Only sticky/pinned widgets and trusted widgets can send events
+            return isTrusted || widgetType == "m.stickerpicker";
+    }
+    return false;
+}
+
+// ==================================================================
+// New: buildWidgetStateEvent
+// Builds a full m.widgets / im.vector.modular.widgets state event JSON
+// ==================================================================
+
+std::string buildWidgetStateEvent(const std::string& widgetId,
+                                  const WidgetEventContent& content) {
+    // Original Kotlin: serialise the full state event for PUT /state
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) { if (c == '"') out += "\\\""; else out += c; }
+        return out;
+    };
+
+    std::ostringstream json;
+    json << R"({"type":"im.vector.modular.widgets",)";
+    json << R"("state_key":")" << esc(widgetId) << R"(",)";
+    json << R"("content":)" << buildWidgetEventContent(content);
+    json << "}";
+    return json.str();
+}
+
+// ==================================================================
+// New: parseWidgetStateEvents
+// Parses all m.widgets state events from a room state JSON array
+// ==================================================================
+
+std::vector<WidgetStateEventContent> parseWidgetStateEvents(const std::string& stateEventsJson) {
+    // Original Kotlin: iterate over room state, find widget events,
+    // parse each into WidgetStateEventContent
+    std::vector<WidgetStateEventContent> results;
+
+    // Look for both "im.vector.modular.widgets" and "m.widgets" event types
+    auto extractStr = [](const std::string& json, const std::string& key) -> std::string {
+        auto pp = json.find("\"" + key + "\"");
+        if (pp == std::string::npos) return "";
+        pp = json.find('"', pp + key.size() + 2);
+        if (pp == std::string::npos) return "";
+        pp++;
+        size_t e = pp;
+        while (e < json.size() && json[e] != '"') e++;
+        return json.substr(pp, e - pp);
+    };
+
+    auto extractObj = [](const std::string& json, const std::string& key) -> std::string {
+        auto pp = json.find("\"" + key + "\"");
+        if (pp == std::string::npos) return "";
+        pp = json.find('{', pp);
+        if (pp == std::string::npos) return "";
+        int depth = 1;
+        size_t start = pp;
+        pp++;
+        while (pp < json.size() && depth > 0) {
+            if (json[pp] == '{') depth++;
+            else if (json[pp] == '}') depth--;
+            pp++;
+        }
+        return json.substr(start, pp - start);
+    };
+
+    size_t pos = 0;
+    while (true) {
+        // Find next "im.vector.modular.widgets" event type
+        auto posModular = stateEventsJson.find("\"im.vector.modular.widgets\"", pos);
+        auto posMwidgets = stateEventsJson.find("\"m.widgets\"", pos);
+
+        // Choose the nearest one
+        size_t evPos = std::string::npos;
+        std::string evTypeStr;
+        if (posModular != std::string::npos && posMwidgets != std::string::npos) {
+            evPos = std::min(posModular, posMwidgets);
+        } else if (posModular != std::string::npos) {
+            evPos = posModular;
+        } else if (posMwidgets != std::string::npos) {
+            evPos = posMwidgets;
+        } else {
+            break;
+        }
+
+        // Find the enclosing object
+        auto objStart = stateEventsJson.rfind('{', evPos);
+        if (objStart == std::string::npos) { pos = evPos + 1; continue; }
+
+        int depth = 0;
+        auto objEnd = objStart;
+        while (objEnd < stateEventsJson.size()) {
+            if (stateEventsJson[objEnd] == '{') ++depth;
+            else if (stateEventsJson[objEnd] == '}') --depth;
+            if (depth == 0) break;
+            ++objEnd;
+        }
+        if (objEnd >= stateEventsJson.size()) break;
+
+        std::string obj = stateEventsJson.substr(objStart, objEnd - objStart + 1);
+
+        WidgetStateEventContent wsec;
+        wsec.eventId = extractStr(obj, "event_id");
+        wsec.roomId  = extractStr(obj, "room_id");
+        wsec.type    = extractStr(obj, "type");
+        wsec.stateKey = extractStr(obj, "state_key");
+
+        std::string contentJson = extractObj(obj, "content");
+        if (!contentJson.empty()) {
+            wsec.content = parseWidgetEventContent(contentJson);
+        } else {
+            // Content might be a string-escaped inner JSON
+            std::string strContent = extractStr(obj, "content");
+            if (!strContent.empty()) {
+                std::string wrapped = "{" + strContent + "}";
+                wsec.content = parseWidgetEventContent(wrapped);
+            }
+        }
+
+        if (!wsec.stateKey.empty()) {
+            results.push_back(wsec);
+        }
+
+        pos = objEnd + 1;
+    }
+
+    return results;
+}
+
+// ==================================================================
+// New: Integration Manager config builders and parsers
+// ==================================================================
+
+std::string buildIntegrationManagerConfig(const IntegrationManagerConfig& config) {
+    // Original Kotlin: serialise IntegrationManagerConfig to JSON
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) { if (c == '"') out += "\\\""; else out += c; }
+        return out;
+    };
+    std::ostringstream json;
+    json << R"({"api_url":")" << esc(config.apiUrl) << R"(")";
+    json << R"(,"ui_url":")" << esc(config.uiUrl) << R"(")";
+    json << R"(,"kind":")" << esc(config.kind) << R"(")";
+    json << "}";
+    return json.str();
+}
+
+IntegrationManagerConfig parseIntegrationManagerConfig(const std::string& json) {
+    // Original Kotlin: parse IntegrationManagerConfig from JSON
+    IntegrationManagerConfig config;
+
+    auto extractStr = [](const std::string& j, const std::string& key) -> std::string {
+        // Try "api_url" style key first, then "apiUrl" (camelCase from Kotlin)
+        for (const auto& k : {key, [&key]() -> std::string {
+            // Convert camelCase to snake_case heuristic
+            std::string snake;
+            for (size_t i = 0; i < key.size(); ++i) {
+                if (i > 0 && std::isupper(static_cast<unsigned char>(key[i]))) {
+                    snake += '_';
+                    snake += static_cast<char>(std::tolower(static_cast<unsigned char>(key[i])));
+                } else {
+                    snake += static_cast<char>(std::tolower(static_cast<unsigned char>(key[i])));
+                }
+            }
+            return snake;
+        }()}) {
+            auto pp = j.find("\"" + k + "\"");
+            if (pp == std::string::npos) continue;
+            pp = j.find('"', pp + k.size() + 2);
+            if (pp == std::string::npos) continue;
+            pp++;
+            size_t e = pp;
+            while (e < j.size() && j[e] != '"') e++;
+            return j.substr(pp, e - pp);
+        }
+        return "";
+    };
+
+    config.apiUrl = extractStr(json, "restUrl");
+    if (config.apiUrl.empty()) config.apiUrl = extractStr(json, "apiUrl");
+    if (config.apiUrl.empty()) config.apiUrl = extractStr(json, "rest_url");
+    if (config.apiUrl.empty()) config.apiUrl = extractStr(json, "api_url");
+
+    config.uiUrl  = extractStr(json, "uiUrl");
+    if (config.uiUrl.empty()) config.uiUrl = extractStr(json, "ui_url");
+
+    config.kind   = extractStr(json, "kind");
+    if (config.kind.empty()) config.kind = "DEFAULT";
+
+    return config;
+}
+
 // ---- URL Template Expansion ----
 
 std::string applyWidgetUrlTemplate(const std::string& url, const WidgetUrlTemplate& tpl) {
@@ -204,19 +473,15 @@ std::string buildWidgetContentSecurityPolicy(const WidgetSecurityPolicy& policy,
 }
 
 // ---- Widget Type Classification ----
+// Delegates to widget_utils::widgetTypeFromString; maps Fallback → Unknown
+// for backward compat (existing tests expect UNKNOWN for unrecognised types).
 
 WidgetType classifyWidgetType(const std::string& type) {
-    if (type == "m.jitsi" || type == "jitsi") return WidgetType::JITSI;
-    if (type == "m.etherpad" || type == "etherpad") return WidgetType::ETHERPAD;
-    if (type == "m.custom") return WidgetType::CUSTOM;
-    if (type == "m.stickerpicker") return WidgetType::STICKERPICKER;
-    if (type == "m.calculator") return WidgetType::CALCULATOR;
-    if (type == "m.youtube") return WidgetType::YOUTUBE;
-    if (type == "m.spotify") return WidgetType::SPOTIFY;
-    if (type == "m.whiteboard") return WidgetType::WHITEBOARD;
-    if (type == "m.diagram") return WidgetType::DIAGRAM;
-    if (type == "m.google_docs") return WidgetType::GOOGLE_DOCS;
-    return WidgetType::UNKNOWN;
+    auto wt = widgetTypeFromString(type);
+    // Original Kotlin: Fallback(preferred) carries the original string.
+    // For backward compatibility, classifyWidgetType maps Fallback → UNKNOWN.
+    if (wt == WidgetType::FALLBACK) return WidgetType::UNKNOWN;
+    return wt;
 }
 
 // ---- Widget Manager Implementation ----

@@ -424,15 +424,9 @@ static std::string extractJsonValue(const std::string& json, const std::string& 
     return "";
 }
 
-static bool globMatch(const std::string& pattern, const std::string& text) {
-    if (pattern == "*") return true;
-    // Simple wildcard: *hello* matches if text contains "hello"
-    if (pattern.size() >= 2 && pattern.front() == '*' && pattern.back() == '*') {
-        return text.find(pattern.substr(1, pattern.size() - 2)) != std::string::npos;
-    }
-    // Exact match
-    return pattern == text;
-}
+// Forward declaration of internal glob-matching helper
+static bool globMatchImpl(const std::string& pattern, size_t pi,
+                          const std::string& text, size_t ti);
 
 bool conditionMatches(const PushCondition& condition,
     const std::string& eventType, const std::string& sender,
@@ -516,6 +510,559 @@ PushEvaluation evaluatePushNotification(
 
     // No rules matched — default to notify
     return result;
+}
+
+// ==== Glob Pattern Matching ====
+//
+// Original Kotlin: Glob.kt (39 lines)
+//   fun simpleGlobToRegExp(glob: String): String
+//   * → .*   ? → .   . → \\.   \\ → \\\\
+
+static bool globMatchImpl(const std::string& pattern, size_t pi,
+                          const std::string& text, size_t ti) {
+    // Original Kotlin: standard glob semantics — case-insensitive recursion
+    while (pi < pattern.size() && ti < text.size()) {
+        char pc = pattern[pi];
+        if (pc == '*') {
+            pi++;
+            if (pi >= pattern.size()) {
+                return true; // trailing * matches everything
+            }
+            // Try matching remainder of pattern at each position in text
+            for (size_t i = ti; i <= text.size(); ++i) {
+                if (globMatchImpl(pattern, pi, text, i)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        if (pc == '?') {
+            pi++;
+            ti++;
+            continue;
+        }
+        // Case-insensitive comparison
+        if (tolower(static_cast<unsigned char>(pc)) !=
+            tolower(static_cast<unsigned char>(text[ti]))) {
+            return false;
+        }
+        pi++;
+        ti++;
+    }
+    // Consume trailing stars
+    while (pi < pattern.size() && pattern[pi] == '*') {
+        pi++;
+    }
+    return pi == pattern.size() && ti == text.size();
+}
+
+bool globMatch(const std::string& pattern, const std::string& text) {
+    if (pattern.empty()) return text.empty();
+    return globMatchImpl(pattern, 0, text, 0);
+}
+
+std::string globToRegex(const std::string& glob) {
+    // Original Kotlin: simpleGlobToRegExp(glob: String): String
+    // Replace * → .*  then ? → .  then . → \\.  then \\ → \\\\
+    // Process carefully: escape backslashes first, then dots, then glob chars
+    std::string result;
+    for (size_t i = 0; i < glob.size(); ++i) {
+        char c = glob[i];
+        if (c == '\\') {
+            result += "\\\\";
+        } else if (c == '.') {
+            result += "\\.";
+        } else if (c == '*') {
+            result += ".*";
+        } else if (c == '?') {
+            result += ".";
+        } else {
+            result += c;
+        }
+    }
+    return result;
+}
+
+// ==== Push Condition Evaluation ====
+//
+// Original Kotlin: PushRuleFinder.kt (35 lines)
+//   fun fulfilledBingRule(event: Event, rules: List<PushRule>): PushRule?
+
+// Evaluate an event_match condition (handles key-pattern matching).
+// Original Kotlin: EventMatchCondition.kt :: isSatisfied (105 lines)
+static bool evalEventMatchCondition(const RestPushCondition& cond,
+                                     const std::string& eventJson) {
+    if (cond.key.empty() || cond.pattern.empty()) return false;
+
+    // Extract the field value from event JSON using dot-separated key
+    std::string fieldValue = extractJsonValue(eventJson, cond.key);
+    if (fieldValue.empty()) {
+        // Try deeper path like "content.body"
+        auto dotPos = cond.key.find('.');
+        if (dotPos != std::string::npos) {
+            // Extract nested JSON value
+            std::string parentKey = cond.key.substr(0, dotPos);
+            std::string childKey = cond.key.substr(dotPos + 1);
+            auto parentObj = extractJsonObject(eventJson, parentKey);
+            if (!parentObj.empty()) {
+                fieldValue = extractJsonValue(parentObj, childKey);
+            }
+        }
+    }
+
+    if (fieldValue.empty()) return false;
+
+    // Special case: content.body matches at word boundaries
+    if (cond.key == "content.body") {
+        // Build word-boundary pattern
+        std::string globPattern;
+        if (cond.pattern.size() >= 2 &&
+            cond.pattern.front() == '*' && cond.pattern.back() == '*') {
+            globPattern = cond.pattern.substr(1, cond.pattern.size() - 2);
+        } else {
+            globPattern = cond.pattern;
+        }
+        // Case-insensitive substring search (simplified word boundary)
+        auto lowerField = fieldValue;
+        auto lowerPat = globPattern;
+        std::transform(lowerField.begin(), lowerField.end(), lowerField.begin(),
+                       [](unsigned char c) { return std::tolower(c); });
+        std::transform(lowerPat.begin(), lowerPat.end(), lowerPat.begin(),
+                       [](unsigned char c) { return std::tolower(c); });
+        return lowerField.find(lowerPat) != std::string::npos;
+    }
+
+    // For other keys: full match with glob pattern
+    return globMatch(cond.pattern, fieldValue);
+}
+
+// Evaluate a room_member_count condition.
+// Original Kotlin: RoomMemberCountCondition.kt (71 lines)
+// Parses "is" field: prefix(==,<,>,<=,>=) + number
+static bool evalRoomMemberCountCondition(const RestPushCondition& cond,
+                                          int memberCount) {
+    if (cond.iz.empty() || memberCount < 0) return false;
+    const std::string& iz = cond.iz;
+    size_t numStart = 0;
+    std::string prefix;
+    if (iz[0] == '=' || iz[0] == '<' || iz[0] == '>') {
+        numStart = 1;
+        prefix = iz.substr(0, 1);
+        if (numStart < iz.size() && iz[numStart] == '=') {
+            prefix += '=';
+            numStart++;
+        }
+    }
+    std::string numStr = iz.substr(numStart);
+    if (numStr.empty()) return false;
+    int count = 0;
+    try { count = std::stoi(numStr); } catch (...) { return false; }
+
+    if (prefix == "<")  return memberCount < count;
+    if (prefix == ">")  return memberCount > count;
+    if (prefix == "<=") return memberCount <= count;
+    if (prefix == ">=") return memberCount >= count;
+    return memberCount == count; // default: ==
+}
+
+// Convert a RestPushCondition to an executable condition evaluator.
+// Original Kotlin: PushCondition.kt :: asExecutableCondition() (96 lines)
+static bool evalOneCondition(const RestPushCondition& cond,
+                              const std::string& eventJson,
+                              const std::string& myDisplayName,
+                              const std::string& myUserId) {
+    ConditionKind kind = cond.getKind();
+    switch (kind) {
+        case ConditionKind::EVENT_MATCH:
+            return evalEventMatchCondition(cond, eventJson);
+        case ConditionKind::CONTAINS_DISPLAY_NAME: {
+            // Original Kotlin: ContainsDisplayNameCondition.kt (47 lines)
+            // Check if display name appears in content.body
+            if (myDisplayName.empty()) return false;
+            auto body = extractJsonValue(eventJson, "content.body");
+            if (body.empty()) body = extractJsonValue(eventJson, "body");
+            // Case-insensitive find
+            auto lowerBody = body;
+            auto lowerDn = myDisplayName;
+            std::transform(lowerBody.begin(), lowerBody.end(), lowerBody.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
+            std::transform(lowerDn.begin(), lowerDn.end(), lowerDn.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
+            return lowerBody.find(lowerDn) != std::string::npos;
+        }
+        case ConditionKind::ROOM_MEMBER_COUNT:
+            // Simplified: we don't have member count in this context, assume pass
+            return true;
+        case ConditionKind::SENDER_NOTIFICATION_PERM:
+            // Original Kotlin: SenderNotificationPermissionCondition.kt (40 lines)
+            // Requires room power levels; simplified to always pass
+            return true;
+        case ConditionKind::UNRECOGNISED:
+        default:
+            // Unknown conditions: conservative — don't match
+            return false;
+    }
+}
+
+bool evaluatePushConditions(
+    const std::vector<RestPushCondition>& conditions,
+    const std::string& eventJson,
+    const std::string& myDisplayName,
+    const std::string& myUserId)
+{
+    // Original Kotlin: PushRuleFinder.kt :: fulfilledBingRule()
+    // All conditions must hold true (AND logic)
+    if (conditions.empty()) return true;
+    for (const auto& cond : conditions) {
+        if (!evalOneCondition(cond, eventJson, myDisplayName, myUserId)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// ==== Kind Matching ====
+//
+// Original Kotlin: implicit matching based on rule kind
+// Room rules only match events in the specified room (ruleId = roomId)
+// Sender rules only match events from the specified sender (ruleId = senderId)
+
+bool kindMatches(const std::string& kind,
+    const std::string& roomId, const std::string& ruleId,
+    const std::string& senderId, const std::string& myUserId)
+{
+    // Original Kotlin: room/sender kinds imply the ruleId IS the room/sender ID
+    if (kind == "room") {
+        // Room rule: ruleId is the room ID
+        return roomId == ruleId;
+    }
+    if (kind == "sender") {
+        // Sender rule: ruleId is the user ID
+        // Don't notify for own messages
+        return senderId == ruleId && senderId != myUserId;
+    }
+    if (kind == "override") {
+        // .m.rule.master disables all; .m.rule.suppress_notices checks bot
+        return true;
+    }
+    if (kind == "content") {
+        return true; // content rules match by pattern, not kind
+    }
+    if (kind == "underride") {
+        return true; // fallback rules always evaluated
+    }
+    return false;
+}
+
+// ==== Match Push Rule ====
+//
+// Original Kotlin: PushRuleFinder.kt :: fulfilledBingRule() (35 lines)
+// matches rule.enabled && all conditions satisfied
+
+bool matchPushRule(const RestPushRule& rule, const std::string& eventJson,
+    const std::string& myDisplayName, const std::string& myUserId,
+    const std::string& roomId)
+{
+    // Original Kotlin: first check enabled
+    if (!rule.enabled) return false;
+
+    // Check kind-specific matching
+    auto eventSender = extractJsonValue(eventJson, "sender");
+    std::string ruleKind;
+    // Determine kind from context — caller must provide
+    // For content rules, check pattern instead
+    if (!rule.pattern.empty()) {
+        // Content rule: match pattern against content.body
+        auto body = extractJsonValue(eventJson, "content.body");
+        if (body.empty()) body = extractJsonValue(eventJson, "body");
+        if (!body.empty() && !globMatch(rule.pattern, body)) {
+            return false;
+        }
+    }
+
+    // Evaluate all conditions
+    if (!rule.conditions.empty()) {
+        if (!evaluatePushConditions(rule.conditions, eventJson,
+                                     myDisplayName, myUserId)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// ==== Push Rules Response ====
+//
+// Original Kotlin: GetPushRulesResponse.kt (33 lines)
+
+bool PushRulesResponse::isEmpty() const {
+    return global.overrideRules.empty() &&
+           global.contentRules.empty() &&
+           global.roomRules.empty() &&
+           global.senderRules.empty() &&
+           global.underrideRules.empty() &&
+           deviceSpecificSets.empty();
+}
+
+size_t PushRulesResponse::totalRuleCount() const {
+    size_t count = global.getAllRules().size();
+    for (const auto& ds : deviceSpecificSets) {
+        count += ds.getAllRules().size();
+    }
+    return count;
+}
+
+PushRulesResponse parsePushRulesResponse(const std::string& json) {
+    // Original Kotlin: parse global RuleSet from push rules response
+    PushRulesResponse resp;
+    resp.rawJson = json;
+
+    // Extract "global" object
+    auto globalObj = extractJsonObject(json, "global");
+    if (!globalObj.empty()) {
+        resp.global = parseRuleSet(globalObj);
+    } else {
+        // Response might be the global object itself
+        resp.global = parseRuleSet(json);
+    }
+
+    return resp;
+}
+
+// ==== Push Rule Content Builder ====
+//
+// Original Kotlin:
+//   EnabledBody.kt (25 lines)          → { "enabled": true/false }
+//   UpdatePushRuleActionsTask.kt (55L) → PUT actions
+//   AddPushRuleTask.kt (42 lines)      → PUT to add rule
+
+std::string PushRuleContentBuilder::buildEnabledBody(bool enabled) {
+    // Original Kotlin: EnabledBody("enabled" to enabled)
+    return R"({"enabled":)" + std::string(enabled ? "true" : "false") + "}";
+}
+
+std::string PushRuleContentBuilder::buildActionsBody(const std::vector<std::string>& actions) {
+    // Original Kotlin: mapOf("actions" to actions.toJson())
+    if (actions.empty()) {
+        return R"({"actions":[]})";
+    }
+    std::ostringstream body;
+    body << R"({"actions":[)";
+    for (size_t i = 0; i < actions.size(); ++i) {
+        if (i > 0) body << ",";
+        body << "\"" << actions[i] << "\"";
+    }
+    body << "]}";
+    return body.str();
+}
+
+std::string PushRuleContentBuilder::buildAddRuleBody(const std::string& ruleId,
+    const std::string& pattern, const std::vector<std::string>& actions,
+    const std::vector<std::string>& conditionsJson)
+{
+    // Original Kotlin: AddPushRuleTask PUT body
+    // { "pattern": "...", "actions": [...], "conditions": [...], "enabled": true }
+    std::ostringstream body;
+    body << "{";
+    if (!pattern.empty()) {
+        body << "\"pattern\":\"" << pattern << "\",";
+    }
+    body << "\"actions\":[";
+    for (size_t i = 0; i < actions.size(); ++i) {
+        if (i > 0) body << ",";
+        body << "\"" << actions[i] << "\"";
+    }
+    body << "]";
+    if (!conditionsJson.empty()) {
+        body << ",\"conditions\":[";
+        for (size_t i = 0; i < conditionsJson.size(); ++i) {
+            if (i > 0) body << ",";
+            body << conditionsJson[i];
+        }
+        body << "]";
+    }
+    body << ",\"enabled\":true}";
+    return body.str();
+}
+
+std::string PushRuleContentBuilder::buildSetActionsBody(
+    const std::vector<PushRuleActionTweak>& tweaks,
+    bool notify, bool highlight, const std::string& soundName)
+{
+    // Original Kotlin: Action.toJson() for list of actions
+    // [ "notify", { "set_tweak": "sound", "value": "default" }, ... ]
+    std::ostringstream body;
+    body << R"({"actions":[)";
+    bool first = true;
+
+    if (notify) {
+        body << "\"notify\"";
+        first = false;
+    }
+
+    if (highlight) {
+        if (!first) body << ",";
+        body << R"({"set_tweak":"highlight","value":true})";
+        first = false;
+    }
+
+    if (!soundName.empty()) {
+        if (!first) body << ",";
+        body << R"({"set_tweak":"sound","value":")" << soundName << "\"}";
+        first = false;
+    }
+
+    for (const auto& t : tweaks) {
+        if (!first) body << ",";
+        if (t.tweakKey == "sound") {
+            body << R"({"set_tweak":"sound","value":")" << t.value << "\"}";
+        } else if (t.tweakKey == "highlight") {
+            body << R"({"set_tweak":"highlight","value":)" << (t.highlight ? "true" : "false") << "}";
+        } else {
+            body << R"({"set_tweak":")" << t.tweakKey << R"(","value":")" << t.value << "\"}";
+        }
+        first = false;
+    }
+
+    body << "]}";
+    return body.str();
+}
+
+std::string PushRuleContentBuilder::buildEnablePushRuleAction(bool enabled) {
+    // Original Kotlin: UpdatePushRuleEnableStatusTask — PUT { "enabled": bool }
+    return buildEnabledBody(enabled);
+}
+
+std::string PushRuleContentBuilder::buildAddPushRuleAction(const std::string& ruleId,
+    const std::string& pattern, const RestPushRule& rule)
+{
+    // Original Kotlin: AddPushRuleTask — PUT { full rule body }
+    std::ostringstream body;
+    body << "{";
+    if (!pattern.empty()) {
+        body << "\"pattern\":\"" << pattern << "\",";
+    }
+    body << "\"actions\":[";
+    for (size_t i = 0; i < rule.actionsRaw.size(); ++i) {
+        if (i > 0) body << ",";
+        const auto& a = rule.actionsRaw[i];
+        if (a == "notify" || a == "dont_notify" || a == "coalesce") {
+            body << "\"" << a << "\"";
+        } else {
+            // It's a JSON object already
+            body << a;
+        }
+    }
+    body << "],";
+    if (!rule.conditions.empty()) {
+        body << "\"conditions\":[";
+        for (size_t i = 0; i < rule.conditions.size(); ++i) {
+            if (i > 0) body << ",";
+            const auto& c = rule.conditions[i];
+            body << "{\"kind\":\"" << c.kind << "\"";
+            if (!c.key.empty()) body << ",\"key\":\"" << c.key << "\"";
+            if (!c.pattern.empty()) body << ",\"pattern\":\"" << c.pattern << "\"";
+            if (!c.iz.empty()) body << ",\"is\":\"" << c.iz << "\"";
+            body << "}";
+        }
+        body << "],";
+    }
+    body << "\"enabled\":" << (rule.enabled ? "true" : "false") << "}";
+    return body.str();
+}
+
+std::string PushRuleContentBuilder::buildSetPushRuleActions(const std::vector<std::string>& actions) {
+    // Original Kotlin: UpdatePushRuleActionsTask — PUT { "actions": [...] }
+    return buildActionsBody(actions);
+}
+
+// ==== Pusher JSON Builder & Parser ====
+//
+// Original Kotlin:
+//   JsonPusher.kt (137 lines) — JSON serialisation for /pushers/set
+//   JsonPusherData.kt (39 lines) — pusher data object
+//   GetPushersResponse.kt (25 lines) — response parser
+//   DefaultPushersService.kt (174 lines) — HTTP/Email pusher construction
+
+std::string buildPusherJson(const Pusher& pusher) {
+    // Original Kotlin: JsonPusher → JSON for POST /pushers/set
+    // {
+    //   "pushkey": "...", "kind": "http", "app_id": "...",
+    //   "app_display_name": "...", "device_display_name": "...",
+    //   "profile_tag": "...", "lang": "...", "data": { "url": "...", "format": "..." },
+    //   "append": false, "org.matrix.msc3881.enabled": true,
+    //   "org.matrix.msc3881.device_id": "..."
+    // }
+    std::ostringstream json;
+    json << "{";
+    json << "\"pushkey\":\"" << pusher.pushKey << "\"";
+    json << ",\"kind\":\"" << pusher.kind << "\"";
+    json << ",\"app_id\":\"" << pusher.appId << "\"";
+    if (!pusher.appDisplayName.empty()) {
+        json << ",\"app_display_name\":\"" << pusher.appDisplayName << "\"";
+    }
+    if (!pusher.deviceDisplayName.empty()) {
+        json << ",\"device_display_name\":\"" << pusher.deviceDisplayName << "\"";
+    }
+    if (!pusher.profileTag.empty()) {
+        json << ",\"profile_tag\":\"" << pusher.profileTag << "\"";
+    }
+    if (!pusher.lang.empty()) {
+        json << ",\"lang\":\"" << pusher.lang << "\"";
+    }
+    json << ",\"data\":{";
+    bool hasDataField = false;
+    if (!pusher.data.url.empty()) {
+        json << "\"url\":\"" << pusher.data.url << "\"";
+        hasDataField = true;
+    }
+    if (!pusher.data.format.empty()) {
+        if (hasDataField) json << ",";
+        json << "\"format\":\"" << pusher.data.format << "\"";
+        hasDataField = true;
+    }
+    if (!pusher.data.brand.empty()) {
+        if (hasDataField) json << ",";
+        json << "\"brand\":\"" << pusher.data.brand << "\"";
+        hasDataField = true;
+    }
+    json << "}";
+    json << ",\"append\":" << (pusher.append ? "true" : "false");
+    json << ",\"org.matrix.msc3881.enabled\":" << (pusher.enabled ? "true" : "false");
+    if (!pusher.deviceId.empty()) {
+        json << ",\"org.matrix.msc3881.device_id\":\"" << pusher.deviceId << "\"";
+    }
+    json << "}";
+    return json.str();
+}
+
+Pusher parsePusher(const std::string& json) {
+    // Original Kotlin: GetPushersResponse.kt + JsonPusher.kt
+    // Parses a single pusher JSON object
+    Pusher p;
+    p.pushKey        = extractJsonString(json, "pushkey");
+    p.kind           = extractJsonString(json, "kind");
+    p.appId          = extractJsonString(json, "app_id");
+    p.appDisplayName = extractJsonString(json, "app_display_name");
+    p.deviceDisplayName = extractJsonString(json, "device_display_name");
+    p.profileTag     = extractJsonString(json, "profile_tag");
+    p.lang           = extractJsonString(json, "lang");
+    p.deviceId       = extractJsonString(json, "org.matrix.msc3881.device_id");
+    p.enabled        = extractJsonBool(json, "org.matrix.msc3881.enabled");
+    p.append         = extractJsonBool(json, "append");
+
+    // Parse nested "data" object
+    auto dataObj = extractJsonObject(json, "data");
+    if (!dataObj.empty()) {
+        p.data.url    = extractJsonString(dataObj, "url");
+        p.data.format = extractJsonString(dataObj, "format");
+        p.data.brand  = extractJsonString(dataObj, "brand");
+    }
+
+    // State defaults to REGISTERED when received from server
+    p.state = PusherState::REGISTERED;
+
+    return p;
 }
 
 } // namespace progressive

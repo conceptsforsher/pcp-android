@@ -248,4 +248,276 @@ std::string formatFingerprint(const std::string& fingerprint) {
     return out.str();
 }
 
+// ========================================================================
+// Expanded: DeviceInfo, DeviceTrustLevel, CryptoDeviceInfo implementations
+// Ported from Kotlin models
+// ========================================================================
+
+// ---- DeviceInfo (port of Kotlin DeviceInfo.kt) ----
+
+std::string DeviceInfo::bestLastSeenUserAgent() const {
+    // Original Kotlin: fun getBestLastSeenUserAgent() = lastSeenUserAgent ?: unstableLastSeenUserAgent
+    return !lastSeenUserAgent.empty() ? lastSeenUserAgent : unstableLastSeenUserAgent;
+}
+
+// ---- DeviceTrustLevel (port of Kotlin DeviceTrustLevel.kt) ----
+
+bool DeviceTrustLevel::isVerified() const {
+    // Original Kotlin: fun isVerified() = crossSigningVerified || locallyVerified == true
+    return crossSigningVerified || locallyVerified.value_or(false);
+}
+
+bool DeviceTrustLevel::isCrossSigningVerified() const {
+    // Original Kotlin: fun isCrossSigningVerified() = crossSigningVerified
+    return crossSigningVerified;
+}
+
+bool DeviceTrustLevel::isLocallyVerified() const {
+    // Original Kotlin: fun isLocallyVerified() = locallyVerified
+    return locallyVerified.value_or(false);
+}
+
+// ---- CryptoDeviceInfo (port of Kotlin CryptoDeviceInfo.kt) ----
+
+bool CryptoDeviceInfo::isDeviceVerified() const {
+    // Original Kotlin: val isVerified: Boolean get() = trustLevel?.isVerified() == true
+    return trustLevel.has_value() && trustLevel->isVerified();
+}
+
+bool CryptoDeviceInfo::isDeviceCrossSigningVerified() const {
+    // Original Kotlin: val isCrossSigningVerified: Boolean get() = trustLevel?.isCrossSigningVerified() == true
+    return trustLevel.has_value() && trustLevel->isCrossSigningVerified();
+}
+
+bool CryptoDeviceInfo::isDeviceUnknown() const {
+    // Original Kotlin: val isUnknown: Boolean get() = trustLevel == null
+    return !trustLevel.has_value();
+}
+
+std::string CryptoDeviceInfo::fingerprint() const {
+    // Original Kotlin: keys?.takeIf { deviceId.isNotBlank() }?.get("ed25519:$deviceId")
+    if (deviceId.empty()) return "";
+    auto it = keys.find("ed25519:" + deviceId);
+    return (it != keys.end()) ? it->second : "";
+}
+
+std::string CryptoDeviceInfo::identityKey() const {
+    // Original Kotlin: keys?.takeIf { deviceId.isNotBlank() }?.get("curve25519:$deviceId")
+    if (deviceId.empty()) return "";
+    auto it = keys.find("curve25519:" + deviceId);
+    return (it != keys.end()) ? it->second : "";
+}
+
+std::string CryptoDeviceInfo::displayName() const {
+    // Original Kotlin: fun displayName(): String? { return unsigned?.deviceDisplayName }
+    return unsigned.deviceDisplayName;
+}
+
+std::string CryptoDeviceInfo::shortDebugString() const {
+    // Original Kotlin: fun shortDebugString() = "$userId|$deviceId"
+    return userId + "|" + deviceId;
+}
+
+// ---- Compute Device Trust Level ----
+// Original Kotlin (Device.kt:164-166):
+//   suspend fun trustLevel(): DeviceTrustLevel {
+//       return DeviceTrustLevel(
+//           crossSigningVerified = innerDevice.crossSigningTrusted,
+//           locallyVerified = innerDevice.locallyTrusted
+//       )
+//   }
+
+DeviceTrustLevel computeDeviceTrustLevel(bool crossSigningVerified, std::optional<bool> locallyVerified) {
+    DeviceTrustLevel level;
+    level.crossSigningVerified = crossSigningVerified;
+    level.locallyVerified = locallyVerified;
+    return level;
+}
+
+// ---- DeviceInfo <-> JSON serialization ----
+
+std::string deviceInfoToJson(const DeviceInfo& info) {
+    // Original Kotlin: Moshi JSON serialization of DeviceInfo data class
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) {
+            if (c == '"') out += "\\\"";
+            else if (c == '\\') out += "\\\\";
+            else out += c;
+        }
+        return out;
+    };
+    std::ostringstream json;
+    json << "{";
+    json << "\"user_id\":\"" << esc(info.userId) << "\"";
+    json << ",\"device_id\":\"" << esc(info.deviceId) << "\"";
+    json << ",\"display_name\":\"" << esc(info.displayName) << "\"";
+    json << ",\"last_seen_ts\":" << info.lastSeenTs;
+    if (!info.lastSeenIp.empty())
+        json << ",\"last_seen_ip\":\"" << esc(info.lastSeenIp) << "\"";
+    if (!info.lastSeenUserAgent.empty())
+        json << ",\"last_seen_user_agent\":\"" << esc(info.lastSeenUserAgent) << "\"";
+    if (!info.unstableLastSeenUserAgent.empty())
+        json << ",\"org.matrix.msc3852.last_seen_user_agent\":\"" << esc(info.unstableLastSeenUserAgent) << "\"";
+    json << "}";
+    return json.str();
+}
+
+DeviceInfo parseDeviceInfo(const std::string& json) {
+    // Original Kotlin: Moshi JSON deserialization of DeviceInfo data class
+    DeviceInfo info;
+    info.userId = parseJsonStringValue(json, "user_id");
+    info.deviceId = parseJsonStringValue(json, "device_id");
+    info.displayName = parseJsonStringValue(json, "display_name");
+    auto ts = parseJsonStringValue(json, "last_seen_ts");
+    if (!ts.empty()) info.lastSeenTs = std::stoll(ts);
+    info.lastSeenIp = parseJsonStringValue(json, "last_seen_ip");
+    info.lastSeenUserAgent = parseJsonStringValue(json, "last_seen_user_agent");
+    info.unstableLastSeenUserAgent = parseJsonStringValue(json, "org.matrix.msc3852.last_seen_user_agent");
+    return info;
+}
+
+// ---- Device Trust Comparison ----
+// Original Kotlin sorting logic: cross-signing verified > locally verified > unknown
+
+int compareDeviceTrust(const DeviceTrustLevel& a, const DeviceTrustLevel& b) {
+    // Verified takes priority over unverified
+    bool aVer = a.isVerified();
+    bool bVer = b.isVerified();
+    if (aVer != bVer) return aVer ? -1 : 1;
+
+    // Among verified, cross-signing is stronger than local-only
+    if (a.crossSigningVerified != b.crossSigningVerified)
+        return a.crossSigningVerified ? -1 : 1;
+
+    // If cross-signing equal, compare local verification
+    bool aLocal = a.locallyVerified.value_or(false);
+    bool bLocal = b.locallyVerified.value_or(false);
+    if (aLocal != bLocal) return aLocal ? -1 : 1;
+
+    return 0;
+}
+
+// ---- Device Display Name Formatting ----
+// Original Kotlin: unsigned?.deviceDisplayName ?: defaultDisplayName
+
+std::string formatDeviceDisplayName(const std::string& defaultName, const std::string& unsignedDisplayName) {
+    if (!unsignedDisplayName.empty()) return unsignedDisplayName;
+    return defaultName;
+}
+
+// ---- CryptoDeviceInfo <-> JSON serialization ----
+
+std::string cryptoDeviceInfoToJson(const CryptoDeviceInfo& info) {
+    // Original Kotlin: Moshi JSON serialization of CryptoDeviceInfo
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) {
+            if (c == '"') out += "\\\"";
+            else if (c == '\\') out += "\\\\";
+            else out += c;
+        }
+        return out;
+    };
+    std::ostringstream json;
+    json << "{";
+    json << "\"device_id\":\"" << esc(info.deviceId) << "\"";
+    json << ",\"user_id\":\"" << esc(info.userId) << "\"";
+
+    // algorithms
+    json << ",\"algorithms\":[";
+    for (size_t i = 0; i < info.algorithms.size(); ++i) {
+        if (i > 0) json << ",";
+        json << "\"" << esc(info.algorithms[i]) << "\"";
+    }
+    json << "]";
+
+    // keys
+    json << ",\"keys\":{";
+    { bool first = true;
+    for (const auto& [k, v] : info.keys) {
+        if (!first) json << ",";
+        first = false;
+        json << "\"" << esc(k) << "\":\"" << esc(v) << "\"";
+    }}
+    json << "}";
+
+    // signatures
+    json << ",\"signatures\":{";
+    { bool first = true;
+    for (const auto& [userId, sigMap] : info.signatures) {
+        if (!first) json << ",";
+        first = false;
+        json << "\"" << esc(userId) << "\":{";
+        bool firstSig = true;
+        for (const auto& [k, v] : sigMap) {
+            if (!firstSig) json << ",";
+            firstSig = false;
+            json << "\"" << esc(k) << "\":\"" << esc(v) << "\"";
+        }
+        json << "}";
+    }}
+    json << "}";
+
+    // unsigned
+    json << ",\"unsigned\":{";
+    json << "\"device_display_name\":\"" << esc(info.unsigned.deviceDisplayName) << "\"";
+    json << "}";
+
+    // trustLevel
+    if (info.trustLevel.has_value()) {
+        json << ",\"trust_level\":{";
+        json << "\"cross_signing_verified\":" << (info.trustLevel->crossSigningVerified ? "true" : "false");
+        if (info.trustLevel->locallyVerified.has_value()) {
+            json << ",\"locally_verified\":" << (info.trustLevel->locallyVerified.value() ? "true" : "false");
+        }
+        json << "}";
+    }
+
+    json << ",\"is_blocked\":" << (info.isBlocked ? "true" : "false");
+    json << ",\"first_time_seen_local_ts\":" << info.firstTimeSeenLocalTs;
+    json << "}";
+    return json.str();
+}
+
+CryptoDeviceInfo parseCryptoDeviceInfo(const std::string& json) {
+    // Original Kotlin: Moshi JSON deserialization of CryptoDeviceInfo
+    CryptoDeviceInfo info;
+    info.deviceId = parseJsonStringValue(json, "device_id");
+    info.userId = parseJsonStringValue(json, "user_id");
+
+    // Parse algorithms array
+    auto algPos = json.find("\"algorithms\"");
+    if (algPos != std::string::npos) {
+        auto arrStart = json.find('[', algPos);
+        auto arrEnd = json.find(']', algPos);
+        if (arrStart != std::string::npos && arrEnd != std::string::npos && arrStart < arrEnd) {
+            std::string arr = json.substr(arrStart + 1, arrEnd - arrStart - 1);
+            size_t s = 0;
+            while (s < arr.size()) {
+                auto quote1 = arr.find('"', s);
+                if (quote1 == std::string::npos) break;
+                auto quote2 = arr.find('"', quote1 + 1);
+                if (quote2 == std::string::npos) break;
+                std::string alg = arr.substr(quote1 + 1, quote2 - quote1 - 1);
+                if (!alg.empty()) info.algorithms.push_back(alg);
+                s = quote2 + 1;
+            }
+        }
+    }
+
+    // Parse display_name from unsigned
+    info.unsigned.deviceDisplayName = parseJsonStringValue(json, "device_display_name");
+
+    // Parse is_blocked
+    info.isBlocked = json.find("\"is_blocked\":true") != std::string::npos ||
+                     json.find("\"is_blocked\": true") != std::string::npos;
+
+    // Parse first_time_seen_local_ts
+    auto fts = parseJsonStringValue(json, "first_time_seen_local_ts");
+    if (!fts.empty()) info.firstTimeSeenLocalTs = std::stoll(fts);
+
+    return info;
+}
+
 } // namespace progressive

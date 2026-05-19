@@ -23,6 +23,10 @@ namespace EventType {
     constexpr const char* REDACTION = "m.room.redaction";
     constexpr const char* RECEIPT = "m.receipt";
     constexpr const char* ROOM_KEY = "m.room_key";
+    constexpr const char* FEEDBACK = "m.room.message.feedback";
+    constexpr const char* PLUMBING = "m.room.plumbing";
+    constexpr const char* BOT_OPTIONS = "m.room.bot.options";
+    constexpr const char* PREVIEW_URLS = "org.matrix.room.preview_urls";
 
     // State events
     constexpr const char* STATE_ROOM_NAME = "m.room.name";
@@ -40,6 +44,11 @@ namespace EventType {
     constexpr const char* STATE_ROOM_SERVER_ACL = "m.room.server_acl";
     constexpr const char* STATE_ROOM_PINNED_EVENT = "m.room.pinned_events";
     constexpr const char* STATE_ROOM_ALIASES = "m.room.aliases";
+    constexpr const char* STATE_ROOM_WIDGET_LEGACY = "im.vector.modular.widgets";
+    constexpr const char* STATE_ROOM_WIDGET = "m.widget";
+    constexpr const char* STATE_ROOM_THIRD_PARTY_INVITE = "m.room.third_party_invite";
+    constexpr const char* STATE_ROOM_RELATED_GROUPS = "m.room.related_groups";
+    constexpr const char* LOCAL_STATE_ROOM_THIRD_PARTY_INVITE = "local.room.third_party_invite";
     constexpr const char* STATE_SPACE_CHILD = "m.space.child";
     constexpr const char* STATE_SPACE_PARENT = "m.space.parent";
 
@@ -49,6 +58,11 @@ namespace EventType {
     constexpr const char* CALL_ANSWER = "m.call.answer";
     constexpr const char* CALL_HANGUP = "m.call.hangup";
     constexpr const char* CALL_REJECT = "m.call.reject";
+    constexpr const char* CALL_SELECT_ANSWER = "m.call.select_answer";
+    constexpr const char* CALL_NEGOTIATE = "m.call.negotiate";
+    constexpr const char* CALL_REPLACES = "m.call.replaces";
+    constexpr const char* CALL_ASSERTED_IDENTITY = "m.call.asserted_identity";
+    constexpr const char* CALL_ASSERTED_IDENTITY_UNSTABLE = "org.matrix.call.asserted_identity";
 
     // Key verification
     constexpr const char* KEY_VERIFICATION_REQUEST = "m.key.verification.request";
@@ -75,13 +89,45 @@ namespace EventType {
     // Element Call
     constexpr const char* ELEMENT_CALL_NOTIFY = "m.call.notify";
 
+    // Voice Broadcast
+    constexpr const char* STATE_ROOM_VOICE_BROADCAST_INFO = "io.element.voice_broadcast_info";
+
     // Key share
     constexpr const char* ROOM_KEY_REQUEST = "m.room_key_request";
     constexpr const char* FORWARDED_ROOM_KEY = "m.forwarded_room_key";
+    constexpr const char* ROOM_KEY_WITHHELD = "m.room_key.withheld";
+    constexpr const char* ROOM_KEY_WITHHELD_UNSTABLE = "org.matrix.room_key.withheld";
+    constexpr const char* REQUEST_SECRET = "m.secret.request";
+    constexpr const char* SEND_SECRET = "m.secret.send";
 
     inline bool isCallEvent(const std::string& type) {
         return type == CALL_INVITE || type == CALL_CANDIDATES || type == CALL_ANSWER
-            || type == CALL_HANGUP || type == CALL_REJECT;
+            || type == CALL_HANGUP || type == CALL_REJECT
+            || type == CALL_SELECT_ANSWER || type == CALL_NEGOTIATE || type == CALL_REPLACES;
+    }
+
+    // Original Kotlin (EventType.kt:133-145): fun isVerificationEvent(type: String): Boolean
+    inline bool isVerificationEvent(const std::string& type) {
+        return type == KEY_VERIFICATION_REQUEST || type == KEY_VERIFICATION_START
+            || type == KEY_VERIFICATION_ACCEPT || type == KEY_VERIFICATION_KEY
+            || type == KEY_VERIFICATION_MAC || type == KEY_VERIFICATION_CANCEL
+            || type == KEY_VERIFICATION_DONE || type == KEY_VERIFICATION_READY;
+    }
+
+    // Checks if a type string is a known Matrix state event type
+    inline bool isStateEventType(const std::string& type) {
+        return type == STATE_ROOM_NAME || type == STATE_ROOM_TOPIC
+            || type == STATE_ROOM_AVATAR || type == STATE_ROOM_MEMBER
+            || type == STATE_ROOM_CREATE || type == STATE_ROOM_JOIN_RULES
+            || type == STATE_ROOM_GUEST_ACCESS || type == STATE_ROOM_POWER_LEVELS
+            || type == STATE_ROOM_TOMBSTONE || type == STATE_ROOM_CANONICAL_ALIAS
+            || type == STATE_ROOM_HISTORY_VISIBILITY || type == STATE_ROOM_ENCRYPTION
+            || type == STATE_ROOM_SERVER_ACL || type == STATE_ROOM_PINNED_EVENT
+            || type == STATE_ROOM_ALIASES || type == STATE_SPACE_CHILD
+            || type == STATE_SPACE_PARENT || type == STATE_ROOM_WIDGET_LEGACY
+            || type == STATE_ROOM_WIDGET || type == STATE_ROOM_THIRD_PARTY_INVITE
+            || type == STATE_ROOM_RELATED_GROUPS || type == STATE_ROOM_BEACON_INFO
+            || type == STATE_ROOM_VOICE_BROADCAST_INFO;
     }
 }
 
@@ -360,6 +406,9 @@ inline bool isLocalEchoId(const std::string& eventId) {
     return eventId.find(LOCAL_ECHO_PREFIX) == 0;
 }
 
+// Original Kotlin (LocalEcho.kt:27): fun createLocalEchoId() = "${PREFIX}${UUID.randomUUID()}"
+std::string createLocalEchoId();
+
 // ==== Stable/Unstable ID ====
 //
 // Original Kotlin (StableUnstableId.kt:21-25):
@@ -574,6 +623,7 @@ inline bool isRoomLocalEchoId(const std::string& roomId) {
 
 Event parseEvent(const std::string& eventJson);
 UnsignedData parseUnsignedData(const std::string& json);
+std::string unsignedDataToJson(const UnsignedData& u);
 EncryptedEventContent parseEncryptedEventContent(const std::string& json);
 EncryptionEventContent parseEncryptionEventContent(const std::string& json);
 RoomKeyContent parseRoomKeyContent(const std::string& json);

@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <cstdint>
+#include "progressive/widget_utils.hpp"
 
 namespace progressive {
 
@@ -55,6 +56,71 @@ std::string formatCapabilityRequest(const WidgetCapabilityRequest& req);
 
 // Auto-approve capabilities that don't need user consent.
 bool isAutoApprovedCapability(WidgetCapability cap, const std::string& widgetType);
+
+// ---- Widget Capabilities set (from widget_utils WidgetType) ----
+using WidgetCapabilities = std::set<WidgetCapability>;
+
+// ---- WidgetPermission enum (Original Kotlin: API-scoped permissions) ----
+// Managed by IntegrationManagerService; controls widget access to server APIs.
+
+enum class WidgetApiPermission {
+    SCALAR_TOKEN = 0,      // can use the scalar token for authenticated API calls
+    ROOM_VISIBILITY = 1,   // can access room visibility state
+    MEMBERSHIP = 2,        // can access room membership data
+    IDENTITY = 3,          // can access user identity / profile data
+    SEND_EVENT = 4         // can send room events via widget API
+};
+
+const char* widgetApiPermissionToString(WidgetApiPermission p);
+WidgetApiPermission widgetApiPermissionFromString(const std::string& s);
+
+// ---- Integration Manager Models (Original Kotlin: IntegrationManagerConfig) ----
+
+struct IntegrationManagerConfig {
+    std::string apiUrl;        // Original Kotlin: restUrl
+    std::string uiUrl;         // Original Kotlin: uiUrl
+    std::string kind;          // Original Kotlin: Kind enum — "ACCOUNT", "HOMESERVER", "DEFAULT"
+};
+
+struct ScalarToken {
+    std::string token;         // scalar token for widget API authentication
+};
+
+struct WidgetOpenIDToken {
+    std::string accessToken;   // OpenID access token for widget→homeserver auth
+    std::string tokenType;     // e.g. "Bearer"
+    std::string matrixServerName;
+    int64_t expiresIn = 0;     // seconds until token expiry
+};
+
+// ---- Integration Manager Functions ----
+
+// Original Kotlin: serialise IntegrationManagerConfig to JSON.
+std::string buildIntegrationManagerConfig(const IntegrationManagerConfig& config);
+
+// Original Kotlin: parse IntegrationManagerConfig from JSON.
+IntegrationManagerConfig parseIntegrationManagerConfig(const std::string& json);
+
+// ---- Widget Action / Permission Functions ----
+
+// Original Kotlin: build a widget action request (toWidget / fromWidget postMessage).
+// action examples: "visibility", "capability_request", "room_membership"
+std::string buildWidgetActionRequest(const std::string& widgetId,
+                                     const std::string& action,
+                                     const std::string& data);
+
+// Original Kotlin: validate that a widget type is allowed a given API permission.
+bool validateWidgetPermission(const std::string& widgetId,
+                              WidgetApiPermission perm,
+                              const std::string& widgetType);
+
+// Build a complete m.widgets state event JSON (type + content).
+// Uses WidgetEventContent from widget_utils.
+std::string buildWidgetStateEvent(const std::string& widgetId,
+                                  const WidgetEventContent& content);
+
+// Parse all WidgetStateEventContent from room state JSON array.
+std::vector<WidgetStateEventContent> parseWidgetStateEvents(const std::string& stateEventsJson);
 
 // ---- URL Template Variables ----
 //
@@ -116,20 +182,7 @@ std::string buildWidgetContentSecurityPolicy(const WidgetSecurityPolicy& policy,
                                               const std::string& widgetUrl);
 
 // ---- Widget Type Classification ----
-
-enum class WidgetType {
-    UNKNOWN = 0,
-    JITSI = 1,            // m.jitsi / jitsi
-    ETHERPAD = 2,         // m.etherpad / etherpad
-    CUSTOM = 3,           // m.custom
-    STICKERPICKER = 4,    // m.stickerpicker
-    CALCULATOR = 5,       // m.calculator
-    YOUTUBE = 6,          // m.youtube
-    SPOTIFY = 7,          // m.spotify
-    WHITEBOARD = 8,       // m.whiteboard
-    DIAGRAM = 9,          // m.diagram
-    GOOGLE_DOCS = 10,     // m.google_docs
-};
+// Forward to widget_utils WidgetType; kept for backward compat.
 
 WidgetType classifyWidgetType(const std::string& type);
 

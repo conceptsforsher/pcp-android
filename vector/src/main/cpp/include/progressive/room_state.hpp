@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <unordered_map>
 
 namespace progressive {
 
@@ -159,6 +160,297 @@ std::string joinRulesToJson(const RoomJoinRulesData& rules);
 std::string historyVisibilityToJson(const RSH_RoomHistoryVisibility& vis);
 std::string guestAccessToJson(const RoomGuestAccess& access);
 std::string roomCreateToJson(const RoomCreate& create);
+
+// ==== Membership ====
+// Original Kotlin (Membership.kt:26-50):
+//   enum class Membership { NONE, @Json(name="invite") INVITE, @Json(name="join") JOIN,
+//       @Json(name="knock") KNOCK, @Json(name="leave") LEAVE, @Json(name="ban") BAN }
+
+enum class Membership {
+    NONE,
+    INVITE,
+    JOIN,
+    KNOCK,
+    LEAVE,
+    BAN
+};
+
+inline bool isActiveMembership(Membership m) {
+    return m == Membership::INVITE || m == Membership::JOIN;
+}
+
+inline bool isLeftMembership(Membership m) {
+    return m == Membership::KNOCK || m == Membership::LEAVE || m == Membership::BAN;
+}
+
+std::string membershipToString(Membership m);
+Membership membershipFromString(const std::string& s);
+
+// ==== Invite (Third-Party) ====
+// Original Kotlin (Invite.kt:26-29):
+//   data class Invite(@Json(name="display_name") displayName: String, @Json(name="signed") signed: Signed)
+
+struct ThirdPartyInviteInfo {
+    std::string displayName;
+    std::string signedToken;
+    std::string mxId;
+};
+
+// ==== RoomMemberContent ====
+// Original Kotlin (RoomMemberContent.kt:26-35):
+//   data class RoomMemberContent(membership: Membership, reason: String?, displayName: String?,
+//       avatarUrl: String?, isDirect: Boolean, thirdPartyInvite: Invite?, unsignedData: UnsignedData?)
+
+struct RoomMemberContent {
+    Membership membership = Membership::NONE;
+    std::string reason;
+    std::string displayName;
+    std::string avatarUrl;
+    bool isDirect = false;
+    ThirdPartyInviteInfo thirdPartyInvite;
+    std::string unsignedData;
+
+    std::string safeReason() const {
+        if (reason.empty()) return "";
+        for (char c : reason) if (c != ' ') return reason;
+        return "";
+    }
+};
+
+RoomMemberContent parseRoomMemberContent(const std::string& contentJson);
+std::string buildRoomMemberContent(const RoomMemberContent& content);
+
+// ==== RoomMemberSummary ====
+// Original Kotlin (RoomMemberSummary.kt:24-30):
+//   data class RoomMemberSummary(membership: Membership, userId: String, userPresence: UserPresence?,
+//       displayName: String?, avatarUrl: String?)
+
+struct RoomMemberSummary {
+    Membership membership = Membership::NONE;
+    std::string userId;
+    std::string userPresence;
+    std::string displayName;
+    std::string avatarUrl;
+};
+
+// ==== RoomAvatarContent ====
+// Original Kotlin (RoomAvatarContent.kt:26-28):
+//   data class RoomAvatarContent(@Json(name="url") avatarUrl: String?)
+
+struct RoomAvatarContent {
+    std::string url;
+    std::string thumbnailUrl;
+    std::string thumbnailInfo;
+};
+
+std::string buildRoomAvatarContent(const RoomAvatarContent& content);
+
+// ==== RoomNameContent ====
+// Original Kotlin (RoomNameContent.kt:25-27):
+//   data class RoomNameContent(@Json(name="name") name: String?)
+
+struct RoomNameContent {
+    std::string name;
+};
+
+std::string buildRoomNameContent(const RoomNameContent& content);
+
+// ==== RoomTopicContent ====
+// Original Kotlin (RoomTopicContent.kt:22-24):
+//   data class RoomTopicContent(@Json(name="topic") topic: String?)
+
+struct RoomTopicContent {
+    std::string topic;
+};
+
+std::string buildRoomTopicContent(const RoomTopicContent& content);
+
+// ==== RoomAliasesContent ====
+// Original Kotlin (RoomAliasesContent.kt:28-30):
+//   data class RoomAliasesContent(@Json(name="aliases") aliases: List<String>)
+
+struct RoomAliasesContent {
+    std::vector<std::string> aliases;
+};
+
+std::string buildRoomAliasesContent(const RoomAliasesContent& content);
+
+// ==== RoomServerAclContent ====
+// Original Kotlin (RoomServerAclContent.kt:26-58):
+//   data class RoomServerAclContent(allowIpLiterals: Boolean, allowList: List<String>, denyList: List<String>)
+//   companion object { const val ALL = "*" }
+
+constexpr const char* ACL_ALL = "*";
+
+struct RoomServerAclContent {
+    bool allowIpLiterals = true;
+    std::vector<std::string> allowList;
+    std::vector<std::string> denyList;
+};
+
+RoomServerAclContent parseRoomServerAclContent(const std::string& contentJson);
+std::string buildRoomServerAclContent(const RoomServerAclContent& acl);
+bool wildcardMatch(const std::string& pattern, const std::string& value);
+bool isServerAllowed(const std::string& serverName, const RoomServerAclContent& acl);
+
+// ==== RoomThirdPartyInviteContent ====
+// Original Kotlin (RoomThirdPartyInviteContent.kt:27-65):
+//   data class RoomThirdPartyInviteContent(displayName: String?, keyValidityUrl: String?,
+//       publicKey: String?, publicKeys: List<PublicKeys>?)
+
+struct PublicKeyInfo {
+    std::string keyValidityUrl;
+    std::string publicKey;
+};
+
+struct RoomThirdPartyInviteContent {
+    std::string displayName;
+    std::string keyValidityUrl;
+    std::string publicKey;
+    std::vector<PublicKeyInfo> publicKeys;
+};
+
+RoomThirdPartyInviteContent parseRoomThirdPartyInvite(const std::string& contentJson);
+std::string buildRoomThirdPartyInviteContent(const RoomThirdPartyInviteContent& content);
+
+// ==== RoomStrippedState ====
+// Original Kotlin (RoomStrippedState.kt:24-111):
+//   data class RoomStrippedState(aliases, canonicalAlias, name, numJoinedMembers, roomId,
+//       topic, worldReadable, guestCanJoin, avatarUrl, isFederated, isEncrypted, roomType, membership)
+
+struct RoomStrippedState {
+    std::vector<std::string> aliases;
+    std::string canonicalAlias;
+    std::string name;
+    int numJoinedMembers = 0;
+    std::string roomId;
+    std::string topic;
+    bool worldReadable = false;
+    bool guestCanJoin = false;
+    std::string avatarUrl;
+    bool isFederated = true;
+    bool isEncrypted = false;
+    std::string roomType;
+    std::string membership;
+
+    std::string getPrimaryAlias() const {
+        if (!canonicalAlias.empty()) return canonicalAlias;
+        if (!aliases.empty()) return aliases[0];
+        return "";
+    }
+};
+
+RoomStrippedState parseRoomStrippedState(const std::string& json);
+std::string buildRoomStrippedState(const RoomStrippedState& state);
+
+// ==== SpaceChildInfo ====
+// Original Kotlin (SpaceChildInfo.kt:19-37):
+//   data class SpaceChildInfo(childRoomId: String, isKnown: Boolean, roomType: String?,
+//       name: String?, topic: String?, avatarUrl: String?, order: String?,
+//       activeMemberCount: Int?, viaServers: List<String>, parentRoomId: String?,
+//       suggested: Boolean?, canonicalAlias: String?, aliases: List<String>?, worldReadable: Boolean)
+
+struct SpaceChildInfo {
+    std::string childRoomId;
+    bool isKnown = false;
+    std::string roomType;
+    std::string name;
+    std::string topic;
+    std::string avatarUrl;
+    std::string order;
+    int activeMemberCount = 0;
+    std::vector<std::string> viaServers;
+    std::string parentRoomId;
+    bool suggested = false;
+    std::string canonicalAlias;
+    std::vector<std::string> aliases;
+    bool worldReadable = false;
+};
+
+std::string buildSpaceChildContent(const SpaceChildInfo& info);
+
+// ==== SpaceParentInfo ====
+// Original Kotlin (SpaceParentInfo.kt:19-24):
+//   data class SpaceParentInfo(parentId: String?, roomSummary: RoomSummary?,
+//       canonical: Boolean?, viaServers: List<String>)
+
+struct SpaceParentInfo {
+    std::string parentId;
+    std::string roomSummaryJson;
+    bool canonical = false;
+    std::vector<std::string> viaServers;
+};
+
+std::string buildSpaceParentContent(const SpaceParentInfo& info);
+
+// ==== RoomEncryptionAlgorithm ====
+// Original Kotlin (RoomEncryptionAlgorithm.kt:21-27):
+//   sealed class RoomEncryptionAlgorithm {
+//       abstract class SupportedAlgorithm(val alg: String)
+//       object Megolm : SupportedAlgorithm(MXCRYPTO_ALGORITHM_MEGOLM)
+//       data class UnsupportedAlgorithm(val name: String?)
+//   }
+
+constexpr const char* MEGOLM_ALGORITHM = "m.megolm.v1.aes-sha2";
+
+struct RoomEncryptionAlgorithm {
+    std::string algorithm;
+    int64_t rotationPeriodMs = 0;
+    int64_t rotationPeriodMsgs = 0;
+    std::unordered_map<std::string, std::string> additionalParams;
+    bool isSupported = false;
+
+    static RoomEncryptionAlgorithm megolm() {
+        return {MEGOLM_ALGORITHM, 0, 0, {}, true};
+    }
+
+    static RoomEncryptionAlgorithm unsupported(const std::string& name) {
+        return {name, 0, 0, {}, false};
+    }
+};
+
+std::string roomEncryptionAlgorithmToString(const RoomEncryptionAlgorithm& alg);
+RoomEncryptionAlgorithm parseRoomEncryptionAlgorithm(const std::string& contentJson);
+std::string buildRoomEncryptionContent(const RoomEncryptionAlgorithm& alg);
+
+// ==== RoomTag ====
+// Original Kotlin (RoomTag.kt:19-28):
+//   data class RoomTag(name: String, order: Double?)
+//   companion object { ROOM_TAG_FAVOURITE, ROOM_TAG_LOW_PRIORITY, ROOM_TAG_SERVER_NOTICE }
+
+namespace RoomTag {
+    constexpr const char* FAVOURITE = "m.favourite";
+    constexpr const char* LOW_PRIORITY = "m.lowpriority";
+    constexpr const char* SERVER_NOTICE = "m.server_notice";
+}
+
+struct RoomTagData {
+    std::string name;
+    double order = 0.0;
+};
+
+std::string buildRoomTagContent(const RoomTagData& tag);
+RoomTagData parseRoomTagContent(const std::string& contentJson);
+
+// ==== RoomDirectoryVisibility ====
+// Original Kotlin (RoomDirectoryVisibility.kt:22-26):
+//   enum class RoomDirectoryVisibility { @Json(name="private") PRIVATE, @Json(name="public") PUBLIC }
+
+enum class RoomDirectoryVisibility {
+    PRIVATE,
+    PUBLIC
+};
+
+constexpr const char* directoryVisibilityToString(RoomDirectoryVisibility v) {
+    return v == RoomDirectoryVisibility::PUBLIC ? "public" : "private";
+}
+
+inline RoomDirectoryVisibility directoryVisibilityFromString(const std::string& s) {
+    if (s == "public") return RoomDirectoryVisibility::PUBLIC;
+    return RoomDirectoryVisibility::PRIVATE;
+}
+
+std::string buildDirectoryVisibilityContent(RoomDirectoryVisibility visibility);
 
 } // namespace progressive
 

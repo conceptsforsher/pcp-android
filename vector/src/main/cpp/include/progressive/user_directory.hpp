@@ -47,6 +47,7 @@ struct UserSearchResponse {
     std::vector<UserSearchResult> results;
     bool limited = false;            // More results available
     int totalResults = 0;
+    std::string nextBatch;           // Pagination token for next batch
     std::string error;
 };
 
@@ -116,5 +117,76 @@ private:
     // Tokenize search query into words.
     std::vector<std::string> tokenize(const std::string& text) const;
 };
+
+// ================================================================
+// User Profile — get/set display name and avatar
+//
+// Ported from Element Android:
+//   ProfileService.kt, User.kt
+//   GetProfileInfoTask.kt
+//
+// Matrix API: GET /_matrix/client/r0/profile/{userId}
+//   Response: {"displayname": "Alice", "avatar_url": "mxc://..."}
+//
+// Matrix API: PUT /_matrix/client/r0/profile/{userId}/displayname
+//   Body: {"displayname": "New Name"}
+//
+// Matrix API: PUT /_matrix/client/r0/profile/{userId}/avatar_url
+//   Body: {"avatar_url": "mxc://..."}
+// ================================================================
+
+// ---- User Profile ----
+
+// Original Kotlin: User.kt data class User(userId, displayName, avatarUrl)
+struct UserProfile {
+    std::string userId;
+    std::string displayName;         // "displayname" in Matrix JSON
+    std::string avatarUrl;           // "avatar_url" in Matrix JSON
+};
+
+// Build JSON body for PUT /profile/{userId}/displayname.
+// Original Kotlin: ProfileService.setDisplayName()
+std::string buildUserProfileDisplayNameUpdate(const std::string& displayName);
+
+// Build JSON body for PUT /profile/{userId}/avatar_url.
+// Original Kotlin: ProfileService.updateAvatar()
+std::string buildUserProfileAvatarUpdate(const std::string& avatarUrl);
+
+// Parse the combined profile response from GET /profile/{userId}.
+// Original Kotlin: ProfileService.getProfile() -> User.fromJson()
+UserProfile parseUserProfile(const std::string& userId, const std::string& json);
+
+// ================================================================
+// User Status / Presence — online status and status message
+//
+// Ported from Element Android:
+//   UserPresence.kt, SetPresenceTask.kt
+//
+// Matrix API: PUT /_matrix/client/r0/presence/{userId}/status
+//   Body: {"presence": "online", "status_msg": "Working"}
+//
+// Matrix API: GET /_matrix/client/r0/presence/{userId}/status
+//   Response: {"presence": "online", "status_msg": "Working",
+//              "currently_active": true, "last_active_ago": 1000}
+// ================================================================
+
+// ---- User Status ----
+
+// Original Kotlin: UserPresence model
+struct UserStatus {
+    std::string userId;
+    std::string status;              // "online", "offline", "unavailable"
+    std::string message;             // Status message
+    bool currentlyActive = false;    // Currently active?
+    int64_t lastActiveAgo = 0;       // Milliseconds since last activity
+};
+
+// Build JSON body for PUT /presence/{userId}/status.
+// Original Kotlin: SetPresenceTask body
+std::string userStatusToJson(const UserStatus& status);
+
+// Parse presence response from GET /presence/{userId}/status.
+// Original Kotlin: GetPresenceTask response
+UserStatus parseUserStatus(const std::string& userId, const std::string& json);
 
 } // namespace progressive

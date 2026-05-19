@@ -1,5 +1,6 @@
 #include "progressive/json_parser.hpp"
 #include <cstddef>
+#include <cstdlib>
 
 namespace progressive {
 
@@ -37,6 +38,18 @@ std::string parseJsonStringValue(const std::string& json, const std::string& key
         ++end;
     }
     return json.substr(pos, end - pos);
+}
+
+bool parseJsonBoolValue(const std::string& json, const std::string& key, bool defaultValue) {
+    auto val = parseJsonStringValue(json, key);
+    if (val.empty()) return defaultValue;
+    return val == "true";
+}
+
+int64_t parseJsonInt64Value(const std::string& json, const std::string& key, int64_t defaultValue) {
+    auto val = parseJsonStringValue(json, key);
+    if (val.empty()) return defaultValue;
+    return std::strtoll(val.c_str(), nullptr, 10);
 }
 
 } // namespace progressive

@@ -14,6 +14,8 @@ namespace progressive {
 // Ported from Element Android:
 //   ThreadListViewModel.kt, ThreadTimelineViewModel.kt
 //   ThreadSummary.kt, ThreadsManager.kt
+//   ThreadSummaryHelper.kt, ThreadEventsHelper.kt
+//   ThreadsAwarenessHandler.kt
 //
 // Covers:
 //   1. Thread root detection (m.thread relation)
@@ -24,6 +26,10 @@ namespace progressive {
 //   6. Thread participant tracking
 //   7. Thread timeline pagination state
 //   8. Thread reply count
+//   9. Thread summary computation (REPLACE/ADD modes)
+//  10. Thread-aware event injection (fallback replies)
+//  11. Thread pagination request/response parsing
+//  12. Thread notification badge computation
 // ================================================================
 
 // ---- Thread State ----
@@ -112,6 +118,135 @@ struct ThreadNotification {
     int64_t timestampMs = 0;
 };
 
+// ================================================================
+// NEW: Expanded Thread Models
+// Ported from:
+//   ThreadSummary.kt
+//   ThreadSummaryUpdateType.kt
+//   ThreadTimelineEvent.kt
+//   ThreadNotificationState.kt
+//   ThreadNotificationBadgeState.kt
+//   ThreadEditions.kt
+//   ThreadFilter.kt
+// ================================================================
+
+// ---- ThreadSummaryUpdateType ----
+// Original Kotlin: ThreadSummaryUpdateType.kt
+
+enum class ThreadSummaryUpdateType {
+    REPLACE = 0,          // Full replacement from server (/messages with thread filter)
+    ADD = 1               // Incremental add from sync
+};
+
+// ---- ThreadNotificationState ----
+// Original Kotlin: ThreadNotificationState.kt
+
+enum class ThreadNotificationState {
+    NO_NEW_MESSAGE = 0,
+    NEW_MESSAGE = 1,
+    NEW_HIGHLIGHTED_MESSAGE = 2
+};
+
+// ---- ThreadNotificationBadgeState ----
+// Original Kotlin: ThreadNotificationBadgeState.kt
+
+struct ThreadNotificationBadgeState {
+    int numberOfLocalUnreadThreads = 0;
+    bool isUserMentioned = false;
+};
+
+// ---- SenderInfo ----
+// Original Kotlin: SenderInfo (api/session/room/sender/)
+
+struct SenderInfo {
+    std::string senderId;
+    std::string senderName;
+    std::string avatarUrl;
+    bool isUniqueDisplayName = true;
+};
+
+// ---- ThreadEditions ----
+// Original Kotlin: ThreadEditions.kt
+
+struct ThreadEditions {
+    std::string rootThreadEdition;     // Edited text for root message
+    std::string latestThreadEdition;   // Edited text for latest reply
+};
+
+// ---- Thread Filter ----
+// Original Kotlin: ThreadFilter.kt
+
+enum class ThreadFilter {
+    ALL = 0,
+    PARTICIPATED = 1
+};
+
+// ---- ThreadSummary ----
+// Original Kotlin: ThreadSummary.kt
+// Higher-level model matching the Kotlin API surface exactly.
+// threadId is the rootEventId.
+
+struct ThreadSummary {
+    std::string roomId;
+    std::string rootEventId;            // The thread identifier (= root event ID)
+    std::string rootEventJson;          // Raw root event content JSON
+    std::string latestEventId;          // Latest reply event ID
+    std::string latestEventJson;        // Raw latest event content JSON
+    SenderInfo rootThreadSenderInfo;    // Display name, avatar for root sender
+    SenderInfo latestThreadSenderInfo;  // Display name, avatar for latest sender
+    bool isUserParticipating = false;   // Current user has sent a message in this thread
+    int numberOfThreads = 0;            // Total replies (excluding root)
+    int highlightCount = 0;             // Number of messages with @mention
+    int notificationCount = 0;          // Number of unread notifications
+    ThreadEditions threadEditions;      // Edited versions of messages
+    ThreadSummaryUpdateType updateType = ThreadSummaryUpdateType::ADD;
+    ThreadNotificationState notificationState = ThreadNotificationState::NO_NEW_MESSAGE;
+    int64_t rootTimestampMs = 0;        // origin_server_ts of root event
+    int64_t latestTimestampMs = 0;      // origin_server_ts of latest event
+    std::string latestBody;             // Decrypted text body of latest reply
+    std::string rootBody;               // Decrypted text body of root message
+    bool valid = false;                 // True if this summary is fully populated
+};
+
+// ---- ThreadTimelineEvent ----
+// Original Kotlin: ThreadTimelineEvent.kt
+// An event within a thread timeline, with thread-specific context.
+
+struct ThreadTimelineEvent {
+    std::string eventId;
+    std::string eventType;              // "m.room.message", etc.
+    std::string senderId;
+    std::string senderName;
+    std::string body;                   // Decrypted plaintext body
+    std::string contentJson;            // Full event content JSON
+    int64_t timestampMs = 0;            // origin_server_ts
+    std::string rootThreadEventId;      // Which thread this belongs to
+    bool isThreadRoot = false;          // This event IS the thread root
+    bool isParticipating = false;       // Current user is a participant in this thread
+    bool isEncrypted = false;
+    bool valid = false;
+};
+
+// ---- ThreadPaginationResponse ----
+// Original Kotlin: ThreadSummariesResponse.kt + RelationsResponse
+// Parsed result from /relations or /messages API.
+
+struct ThreadPaginationResponse {
+    std::vector<std::string> events;    // Raw event JSON strings (the "chunk")
+    std::string nextBatch;              // Pagination token for next page
+    std::string prevBatch;              // Pagination token for previous page
+    bool hasMore = false;               // True if there's another page
+    bool valid = false;
+};
+
+// ---- FetchThreadsResult ----
+// Original Kotlin: FetchThreadsResult.kt
+
+struct FetchThreadsResult {
+    bool reachedEnd = false;
+    std::string nextBatch;
+};
+
 // ---- Thread Manager ----
 
 class ThreadManager {
@@ -180,7 +315,7 @@ public:
     std::vector<ThreadNotification> getNotifications() const;
 
     // Format thread notification count as a string ("12", "99+").
-    std::string formatThreadNotificationCount(int count) const;
+    static std::string formatThreadNotificationCount(int count);
 
     // ====== Thread Ordering ======
 
@@ -201,21 +336,221 @@ public:
     // Format notification as JSON.
     std::string notificationToJson(const ThreadNotification& notif) const;
 
+    // ====== NEW: Thread Summary Support ======
+    // Original Kotlin: ThreadSummaryHelper.kt
+
+    // Compute and store a ThreadSummary from server-provided event JSON.
+    // updateType=REPLACE: full replacement of thread metadata.
+    // updateType=ADD: incremental update from a new event in the thread.
+    ThreadSummary computeAndStoreSummary(const std::string& roomId,
+                                         const std::string& rootEventJson,
+                                         const std::string& latestEventJson,
+                                         bool isUserParticipating,
+                                         const std::string& userId);
+
+    // Update a stored summary incrementally (ADD mode, from sync events).
+    void updateStoredSummary(const std::string& threadId,
+                             const std::string& eventJson,
+                             ThreadSummaryUpdateType type,
+                             const std::string& userId);
+
+    // Get all stored ThreadSummary objects.
+    std::vector<ThreadSummary> getAllSummaries() const;
+
+    // Get ThreadSummary objects for a specific room.
+    std::vector<ThreadSummary> getRoomSummaries(const std::string& roomId) const;
+
+    // Get summaries that have unread messages or highlights.
+    std::vector<ThreadSummary> getNotificationSummaries() const;
+
+    // Get a single summary by thread ID.
+    bool getSummary(const std::string& threadId, ThreadSummary& out) const;
+
+    // ====== NEW: Thread Notification State ======
+    // Original Kotlin: ThreadEventsHelper.updateThreadNotifications()
+
+    // Compute and update notification state for a given thread.
+    void updateThreadNotifications(const std::string& roomId,
+                                   const std::string& threadId,
+                                   const std::string& currentUserId);
+
+    // Get the notification badge state across all threads.
+    ThreadNotificationBadgeState getNotificationBadgeState(const std::string& userId) const;
+
+    // ====== NEW: Static Event Inspection Utilities ======
+    // Original Kotlin: ThreadsAwarenessHandler, ThreadEventsHelper
+
+    // Check if event content JSON has a thread relation (m.thread).
+    // Original Kotlin: ThreadsAwarenessHandler.isThreadEvent()
+    static bool hasThreadRelation(const std::string& eventContentJson);
+
+    // Check if event content JSON is a thread root event
+    // (has m.thread relation pointing to its own eventId).
+    static bool checkIsThreadRoot(const std::string& eventContentJson,
+                                  const std::string& eventId);
+
+    // Extract the root thread event ID from event content.
+    // Original Kotlin: getRootThreadEventId()
+    static std::string extractThreadRootId(const std::string& eventContentJson);
+
+    // Format a human-readable preview string for the thread list.
+    // Returns "SenderName: first line of message..."
+    static std::string formatPreview(const std::string& senderName,
+                                     const std::string& body,
+                                     int maxLen = 60);
+
     // ====== Stats ======
 
     int totalThreads() const { return static_cast<int>(threads_.size()); }
     int totalRoomsWithThreads() const;
 
 private:
-    std::unordered_map<std::string, ThreadInfoFull> threads_;     // threadId → ThreadInfoFull
-    std::unordered_map<std::string, ThreadUnreadState> unread_; // threadId → unread state
+    // Existing storage
+    std::unordered_map<std::string, ThreadInfoFull> threads_;       // threadId → ThreadInfoFull
+    std::unordered_map<std::string, ThreadUnreadState> unread_;     // threadId → unread state
     std::unordered_map<std::string, std::vector<ThreadEvent>> replies_; // threadId → replies
-    std::unordered_map<std::string, int64_t> readReceipts_;   // threadId → last read index
+    std::unordered_map<std::string, int64_t> readReceipts_;         // threadId → last read index
 
-    // JSON extract helper
+    // NEW: ThreadSummary storage
+    std::unordered_map<std::string, ThreadSummary> summaries_;      // threadId → ThreadSummary
+
+    // JSON extract helpers
     static std::string extractStr(const std::string& json, const std::string& key);
     static int64_t extractInt(const std::string& json, const std::string& key);
+    static std::string extractObj(const std::string& json, const std::string& key);
+    static std::string extractArray(const std::string& json, const std::string& key);
 };
 
+// ================================================================
+// Free Function Declarations — Thread models & computation
+// Ported from ThreadSummaryHelper.kt, ThreadEventsHelper.kt,
+// ThreadsAwarenessHandler.kt, FetchThreadTimelineTask.kt
+// ================================================================
+
+// ---- Thread Summary Computation ----
+// Original Kotlin: ThreadSummaryHelper.kt compute operations
+
+// Build a ThreadSummary from raw event JSON.
+ThreadSummary computeThreadSummary(const std::string& roomId,
+                                   const std::string& rootEventJson,
+                                   const std::string& latestEventJson,
+                                   bool isUserParticipating,
+                                   const std::string& userId);
+
+// Update an existing ThreadSummary with a new event.
+// Original Kotlin: ThreadSummaryEntity.updateThreadSummary()
+void updateThreadSummary(ThreadSummary& summary,
+                         const std::string& eventJson,
+                         ThreadSummaryUpdateType type,
+                         const std::string& userId);
+
+// Format a human-readable preview for the thread list.
+// Original Kotlin: formatting logic from ThreadListViewModel
+std::string formatThreadPreview(const ThreadSummary& summary);
+
+// Check if an event has a thread relation (m.thread).
+// Original Kotlin: ThreadsAwarenessHandler.isThreadEvent()
+bool isThreadEvent(const std::string& eventContentJson);
+
+// ---- Thread Event Helpers ----
+// Original Kotlin: ThreadEventsHelper.kt
+
+// Find the root thread event ID by traversing m.relates_to relations.
+// Original Kotlin: EventEntity.findRootThreadEvent()
+std::string findRootThreadEventId(const std::string& eventContentJson);
+
+// Get the thread relation content from an event as JSON string.
+// Returns the m.relates_to object with rel_type="m.thread".
+// Original Kotlin: getRootThreadRelationContent()
+std::string getThreadEventRelation(const std::string& eventContentJson);
+
+// Make an event thread-aware: if it's a thread reply, inject
+// the parent message as a reply quote in the content.
+// Returns modified event content JSON, or empty string on failure.
+// Original Kotlin: ThreadsAwarenessHandler.makeEventThreadAware()
+std::string makeEventThreadAware(const std::string& roomId,
+                                 const std::string& eventContentJson,
+                                 const std::string& parentEventJson = "");
+
+// Check if an event belongs to a specific thread.
+// Original Kotlin: check if rootThreadEventId matches
+bool isEventInThread(const std::string& eventContentJson,
+                     const std::string& threadRootId);
+
+// ---- Thread Pagination ----
+// Original Kotlin: FetchThreadTimelineTask.kt, FetchThreadSummariesTask.kt
+
+// Build the URL path for fetching thread events via /relations API.
+// GET /_matrix/client/v3/rooms/{roomId}/relations/{eventId}/m.thread
+std::string buildThreadRelationsUrl(const std::string& roomId,
+                                    const std::string& rootEventId,
+                                    const std::string& from = "",
+                                    int limit = 20);
+
+// Build the URL path for fetching thread summaries via /messages API.
+// GET /_matrix/client/v3/rooms/{roomId}/messages?filter={"types":[...]}
+std::string buildThreadSummariesUrl(const std::string& roomId,
+                                    const std::string& from = "",
+                                    int limit = 5,
+                                    const std::string& filter = "all");
+
+// Build the JSON request body for fetching thread timeline events.
+std::string buildThreadTimelineRequest(const std::string& roomId,
+                                       const std::string& rootEventId,
+                                       const std::string& from = "",
+                                       int limit = 20);
+
+// Parse a pagination response (from /relations or /messages API).
+// Handles both ThreadSummariesResponse and RelationsResponse formats.
+ThreadPaginationResponse parseThreadTimelineResponse(const std::string& responseJson);
+
+// ---- Thread Notification ----
+// Original Kotlin: ThreadEventsHelper.updateThreadNotifications()
+
+// Compute the notification state for a thread.
+ThreadNotificationState computeThreadNotifications(int unreadCount,
+                                                    bool isUserMentioned,
+                                                    bool isUserParticipating);
+
+// Compute a badge state from a list of thread summaries.
+ThreadNotificationBadgeState computeThreadBadgeState(
+    const std::vector<ThreadSummary>& summaries,
+    bool isUserMentioned);
+
+// ---- Thread Root Detection ----
+// Original Kotlin: isRootThread check
+
+// Extract the thread root event ID from an event's m.relates_to.
+std::string extract_thread_root_id(const std::string& eventContentJson);
+
+// Build a JSON string for an m.thread relation.
+// {"rel_type":"m.thread","event_id":"<rootEventId>"}
+std::string buildThreadRootRelation(const std::string& rootEventId,
+                                    bool isFallingBack = false);
+
+// Check if an event is a thread root (has m.thread relation
+// pointing to itself OR has replies referencing it).
+// Original Kotlin: EventEntity.isRootThread()
+bool isThreadRootEvent(const std::string& eventContentJson,
+                       const std::string& eventId);
+
+// ---- Type Conversion ----
+
+// Convert ThreadSummary to ThreadInfoFull (backward compatibility).
+ThreadInfoFull threadSummaryToInfoFull(const ThreadSummary& summary);
+
+// Convert ThreadInfoFull to ThreadSummary.
+ThreadSummary infoFullToThreadSummary(const ThreadInfoFull& info);
+
+// ---- Serialization ----
+
+// Format ThreadSummary as JSON.
+std::string threadSummaryToJson(const ThreadSummary& summary);
+
+// Format ThreadTimelineEvent as JSON.
+std::string threadTimelineEventToJson(const ThreadTimelineEvent& event);
+
+// Format a vector of ThreadSummary as a JSON array.
+std::string threadSummaryListToJson(const std::vector<ThreadSummary>& list);
 
 } // namespace progressive

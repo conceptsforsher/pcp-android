@@ -1,5 +1,4 @@
-#ifndef PROGRESSIVE_ROOM_PERMISSIONS_HPP
-#define PROGRESSIVE_ROOM_PERMISSIONS_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -7,20 +6,157 @@
 
 namespace progressive {
 
-// ---- Power Levels & Permissions ----
+// ================================================================
+// Room Permissions & Power Levels
+//
+// Faithful port from original Kotlin:
+//   PowerLevelsContent.kt — ban, kick, invite, redact, events_default,
+//     events, users_default, users, state_default, notifications
+//   RoomPowerLevels.kt (api) — wraps PowerLevelsContent + RoomCreateContent
+//   RoomPowerLevels.kt (internal) — getRoomPowerLevels(), createRoomPowerLevels()
+//   UserPowerLevel.kt — Infinite, Value(value), User(0), Moderator(50),
+//     Admin(100), SuperAdmin(150)
+// ================================================================
+
+// ---- Power Level Constants ----
+// Original Kotlin: UserPowerLevel.User(0), Moderator(50), Admin(100), SuperAdmin(150)
+
+namespace PowerLevelsConstants {
+    constexpr int DEFAULT_PL = 0;       // User
+    constexpr int MODERATOR_PL = 50;    // Moderator
+    constexpr int ADMIN_PL = 100;       // Admin
+    constexpr int SUPER_ADMIN_PL = 150; // SuperAdmin
+    constexpr int INFINITE_PL = -1;     // Infinite/Creator (can do anything)
+}
+
+// ---- Power Level Action ----
+// Original Kotlin: implicit from check functions (banOrDefault, kickOrDefault, etc.)
+
+enum class PowerLevelAction {
+    BAN,            // Ban a user from the room
+    KICK,           // Kick/remove a user
+    INVITE,         // Invite a user to the room
+    REDACT,         // Redact (delete) a message
+    NOTIFY_ROOM,    // Send @room notification
+};
+
+const char* powerLevelActionToString(PowerLevelAction action);
+PowerLevelAction powerLevelActionFromString(const std::string& action);
+
+// ---- PowerLevels (full Matrix spec struct) ----
+// Original Kotlin: PowerLevelsContent.kt (9 fields + notifications)
+
+struct PowerLevels {
+    int usersDefault = PowerLevelsConstants::DEFAULT_PL;     // Default: 0
+    int eventsDefault = PowerLevelsConstants::DEFAULT_PL;    // Default: 0
+    int stateDefault = PowerLevelsConstants::MODERATOR_PL;   // Default: 50
+    int ban = PowerLevelsConstants::MODERATOR_PL;            // Default: 50
+    int kick = PowerLevelsConstants::MODERATOR_PL;           // Default: 50
+    int redact = PowerLevelsConstants::MODERATOR_PL;         // Default: 50
+    int invite = PowerLevelsConstants::DEFAULT_PL;           // Default: 0
+    int notify = PowerLevelsConstants::MODERATOR_PL;         // Default: 50 (@room)
+    std::unordered_map<std::string, int> users;   // userId → power level
+    std::unordered_map<std::string, int> events;  // eventType → required power level
+    bool valid = false;
+};
+
+// ---- RoomPowerLevels (wraps PowerLevelsContent + RoomCreateContent) ----
+// Original Kotlin:
+//   class RoomPowerLevels(
+//       val powerLevelsContent: PowerLevelsContent?,
+//       private val roomCreateContent: RoomCreateContentWithSender?,
+//   )
+
+struct RoomCreateContent;  // forward declaration (defined in create_room.hpp)
 
 struct RoomPowerLevels {
-    int usersDefault = 0;
-    int eventsDefault = 0;
-    int stateDefault = 50;
-    int ban = 50;
-    int kick = 50;
-    int redact = 50;
-    int invite = 50;
-    int notificationsRoom = 50;
-    std::unordered_map<std::string, int> userOverrides;  // userId → PL
-    std::unordered_map<std::string, int> eventOverrides; // eventType → PL
+    // The power levels content from the room state.
+    PowerLevels powerLevelsContent;
+
+    // The room create content (for infinite power level check).
+    // Original Kotlin: shouldGiveInfinitePowerLevel(userId)
+    //   checks roomCreateContent.explicitlyPrivilegeRoomCreators()
+    //   and whether userId is in the creators list.
+    const RoomCreateContent* roomCreateContent = nullptr;
+
+    // The creators list (from room create + power levels 100 users).
+    std::vector<std::string> creators;
+
+    // Check if a user should be given infinite power level (creator privilege).
+    // Original Kotlin: RoomPowerLevels.kt:shouldGiveInfinitePowerLevel(userId)
+    bool shouldGiveInfinitePowerLevel(const std::string& userId) const;
+
+    // Get a user's effective power level value.
+    // Original Kotlin: getUserPowerLevel(userId): UserPowerLevel
+    //   Returns the numeric value (or INFINITE_PL if creator privilege applies).
+    int getUserPowerLevel(const std::string& userId) const;
+
+    // Check if a user is allowed to send an event of a given type.
+    // Original Kotlin: isUserAllowedToSend(userId, isState, eventType): Boolean
+    //   val powerLevel = getUserPowerLevel(userId)
+    //   val minimumPowerLevel = powerLevelsContent?.events?.get(eventType)
+    //       ?: if (isState) stateDefaultOrDefault() else eventsDefaultOrDefault()
+    //   powerLevel >= Value(minimumPowerLevel)
+    bool isUserAllowedToSend(const std::string& userId, bool isState,
+        const std::string& eventType) const;
+
+    // Check if a user is allowed to send a state event.
+    // Original Kotlin: isUserAllowedToSend(userId, isState=true, eventType)
+    bool isUserAllowedToSendState(const std::string& userId,
+        const std::string& eventType) const;
+
+    // Check if a user is allowed to send a message event.
+    bool isUserAllowedToSendMessage(const std::string& userId,
+        const std::string& msgType = "m.room.message") const;
+
+    // Get the required power level for a specific event type.
+    // Original Kotlin: powerLevelsContent?.events?.get(eventType)
+    //   ?: if (isState) stateDefault else eventsDefault
+    int getEventPowerLevel(bool isState, const std::string& eventType) const;
+
+    // Check if a user can invite others.
+    // Original Kotlin: isUserAbleToInvite(userId): Boolean
+    bool isUserAbleToInvite(const std::string& userId) const;
+
+    // Check if a user can ban others.
+    // Original Kotlin: isUserAbleToBan(userId): Boolean
+    bool isUserAbleToBan(const std::string& userId) const;
+
+    // Check if a user can kick others.
+    // Original Kotlin: isUserAbleToKick(userId): Boolean
+    bool isUserAbleToKick(const std::string& userId) const;
+
+    // Check if a user can redact.
+    // Original Kotlin: isUserAbleToRedact(userId): Boolean
+    bool isUserAbleToRedact(const std::string& userId) const;
+
+    // Check if a user can trigger a notification.
+    // Original Kotlin: isUserAbleToTriggerNotification(userId, notificationKey): Boolean
+    bool isUserAbleToTriggerNotification(const std::string& userId,
+        const std::string& notificationKey = "room") const;
+
+    // Get the suggested role name for a user.
+    // Original Kotlin: getSuggestedRole(userId): Role
+    std::string getSuggestedRole(const std::string& userId) const;
 };
+
+// ================================================================
+// Functions (standalone)
+// ================================================================
+
+// Parse power levels from m.room.power_levels state event JSON.
+// Original Kotlin: parse from state event content → PowerLevelsContent
+PowerLevels parsePowerLevels(const std::string& stateContentJson);
+
+// Serialize PowerLevels to JSON string.
+// Original Kotlin: buildContent() for sending to server
+std::string powerLevelsToJson(const PowerLevels& pl);
+
+// Parse power levels from m.room.power_levels state event (legacy name).
+// Alias kept for backward compatibility with existing code.
+RoomPowerLevels parseRoomPowerLevels(const std::string& stateContentJson);
+
+// ---- Room Permissions (computed from power levels) ----
 
 struct RoomPermissions {
     std::string myUserId;
@@ -51,14 +187,17 @@ struct RoomPermissions {
     bool canToggleEncryption = false;
 };
 
-// Parse power levels from m.room.power_levels state event.
-RoomPowerLevels parseRoomPowerLevels(const std::string& stateContentJson);
-
 // Compute room permissions from power levels.
 RoomPermissions computePermissions(const RoomPowerLevels& pl, const std::string& myUserId);
 
+// Compute permissions from raw PowerLevels struct.
+RoomPermissions computePermissionsFromPowerLevels(const PowerLevels& pl, const std::string& myUserId);
+
 // Get a user's effective power level.
 int getUserPowerLevel(const RoomPowerLevels& pl, const std::string& userId);
+
+// Get a user's effective power level from raw PowerLevels.
+int getUserPowerLevel(const PowerLevels& pl, const std::string& userId);
 
 // Get the required level for an event type.
 int getRequiredLevel(const RoomPowerLevels& pl, const std::string& eventType, bool isState);
@@ -77,5 +216,3 @@ std::string formatPermissionsSummary(const RoomPermissions& perms);
 std::string permissionsToJson(const RoomPermissions& perms);
 
 } // namespace progressive
-
-#endif // PROGRESSIVE_ROOM_PERMISSIONS_HPP

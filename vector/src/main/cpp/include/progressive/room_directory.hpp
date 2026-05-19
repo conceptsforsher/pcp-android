@@ -1,5 +1,4 @@
-#ifndef PROGRESSIVE_ROOM_DIRECTORY_HPP
-#define PROGRESSIVE_ROOM_DIRECTORY_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -7,7 +6,14 @@
 
 namespace progressive {
 
-// ---- Room Directory Utilities ----
+// ================================================================
+// Room Directory Utilities — filter, search, sort room entries
+//
+// Ported from Element Android:
+//   RoomDirectoryService.kt, DirectoryAPI.kt
+// ================================================================
+
+// ---- Room Directory Entry (legacy) ----
 
 struct RoomDirectoryEntry {
     std::string roomId;
@@ -67,6 +73,103 @@ std::string directoryStatsToJson(const DirectoryStats& stats);
 // Extract unique servers from room list.
 std::vector<std::string> extractServers(const std::vector<RoomDirectoryEntry>& rooms);
 
-} // namespace progressive
+// ================================================================
+// Public Rooms — query the Matrix public room directory
+//
+// Ported from Element Android:
+//   PublicRoom.kt, PublicRoomsResponse.kt, PublicRoomsFilter.kt,
+//   PublicRoomsParams.kt, RoomAPI.kt
+//
+// Matrix API: POST /_matrix/client/r0/publicRooms
+//   Body: {"limit": 10, "since": "token", "filter": {...},
+//          "include_all_networks": false, "third_party_instance_id": null}
+//   Response: {"chunk": [...], "next_batch": "...", "prev_batch": "...",
+//              "total_room_count_estimate": 42}
+// ================================================================
 
-#endif // PROGRESSIVE_ROOM_DIRECTORY_HPP
+// ---- Public Room ----
+
+// Original Kotlin: PublicRoom.kt data class
+struct PublicRoom {
+    std::string roomId;                       // Required: room ID
+    std::string name;                         // Room name
+    std::string topic;                        // Room topic
+    int numJoinedMembers = 0;                 // Required: join count
+    bool worldReadable = false;               // Required: visible to guests
+    bool guestCanJoin = false;                // Required: guests can join
+    std::string avatarUrl;                    // Room avatar URL
+    std::vector<std::string> aliases;         // Room aliases
+    std::string canonicalAlias;               // Canonical alias
+    bool isFederated = true;                  // m.federate
+
+    // Return the canonical alias or first alias.
+    // Original Kotlin: PublicRoom.getPrimaryAlias()
+    std::string getPrimaryAlias() const {
+        if (!canonicalAlias.empty()) return canonicalAlias;
+        if (!aliases.empty()) return aliases.front();
+        return "";
+    }
+};
+
+// ---- Public Rooms Response ----
+
+// Original Kotlin: PublicRoomsResponse.kt data class
+struct PublicRoomsResponse {
+    std::vector<PublicRoom> chunk;            // Paginated chunk of rooms
+    int totalRoomCount = 0;                   // Estimated total rooms
+    std::string nextBatch;                    // Pagination token for next
+    std::string prevBatch;                    // Pagination token for previous
+    std::string error;
+};
+
+// ---- Room Directory Visibility ----
+
+// Original Kotlin: RoomDirectoryVisibility.kt enum
+enum class RoomDirectoryVisibilityState {
+    PRIVATE,
+    PUBLIC
+};
+
+// ================================================================
+// Public Rooms API functions
+// ================================================================
+
+// Build JSON for the filter part of a /publicRooms request.
+// Original Kotlin: PublicRoomsFilter.kt
+//   {"generic_search_term": "search term"}
+std::string buildPublicRoomsFilter(const std::string& searchTerm);
+
+// Build the full JSON body for POST /publicRooms.
+// Original Kotlin: PublicRoomsParams.kt
+//   limit: max results to return (use 0 for none)
+//   since: pagination token from previous response
+//   searchTerm: filter by search term (empty = no filter)
+//   includeAllNetworks: include all third-party networks
+//   thirdPartyInstanceId: specific third-party network
+std::string buildPublicRoomsRequest(
+    int limit = 50,
+    const std::string& since = "",
+    const std::string& searchTerm = "",
+    bool includeAllNetworks = false,
+    const std::string& thirdPartyInstanceId = ""
+);
+
+// Parse a /publicRooms response JSON string.
+// Original Kotlin: PublicRoomsResponse.kt
+PublicRoomsResponse parsePublicRoomsResponse(const std::string& json);
+
+// ================================================================
+// Room Directory Visibility API functions
+// ================================================================
+
+// Build JSON body for PUT /directory/list/room/{roomId}.
+// Original Kotlin: RoomDirectoryVisibilityJson.kt
+//   Body: {"visibility": "public"}
+std::string buildRoomVisibilityRequest(RoomDirectoryVisibilityState visibility);
+
+// Parse response from GET /directory/list/room/{roomId}.
+// Original Kotlin: DirectoryAPI.getRoomDirectoryVisibility()
+//   Response: {"visibility": "public"}
+RoomDirectoryVisibilityState parseRoomVisibilityResponse(const std::string& json);
+
+} // namespace progressive

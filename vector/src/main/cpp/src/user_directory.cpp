@@ -22,6 +22,22 @@ static bool extractBool(const std::string& json, const std::string& key) {
     return json.find("\"" + key + "\":true") != std::string::npos;
 }
 
+static int64_t extractInt(const std::string& json, const std::string& key, int64_t def = 0) {
+    auto pp = json.find("\"" + key + "\"");
+    if (pp == std::string::npos) return def;
+    pp = json.find(':', pp + key.size() + 2);
+    if (pp == std::string::npos) return def;
+    pp++;
+    while (pp < json.size() && (json[pp] == ' ' || json[pp] == '\n')) pp++;
+    std::string num;
+    while (pp < json.size() && (std::isdigit(json[pp]) || json[pp] == '-')) {
+        num += json[pp];
+        pp++;
+    }
+    if (num.empty()) return def;
+    return std::stoll(num);
+}
+
 // ====== Constructor ======
 
 UserDirectoryManager::UserDirectoryManager() {}
@@ -52,6 +68,9 @@ UserSearchResponse UserDirectoryManager::parseSearchResponse(const std::string& 
     }
 
     resp.limited = extractBool(json, "limited");
+
+    // Parse next_batch if present
+    resp.nextBatch = extractStr(json, "next_batch");
 
     // Parse results array
     size_t pos = json.find("\"results\"");
@@ -282,9 +301,151 @@ std::string UserDirectoryManager::responseToJson(const UserSearchResponse& respo
     os << R"({"results":)" << resultsToJson(response.results)
        << R"(,"limited":)" << (response.limited ? "true" : "false")
        << R"(,"total":)" << response.totalResults;
+    if (!response.nextBatch.empty()) os << R"(,"next_batch":")" << response.nextBatch << R"(")";
     if (!response.error.empty()) os << R"(,"error":")" << response.error << R"(")";
     os << "}";
     return os.str();
+}
+
+// ================================================================
+// Free-standing User Search functions
+// ================================================================
+
+// Original Kotlin: SearchUsersParams.kt
+std::string buildUserSearchRequest(const std::string& searchTerm, int limit) {
+    std::ostringstream os;
+    os << R"({"search_term":")" << searchTerm
+       << R"(","limit":)" << limit
+       << "}";
+    return os.str();
+}
+
+// Original Kotlin: SearchUsersResponse.kt + SearchUser.kt
+UserSearchResponse parseUserSearchResponse(const std::string& json) {
+    UserSearchResponse resp;
+
+    auto err = extractStr(json, "errcode");
+    if (!err.empty()) {
+        resp.error = err + ": " + extractStr(json, "error");
+        return resp;
+    }
+
+    resp.limited = extractBool(json, "limited");
+    resp.nextBatch = extractStr(json, "next_batch");
+
+    size_t pos = json.find("\"results\"");
+    if (pos == std::string::npos) return resp;
+
+    pos = json.find('[', pos);
+    if (pos == std::string::npos) return resp;
+
+    pos++;
+    while (pos < json.size()) {
+        while (pos < json.size() && (json[pos] == ' ' || json[pos] == ',' || json[pos] == '\n')) pos++;
+        if (pos >= json.size() || json[pos] == ']') break;
+
+        size_t objStart = pos;
+        int depth = 0;
+        while (pos < json.size()) {
+            if (json[pos] == '{') depth++;
+            else if (json[pos] == '}') depth--;
+            if (depth == 0 && json[pos] == '}') { pos++; break; }
+            pos++;
+        }
+        std::string userJson = json.substr(objStart, pos - objStart);
+
+        UserSearchResult user;
+        user.userId = extractStr(userJson, "user_id");
+        user.displayName = extractStr(userJson, "display_name");
+        user.avatarUrl = extractStr(userJson, "avatar_url");
+        user.matrixId = user.userId;
+        user.isValid = !user.userId.empty();
+
+        if (user.isValid) resp.results.push_back(user);
+    }
+
+    resp.totalResults = static_cast<int>(resp.results.size());
+    return resp;
+}
+
+// ================================================================
+// User Profile functions
+// ================================================================
+
+// Original Kotlin: ProfileService.Constants DISPLAY_NAME_KEY = "displayname"
+std::string buildUserProfileDisplayNameUpdate(const std::string& displayName) {
+    // Original Kotlin: PUT /profile/{userId}/displayname body
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) {
+            if (c == '"' || c == '\\') out += '\\';
+            out += c;
+        }
+        return out;
+    };
+    std::ostringstream os;
+    os << R"({"displayname":")" << esc(displayName) << R"("})";
+    return os.str();
+}
+
+// Original Kotlin: ProfileService.Constants AVATAR_URL_KEY = "avatar_url"
+std::string buildUserProfileAvatarUpdate(const std::string& avatarUrl) {
+    // Original Kotlin: PUT /profile/{userId}/avatar_url body
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) {
+            if (c == '"' || c == '\\') out += '\\';
+            out += c;
+        }
+        return out;
+    };
+    std::ostringstream os;
+    os << R"({"avatar_url":")" << esc(avatarUrl) << R"("})";
+    return os.str();
+}
+
+// Original Kotlin: User.kt fromJson(), ProfileService.getProfile()
+UserProfile parseUserProfile(const std::string& userId, const std::string& json) {
+    // Original Kotlin: ProfileService.Constants.DISPLAY_NAME_KEY = "displayname"
+    // Original Kotlin: ProfileService.Constants.AVATAR_URL_KEY = "avatar_url"
+    UserProfile profile;
+    profile.userId = userId;
+    profile.displayName = extractStr(json, "displayname");
+    profile.avatarUrl = extractStr(json, "avatar_url");
+    return profile;
+}
+
+// ================================================================
+// User Status / Presence functions
+// ================================================================
+
+// Original Kotlin: SetPresenceTask body {"presence":"online","status_msg":"..."}
+std::string userStatusToJson(const UserStatus& status) {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) {
+            if (c == '"' || c == '\\') out += '\\';
+            out += c;
+        }
+        return out;
+    };
+    std::ostringstream os;
+    os << R"({"presence":")" << esc(status.status)
+       << R"(","status_msg":")" << esc(status.message)
+       << R"("})";
+    return os.str();
+}
+
+// Original Kotlin: GET /presence/{userId}/status response
+//   {"presence":"online","status_msg":"Working","currently_active":true,"last_active_ago":1000}
+UserStatus parseUserStatus(const std::string& userId, const std::string& json) {
+    UserStatus status;
+    status.userId = userId;
+    status.status = extractStr(json, "presence");
+    status.message = extractStr(json, "status_msg");
+    status.currentlyActive = extractBool(json, "currently_active");
+    status.lastActiveAgo = extractInt(json, "last_active_ago");
+    return status;
 }
 
 } // namespace progressive

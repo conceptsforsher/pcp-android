@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <optional>
+#include <cstdint>
 
 namespace progressive {
 
@@ -102,6 +105,199 @@ ThreadUnreadCount computeThreadUnreadCount(
     const std::vector<std::string>& eventIds,
     const std::string& readReceiptEventId,
     const std::vector<std::string>& highlightIds);
+
+// ==== Expanded Relation Model (ported from Kotlin SDK) ====
+
+// Original Kotlin: Minimal event data for aggregation
+struct MinimalEvent {
+    std::string eventId;
+    std::string type;            // "m.room.message", "m.reaction", etc.
+    std::string senderId;
+    int64_t originServerTs = 0;
+    std::string contentJson;    // raw JSON content string
+    bool isLocalEcho = false;
+};
+
+// ---- Server-side Aggregation Structs ----
+
+// Original Kotlin: AggregatedAnnotation (reaction count chunk from server)
+struct AggregatedAnnotation {
+    std::string key;                           // reaction emoji key ("👍")
+    int count = 0;                             // count for this key
+    std::vector<std::string> sourceEvents;     // event IDs of reactions
+};
+
+// Original Kotlin: AggregatedReplace (latest edit info from server)
+struct AggregatedReplace {
+    std::string eventId;                       // latest replacement event ID
+    int64_t originServerTs = 0;                // timestamp of latest replacement
+    std::string senderId;                      // sender of latest replacement
+};
+
+// Original Kotlin: reference event info
+struct AggregatedReference {
+    std::string eventId;
+    int64_t originServerTs = 0;
+    std::string senderId;
+    std::string type;                          // event type of the reference
+};
+
+// Original Kotlin: AggregatedRelationsData (client-side full aggregation)
+struct AggregatedRelationsData {
+    std::unordered_map<std::string, AggregatedAnnotation> annotations; // key -> annotation
+    std::optional<AggregatedReplace> replace;
+    std::vector<AggregatedReference> references;
+};
+
+// ---- Relation Content (expanded from Kotlin) ----
+
+// Original Kotlin: RelationDefaultContent + ReactionInfo
+struct RelationDefaultContent {
+    std::string type;                          // rel_type: "m.annotation", "m.replace", "m.reference", "m.thread"
+    std::string eventId;                       // target event ID
+    std::string key;                           // for m.annotation: the reaction key
+    std::string inReplyToEventId;              // m.in_reply_to.event_id (for replies)
+    int option = 0;                            // optional integer (e.g. for polls)
+    bool isFallingBack = false;                // whether this is a fallback render
+};
+
+// ---- Verification State (for references aggregation) ----
+
+// Original Kotlin: VerificationState enum
+enum class VerificationState {
+    REQUEST,
+    WAITING,
+    CANCELED_BY_ME,
+    CANCELED_BY_OTHER,
+    DONE
+};
+
+// ---- Edit Aggregation ----
+
+// Original Kotlin: EditionOfEvent (single edition entry)
+struct EditionOfEvent {
+    std::string eventId;
+    int64_t timestamp = 0;
+    bool isLocalEcho = false;
+};
+
+// Original Kotlin: EditAggregatedSummary
+struct EditAggregationInfo {
+    std::string latestEditEventId;             // event_id of the latest edit
+    std::string latestEditSenderId;            // sender of the latest edit
+    int64_t lastEditTs = 0;                   // timestamp of the latest edit
+    int editCount = 0;                         // total number of edits
+    std::vector<EditionOfEvent> editions;     // all edition entries
+};
+
+// ---- Reaction Aggregation ----
+
+// Original Kotlin: ReactionAggregatedSummary
+struct ReactionAggregationInfo {
+    std::string key;                           // reaction emoji key ("👍")
+    int count = 0;                             // total count for this key
+    bool addedByMe = false;                    // did the current user add this reaction?
+    int64_t firstTimestamp = 0;                // timestamp of the first reaction
+    std::vector<std::string> sourceEvents;    // event IDs (remote reactions)
+    std::vector<std::string> localEchoEvents; // local echo event IDs / txIds
+};
+
+// ---- References Aggregation (MSC3912) ----
+
+// Original Kotlin: ReferencesAggregatedContent
+struct ReferencesAggregatedContent {
+    VerificationState verificationState = VerificationState::REQUEST;
+};
+
+// Original Kotlin: ReferencesAggregatedSummary
+struct ReferencesAggregatedSummary {
+    std::string contentJson;                   // serialized aggregated content
+    std::vector<std::string> sourceEvents;    // event IDs (remote references)
+    std::vector<std::string> localEchoEventIds; // local echo event IDs / txIds
+};
+
+// ---- Event Annotations Summary (full aggregation snapshot) ----
+
+// Original Kotlin: EventAnnotationsSummary
+struct EventAnnotationsSummary {
+    std::vector<ReactionAggregationInfo> reactionsSummary;
+    std::optional<EditAggregationInfo> editSummary;
+    std::optional<ReferencesAggregatedSummary> referencesSummary;
+};
+
+// ---- Relation Aggregation Functions ----
+
+// Original Kotlin: aggregateRelations — compute all relation types from a list of events
+AggregatedRelationsData aggregateRelations(
+    const std::vector<MinimalEvent>& relatedEvents,
+    const std::string& currentUserId = ""
+);
+
+// Original Kotlin: computeAggregatedAnnotations — compute reaction counts per key
+std::unordered_map<std::string, AggregatedAnnotation> computeAggregatedAnnotations(
+    const std::vector<MinimalEvent>& events
+);
+
+// Original Kotlin: computeAggregatedReplace — find latest edit in chain
+// Sorted by originServerTs then eventId (lexicographically largest = most recent in tie)
+std::optional<AggregatedReplace> computeAggregatedReplace(
+    const std::vector<MinimalEvent>& events
+);
+
+// Original Kotlin: computeAggregatedReferences — collect m.reference events
+std::vector<AggregatedReference> computeAggregatedReferences(
+    const std::vector<MinimalEvent>& events
+);
+
+// ---- Relation Content Parsing / Building ----
+
+// Original Kotlin: getRelationContent() -> RelationDefaultContent
+// Extract m.relates_to fields from event content JSON.
+RelationDefaultContent parseRelationContent(const std::string& contentJson);
+
+// Original Kotlin: builds m.relates_to content JSON for various relation types
+std::string buildRelationContent(
+    const std::string& relType,
+    const std::string& eventId,
+    const std::string& key = "",
+    const std::string& inReplyToEventId = "",
+    bool isFallingBack = false
+);
+
+// ---- Event Edit / Reaction Processing ----
+
+// Original Kotlin: computeEditAggregation — from EditAggregatedSummary.kt logic
+// Finds the latest edit by comparing originServerTs then eventId.
+EditAggregationInfo computeEditAggregation(
+    const std::vector<MinimalEvent>& editEvents
+);
+
+// Original Kotlin: computeReactionAggregation — from ReactionAggregatedSummary.kt logic
+// Groups reactions by key, tracks counts, addedByMe, source events.
+std::vector<ReactionAggregationInfo> computeReactionAggregation(
+    const std::vector<MinimalEvent>& reactionEvents,
+    const std::string& currentUserId = ""
+);
+
+// ---- Event Annotations Summary Build / Parse ----
+
+// Original Kotlin: buildEventAnnotationsSummary — construct from components
+EventAnnotationsSummary buildEventAnnotationsSummary(
+    const std::vector<ReactionAggregationInfo>& reactions,
+    const std::optional<EditAggregationInfo>& edit,
+    const std::optional<ReferencesAggregatedSummary>& refs
+);
+
+// Serialize EventAnnotationsSummary to JSON
+std::string eventAnnotationsSummaryToJson(const EventAnnotationsSummary& summary);
+
+// Parse EventAnnotationsSummary from JSON
+EventAnnotationsSummary parseEventAnnotationsSummary(const std::string& json);
+
+// ---- References Aggregation (MSC3912) ----
+
+// Original Kotlin: parseReferencesAggregatedContent — parse verification state
+ReferencesAggregatedContent parseReferencesAggregatedContent(const std::string& contentJson);
 
 } // namespace progressive
 

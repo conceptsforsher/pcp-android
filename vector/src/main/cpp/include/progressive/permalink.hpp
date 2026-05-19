@@ -1,15 +1,33 @@
-#ifndef PROGRESSIVE_PERMALINK_HPP
-#define PROGRESSIVE_PERMALINK_HPP
+#pragma once
 
 #include <string>
 #include <vector>
 
 namespace progressive {
 
-// ---- Matrix Permalink Utilities ----
+// ================================================================
+// Matrix Permalink Utilities
+//
 // Faithful port from original Kotlin:
 //   org.matrix.android.sdk.api.session.permalinks.PermalinkParser.kt (144 lines)
 //   Also: MatrixToConverter.kt, PermalinkData.kt
+// ================================================================
+
+// ---- Entity Type (for permalink parsing) ----
+// Original Kotlin: implicit from identifier type (!, @, #, +)
+
+enum class EntityType {
+    ROOM,    // !roomId:server or #roomAlias:server
+    EVENT,   // !roomId:server/$eventId
+    USER,    // @userId:server
+    GROUP,   // +groupId:server (legacy)
+    UNKNOWN,
+};
+
+const char* entityTypeToString(EntityType type);
+EntityType entityTypeFromId(const std::string& identifier);
+
+// ---- Permalink Result ----
 
 struct PermalinkResult {
     std::string fullUrl;          // https://matrix.to/#/!room:server/$event
@@ -18,6 +36,7 @@ struct PermalinkResult {
     std::string eventId;
     std::string roomAlias;
     std::string type;             // "room", "user", "event"
+    EntityType entityType = EntityType::UNKNOWN;
     bool valid = false;
     bool isRoomAlias = false;     // #alias:server (vs !room:server)
     std::vector<std::string> viaParameters; // via server names
@@ -33,7 +52,92 @@ struct PermalinkResult {
     std::string roomAvatarUrl;    // room avatar from params
     std::string roomType;         // room type from params
     bool isEmailInvite = false;   // this is an email invite link
+
+    // Thread support
+    std::string threadId;         // thread root event ID
+    bool isThreadLink = false;    // link includes thread context
 };
+
+// ================================================================
+// PermalinkBuilder — build permalink URLs
+// ================================================================
+// Original Kotlin: various builders across the SDK
+
+struct PermalinkBuilder {
+    // Build a matrix.to permalink for a room.
+    // Original Kotlin: "https://matrix.to/#/" + roomIdOrAlias
+    static std::string buildRoomPermalink(const std::string& roomIdOrAlias,
+        const std::vector<std::string>& viaServers = {});
+
+    // Build a matrix.to permalink for an event in a room.
+    // Original Kotlin: "https://matrix.to/#/" + roomId + "/" + eventId
+    static std::string buildEventPermalink(const std::string& roomId,
+        const std::string& eventId,
+        const std::vector<std::string>& viaServers = {});
+
+    // Build a matrix.to permalink for a user.
+    // Original Kotlin: "https://matrix.to/#/" + userId
+    static std::string buildUserPermalink(const std::string& userId);
+
+    // Build a matrix.to permalink for a group (legacy).
+    static std::string buildGroupPermalink(const std::string& groupId);
+
+    // Build a matrix.to permalink for a thread event.
+    // Original Kotlin: room/event with thread context
+    static std::string buildThreadPermalink(const std::string& roomId,
+        const std::string& eventId,
+        const std::string& threadRootId,
+        const std::vector<std::string>& viaServers = {});
+
+    // Build a matrix: scheme link (matrix:u/user, matrix:r/room, matrix:e/event).
+    // Original Kotlin: MatrixToConverter
+    static std::string buildMatrixSchemeLink(EntityType type, const std::string& id);
+
+    // Build a general matrix.to link from a PermalinkResult.
+    static std::string buildFromResult(const PermalinkResult& result);
+
+    // Format via parameters as URL query string.
+    // ["matrix.org", "elsewhere.com"] → "?via=matrix.org&via=elsewhere.com"
+    static std::string formatViaParamsUrl(const std::vector<std::string>& viaServers);
+};
+
+// ================================================================
+// PermalinkParser — parse matrix.to and matrix: URIs
+// ================================================================
+// Original Kotlin: PermalinkParser.kt:parse(uri), MatrixToConverter.kt
+
+struct PermalinkParser {
+    // Parse a matrix.to or matrix: permalink.
+    // Handles: user links, room links, room+event links, room alias links,
+    //   room email invite links, group links, thread links.
+    static PermalinkResult parse(const std::string& url);
+
+    // Parse a matrix.to permalink with full parameter extraction.
+    // Original Kotlin: PermalinkParser.kt:parse(uri)
+    static PermalinkResult parsePermalink(const std::string& url);
+
+    // Parse a matrix: scheme URI (matrix:r/room, matrix:u/user, matrix:e/event).
+    static PermalinkResult parseMatrixSchemeUri(const std::string& uri);
+
+    // Extract via parameters from a permalink fragment.
+    static std::vector<std::string> extractViaParameters(const std::string& fragment);
+
+    // Check if a URL is a valid Matrix permalink (matrix.to or matrix: scheme).
+    static bool isMatrixPermalink(const std::string& url);
+
+    // Check if a URL is a matrix.to permalink.
+    static bool isMatrixToLink(const std::string& url);
+
+    // Check if a URL is a matrix: scheme link.
+    static bool isMatrixSchemeLink(const std::string& url);
+
+    // Check if a permalink is a room email invite link.
+    static bool isEmailInviteLink(const std::string& url);
+};
+
+// ================================================================
+// Convenience functions (backward compatible with existing API)
+// ================================================================
 
 // Build a matrix.to permalink for a room.
 std::string buildRoomPermalink(const std::string& roomIdOrAlias);
@@ -52,6 +156,7 @@ PermalinkResult parsePermalink(const std::string& url);
 
 // Check if a URL is a valid Matrix permalink.
 bool isPermalink(const std::string& url);
+bool isMatrixPermalink(const std::string& url);
 
 // Extract room ID from permalink.
 std::string extractRoomIdFromPermalink(const std::string& url);
@@ -69,37 +174,19 @@ std::string formatPermalinkForShare(const PermalinkResult& info);
 bool isSameRoomPermalink(const std::string& url1, const std::string& url2);
 
 // Parse a matrix.to permalink with full parameter extraction.
-// Faithful to PermalinkParser.kt:parse(uri)
-// Handles: user links, room links, room+event links, room alias links,
-//   room email invite links (signurl, email, token), group links
 PermalinkResult parsePermalinkFull(const std::string& url);
 
+// Parse a matrix.to URI extracting entity type, IDs, and query params.
+// Original Kotlin: full URI parser (supports matrix.to and matrix: schemes)
+PermalinkResult parseMatrixToUri(const std::string& uri);
+
 // Extract via parameters from a permalink fragment.
-// Original Kotlin: String.getViaParameters()
 std::vector<std::string> extractViaParameters(const std::string& fragment);
 
 // Check if a permalink is a room email invite link.
 bool isEmailInviteLink(const std::string& url);
 
-// urlDecode is declared in progressive/url_tools.hpp
-
 // Compute via parameters for a Matrix permalink.
-// Faithful port from org.matrix.android.sdk.internal.session.permalinks.ViaParameterFinder.kt (103L)
-//
-// Selects up to `max` server names by:
-//   1. Getting joined members of the room
-//   2. Extracting server names (domain from MXID)
-//   3. Grouping by server, counting members
-//   4. Sorting by count (most representative first)
-//   5. Ensuring the requesting user's server is included
-//   6. Taking top `max` servers
-//
-// @param myUserId  The requesting user's MXID
-// @param memberUserIds  List of joined member MXIDs
-// @param historicalUserIds  List of members who left (for extended via params)
-// @param maxServers  Max via servers (0 = all)
-// @param includeHistorical  Whether to include left members' servers
-// @return List of server names, sorted by representativeness
 std::vector<std::string> computeViaParams(
     const std::string& myUserId,
     const std::vector<std::string>& memberUserIds,
@@ -109,9 +196,6 @@ std::vector<std::string> computeViaParams(
 );
 
 // Format via parameters as URL query string.
-// ["matrix.org", "elsewhere.com"] → "?via=matrix.org&via=elsewhere.com"
 std::string formatViaParamsUrl(const std::vector<std::string>& viaServers);
 
 } // namespace progressive
-
-#endif // PROGRESSIVE_PERMALINK_HPP

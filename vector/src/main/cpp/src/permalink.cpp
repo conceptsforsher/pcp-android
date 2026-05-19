@@ -272,4 +272,249 @@ std::string formatViaParamsUrl(const std::vector<std::string>& viaServers) {
     return out.str();
 }
 
+std::string entityTypeToString(EntityType type) {
+    switch (type) {
+        case EntityType::ROOM:  return "room";
+        case EntityType::EVENT: return "event";
+        case EntityType::USER:  return "user";
+        case EntityType::GROUP: return "group";
+        default:               return "unknown";
+    }
+}
+
+EntityType entityTypeFromId(const std::string& identifier) {
+    if (identifier.empty()) return EntityType::UNKNOWN;
+    if (identifier[0] == '!' || identifier[0] == '#') return EntityType::ROOM;
+    if (identifier[0] == '@') return EntityType::USER;
+    if (identifier[0] == '+') return EntityType::GROUP;
+    return EntityType::UNKNOWN;
+}
+
+// ==== PermalinkBuilder static methods ====
+
+// Original Kotlin: "https://matrix.to/#/" + roomIdOrAlias + via params
+std::string PermalinkBuilder::buildRoomPermalink(const std::string& roomIdOrAlias,
+    const std::vector<std::string>& viaServers) {
+    std::string url = "https://matrix.to/#/" + roomIdOrAlias;
+    if (!viaServers.empty()) {
+        url += formatViaParamsUrl(viaServers);
+    }
+    return url;
+}
+
+// Original Kotlin: "https://matrix.to/#/" + roomId + "/" + eventId + via params
+std::string PermalinkBuilder::buildEventPermalink(const std::string& roomId,
+    const std::string& eventId, const std::vector<std::string>& viaServers) {
+    std::string url = "https://matrix.to/#/" + roomId + "/" + eventId;
+    if (!viaServers.empty()) {
+        url += formatViaParamsUrl(viaServers);
+    }
+    return url;
+}
+
+std::string PermalinkBuilder::buildUserPermalink(const std::string& userId) {
+    return "https://matrix.to/#/" + userId;
+}
+
+std::string PermalinkBuilder::buildGroupPermalink(const std::string& groupId) {
+    return "https://matrix.to/#/" + groupId;
+}
+
+// Original Kotlin: room/event with thread context
+std::string PermalinkBuilder::buildThreadPermalink(const std::string& roomId,
+    const std::string& eventId, const std::string& threadRootId,
+    const std::vector<std::string>& viaServers) {
+    std::string url = "https://matrix.to/#/" + roomId + "/" + eventId;
+    bool hasVia = !viaServers.empty();
+    if (!threadRootId.empty()) {
+        url += (hasVia ? "&" : "?") + std::string("thread_id=") + threadRootId;
+    }
+    if (hasVia) {
+        if (threadRootId.empty()) {
+            url += formatViaParamsUrl(viaServers);
+        } else {
+            for (const auto& via : viaServers) {
+                url += "&via=" + via;
+            }
+        }
+    }
+    return url;
+}
+
+// Original Kotlin: MatrixToConverter — matrix:u/user, matrix:r/room, matrix:e/event
+std::string PermalinkBuilder::buildMatrixSchemeLink(EntityType type, const std::string& id) {
+    switch (type) {
+        case EntityType::ROOM:  return "matrix:r/" + id;
+        case EntityType::EVENT: return "matrix:e/" + id;
+        case EntityType::USER:  return "matrix:u/" + id;
+        case EntityType::GROUP: return "matrix:g/" + id;
+        default:                return "matrix:r/" + id;
+    }
+}
+
+std::string PermalinkBuilder::buildFromResult(const PermalinkResult& result) {
+    if (!result.valid) return result.fullUrl;
+
+    if (result.type == "user") {
+        return buildUserPermalink(result.userId);
+    }
+    if (result.type == "room") {
+        std::string id = result.isRoomAlias ? result.roomAlias : result.roomId;
+        return buildRoomPermalink(id, result.viaParameters);
+    }
+    if (result.type == "event") {
+        std::string url = buildEventPermalink(result.roomId, result.eventId, result.viaParameters);
+        if (result.isThreadLink && !result.threadId.empty()) {
+            url += "&thread_id=" + result.threadId;
+        }
+        return url;
+    }
+    return result.fullUrl;
+}
+
+std::string PermalinkBuilder::formatViaParamsUrl(const std::vector<std::string>& viaServers) {
+    return progressive::formatViaParamsUrl(viaServers);
+}
+
+// ==== PermalinkParser static methods ====
+
+// Original Kotlin (PermalinkParser.kt:45-88)
+PermalinkResult PermalinkParser::parse(const std::string& url) {
+    // Try matrix.to first, then matrix: scheme
+    std::string prefix = "https://matrix.to/#/";
+    if (url.rfind(prefix, 0) == 0) return parsePermalinkFull(url);
+    if (url.rfind("matrix:", 0) == 0) return parseMatrixSchemeUri(url);
+    return {};
+}
+
+PermalinkResult PermalinkParser::parsePermalink(const std::string& url) {
+    return parse(url);
+}
+
+// Original Kotlin: parse matrix: scheme URIs
+// matrix:u/@user:server        → user link
+// matrix:r/!room:server        → room link
+// matrix:r/#alias:server       → room alias link
+// matrix:e/!room:server/$event → event link
+PermalinkResult PermalinkParser::parseMatrixSchemeUri(const std::string& uri) {
+    PermalinkResult result;
+    result.fullUrl = uri;
+
+    // Must start with matrix:
+    if (uri.rfind("matrix:", 0) != 0) return result;
+
+    // Extract scheme type: u, r, e, g
+    auto colonPos = uri.find(':');
+    if (colonPos == std::string::npos) return result;
+    std::string scheme = uri.substr(colonPos + 1);
+
+    if (scheme.size() < 2) return result;
+    char typeChar = scheme[0];
+    std::string id;
+
+    // If next char is / then skip it
+    if (scheme.size() > 1 && scheme[1] == '/') {
+        id = scheme.substr(2);
+    } else {
+        id = scheme.substr(1);
+    }
+
+    // Parse query params
+    auto queryPos = id.find('?');
+    std::string cleanId = (queryPos != std::string::npos) ? id.substr(0, queryPos) : id;
+
+    switch (typeChar) {
+        case 'u':
+            result.type = "user";
+            result.userId = cleanId;
+            result.entityType = EntityType::USER;
+            result.valid = !cleanId.empty();
+            break;
+        case 'r': {
+            result.entityType = EntityType::ROOM;
+            if (!cleanId.empty() && cleanId[0] == '!') {
+                auto slash = cleanId.find('/');
+                if (slash != std::string::npos && slash + 1 < cleanId.size() && cleanId[slash + 1] == '$') {
+                    result.type = "event";
+                    result.roomId = cleanId.substr(0, slash);
+                    result.eventId = cleanId.substr(slash + 1);
+                } else {
+                    result.type = "room";
+                    result.roomId = cleanId;
+                }
+            } else if (!cleanId.empty() && cleanId[0] == '#') {
+                result.type = "room";
+                result.roomAlias = cleanId;
+                result.isRoomAlias = true;
+            }
+            result.valid = !result.roomId.empty() || !result.roomAlias.empty();
+            break;
+        }
+        case 'e':
+            result.entityType = EntityType::EVENT;
+            if (!cleanId.empty()) {
+                auto slash = cleanId.find('/');
+                if (slash != std::string::npos) {
+                    result.type = "event";
+                    result.roomId = cleanId.substr(0, slash);
+                    result.eventId = cleanId.substr(slash + 1);
+                } else {
+                    result.type = "event";
+                    result.eventId = cleanId;
+                }
+            }
+            result.valid = !result.eventId.empty();
+            break;
+        case 'g':
+            result.type = "group";
+            result.entityType = EntityType::GROUP;
+            result.valid = !cleanId.empty();
+            break;
+        default:
+            break;
+    }
+
+    // Extract via and query params
+    if (queryPos != std::string::npos) {
+        result.viaParameters = extractViaParameters(id.substr(queryPos));
+    }
+
+    return result;
+}
+
+std::vector<std::string> PermalinkParser::extractViaParameters(const std::string& fragment) {
+    return progressive::extractViaParameters(fragment);
+}
+
+// Original Kotlin: detect matrix.to or matrix: scheme URLs
+bool PermalinkParser::isMatrixPermalink(const std::string& url) {
+    return isMatrixToLink(url) || isMatrixSchemeLink(url);
+}
+
+bool PermalinkParser::isMatrixToLink(const std::string& url) {
+    return url.rfind("https://matrix.to/#/", 0) == 0
+        || url.rfind("http://matrix.to/#/", 0) == 0;
+}
+
+bool PermalinkParser::isMatrixSchemeLink(const std::string& url) {
+    return url.rfind("matrix:", 0) == 0;
+}
+
+bool PermalinkParser::isEmailInviteLink(const std::string& url) {
+    return progressive::isEmailInviteLink(url);
+}
+
+// ==== Free functions declared in hpp ====
+
+bool isMatrixPermalink(const std::string& url) {
+    return PermalinkParser::isMatrixPermalink(url);
+}
+
+// Original Kotlin: parse a matrix.to URI extracting entity type, IDs, and query params.
+// This is the full parser that extracts all components including query params.
+PermalinkResult parseMatrixToUri(const std::string& uri) {
+    return PermalinkParser::parse(uri);
+}
+
 } // namespace progressive
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 

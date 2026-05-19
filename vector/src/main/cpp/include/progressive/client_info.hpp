@@ -1,8 +1,8 @@
-#ifndef PROGRESSIVE_CLIENT_INFO_HPP
-#define PROGRESSIVE_CLIENT_INFO_HPP
+#pragma once
 
 #include <string>
 #include <cstdint>
+#include <sstream>
 
 namespace progressive {
 
@@ -63,6 +63,122 @@ std::string formatBuildInfo(const BuildInfo& info);
 // Get the appropriate app name based on build type.
 std::string getAppDisplayName(const BuildInfo& info);
 
-} // namespace progressive
+// ---- Matrix Client Info (for PUT /account/whoami) ----
+// Original Kotlin: client info sent to server for device identification
+// Mirrors the structure sent to PUT /_matrix/client/r0/account/whoami
 
-#endif // PROGRESSIVE_CLIENT_INFO_HPP
+struct MatrixClientInfo {
+    std::string clientName;               // Human-readable client name
+    std::string clientVersion;            // Client version string
+    std::string clientUrl;                // Client homepage / repo URL
+    std::string deviceId;                 // Device ID
+    std::string initialDeviceDisplayName; // Initial display name for the device
+    std::string stableClientName;         // Stable client identifier (e.g. "io.element.android")
+    std::string deviceType;               // e.g. "android", "ios", "web"
+    std::string osName;                   // Operating system name
+    std::string osVersion;                // Operating system version
+    std::string appPackage;               // App package / bundle ID
+
+    bool isValid() const {
+        return !clientName.empty() && !deviceId.empty();
+    }
+
+    bool hasClientUrl() const {
+        return !clientUrl.empty();
+    }
+};
+
+// Manual JSON value extractor (local helper).
+namespace {
+    inline std::string extractValue(const std::string& json, const std::string& key) {
+        std::string search = '"' + key + '"';
+        auto pos = json.find(search);
+        if (pos == std::string::npos) return {};
+        pos += search.size();
+        while (pos < json.size() && (json[pos] == ' ' || json[pos] == '\t' || json[pos] == '\n' || json[pos] == '\r'))
+            ++pos;
+        if (pos >= json.size() || json[pos] != ':') return {};
+        ++pos;
+        while (pos < json.size() && (json[pos] == ' ' || json[pos] == '\t' || json[pos] == '\n' || json[pos] == '\r'))
+            ++pos;
+        if (pos >= json.size()) return {};
+        if (json[pos] == '"') {
+            ++pos;
+            auto end = json.find('"', pos);
+            if (end == std::string::npos) return {};
+            return json.substr(pos, end - pos);
+        }
+        auto end = pos;
+        while (end < json.size() && json[end] != ',' && json[end] != '}' && json[end] != ' ' &&
+               json[end] != '\t' && json[end] != '\n' && json[end] != '\r')
+            ++end;
+        return json.substr(pos, end - pos);
+    }
+} // anonymous namespace
+
+// Original Kotlin: Build MatrixClientInfo JSON for PUT /_matrix/client/r0/account/whoami
+// Request body format:
+// {
+//   "client_name": "Progressive Chat",
+//   "client_version": "1.0.0",
+//   "client_url": "https://github.com/...",
+//   "device_id": "ABC123",
+//   "initial_device_display_name": "Pixel 8"
+// }
+inline std::string buildMatrixClientInfo(const MatrixClientInfo& info) {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) {
+            if (c == '"') out += "\\\"";
+            else if (c == '\\') out += "\\\\";
+            else out += c;
+        }
+        return out;
+    };
+    std::ostringstream json;
+    json << "{";
+    json << R"("client_name": ")" << esc(info.clientName) << R"(")";
+    json << R"(,"client_version": ")" << esc(info.clientVersion) << R"(")";
+    if (!info.clientUrl.empty()) {
+        json << R"(,"client_url": ")" << esc(info.clientUrl) << R"(")";
+    }
+    json << R"(,"device_id": ")" << esc(info.deviceId) << R"(")";
+    if (!info.initialDeviceDisplayName.empty()) {
+        json << R"(,"initial_device_display_name": ")" << esc(info.initialDeviceDisplayName) << R"(")";
+    }
+    if (!info.deviceType.empty()) {
+        json << R"(,"device_type": ")" << esc(info.deviceType) << R"(")";
+    }
+    if (!info.osName.empty()) {
+        json << R"(,"os_name": ")" << esc(info.osName) << R"(")";
+    }
+    if (!info.osVersion.empty()) {
+        json << R"(,"os_version": ")" << esc(info.osVersion) << R"(")";
+    }
+    if (!info.appPackage.empty()) {
+        json << R"(,"app_package": ")" << esc(info.appPackage) << R"(")";
+    }
+    if (!info.stableClientName.empty()) {
+        json << R"(,"stable_client_name": ")" << esc(info.stableClientName) << R"(")";
+    }
+    json << "}";
+    return json.str();
+}
+
+// Original Kotlin: Parse MatrixClientInfo from JSON (server response or storage).
+inline MatrixClientInfo parseMatrixClientInfo(const std::string& json) {
+    MatrixClientInfo info;
+    info.clientName               = extractValue(json, "client_name");
+    info.clientVersion            = extractValue(json, "client_version");
+    info.clientUrl                = extractValue(json, "client_url");
+    info.deviceId                 = extractValue(json, "device_id");
+    info.initialDeviceDisplayName = extractValue(json, "initial_device_display_name");
+    info.deviceType               = extractValue(json, "device_type");
+    info.osName                   = extractValue(json, "os_name");
+    info.osVersion                = extractValue(json, "os_version");
+    info.appPackage               = extractValue(json, "app_package");
+    info.stableClientName         = extractValue(json, "stable_client_name");
+    return info;
+}
+
+} // namespace progressive

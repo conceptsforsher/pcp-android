@@ -52,7 +52,9 @@ EndCallReason endCallReasonFromString(const std::string& s);
 // Original Kotlin (CallCapabilities.kt:25-32):
 //   data class CallCapabilities(@Json(name="m.call.transferee") transferee: Boolean?)
 struct CallCapabilities {
-    bool transferee = false;  // "m.call.transferee" — supports call transfer
+    bool transferee = false;   // "m.call.transferee" — supports call transfer
+    bool supportsDtmf = false; // "m.call.dtmf" — supports DTMF tones
+    bool useStereo = false;    // "m.call.use_stereo" — stereo audio support
 
     bool supportsCallTransfer() const { return transferee; }
 };
@@ -175,35 +177,8 @@ CallAssertedIdentityContent parseCallAssertedIdentity(const std::string& content
 
 // ==== Call State (Lifecycle) ====
 //
-// Original Kotlin (CallState.kt:25-49):
-//   sealed class CallState {
-//       object Idle, CreateOffer, Dialing, LocalRinging, Answering
-//       data class Connected(iceConnectionState)
-//       data class Ended(reason)
-//   }
-
-enum class IceConnectionState {
-    NEW = 0, CHECKING = 1, CONNECTED = 2, COMPLETED = 3,
-    FAILED = 4, DISCONNECTED = 5, CLOSED = 6
-};
-
-enum class CallStateType {
-    IDLE = 0, CREATE_OFFER = 1, DIALING = 2,
-    LOCAL_RINGING = 3, ANSWERING = 4, CONNECTED = 5, ENDED = 6
-};
-
-struct CallState {
-    CallStateType type = CallStateType::IDLE;
-    IceConnectionState iceState = IceConnectionState::NEW; // for CONNECTED
-    EndCallReason endReason = EndCallReason::USER_HANGUP;  // for ENDED
-
-    bool isActiveCall() const {
-        return type == CallStateType::DIALING
-            || type == CallStateType::LOCAL_RINGING
-            || type == CallStateType::ANSWERING
-            || type == CallStateType::CONNECTED;
-    }
-};
+// Moved to webrtc_utils.hpp — CallState enum
+//
 
 // ==== TURN Server Response ====
 //

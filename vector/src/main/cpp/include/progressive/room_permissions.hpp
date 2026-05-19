@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <cstdint>
 
 namespace progressive {
 
@@ -29,6 +30,20 @@ namespace PowerLevelsConstants {
     constexpr int INFINITE_PL = -1;     // Infinite/Creator (can do anything)
 }
 
+// ---- RoomPermissionLevel ----
+//
+// Original Kotlin: RoomPermissionLevel.kt
+enum class RoomPermissionLevel {
+    NONE = 0,
+    USER = 10,
+    MODERATOR = 50,
+    ADMIN = 100
+};
+
+const char* roomPermissionLevelToString(RoomPermissionLevel level);
+RoomPermissionLevel roomPermissionLevelFromString(const std::string& s);
+RoomPermissionLevel roomPermissionLevelFromInt(int level);
+
 // ---- Power Level Action ----
 // Original Kotlin: implicit from check functions (banOrDefault, kickOrDefault, etc.)
 
@@ -42,6 +57,48 @@ enum class PowerLevelAction {
 
 const char* powerLevelActionToString(PowerLevelAction action);
 PowerLevelAction powerLevelActionFromString(const std::string& action);
+
+// ---- RoomPermissionCheck ----
+//
+// Original Kotlin: RoomPermissionCheck.kt
+struct RoomPermissionCheck {
+    std::string userId;
+    std::string action;
+    int requiredLevel = 0;
+    int userLevel = 0;
+    bool isAllowed = false;
+    std::string reason;
+};
+
+// ---- RoomPermissionException ----
+//
+// Original Kotlin: RoomPermissionException.kt
+struct RoomPermissionException {
+    std::string action;
+    std::string exceptionType;
+    std::string details;
+};
+
+// ---- RoomBanInfo ----
+//
+// Original Kotlin: RoomBanInfo.kt
+struct RoomBanInfo {
+    std::string userId;
+    std::string reason;
+    std::string bannedBy;
+    int64_t bannedAt = 0;
+    int64_t expiresAt = 0;
+};
+
+// ---- RoomKickInfo ----
+//
+// Original Kotlin: RoomKickInfo.kt
+struct RoomKickInfo {
+    std::string userId;
+    std::string reason;
+    std::string kickedBy;
+    int64_t kickedAt = 0;
+};
 
 // ---- PowerLevels (full Matrix spec struct) ----
 // Original Kotlin: PowerLevelsContent.kt (9 fields + notifications)
@@ -214,5 +271,52 @@ std::string formatPermissionsSummary(const RoomPermissions& perms);
 
 // Format permissions as JSON.
 std::string permissionsToJson(const RoomPermissions& perms);
+
+// ---- Extended Permission Checks ----
+//
+// Original Kotlin: RoomPermissionChecks.kt
+
+// Check if a user has permission for a specific action.
+// Returns a full RoomPermissionCheck with details.
+RoomPermissionCheck checkRoomPermission(const RoomPowerLevels& pl, const std::string& userId,
+                                         const std::string& action);
+
+// Get the minimum power level required for a given action from PowerLevels.
+int getRequiredLevelForAction(const PowerLevels& pl, const std::string& action);
+
+// Check if a user's power level is sufficient for an action.
+bool isPowerLevelSufficient(const RoomPowerLevels& pl, const std::string& userId,
+                            const std::string& action);
+
+// ---- Ban/Kick Event Builders & Parsers ----
+//
+// Original Kotlin: BanEventBuilder.kt / KickEventBuilder.kt
+
+// Build a ban event content JSON for m.room.member with membership=ban.
+std::string buildBanEvent(const RoomBanInfo& banInfo);
+
+// Parse a ban event from state event content JSON.
+RoomBanInfo parseBanEvent(const std::string& stateContentJson);
+
+// Check if a user is banned based on membership state JSON.
+bool isUserBanned(const std::string& userId, const std::string& membershipStateJson);
+
+// Build a kick event content JSON for m.room.member with membership=leave.
+std::string buildKickEvent(const RoomKickInfo& kickInfo);
+
+// ---- Individual Permission Check Functions ----
+//
+// Original Kotlin: RoomPermissionChecks.kt (individual helpers)
+
+bool isUserAllowedToInvite(const RoomPowerLevels& pl, const std::string& userId);
+bool isUserAllowedToKick(const RoomPowerLevels& pl, const std::string& userId);
+bool isUserAllowedToBan(const RoomPowerLevels& pl, const std::string& userId);
+bool isUserAllowedToRedact(const RoomPowerLevels& pl, const std::string& userId);
+bool isUserAllowedToSetName(const RoomPowerLevels& pl, const std::string& userId);
+bool isUserAllowedToSetTopic(const RoomPowerLevels& pl, const std::string& userId);
+bool isUserAllowedToSetAvatar(const RoomPowerLevels& pl, const std::string& userId);
+bool isUserAllowedToChangeJoinRules(const RoomPowerLevels& pl, const std::string& userId);
+bool isUserAllowedToChangeHistoryVisibility(const RoomPowerLevels& pl, const std::string& userId);
+bool isUserAllowedToChangeGuestAccess(const RoomPowerLevels& pl, const std::string& userId);
 
 } // namespace progressive

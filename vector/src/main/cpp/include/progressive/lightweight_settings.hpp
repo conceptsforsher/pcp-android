@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <cstdint>
 
 namespace progressive {
@@ -55,5 +56,102 @@ bool getSettingBool(const std::string& settingsJson, const std::string& key, boo
 std::string setSettingBool(const std::string& settingsJson, const std::string& key, bool val);
 std::string getSettingString(const std::string& settingsJson, const std::string& key, const std::string& defaultVal);
 std::string setSettingString(const std::string& settingsJson, const std::string& key, const std::string& val);
+
+// Original Kotlin: LightweightSettingType — value type of a setting
+enum class LightweightSettingType {
+    BOOLEAN,
+    INTEGER,
+    STRING,
+    ENUM,
+    FLOAT,
+    JSON
+};
+
+// Original Kotlin: LightweightSettingCategory — grouping for settings UI
+enum class LightweightSettingCategory {
+    GENERAL,
+    APPEARANCE,
+    NOTIFICATIONS,
+    SECURITY,
+    LABS,
+    ADVANCED,
+    DEBUG
+};
+
+// Original Kotlin: LightweightSetting — single setting descriptor
+struct LightweightSetting {
+    std::string key;
+    LightweightSettingType type = LightweightSettingType::BOOLEAN;
+    std::string defaultValue;
+    std::string currentValue;
+    std::string description;
+    LightweightSettingCategory category = LightweightSettingCategory::GENERAL;
+    bool isExperimental = false;
+    bool requiresRestart = false;
+};
+
+// Original Kotlin: SettingsMigration — versioned migration descriptor
+struct SettingsMigration {
+    int fromVersion = 0;
+    int toVersion = 0;
+    std::string migrations; // JSON-encoded migration operations
+};
+
+// Original Kotlin: getAllSettings — get all registered lightweight settings
+std::vector<LightweightSetting> getAllSettings();
+
+// Original Kotlin: getSettingsByCategory — filter settings by category
+std::vector<LightweightSetting> getSettingsByCategory(LightweightSettingCategory category);
+
+// Original Kotlin: setSetting — update a setting value by key
+bool setSetting(const std::string& key, const std::string& value);
+
+// Original Kotlin: getSetting — read a setting value by key
+std::string getSetting(const std::string& key, const std::string& defaultVal = "");
+
+// Original Kotlin: resetSetting — restore default value for key
+bool resetSetting(const std::string& key);
+
+// Original Kotlin: isSettingModified — check if setting differs from default
+bool isSettingModified(const std::string& key);
+
+// Original Kotlin: exportSettings — serialize all settings to JSON
+std::string exportSettings();
+
+// Original Kotlin: importSettings — load settings from JSON
+bool importSettings(const std::string& json);
+
+// Original Kotlin: migrateSettings — apply versioned migrations
+bool migrateSettings(const std::vector<SettingsMigration>& migrations, int fromVersion, int toVersion);
+
+// Original Kotlin: settingTypeToString — enum to string conversion
+const char* settingTypeToString(LightweightSettingType type);
+
+// Original Kotlin: settingTypeFromString — parse type from string
+LightweightSettingType settingTypeFromString(const std::string& s);
+
+// Original Kotlin: settingCategoryToString — enum to string conversion
+const char* settingCategoryToString(LightweightSettingCategory category);
+
+// Original Kotlin: settingCategoryFromString — parse category from string
+LightweightSettingCategory settingCategoryFromString(const std::string& s);
+
+// Original Kotlin: validateSettingValue — check value is valid for type
+bool validateSettingValue(const std::string& value, LightweightSettingType type);
+
+// Original Kotlin: registerSetting — add a new setting to the global registry
+bool registerSetting(const LightweightSetting& setting);
+
+// Original Kotlin: registerDefaultSettings — populate with standard Element settings
+void registerDefaultSettings();
+
+// Original Kotlin: getAllModifiedSettings — list settings that differ from defaults
+std::vector<LightweightSetting> getAllModifiedSettings();
+
+// Original Kotlin: resetAllSettings — restore all settings to defaults
+void resetAllSettings();
+
+// Original Kotlin: castSettingValue — convert value to target type
+std::string castSettingValue(const std::string& value, LightweightSettingType type);
 
 } // namespace progressive

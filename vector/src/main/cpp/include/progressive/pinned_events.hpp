@@ -1,11 +1,18 @@
-#ifndef PROGRESSIVE_PINNED_EVENTS_HPP
-#define PROGRESSIVE_PINNED_EVENTS_HPP
+#pragma once
 
 #include <string>
 #include <vector>
 #include <cstdint>
 
 namespace progressive {
+
+// Original Kotlin: PinnedEventInfo
+struct PinnedEventInfo {
+    std::string eventId;
+    std::string pinnedBy;
+    int64_t pinnedAt = 0;
+    bool isPinned = true;
+};
 
 struct PinnedEvent {
     std::string eventId;
@@ -33,6 +40,51 @@ std::string buildPinnedEventsContent(const std::vector<std::string>& eventIds);
 // PL50 = moderator, PL100 = admin. Pin/unpin typically requires PL50.
 bool canManagePins(int userPowerLevel, int requiredLevel = 50);
 
-} // namespace progressive
+// ================================================================
+// Extended Pinned Events API
+// ================================================================
 
-#endif // PROGRESSIVE_PINNED_EVENTS_HPP
+// Original Kotlin: PinnedEventsContent
+struct PinnedEventsContent {
+    std::vector<std::string> pinned;
+};
+
+// Original Kotlin: PinnedEventChange
+enum class PinnedEventChange {
+    PINNED,
+    UNPINNED
+};
+
+// Original Kotlin: PinnedEventsChangeInfo
+struct PinnedEventsChangeInfo {
+    PinnedEventChange change = PinnedEventChange::PINNED;
+    std::string eventId;
+    std::string changedBy;
+    int64_t changedAt = 0;
+};
+
+// Parse full pinned events content from state JSON.
+// Original Kotlin: parsePinnedEventsContent()
+PinnedEventsContent parsePinnedEventsContent(const std::string& stateContentJson);
+
+// Check if an event is in the pinned list.
+// Original Kotlin: isEventPinned()
+bool isEventPinned(const std::string& eventId, const std::vector<std::string>& pinnedIds);
+
+// Add an event to the pinned list (returns new list).
+// Original Kotlin: pinEvent()
+std::vector<std::string> pinEvent(const std::vector<std::string>& currentPins, const std::string& eventId);
+
+// Remove an event from the pinned list (returns new list).
+// Original Kotlin: unpinEvent()
+std::vector<std::string> unpinEvent(const std::vector<std::string>& currentPins, const std::string& eventId);
+
+// Get pinned event info list from state content JSON.
+// Original Kotlin: getPinnedEvents()
+std::vector<PinnedEventInfo> getPinnedEvents(const std::string& stateContentJson);
+
+// Format pinned events as a human-readable message.
+// Original Kotlin: formatPinnedEventsMessage()
+std::string formatPinnedEventsMessage(const std::vector<PinnedEvent>& events);
+
+} // namespace progressive

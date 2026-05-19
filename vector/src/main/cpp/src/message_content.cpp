@@ -394,4 +394,218 @@ std::string messageFileToJson(const MessageFileContent& msg) {
     return json;
 }
 
+// ================================================================
+// MessageContentTypeDetector Implementation
+// ================================================================
+
+// Original Kotlin: detectContentType()
+ContentType MessageContentTypeDetector::detectContentType(const std::string& contentJson) {
+    auto msgtype = extractJsonString(contentJson, "msgtype");
+    if (!msgtype.empty()) {
+        if (msgtype == "m.text") return ContentType::TEXT;
+        if (msgtype == "m.notice") return ContentType::NOTICE;
+        if (msgtype == "m.emote") return ContentType::EMOTE;
+        if (msgtype == "m.image") return ContentType::IMAGE;
+        if (msgtype == "m.video") return ContentType::VIDEO;
+        if (msgtype == "m.audio") return ContentType::AUDIO;
+        if (msgtype == "m.file") return ContentType::FILE;
+        if (msgtype == "m.location") return ContentType::LOCATION;
+        if (msgtype == "org.matrix.android.sdk.sticker") return ContentType::STICKER;
+        if (msgtype == "org.matrix.android.sdk.poll.start") return ContentType::POLL_START;
+        if (msgtype == "org.matrix.android.sdk.poll.response") return ContentType::POLL_RESPONSE;
+        if (msgtype == "org.matrix.android.sdk.poll.end") return ContentType::POLL_END;
+    }
+
+    // Check for beacon events
+    if (contentJson.find("org.matrix.msc3488.beacon_info") != std::string::npos)
+        return ContentType::BEACON_INFO;
+    if (contentJson.find("org.matrix.msc3488.beacon_location") != std::string::npos ||
+        contentJson.find("org.matrix.msc3672.beacon") != std::string::npos)
+        return ContentType::BEACON_LOCATION_DATA;
+
+    // Check for key verification events
+    if (contentJson.find("m.key.verification.request") != std::string::npos)
+        return ContentType::VERIFICATION_REQUEST;
+    if (contentJson.find("m.key.verification.start") != std::string::npos)
+        return ContentType::VERIFICATION_START;
+    if (contentJson.find("m.key.verification.done") != std::string::npos)
+        return ContentType::VERIFICATION_DONE;
+    if (contentJson.find("m.key.verification.cancel") != std::string::npos)
+        return ContentType::VERIFICATION_CANCEL;
+    if (contentJson.find("m.key.verification.ready") != std::string::npos)
+        return ContentType::VERIFICATION_READY;
+    if (contentJson.find("m.key.verification.key") != std::string::npos)
+        return ContentType::VERIFICATION_KEY;
+    if (contentJson.find("m.key.verification.mac") != std::string::npos)
+        return ContentType::VERIFICATION_MAC;
+
+    // Check for call events
+    if (contentJson.find("m.call.invite") != std::string::npos)
+        return ContentType::CALL_INVITE;
+    if (contentJson.find("m.call.answer") != std::string::npos)
+        return ContentType::CALL_ANSWER;
+    if (contentJson.find("m.call.hangup") != std::string::npos)
+        return ContentType::CALL_HANGUP;
+    if (contentJson.find("m.call.reject") != std::string::npos)
+        return ContentType::CALL_REJECT;
+    if (contentJson.find("m.call.candidates") != std::string::npos)
+        return ContentType::CALL_CANDIDATES;
+    if (contentJson.find("m.call.negotiate") != std::string::npos)
+        return ContentType::CALL_NEGOTIATE;
+    if (contentJson.find("m.call.select_answer") != std::string::npos)
+        return ContentType::CALL_SELECT_ANSWER;
+
+    // Voice broadcast
+    if (contentJson.find("org.matrix.msc3890.voice_broadcast") != std::string::npos)
+        return ContentType::VOICE_BROADCAST_INFO;
+
+    // State events (have state_key)
+    if (contentJson.find("\"state_key\"") != std::string::npos)
+        return ContentType::STATE_EVENT;
+
+    return ContentType::UNKNOWN;
+}
+
+// Original Kotlin: getContentTypeDescription()
+const char* MessageContentTypeDetector::getContentTypeDescription(ContentType type) {
+    switch (type) {
+        case ContentType::TEXT:                  return "Text message";
+        case ContentType::NOTICE:                return "Notice";
+        case ContentType::EMOTE:                 return "Emote";
+        case ContentType::IMAGE:                 return "Image";
+        case ContentType::VIDEO:                 return "Video";
+        case ContentType::AUDIO:                 return "Audio";
+        case ContentType::FILE:                  return "File";
+        case ContentType::LOCATION:              return "Location";
+        case ContentType::POLL_START:            return "Poll started";
+        case ContentType::POLL_RESPONSE:         return "Poll response";
+        case ContentType::POLL_END:              return "Poll ended";
+        case ContentType::STICKER:               return "Sticker";
+        case ContentType::BEACON_INFO:           return "Live location beacon";
+        case ContentType::BEACON_LOCATION_DATA:  return "Beacon location data";
+        case ContentType::VERIFICATION_REQUEST:  return "Verification request";
+        case ContentType::VERIFICATION_START:    return "Verification started";
+        case ContentType::VERIFICATION_DONE:     return "Verification done";
+        case ContentType::VERIFICATION_CANCEL:   return "Verification cancelled";
+        case ContentType::VERIFICATION_READY:    return "Verification ready";
+        case ContentType::VERIFICATION_KEY:      return "Verification key";
+        case ContentType::VERIFICATION_MAC:      return "Verification MAC";
+        case ContentType::CALL_INVITE:           return "Call invite";
+        case ContentType::CALL_ANSWER:           return "Call answer";
+        case ContentType::CALL_HANGUP:           return "Call hangup";
+        case ContentType::CALL_REJECT:           return "Call reject";
+        case ContentType::CALL_CANDIDATES:       return "Call candidates";
+        case ContentType::CALL_NEGOTIATE:        return "Call negotiate";
+        case ContentType::CALL_SELECT_ANSWER:    return "Call select answer";
+        case ContentType::VOICE_BROADCAST_INFO:  return "Voice broadcast";
+        case ContentType::STATE_EVENT:           return "State event";
+        case ContentType::UNKNOWN:               return "Unknown";
+    }
+    return "Unknown";
+}
+
+// Original Kotlin: isContentTypeDisplayable()
+bool MessageContentTypeDetector::isContentTypeDisplayable(ContentType type) {
+    switch (type) {
+        case ContentType::TEXT:
+        case ContentType::NOTICE:
+        case ContentType::EMOTE:
+        case ContentType::IMAGE:
+        case ContentType::VIDEO:
+        case ContentType::AUDIO:
+        case ContentType::FILE:
+        case ContentType::LOCATION:
+        case ContentType::POLL_START:
+        case ContentType::POLL_RESPONSE:
+        case ContentType::POLL_END:
+        case ContentType::STICKER:
+        case ContentType::BEACON_INFO:
+        case ContentType::BEACON_LOCATION_DATA:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// Original Kotlin: getContentTypeIcon()
+const char* MessageContentTypeDetector::getContentTypeIcon(ContentType type) {
+    switch (type) {
+        case ContentType::TEXT:                  return "ic_message_text";
+        case ContentType::NOTICE:                return "ic_message_notice";
+        case ContentType::EMOTE:                 return "ic_message_emote";
+        case ContentType::IMAGE:                 return "ic_message_image";
+        case ContentType::VIDEO:                 return "ic_message_video";
+        case ContentType::AUDIO:                 return "ic_message_audio";
+        case ContentType::FILE:                  return "ic_message_file";
+        case ContentType::LOCATION:              return "ic_message_location";
+        case ContentType::POLL_START:
+        case ContentType::POLL_RESPONSE:
+        case ContentType::POLL_END:              return "ic_poll";
+        case ContentType::STICKER:               return "ic_sticker";
+        case ContentType::BEACON_INFO:
+        case ContentType::BEACON_LOCATION_DATA:  return "ic_beacon";
+        case ContentType::VERIFICATION_REQUEST:
+        case ContentType::VERIFICATION_START:
+        case ContentType::VERIFICATION_DONE:
+        case ContentType::VERIFICATION_CANCEL:
+        case ContentType::VERIFICATION_READY:
+        case ContentType::VERIFICATION_KEY:
+        case ContentType::VERIFICATION_MAC:      return "ic_verification";
+        case ContentType::CALL_INVITE:
+        case ContentType::CALL_ANSWER:
+        case ContentType::CALL_HANGUP:
+        case ContentType::CALL_REJECT:
+        case ContentType::CALL_CANDIDATES:
+        case ContentType::CALL_NEGOTIATE:
+        case ContentType::CALL_SELECT_ANSWER:    return "ic_call";
+        case ContentType::VOICE_BROADCAST_INFO:  return "ic_voice_broadcast";
+        case ContentType::STATE_EVENT:           return "ic_state_event";
+        case ContentType::UNKNOWN:               return "ic_message_unknown";
+    }
+    return "ic_message_unknown";
+}
+
+// Original Kotlin: computeMessageContentStats()
+MessageContentStats computeMessageContentStats(const std::vector<std::string>& contentJsons) {
+    MessageContentStats stats;
+    for (const auto& json : contentJsons) {
+        auto ct = MessageContentTypeDetector::detectContentType(json);
+        stats.totalCount++;
+        switch (ct) {
+            case ContentType::TEXT:
+            case ContentType::NOTICE:
+            case ContentType::EMOTE:
+                stats.textCount++; break;
+            case ContentType::IMAGE:  stats.imageCount++; break;
+            case ContentType::VIDEO:  stats.videoCount++; break;
+            case ContentType::AUDIO:  stats.audioCount++; break;
+            case ContentType::FILE:   stats.fileCount++; break;
+            case ContentType::LOCATION: stats.locationCount++; break;
+            case ContentType::POLL_START:
+            case ContentType::POLL_RESPONSE:
+            case ContentType::POLL_END:
+                stats.pollCount++; break;
+            case ContentType::STICKER: stats.stickerCount++; break;
+            case ContentType::CALL_INVITE:
+            case ContentType::CALL_ANSWER:
+            case ContentType::CALL_HANGUP:
+            case ContentType::CALL_REJECT:
+            case ContentType::CALL_CANDIDATES:
+            case ContentType::CALL_NEGOTIATE:
+            case ContentType::CALL_SELECT_ANSWER:
+                stats.callCount++; break;
+            case ContentType::VERIFICATION_REQUEST:
+            case ContentType::VERIFICATION_START:
+            case ContentType::VERIFICATION_DONE:
+            case ContentType::VERIFICATION_CANCEL:
+            case ContentType::VERIFICATION_READY:
+            case ContentType::VERIFICATION_KEY:
+            case ContentType::VERIFICATION_MAC:
+                stats.verificationCount++; break;
+            default: stats.otherCount++; break;
+        }
+    }
+    return stats;
+}
+
 } // namespace progressive

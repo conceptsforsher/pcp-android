@@ -415,6 +415,82 @@ std::string buildCreationContent(const std::unordered_map<std::string, std::stri
 std::string buildCreationContent(bool federated, const std::string& roomType = "");
 
 // ================================================================
+// CreateRoomCapabilitiesIntegration
+// Ported from: server capabilities for MSC3814 room creation
+// ================================================================
+
+// Original Kotlin: CreateRoomCapabilitiesIntegration
+struct CreateRoomCapabilitiesIntegration {
+    bool needsMSC3814 = false;
+};
+
+// Original Kotlin: RoomPresetCapabilities
+struct RoomPresetCapabilities {
+    CreateRoomPreset preset = CreateRoomPreset::PRIVATE_CHAT;
+    std::string joinRule;
+    std::string historyVisibility;
+    std::string guestAccess;
+    bool encryptionEnabled = false;
+};
+
+// ================================================================
+// CreateRoomValidationError
+// Ported from: CreateRoomParams validation
+// ================================================================
+
+// Original Kotlin: CreateRoomValidationError enum
+enum class CreateRoomValidationError {
+    NONE,
+    MISSING_NAME,
+    INVALID_ALIAS,
+    INVALID_VERSION,
+    NO_PERMISSION,
+    EMPTY_INVITE_LIST,
+    UNSUPPORTED_VERSION
+};
+
+// ================================================================
+// CreateRoomDefaults
+// Ported from: default room creation config
+// ================================================================
+
+// Original Kotlin: CreateRoomDefaults
+struct CreateRoomDefaults {
+    CreateRoomPreset preset = CreateRoomPreset::PRIVATE_CHAT;
+    std::string visibility;
+    std::string powerLevelContentOverride;
+};
+
+// ================================================================
+// Extended Create Room Functions
+// ================================================================
+
+// Build create room body JSON with capability awareness (MSC3814).
+// Original Kotlin: buildCreateRoomWithCapabilities()
+std::string buildCreateRoomWithCapabilities(const CreateRoomBody& body,
+                                            const CreateRoomCapabilitiesIntegration& caps);
+
+// Get available room versions from server capabilities.
+// Original Kotlin: getAvailableCreateRoomVersions()
+std::vector<std::string> getAvailableCreateRoomVersions();
+
+// Validate a create room request body.
+// Original Kotlin: validateCreateRoomRequest()
+CreateRoomValidationError validateCreateRoomRequest(const CreateRoomBody& body);
+
+// Get human-readable error message for a validation error.
+// Original Kotlin: getCreateRoomError()
+const char* getCreateRoomError(CreateRoomValidationError err);
+
+// Get default room creation configuration.
+// Original Kotlin: getDefaultCreateRoomConfig()
+CreateRoomDefaults getDefaultCreateRoomConfig();
+
+// Check if room creation is allowed for the current user.
+// Original Kotlin: isCreateRoomAllowed()
+bool isCreateRoomAllowed();
+
+// ================================================================
 // Room Versioning State
 // Ported from: org.matrix.android.sdk.api.session.room.model.VersioningState.kt (39L)
 // ================================================================

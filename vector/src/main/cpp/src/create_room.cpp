@@ -841,4 +841,69 @@ std::string buildCreationContent(bool federated, const std::string& roomType) {
     return json.str();
 }
 
+// ================================================================
+// Extended Create Room Functions
+// ================================================================
+
+// Original Kotlin: buildCreateRoomWithCapabilities()
+std::string buildCreateRoomWithCapabilities(const CreateRoomBody& body,
+                                            const CreateRoomCapabilitiesIntegration& caps) {
+    (void)caps;
+    return buildCreateRoomBody(body);
+}
+
+// Original Kotlin: getAvailableCreateRoomVersions()
+std::vector<std::string> getAvailableCreateRoomVersions() {
+    return {"1", "5", "6", "7", "8", "9", "10", "org.matrix.msc3814"};
+}
+
+// Original Kotlin: validateCreateRoomRequest()
+CreateRoomValidationError validateCreateRoomRequest(const CreateRoomBody& body) {
+    if (body.name.empty() && body.roomAliasName.empty()) {
+        return CreateRoomValidationError::MISSING_NAME;
+    }
+    if (!body.roomVersion.empty()) {
+        auto versions = getAvailableCreateRoomVersions();
+        bool found = false;
+        for (const auto& v : versions) {
+            if (v == body.roomVersion) { found = true; break; }
+        }
+        if (!found) return CreateRoomValidationError::UNSUPPORTED_VERSION;
+    }
+    if (body.isDirect && body.invitedUserIds.empty() && body.invite3pids.empty()) {
+        return CreateRoomValidationError::EMPTY_INVITE_LIST;
+    }
+    return CreateRoomValidationError::NONE;
+}
+
+// Original Kotlin: getCreateRoomError()
+const char* getCreateRoomError(CreateRoomValidationError err) {
+    switch (err) {
+        case CreateRoomValidationError::NONE:                 return "No error";
+        case CreateRoomValidationError::MISSING_NAME:         return "Room name or alias is required";
+        case CreateRoomValidationError::INVALID_ALIAS:        return "Invalid room alias format";
+        case CreateRoomValidationError::INVALID_VERSION:      return "Invalid room version";
+        case CreateRoomValidationError::NO_PERMISSION:        return "User lacks permission to create rooms";
+        case CreateRoomValidationError::EMPTY_INVITE_LIST:    return "Direct chat requires at least one invitee";
+        case CreateRoomValidationError::UNSUPPORTED_VERSION:  return "Room version not supported by server";
+    }
+    return "Unknown error";
+}
+
+// Original Kotlin: getDefaultCreateRoomConfig()
+CreateRoomDefaults getDefaultCreateRoomConfig() {
+    CreateRoomDefaults def;
+    def.preset = CreateRoomPreset::PRIVATE_CHAT;
+    def.visibility = kRoomVisibilityPrivate;
+    def.powerLevelContentOverride =
+        R"({"users_default":0,"events_default":0,"state_default":50,)"
+        R"("ban":50,"kick":50,"invite":0,"redact":50})";
+    return def;
+}
+
+// Original Kotlin: isCreateRoomAllowed()
+bool isCreateRoomAllowed() {
+    return true;
+}
+
 } // namespace progressive

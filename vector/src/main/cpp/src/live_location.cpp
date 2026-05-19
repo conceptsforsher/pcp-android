@@ -731,4 +731,222 @@ int LiveLocationManager::totalUpdateCount() const {
     return totalUpdates_;
 }
 
+// ================================================================
+// Live Location Share Functions (standalone, global state)
+// ================================================================
+
+namespace {
+
+std::vector<LiveLocationShare> g_liveLocationShares;
+
+LiveLocationShare* findShare(const std::string& shareId) {
+    for (auto& s : g_liveLocationShares) {
+        if (s.shareId == shareId) return &s;
+    }
+    return nullptr;
+}
+
+const LiveLocationShare* findShare(const std::string& shareId, bool) {
+    for (const auto& s : g_liveLocationShares) {
+        if (s.shareId == shareId) return &s;
+    }
+    return nullptr;
+}
+
+} // anonymous namespace
+
+std::string startLiveLocationShare(const std::string& roomId, const std::string& userId,
+                                    const std::string& description, int timeoutMs,
+                                    std::string& error) {
+    // Original Kotlin: stateService.liveLocation().startLiveLocationShare()
+    if (timeoutMs < 30000 || timeoutMs > 86400000) {
+        error = "Invalid timeout: " + std::to_string(timeoutMs) + "ms (valid: 30000-86400000)";
+        return "";
+    }
+
+    LiveLocationShare share;
+    auto now = static_cast<int64_t>(std::time(nullptr)) * 1000;
+    share.shareId = "lls_" + std::to_string(now) + "_" + std::to_string(g_liveLocationShares.size() + 1);
+    share.roomId = roomId;
+    share.userId = userId;
+    share.description = description.empty() ? (userId + "'s location") : description;
+    share.timeoutMs = timeoutMs;
+    share.startedAt = now;
+    share.expiresAt = computeLiveLocationShareExpiry(now, timeoutMs);
+    share.state = LiveLocationShareState::ACTIVE;
+    share.lastUpdatedAt = now;
+
+    g_liveLocationShares.push_back(share);
+
+    return buildLiveLocationShareStartEvent(share);
+}
+
+std::string stopLiveLocationShare(const std::string& shareId) {
+    // Original Kotlin: stateService.liveLocation().stopLiveLocationShare()
+    auto* s = findShare(shareId);
+    if (!s) return "";
+    s->state = LiveLocationShareState::STOPPED;
+    return buildLiveLocationShareStopEvent(shareId);
+}
+
+bool pauseLiveLocationShare(const std::string& shareId) {
+    auto* s = findShare(shareId);
+    if (!s || s->state != LiveLocationShareState::ACTIVE) return false;
+    s->state = LiveLocationShareState::PAUSED;
+    return true;
+}
+
+bool resumeLiveLocationShare(const std::string& shareId) {
+    auto* s = findShare(shareId);
+    if (!s || s->state != LiveLocationShareState::PAUSED) return false;
+    s->state = LiveLocationShareState::ACTIVE;
+    return true;
+}
+
+std::vector<LiveLocationShare> getActiveLiveLocationShares() {
+    std::vector<LiveLocationShare> result;
+    auto now = static_cast<int64_t>(std::time(nullptr)) * 1000;
+    for (const auto& s : g_liveLocationShares) {
+        if (s.state == LiveLocationShareState::ACTIVE && s.expiresAt > now) {
+            result.push_back(s);
+        }
+    }
+    return result;
+}
+
+bool getLiveLocationShareById(const std::string& shareId, LiveLocationShare& out) {
+    const auto* s = findShare(shareId, true);
+    if (!s) return false;
+    out = *s;
+    return true;
+}
+
+std::vector<LiveLocationShare> getLiveLocationSharesForRoom(const std::string& roomId) {
+    std::vector<LiveLocationShare> result;
+    for (const auto& s : g_liveLocationShares) {
+        if (s.roomId == roomId) {
+            result.push_back(s);
+        }
+    }
+    return result;
+}
+
+std::vector<LiveLocationShare> getActiveLiveLocationSharesForUser(const std::string& userId) {
+    std::vector<LiveLocationShare> result;
+    auto now = static_cast<int64_t>(std::time(nullptr)) * 1000;
+    for (const auto& s : g_liveLocationShares) {
+        if (s.userId == userId && s.state == LiveLocationShareState::ACTIVE && s.expiresAt > now) {
+            result.push_back(s);
+        }
+    }
+    return result;
+}
+
+bool isLiveLocationShareExpired(const LiveLocationShare& share) {
+    // Original Kotlin: checks if the share has passed its expiry time
+    if (share.state == LiveLocationShareState::STOPPED ||
+        share.state == LiveLocationShareState::DELETED ||
+        share.state == LiveLocationShareState::EXPIRED) {
+        return true;
+    }
+    auto now = static_cast<int64_t>(std::time(nullptr)) * 1000;
+    return now >= share.expiresAt;
+}
+
+int64_t computeLiveLocationShareExpiry(int64_t startedAt, int timeoutMs) {
+    // Original Kotlin: expiry = startupTimestamp + timeout
+    return startedAt + static_cast<int64_t>(timeoutMs);
+}
+
+std::string buildLiveLocationShareStartEvent(const LiveLocationShare& share) {
+    // Original Kotlin: builds a m.beacon_info start event
+    // {"description":"...","timeout":...,"live":true,"org.matrix.msc3488.ts":...}
+    std::ostringstream os;
+    os << R"({"description":")" << share.description << R"(")";
+    os << R"(,"timeout":)" << (share.timeoutMs / 1000);
+    os << R"(,"live":true)";
+    os << R"(,"org.matrix.msc3488.ts":)" << share.startedAt;
+    os << R"(,"org.matrix.msc3488.asset":"m.self")";
+    os << "}";
+    return os.str();
+}
+
+std::string buildLiveLocationShareStopEvent(const std::string& shareId) {
+    // Original Kotlin: builds an empty beacon info to mark as stopped
+    std::ostringstream os;
+    os << R"({"live":false,"timeout":0,"share_id":")" << shareId << R"("})";
+    return os.str();
+}
+
+LiveLocationShare parseLiveLocationShareEvent(const std::string& eventJson) {
+    // Original Kotlin: parses a m.beacon_info event into LiveLocationShare
+    LiveLocationShare share;
+    share.description = extractStr(eventJson, "description");
+    share.timeoutMs = static_cast<int>(extractInt(eventJson, "timeout")) * 1000;
+    share.startedAt = extractInt(eventJson, "org.matrix.msc3488.ts");
+    if (share.startedAt == 0) share.startedAt = extractInt(eventJson, "m.ts");
+    share.beaconInfoId = extractStr(eventJson, "event_id");
+    share.roomId = extractStr(eventJson, "room_id");
+    share.userId = extractStr(eventJson, "sender");
+    share.deviceId = extractStr(eventJson, "device_id");
+    share.shareId = extractStr(eventJson, "share_id");
+    bool live = extractBool(eventJson, "live");
+    bool stopped = eventJson.find("\"live\":false") != std::string::npos && extractInt(eventJson, "timeout") == 0;
+    share.state = stopped ? LiveLocationShareState::STOPPED :
+                   live ? LiveLocationShareState::ACTIVE : LiveLocationShareState::EXPIRED;
+    auto now = static_cast<int64_t>(std::time(nullptr)) * 1000;
+    share.expiresAt = share.startedAt + share.timeoutMs;
+    share.lastUpdatedAt = now;
+    return share;
+}
+
+LiveLocationAggregationResult aggregateLiveLocationData(const std::string& shareId,
+                                                         const std::vector<LiveLocationBeaconData>& beacons) {
+    // Original Kotlin: aggregates beacon data for a share
+    LiveLocationAggregationResult result;
+    result.shareId = shareId;
+    result.beacons = beacons;
+    result.beaconCount = static_cast<int>(beacons.size());
+
+    if (!beacons.empty()) {
+        result.firstTimestamp = beacons.front().timestamp;
+        result.lastTimestamp = beacons.back().timestamp;
+
+        // Find latest active beacon
+        for (auto it = beacons.rbegin(); it != beacons.rend(); ++it) {
+            if (it->isLive) {
+                auto geo = parseGeoUri(it->geoUri);
+                if (geo.valid) {
+                    result.latestCoord.latitude = geo.latitude;
+                    result.latestCoord.longitude = geo.longitude;
+                    result.latestCoord.accuracy = it->accuracy;
+                    result.isActive = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+std::string formatLiveLocationShareDuration(int64_t startedAt, int64_t nowMs) {
+    // Original Kotlin: formats "Live for 5m" or "Live for 2h 30m"
+    if (startedAt <= 0 || nowMs <= 0) return "";
+
+    int64_t diffMs = nowMs - startedAt;
+    if (diffMs < 0) return "just started";
+
+    int64_t seconds = diffMs / 1000;
+    int64_t minutes = seconds / 60;
+    int64_t hours = minutes / 60;
+
+    std::ostringstream out;
+    if (hours > 0) {
+        out << hours << "h ";
+    }
+    out << (minutes % 60) << "m";
+    return out.str();
+}
+
 } // namespace progressive

@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <functional>
+#include <utility>
 
 namespace progressive {
 
@@ -30,6 +32,19 @@ enum class VoiceBroadcastState {
 const char* voiceBroadcastStateToString(VoiceBroadcastState s);
 VoiceBroadcastState voiceBroadcastStateFromString(const std::string& s);
 
+// ==== VoiceBroadcastPlaybackState ====
+//
+// Original Kotlin: voicebroadcast/VoiceBroadcastPlaybackState.kt
+enum class VoiceBroadcastPlaybackState {
+    STOPPED = 0,    // playback stopped
+    PLAYING = 1,    // actively playing
+    PAUSED = 2,     // playback paused
+    BUFFERING = 3   // loading/buffering audio
+};
+
+const char* voiceBroadcastPlaybackStateToString(VoiceBroadcastPlaybackState s);
+VoiceBroadcastPlaybackState voiceBroadcastPlaybackStateFromString(const std::string& s);
+
 // ==== VoiceBroadcastChunk ====
 //
 // Original Kotlin: voicebroadcast/model/VoiceBroadcastChunk.kt
@@ -40,6 +55,26 @@ struct VoiceBroadcastChunk {
     std::vector<int> waveform;           // waveform data (amplitude samples)
 
     bool isValid() const { return sequenceNumber > 0 && !mxcUrl.empty(); }
+};
+
+// ==== VoiceBroadcastRecorder ====
+//
+// Original Kotlin: voicebroadcast/VoiceBroadcastRecorder.kt
+struct VoiceBroadcastRecorder {
+    bool isRecording = false;
+    std::string deviceId;
+    int64_t startedAt = 0;
+    int chunkSequence = 0;
+    int64_t lastChunkDuration = 0;
+};
+
+// ==== VoiceBroadcastPlaylist ====
+//
+// Original Kotlin: voicebroadcast/VoiceBroadcastPlaylist.kt
+struct VoiceBroadcastPlaylist {
+    std::vector<VoiceBroadcastChunk> chunks;
+    int currentIndex = 0;
+    int64_t totalDuration = 0;
 };
 
 // ==== VoiceBroadcastInfo ====
@@ -128,6 +163,17 @@ struct VoiceBroadcastSummary {
     }
 };
 
+// ==== VoiceBroadcastListener ====
+//
+// Original Kotlin: voicebroadcast/VoiceBroadcastListener.kt
+// Callback interface for voice broadcast state changes.
+struct VoiceBroadcastListener {
+    std::function<void(const std::string& broadcastId, VoiceBroadcastPlaybackState state)> onPlaybackStateChanged;
+    std::function<void(const std::string& broadcastId, int chunkIndex)> onChunkPlayed;
+    std::function<void(const std::string& broadcastId, const std::string& error)> onError;
+    std::function<void(const std::string& broadcastId, int64_t positionMs, int64_t durationMs)> onProgress;
+};
+
 // ================================================================
 // Voice Broadcast Functions
 // ================================================================
@@ -146,6 +192,12 @@ std::string buildVoiceBroadcastInfoContent(const VoiceBroadcastInfoContent& info
 // Build chunk event content JSON.
 std::string buildVoiceBroadcastChunkContent(const VoiceBroadcastChunkContent& chunk);
 
+// Build a full chunk event JSON for sending over the wire.
+// Original Kotlin: voicebroadcast/VoiceBroadcastChunkEvent.kt
+std::string buildVoiceBroadcastChunkEvent(const std::string& roomId,
+                                          const std::string& broadcastId,
+                                          const VoiceBroadcastChunkContent& chunk);
+
 // ---- Parsers ----
 
 // Parse voice broadcast info from state event content JSON.
@@ -156,6 +208,29 @@ VoiceBroadcastChunkContent parseVoiceBroadcastChunk(const std::string& json);
 
 // Parse a full VoiceBroadcastInfo from events.
 VoiceBroadcastInfo parseVoiceBroadcastInfoJson(const std::string& json);
+
+// Parse a complete chunk event from a message event JSON.
+// Original Kotlin: VoiceBroadcastChunkEvent.kt parser
+VoiceBroadcastChunkContent parseVoiceBroadcastChunkEvent(const std::string& eventJson);
+
+// ---- Playback Controls ----
+//
+// Original Kotlin: VoiceBroadcastPlayer.kt
+
+// Start playback of a voice broadcast.
+bool playVoiceBroadcast(const std::string& broadcastId);
+
+// Pause current voice broadcast playback.
+bool pauseVoiceBroadcast(const std::string& broadcastId);
+
+// Stop current voice broadcast playback.
+bool stopVoiceBroadcast(const std::string& broadcastId);
+
+// Seek to a position in the current voice broadcast.
+bool seekVoiceBroadcast(const std::string& broadcastId, int64_t positionMs);
+
+// Get playback progress for a voice broadcast.
+std::pair<int64_t, int64_t> getVoiceBroadcastProgress(const std::string& broadcastId);
 
 // ---- Helpers ----
 
@@ -176,5 +251,18 @@ std::string getVoiceBroadcastId(const std::string& eventContentJson);
 
 // Compute a VoiceBroadcastSummary from timeline events.
 VoiceBroadcastSummary aggregateVoiceBroadcast(const std::vector<VoiceBroadcastEvent>& events);
+
+// ---- Current User Checks ----
+//
+// Original Kotlin: voicebroadcast/VoiceBroadcastHelper.kt
+
+// Check if the current user is actively broadcasting.
+bool isCurrentUserBroadcasting(const std::string& currentUserId,
+                               const std::vector<VoiceBroadcastEvent>& events);
+
+// Check if the current user is eligible to start a new voice broadcast.
+bool canStartVoiceBroadcast(const std::string& currentUserId,
+                            const std::string& roomId,
+                            const std::vector<VoiceBroadcastEvent>& events);
 
 } // namespace progressive

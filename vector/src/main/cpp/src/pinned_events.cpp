@@ -90,4 +90,60 @@ bool canManagePins(int userPowerLevel, int requiredLevel) {
     return userPowerLevel >= requiredLevel;
 }
 
+// ================================================================
+// Extended Pinned Events API
+// ================================================================
+
+// Original Kotlin: parsePinnedEventsContent()
+PinnedEventsContent parsePinnedEventsContent(const std::string& stateContentJson) {
+    PinnedEventsContent content;
+    content.pinned = parsePinnedEventIds(stateContentJson);
+    return content;
+}
+
+// Original Kotlin: isEventPinned()
+bool isEventPinned(const std::string& eventId, const std::vector<std::string>& pinnedIds) {
+    for (const auto& id : pinnedIds) {
+        if (id == eventId) return true;
+    }
+    return false;
+}
+
+// Original Kotlin: pinEvent()
+std::vector<std::string> pinEvent(const std::vector<std::string>& currentPins,
+                                   const std::string& eventId) {
+    if (isEventPinned(eventId, currentPins)) return currentPins;
+    std::vector<std::string> result = currentPins;
+    result.push_back(eventId);
+    return result;
+}
+
+// Original Kotlin: unpinEvent()
+std::vector<std::string> unpinEvent(const std::vector<std::string>& currentPins,
+                                     const std::string& eventId) {
+    std::vector<std::string> result;
+    for (const auto& id : currentPins) {
+        if (id != eventId) result.push_back(id);
+    }
+    return result;
+}
+
+// Original Kotlin: getPinnedEvents()
+std::vector<PinnedEventInfo> getPinnedEvents(const std::string& stateContentJson) {
+    auto ids = parsePinnedEventIds(stateContentJson);
+    std::vector<PinnedEventInfo> result;
+    for (const auto& id : ids) {
+        PinnedEventInfo info;
+        info.eventId = id;
+        info.isPinned = true;
+        result.push_back(std::move(info));
+    }
+    return result;
+}
+
+// Original Kotlin: formatPinnedEventsMessage()
+std::string formatPinnedEventsMessage(const std::vector<PinnedEvent>& events) {
+    return formatPinnedEventsText(events);
+}
+
 } // namespace progressive

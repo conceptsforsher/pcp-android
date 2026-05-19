@@ -3,9 +3,64 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <cstdint>
 #include "progressive/sync_models.hpp"
 
 namespace progressive {
+
+// ==== SyncErrorRecovery ====
+//
+// Original Kotlin: sync/SyncErrorRecovery.kt
+enum class SyncErrorRecovery {
+    RETRY,       // Retry the sync request after backoff
+    RESET_CACHE, // Clear local cache and re-sync
+    RE_LOGIN,    // Clear session and require re-login
+    CONTINUE     // Ignore the error and continue
+};
+
+const char* syncErrorRecoveryToString(SyncErrorRecovery r);
+SyncErrorRecovery syncErrorRecoveryFromString(const std::string& s);
+
+// ==== SyncErrorMessage ====
+//
+// Original Kotlin: sync/SyncErrorMessage.kt
+struct SyncErrorMessage {
+    std::string error;
+    SyncErrorRecovery recovery = SyncErrorRecovery::RETRY;
+    std::string message;
+};
+
+// ==== SyncTokenManager ====
+//
+// Original Kotlin: sync/SyncTokenManager.kt
+struct SyncTokenManager {
+    std::string currentToken;
+    std::string prevToken;
+    bool isInitialSync = true;
+
+    bool isValid() const;
+};
+
+// ==== SyncScheduler ====
+//
+// Original Kotlin: sync/SyncScheduler.kt
+struct SyncScheduler {
+    int64_t intervalMs = 30000;
+    int64_t backoffMs = 0;
+    bool isScheduled = false;
+
+    int64_t computeBackoff() const;
+};
+
+// ==== SyncFilterManager ====
+//
+// Original Kotlin: sync/SyncFilterManager.kt
+struct SyncFilterManager {
+    std::string currentFilterId;
+    std::string buildFilterParams;
+
+    bool applyFilter(const std::string& filterId);
+};
 
 // ---- SyncHandlerResult ----
 
@@ -97,5 +152,55 @@ struct SyncPostTreatmentResult {
 // Original Kotlin: SyncResponsePostTreatmentAggregator
 // Compute post-sync treatment actions from the aggregator state.
 SyncPostTreatmentResult computeSyncPostTreatment(const SyncHandlerResult& handlerResult);
+
+// ---- Sync Error Handling ----
+//
+// Original Kotlin: SyncErrorHandler.kt
+
+// Handle a sync error and return the recommended recovery action with message.
+SyncErrorMessage handleSyncError(const std::string& errorJson, int httpStatus);
+
+// Classify an HTTP error into a recovery category.
+// Original Kotlin: classifySyncError()
+SyncErrorRecovery classifySyncError(int httpStatus, const std::string& errorBody);
+
+// ---- Sync Filter Functions ----
+//
+// Original Kotlin: SyncFilterBuilder.kt
+
+// Build a sync filter JSON for the /sync request.
+// roomTypes: list of room types to include (e.g. "m.space")
+// eventTypes: list of event types to include
+// limit: timeline event limit per room
+std::string buildSyncFilter(const std::vector<std::string>& roomTypes,
+                            const std::vector<std::string>& eventTypes,
+                            int limit = 20);
+
+// Parse the filter creation response from the server.
+// Returns the filter ID assigned by the server.
+// Original Kotlin: SyncFilterParser.parse()
+std::string parseSyncFilterResponse(const std::string& responseJson);
+
+// ---- Sync Scheduling ----
+//
+// Original Kotlin: sync/SyncScheduler.kt
+
+// Schedule the next sync with exponential backoff on error.
+// Returns the computed interval in milliseconds.
+int64_t scheduleNextSync(SyncScheduler& scheduler, bool isError = false);
+
+// Compute the appropriate sync interval based on app activity.
+// Original Kotlin: computeSyncInterval()
+int64_t computeSyncInterval(bool isActive, bool hasPendingEvents);
+
+// ---- Sync Token Management ----
+//
+// Original Kotlin: sync/SyncTokenManager.kt
+
+// Rotate the sync token: move current to previous, set new current.
+void rotateSyncToken(SyncTokenManager& manager, const std::string& newToken);
+
+// Check if a sync token string is valid (non-empty and well-formed).
+bool isTokenValid(const std::string& token);
 
 } // namespace progressive

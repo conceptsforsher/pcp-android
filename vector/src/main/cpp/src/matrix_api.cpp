@@ -1,5 +1,6 @@
 #include "progressive/matrix_api.hpp"
 #include "progressive/tls_bridge.hpp"
+#include "progressive/string_utils.hpp"
 #include <sstream>
 
 namespace progressive {
@@ -312,6 +313,178 @@ std::string apiRedactEvent(const std::string& roomId, const std::string& eventId
     std::string path = "/_matrix/client/r0/rooms/" + roomId + "/redact/" + eventId + "/" + txnId;
     std::string body = reason.empty() ? "{}" : R"({"reason":")" + reason + R"("})";
     auto resp = authPut(path, body);
+    return resp.success ? resp.body : "";
+}
+
+// Original Kotlin: resolveEndpointPath — fill {roomId}/{userId}/etc. placeholders
+std::string resolveEndpointPath(const std::string& templ, const std::unordered_map<std::string, std::string>& vars) {
+    std::string result = templ;
+    for (const auto& [key, val] : vars) {
+        std::string placeholder = "{" + key + "}";
+        size_t pos = 0;
+        while ((pos = result.find(placeholder, pos)) != std::string::npos) {
+            result.replace(pos, placeholder.size(), val);
+            pos += val.size();
+        }
+    }
+    return result;
+}
+
+// Original Kotlin: resolveRoomEndpoint — fill roomId into a path template
+std::string resolveRoomEndpoint(const std::string& templ, const std::string& roomId) {
+    return resolveEndpointPath(templ, {{"roomId", roomId}});
+}
+
+// Original Kotlin: resolveUserEndpoint — fill userId into a path template
+std::string resolveUserEndpoint(const std::string& templ, const std::string& userId) {
+    return resolveEndpointPath(templ, {{"userId", userId}});
+}
+
+// Original Kotlin: resolveEventEndpoint — fill roomId and eventId into path
+std::string resolveEventEndpoint(const std::string& templ, const std::string& roomId, const std::string& eventId) {
+    return resolveEndpointPath(templ, {{"roomId", roomId}, {"eventId", eventId}});
+}
+
+// Original Kotlin: apiGetRoomState — GET /_matrix/client/r0/rooms/{roomId}/state
+std::string apiGetRoomState(const std::string& roomId) {
+    return authGet(resolveRoomEndpoint(MatrixEndpointPath::ROOM_STATE, roomId)).body;
+}
+
+// Original Kotlin: apiGetRoomEvent — GET /_matrix/client/r0/rooms/{roomId}/event/{eventId}
+std::string apiGetRoomEvent(const std::string& roomId, const std::string& eventId) {
+    return authGet(resolveEventEndpoint(MatrixEndpointPath::ROOM_EVENT, roomId, eventId)).body;
+}
+
+// Original Kotlin: apiGetRoomContext — GET /_matrix/client/r0/rooms/{roomId}/context/{eventId}
+std::string apiGetRoomContext(const std::string& roomId, const std::string& eventId) {
+    return authGet(resolveEventEndpoint(MatrixEndpointPath::ROOM_CONTEXT, roomId, eventId)).body;
+}
+
+// Original Kotlin: apiChangePassword — POST /_matrix/client/r0/account/password
+std::string apiChangePassword(const std::string& oldPassword, const std::string& newPassword) {
+    std::ostringstream body;
+    body << R"({"new_password":")" << newPassword << R"(")";
+    if (!oldPassword.empty()) body << R"(,"old_password":")" << oldPassword << R"(")";
+    body << "}";
+    auto resp = authPost(MatrixEndpointPath::CHANGE_PASSWORD, body.str());
+    return resp.success ? resp.body : "";
+}
+
+// Original Kotlin: apiDeactivateAccount — POST /_matrix/client/r0/account/deactivate
+std::string apiDeactivateAccount(const std::string& authJson) {
+    auto resp = authPost(MatrixEndpointPath::DEACTIVATE_ACCOUNT, authJson.empty() ? "{}" : authJson);
+    return resp.success ? resp.body : "";
+}
+
+// Original Kotlin: apiSetPresence — PUT /_matrix/client/r0/presence/{userId}/status
+std::string apiSetPresence(const std::string& userId, const std::string& presence) {
+    std::string path = resolveUserEndpoint(MatrixEndpointPath::PRESENCE, userId);
+    std::string body = R"({"presence":")" + presence + R"("})";
+    auto resp = authPut(path, body);
+    return resp.success ? resp.body : "";
+}
+
+// Original Kotlin: apiGetPresence — GET /_matrix/client/r0/presence/{userId}/status
+std::string apiGetPresence(const std::string& userId) {
+    return authGet(resolveUserEndpoint(MatrixEndpointPath::PRESENCE, userId)).body;
+}
+
+// Original Kotlin: apiSetAvatarUrl — PUT avatar URL
+std::string apiSetAvatarUrl(const std::string& userId, const std::string& avatarUrl) {
+    std::string path = resolveUserEndpoint(MatrixEndpointPath::AVATARURL, userId);
+    std::string body = R"({"avatar_url":")" + avatarUrl + R"("})";
+    auto resp = authPut(path, body);
+    return resp.success ? resp.body : "";
+}
+
+// Original Kotlin: apiGetAvatarUrl — GET avatar URL
+std::string apiGetAvatarUrl(const std::string& userId) {
+    return authGet(resolveUserEndpoint(MatrixEndpointPath::AVATARURL, userId)).body;
+}
+
+// Original Kotlin: apiGetCapabilities — GET /_matrix/client/r0/capabilities
+std::string apiGetCapabilities() {
+    return authGet(MatrixEndpointPath::CAPABILITIES).body;
+}
+
+// Original Kotlin: apiGetWellKnown — GET /.well-known/matrix/client
+std::string apiGetWellKnown(const std::string& serverName) {
+    std::string url = "https://" + serverName + MatrixEndpointPath::WELL_KNOWN;
+    auto resp = httpGet(url, {}, 10000);
+    return resp.success ? resp.body : "";
+}
+
+// Original Kotlin: apiGetTurnServer — GET /_matrix/client/r0/voip/turnServer
+std::string apiGetTurnServer() {
+    return authGet(MatrixEndpointPath::TURN_SERVER).body;
+}
+
+// Original Kotlin: apiReportEvent — POST report
+std::string apiReportEvent(const std::string& roomId, const std::string& eventId,
+                           const std::string& reason, int score) {
+    std::string path = resolveEventEndpoint(MatrixEndpointPath::REPORT, roomId, eventId);
+    std::ostringstream body;
+    body << R"({"reason":")" << reason << R"(","score":)" << score << "}";
+    auto resp = authPost(path, body.str());
+    return resp.success ? resp.body : "";
+}
+
+// Original Kotlin: detectBestApiVersion — probe server for best supported version
+MatrixApiVersion detectBestApiVersion(const std::string& baseUrl) {
+    auto resp = httpGet(baseUrl + "/_matrix/client/versions", {}, 10000);
+    if (!resp.success) return MatrixApiVersion::V1;
+    if (resp.body.find("v1.1") != std::string::npos || resp.body.find("r0.6") != std::string::npos) {
+        return MatrixApiVersion::V3;
+    }
+    return MatrixApiVersion::V1;
+}
+
+// Original Kotlin: makeApiUrl — build full URL using MatrixEndpointPath constants
+std::string makeApiUrl(const std::string& path, const std::unordered_map<std::string, std::string>& params) {
+    return buildEndpointUrl(g_homeserverBase, path, params);
+}
+
+// Original Kotlin: apiGetUrlPreview — GET /_matrix/media/r0/preview_url
+std::string apiGetUrlPreview(const std::string& url, int64_t ts) {
+    std::string path = MatrixEndpointPath::PREVIEW_URL;
+    std::ostringstream fullPath;
+    fullPath << path << "?url=" << urlEncode(url);
+    if (ts > 0) fullPath << "&ts=" << ts;
+    return authGet(fullPath.str()).body;
+}
+
+// Original Kotlin: apiSearchUserDirectory — POST user_directory/search
+std::string apiSearchUserDirectory(const std::string& searchTerm, int limit) {
+    std::ostringstream body;
+    body << R"({"search_term":")" << searchTerm << R"(","limit":)" << limit << "}";
+    auto resp = authPost(MatrixEndpointPath::USER_DIRECTORY, body.str());
+    return resp.success ? resp.body : "";
+}
+
+// Original Kotlin: apiGetNotifications — GET /_matrix/client/r0/notifications
+std::string apiGetNotifications(const std::string& from, int limit, const std::string& only) {
+    std::ostringstream path;
+    path << MatrixEndpointPath::NOTIFICATIONS << "?limit=" << limit;
+    if (!from.empty()) path << "&from=" << from;
+    if (!only.empty()) path << "&only=" << only;
+    return authGet(path.str()).body;
+}
+
+// Original Kotlin: apiGetDevices — GET /_matrix/client/r0/devices
+std::string apiGetDevices() {
+    return authGet(MatrixEndpointPath::DEVICES).body;
+}
+
+// Original Kotlin: apiDeleteDevices — POST delete_devices
+std::string apiDeleteDevices(const std::vector<std::string>& deviceIds) {
+    std::ostringstream body;
+    body << R"({"devices":[)";
+    for (size_t i = 0; i < deviceIds.size(); i++) {
+        if (i > 0) body << ",";
+        body << R"(")" << deviceIds[i] << R"(")";
+    }
+    body << "]}";
+    auto resp = authPost(MatrixEndpointPath::DELETE_DEVICES, body.str());
     return resp.success ? resp.body : "";
 }
 

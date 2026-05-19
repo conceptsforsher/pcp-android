@@ -1,6 +1,7 @@
 #include "progressive/read_marker.hpp"
 #include <sstream>
 #include <algorithm>
+#include <unordered_set>
 
 namespace progressive {
 
@@ -134,6 +135,131 @@ std::string formatJumpToUnreadLabel(const ReadMarkerState& state, int64_t nowMs)
     std::string timeLabel = formatTimeAgoLabel(state.firstUnreadTimestampMs, nowMs);
     if (timeLabel.empty()) return "Jump to unread";
     return "Jump to unread (" + timeLabel + ")";
+}
+
+// ================================================================
+// Extended Read Marker Functions
+// ================================================================
+
+ReadMarkerPosition computeReadMarkerPosition(const std::string& readMarkerEventId,
+                                               const std::vector<std::string>& loadedEventIds,
+                                               bool isFullyRead) {
+    // Original Kotlin: computeReadMarkerPosition() — finds index and state
+    ReadMarkerPosition pos;
+    pos.eventId = readMarkerEventId;
+    pos.isFullyRead = isFullyRead;
+    pos.displayIndex = -1;
+
+    if (readMarkerEventId.empty()) return pos;
+
+    for (size_t i = 0; i < loadedEventIds.size(); ++i) {
+        if (loadedEventIds[i] == readMarkerEventId) {
+            pos.displayIndex = static_cast<int>(i);
+            break;
+        }
+    }
+
+    return pos;
+}
+
+std::string updateReadMarker(const std::string& roomId, const std::string& eventId,
+                              bool isFullyRead) {
+    // Original Kotlin: updateReadMarker() — advances to given event
+    return eventId;
+}
+
+bool isEventRead(const std::string& eventId, const std::string& readMarkerEventId,
+                 const std::vector<std::string>& eventIds) {
+    // Original Kotlin: isEventRead() — event at or before read marker
+    if (eventId == readMarkerEventId) return true;
+
+    int rmIdx = -1, evIdx = -1;
+    for (size_t i = 0; i < eventIds.size(); ++i) {
+        if (eventIds[i] == readMarkerEventId) rmIdx = static_cast<int>(i);
+        if (eventIds[i] == eventId) evIdx = static_cast<int>(i);
+    }
+
+    if (rmIdx < 0 || evIdx < 0) return false;
+    // Events earlier in the list (lower index) were sent earlier
+    // Read marker covers events at or before it
+    return evIdx <= rmIdx;
+}
+
+ReadMarkerRelation getReadMarkerRelation(const std::string& eventId,
+                                          const std::string& readMarkerEventId,
+                                          const std::vector<std::string>& eventIds) {
+    // Original Kotlin: getReadMarkerState() — returns ABOVE/AT/BELOW/NOT_FOUND
+    if (eventId == readMarkerEventId) return ReadMarkerRelation::AT;
+
+    int rmIdx = -1, evIdx = -1;
+    for (size_t i = 0; i < eventIds.size(); ++i) {
+        if (eventIds[i] == readMarkerEventId) rmIdx = static_cast<int>(i);
+        if (eventIds[i] == eventId) evIdx = static_cast<int>(i);
+    }
+
+    if (evIdx < 0) return ReadMarkerRelation::NOT_FOUND;
+    if (rmIdx < 0) return ReadMarkerRelation::ABOVE; // no marker = everything above
+    return evIdx < rmIdx ? ReadMarkerRelation::ABOVE : ReadMarkerRelation::BELOW;
+}
+
+std::string formatReadMarkerLabel(const ReadMarkerPosition& position) {
+    // Original Kotlin: formatReadMarkerLabel() — "New" if above read marker
+    if (position.isFullyRead) return "Read";
+    if (position.displayIndex < 0) return "";
+    return "New";
+}
+
+std::string formatReadReceipts(const std::vector<ReadReceiptsInfo>& receipts,
+                                const std::string& myUserId) {
+    // Original Kotlin: formatReadReceipts() — "Read by Alice and 3 others"
+    if (receipts.empty()) return "";
+
+    // Collect unique user IDs excluding self
+    std::unordered_set<std::string> seen;
+    std::vector<std::string> others;
+    for (const auto& r : receipts) {
+        for (const auto& uid : r.userIds) {
+            if (uid != myUserId && seen.insert(uid).second) {
+                others.push_back(uid);
+            }
+        }
+    }
+
+    if (others.empty()) return "";
+    if (others.size() == 1) return "Read by " + others[0];
+    std::ostringstream out;
+    out << "Read by " << others[0] << " and " << (others.size() - 1) << " others";
+    return out.str();
+}
+
+ReadReceiptsInfo getReadReceiptsForEvent(const std::string& eventId,
+                                           const std::vector<ReadReceiptsInfo>& receipts) {
+    // Original Kotlin: getReadReceiptsForEvent()
+    for (const auto& r : receipts) {
+        if (r.eventId == eventId) return r;
+    }
+    return {};
+}
+
+std::string buildJumpToReadMarkerRequest(const ReadMarkerJumpInfo& jumpInfo) {
+    // Original Kotlin: buildJumpToReadMarkerRequest()
+    std::ostringstream os;
+    os << R"({"event_id":")" << jumpInfo.eventId
+       << R"(","room_id":")" << jumpInfo.roomId
+       << R"(","position":)" << jumpInfo.jumpPosition << "}";
+    return os.str();
+}
+
+bool isReadMarkerVisible(const ReadMarkerPosition& position, int visibleStartIndex, int visibleEndIndex) {
+    // Original Kotlin: isReadMarkerVisible() — is the marker in the viewport
+    if (position.displayIndex < 0) return false;
+    return position.displayIndex >= visibleStartIndex && position.displayIndex <= visibleEndIndex;
+}
+
+bool shouldShowJumpToReadMarker(const ReadMarkerPosition& position, int firstVisibleIndex) {
+    // Original Kotlin: shouldShowJumpToReadMarker() — marker is above visible area
+    if (position.displayIndex < 0) return false;
+    return position.displayIndex < firstVisibleIndex;
 }
 
 } // namespace progressive

@@ -1,6 +1,7 @@
 #include "progressive/room_sort.hpp"
 #include <sstream>
 #include <algorithm>
+#include <unordered_map>
 
 namespace progressive {
 
@@ -165,6 +166,257 @@ bool breadcrumbsRoomCompare(const RoomSortEntry& a, const RoomSortEntry& b) {
 std::vector<RoomSortEntry> sortRoomsByBreadcrumbs(std::vector<RoomSortEntry> rooms) {
     std::sort(rooms.begin(), rooms.end(), breadcrumbsRoomCompare);
     return rooms;
+}
+
+std::string roomSortEntryToJson(const RoomSortEntry& room) {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out; for (char c : s) { if (c == '"') out += "\\\""; else out += c; } return out;
+    };
+    std::ostringstream json;
+    json << R"({"roomId": ")" << esc(room.roomId) << R"(",)";
+    json << R"("displayName": ")" << esc(room.displayName) << R"(",)";
+    json << R"("lastEventTs": )" << room.lastEventTs << ",";
+    json << R"("notificationCount": )" << room.notificationCount << ",";
+    json << R"("highlightCount": )" << room.highlightCount << ",";
+    json << R"("isDirect": )" << (room.isDirect ? "true" : "false") << ",";
+    json << R"("hasUnread": )" << (room.hasUnread ? "true" : "false") << ",";
+    json << R"("tag": ")" << esc(roomTagToString(room.tag)) << R"(",)";
+    json << R"("isMarkedUnread": )" << (room.isMarkedUnread ? "true" : "false") << ",";
+    json << R"("priority": )" << room.priority;
+    json << "}";
+    return json.str();
+}
+
+// ================================================================
+// Extended Room Sort Functions
+// ================================================================
+
+int computeRoomSortKey(const RoomSortEntry& room, const RoomSortConfig& config) {
+    // Original Kotlin: computeRoomSortKey() — integer key from config
+    // Each criterion contributes to a multi-tier key
+    int key = 0;
+    int tierSize = 10000000;
+
+    for (size_t i = 0; i < config.criteria.size(); ++i) {
+        RoomSortCriteria crit = config.criteria[i];
+        RoomSortOrder order = (i < config.orders.size()) ? config.orders[i] : RoomSortOrder::DESC;
+        int tier = static_cast<int>(config.criteria.size() - i) * tierSize;
+
+        bool ascending = (order == RoomSortOrder::ASC);
+
+        switch (crit) {
+            case RoomSortCriteria::NAME: {
+                // Use first char of display name as rough sort
+                int nameVal = room.displayName.empty() ? 0 : static_cast<int>(static_cast<unsigned char>(room.displayName[0]));
+                key += ascending ? (tier - nameVal) : (tier + nameVal);
+                break;
+            }
+            case RoomSortCriteria::ACTIVITY:
+                key += ascending ? tier + static_cast<int>(room.lastEventTs / 60000) : tier - static_cast<int>(room.lastEventTs / 60000);
+                break;
+            case RoomSortCriteria::UNREAD:
+                key += ascending ? (room.hasUnread ? tier + 1 : tier) : (room.hasUnread ? tier + 1 : tier + 0);
+                break;
+            case RoomSortCriteria::NOTIFICATIONS:
+                key += ascending ? tier + room.notificationCount : tier + (10000 - room.notificationCount);
+                break;
+            case RoomSortCriteria::FAVOURITE: {
+                bool isFav = (room.tag == RoomTag::Favourite);
+                key += ascending ? (isFav ? tier + 1 : tier) : (isFav ? tier + 1 : tier + 0);
+                break;
+            }
+            case RoomSortCriteria::DIRECT_CHAT:
+                key += ascending ? (room.isDirect ? tier + 1 : tier) : (room.isDirect ? tier + 1 : tier + 0);
+                break;
+            case RoomSortCriteria::SPACE:
+                // Space grouping is handled separately via groupRoomsForDisplay
+                break;
+            case RoomSortCriteria::TAG: {
+                int tagVal = static_cast<int>(room.tag);
+                key += ascending ? tier + tagVal : tier + (10 - tagVal);
+                break;
+            }
+            case RoomSortCriteria::MANUAL:
+                key += ascending ? tier + room.priority : tier + (10000 - room.priority);
+                break;
+        }
+    }
+
+    return key;
+}
+
+RoomSortConfig getDefaultSortConfig() {
+    // Original Kotlin: getDefaultSortConfig() — RECENT preset
+    return getPresetSortConfig(RoomSortPreset::RECENT);
+}
+
+RoomSortConfig getPresetSortConfig(RoomSortPreset preset) {
+    // Original Kotlin: getPresetSortConfig()
+    RoomSortConfig config;
+
+    switch (preset) {
+        case RoomSortPreset::RECENT:
+            config.criteria = {
+                RoomSortCriteria::FAVOURITE,
+                RoomSortCriteria::NOTIFICATIONS,
+                RoomSortCriteria::ACTIVITY
+            };
+            config.orders = {
+                RoomSortOrder::DESC,
+                RoomSortOrder::DESC,
+                RoomSortOrder::DESC
+            };
+            config.pinFavourites = true;
+            config.groupBySpace = false;
+            config.showInvitesFirst = true;
+            break;
+
+        case RoomSortPreset::UNREAD_FIRST:
+            config.criteria = {
+                RoomSortCriteria::NOTIFICATIONS,
+                RoomSortCriteria::UNREAD,
+                RoomSortCriteria::FAVOURITE,
+                RoomSortCriteria::ACTIVITY
+            };
+            config.orders = {
+                RoomSortOrder::DESC,
+                RoomSortOrder::DESC,
+                RoomSortOrder::DESC,
+                RoomSortOrder::DESC
+            };
+            config.pinFavourites = true;
+            config.showInvitesFirst = true;
+            break;
+
+        case RoomSortPreset::A_TO_Z:
+            config.criteria = {
+                RoomSortCriteria::FAVOURITE,
+                RoomSortCriteria::NAME
+            };
+            config.orders = {
+                RoomSortOrder::DESC,
+                RoomSortOrder::ASC
+            };
+            config.pinFavourites = true;
+            config.showInvitesFirst = false;
+            break;
+
+        case RoomSortPreset::Z_TO_A:
+            config.criteria = {
+                RoomSortCriteria::FAVOURITE,
+                RoomSortCriteria::NAME
+            };
+            config.orders = {
+                RoomSortOrder::DESC,
+                RoomSortOrder::DESC
+            };
+            config.pinFavourites = true;
+            config.showInvitesFirst = false;
+            break;
+
+        case RoomSortPreset::FAVOURITES_FIRST:
+            config.criteria = {
+                RoomSortCriteria::FAVOURITE,
+                RoomSortCriteria::ACTIVITY
+            };
+            config.orders = {
+                RoomSortOrder::DESC,
+                RoomSortOrder::DESC
+            };
+            config.pinFavourites = true;
+            config.showInvitesFirst = true;
+            break;
+
+        case RoomSortPreset::CUSTOM:
+        default:
+            config.criteria = {
+                RoomSortCriteria::FAVOURITE,
+                RoomSortCriteria::NOTIFICATIONS,
+                RoomSortCriteria::ACTIVITY
+            };
+            config.orders = {
+                RoomSortOrder::DESC,
+                RoomSortOrder::DESC,
+                RoomSortOrder::DESC
+            };
+            config.pinFavourites = true;
+            config.showInvitesFirst = true;
+            break;
+    }
+
+    return config;
+}
+
+std::vector<RoomSortEntry> sortRoomsByConfig(std::vector<RoomSortEntry> rooms, const RoomSortConfig& config) {
+    // Original Kotlin: sortRoomsByConfig() — multi-criteria sort
+    std::sort(rooms.begin(), rooms.end(),
+        [&config](const RoomSortEntry& a, const RoomSortEntry& b) -> bool {
+            int keyA = computeRoomSortKey(a, config);
+            int keyB = computeRoomSortKey(b, config);
+            if (keyA != keyB) return keyA > keyB;  // higher key = closer to top
+
+            // Tiebreaker: most recent first
+            if (a.lastEventTs != b.lastEventTs) return a.lastEventTs > b.lastEventTs;
+
+            // Alphabetical as final tiebreaker
+            return a.displayName < b.displayName;
+        });
+    return rooms;
+}
+
+std::vector<RoomGroupInfo> groupRoomsForDisplay(const std::vector<RoomSortEntry>& rooms,
+                                                  const RoomGroupingConfig& config) {
+    // Original Kotlin: groupRoomsForDisplay() — segments rooms into groups
+    std::vector<RoomGroupInfo> groups;
+
+    // Group by tag
+    std::unordered_map<RoomTag, std::vector<RoomSortEntry>> byTag;
+    for (const auto& r : rooms) {
+        byTag[r.tag].push_back(r);
+    }
+
+    // Process in display order: Favourite, untagged, LowPriority
+    auto addGroup = [&](RoomTag tag, const std::string& name) {
+        auto it = byTag.find(tag);
+        if (it == byTag.end()) return;
+        if (config.collapseEmpty && it->second.empty()) return;
+
+        RoomGroupInfo group = computeRoomGroupSummary(roomTagToString(tag), name, it->second, config);
+        groups.push_back(group);
+    };
+
+    if (config.groupByTag) {
+        addGroup(RoomTag::Favourite, "Favourites");
+        addGroup(RoomTag::NoTag, "Rooms");
+        addGroup(RoomTag::LowPriority, "Low Priority");
+        addGroup(RoomTag::ServerNotice, "System Alerts");
+        addGroup(RoomTag::Suggested, "Suggested");
+    } else {
+        // Single flat group
+        RoomGroupInfo group = computeRoomGroupSummary("all", "All Rooms", rooms, config);
+        groups.push_back(group);
+    }
+
+    return groups;
+}
+
+RoomGroupInfo computeRoomGroupSummary(const std::string& groupId, const std::string& groupName,
+                                        const std::vector<RoomSortEntry>& rooms,
+                                        const RoomGroupingConfig& config) {
+    // Original Kotlin: computeRoomGroupSummary()
+    RoomGroupInfo info;
+    info.groupId = groupId;
+    info.groupName = groupName;
+    info.isCollapsible = config.groupByTag;
+
+    for (const auto& r : rooms) {
+        info.rooms.push_back(r.roomId);
+        if (r.hasUnread) info.unreadCount++;
+        info.highlightCount += r.highlightCount;
+    }
+
+    info.isCollapsed = config.collapseEmpty && rooms.empty();
+    return info;
 }
 
 } // namespace progressive

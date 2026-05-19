@@ -1,5 +1,4 @@
-#ifndef PROGRESSIVE_READ_MARKER_HPP
-#define PROGRESSIVE_READ_MARKER_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -24,6 +23,43 @@ struct ReadMarkerState {
     bool hasUnread = false;
     bool showReadMarker = false;
     int readMarkerIndex = -1;
+};
+
+// ---- Read Marker Position ----
+// Original Kotlin: ReadMarkerPosition data class
+
+struct ReadMarkerPosition {
+    std::string eventId;
+    int displayIndex = -1;
+    bool isFullyRead = false;
+};
+
+// ---- Read Marker Relation ----
+// Original Kotlin: describes whether an event is above, at, or below the read marker
+
+enum class ReadMarkerRelation {
+    ABOVE = 0,
+    AT = 1,
+    BELOW = 2,
+    NOT_FOUND = 3,
+};
+
+// ---- Read Receipts Info ----
+// Original Kotlin: ReadReceiptsInfo data class
+
+struct ReadReceiptsInfo {
+    std::string eventId;
+    std::vector<std::string> userIds;
+    int64_t timestamp = 0;
+};
+
+// ---- Read Marker Jump Info ----
+// Original Kotlin: ReadMarkerJumpInfo data class
+
+struct ReadMarkerJumpInfo {
+    std::string eventId;
+    std::string roomId;
+    int jumpPosition = -1;
 };
 
 // Compute read marker position in the loaded event list.
@@ -59,6 +95,54 @@ std::string advanceReadMarker(const std::string& currentRoomId, const std::strin
 // Format read marker state as JSON for the Kotlin UI layer.
 std::string readMarkerToJson(const ReadMarkerState& state);
 
-} // namespace progressive
+// ---- Extended Read Marker Functions ----
 
-#endif // PROGRESSIVE_READ_MARKER_HPP
+// Compute the position of the read marker in the event list.
+// Original Kotlin: computeReadMarkerPosition()
+ReadMarkerPosition computeReadMarkerPosition(const std::string& readMarkerEventId,
+                                               const std::vector<std::string>& loadedEventIds,
+                                               bool isFullyRead);
+
+// Update the read marker to a new event ID.
+// Original Kotlin: updateReadMarker()
+std::string updateReadMarker(const std::string& roomId, const std::string& eventId,
+                              bool isFullyRead);
+
+// Check if an event has been read (is at or below the read marker).
+// Original Kotlin: isEventRead()
+bool isEventRead(const std::string& eventId, const std::string& readMarkerEventId,
+                 const std::vector<std::string>& eventIds);
+
+// Get the relation of an event to the read marker.
+// Original Kotlin: getReadMarkerState()
+ReadMarkerRelation getReadMarkerRelation(const std::string& eventId,
+                                          const std::string& readMarkerEventId,
+                                          const std::vector<std::string>& eventIds);
+
+// Format the read marker label for the UI ("New", "Read").
+// Original Kotlin: formatReadMarkerLabel()
+std::string formatReadMarkerLabel(const ReadMarkerPosition& position);
+
+// Format read receipts for display.
+// Original Kotlin: formatReadReceipts()
+std::string formatReadReceipts(const std::vector<ReadReceiptsInfo>& receipts,
+                                const std::string& myUserId);
+
+// Get read receipts for a specific event.
+// Original Kotlin: getReadReceiptsForEvent()
+ReadReceiptsInfo getReadReceiptsForEvent(const std::string& eventId,
+                                           const std::vector<ReadReceiptsInfo>& receipts);
+
+// Build a request to jump to the read marker.
+// Original Kotlin: buildJumpToReadMarkerRequest()
+std::string buildJumpToReadMarkerRequest(const ReadMarkerJumpInfo& jumpInfo);
+
+// Check if the read marker is visible in the current viewport.
+// Original Kotlin: isReadMarkerVisible()
+bool isReadMarkerVisible(const ReadMarkerPosition& position, int visibleStartIndex, int visibleEndIndex);
+
+// Check if the "jump to read marker" button should be shown.
+// Original Kotlin: shouldShowJumpToReadMarker()
+bool shouldShowJumpToReadMarker(const ReadMarkerPosition& position, int firstVisibleIndex);
+
+} // namespace progressive

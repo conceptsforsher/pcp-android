@@ -215,6 +215,119 @@ LocationAction parseLocationAction(const std::string& actionJson);
 // Format a location action as JSON.
 std::string locationActionToJson(const LocationAction& action);
 
+// ---- Live Location Share State ----
+// Original Kotlin: LiveLocationShareState enum
+
+enum class LiveLocationShareState {
+    ACTIVE = 0,
+    PAUSED = 1,
+    EXPIRED = 2,
+    STOPPED = 3,
+    DELETED = 4,
+};
+
+// ---- Live Location Share ----
+// Original Kotlin: LiveLocationShare data class
+
+struct LiveLocationShare {
+    std::string shareId;
+    std::string roomId;
+    std::string userId;
+    std::string deviceId;
+    std::string beaconInfoId;
+    LiveLocationShareState state = LiveLocationShareState::ACTIVE;
+    int64_t startedAt = 0;
+    int64_t expiresAt = 0;
+    int64_t lastUpdatedAt = 0;
+    std::string description;
+    int timeoutMs = 0;
+};
+
+// ---- Live Location Participants ----
+// Original Kotlin: LiveLocationParticipants data class
+
+struct LiveLocationParticipants {
+    std::string shareId;
+    std::vector<std::string> participants;
+    int totalCount = 0;
+};
+
+// ---- Live Location Beacon Data ----
+// Original Kotlin: LiveLocationBeaconData data class
+
+struct LiveLocationBeaconData {
+    std::string shareId;
+    std::string geoUri;
+    int64_t timestamp = 0;
+    bool isLive = false;
+    double accuracy = 0.0;
+};
+
+// ---- Live Location Aggregation Result ----
+// Original Kotlin: LiveLocationAggregationResult data class
+
+struct LiveLocationAggregationResult {
+    std::string shareId;
+    std::vector<LiveLocationBeaconData> beacons;
+    GeoCoordinate latestCoord;
+    int beaconCount = 0;
+    int64_t firstTimestamp = 0;
+    int64_t lastTimestamp = 0;
+    bool isActive = false;
+};
+
+// ---- Live Location Share Functions ----
+
+// Start a live location share. Returns m.beacon_info event JSON.
+// Original Kotlin: stateService.liveLocation().startLiveLocationShare()
+std::string startLiveLocationShare(const std::string& roomId, const std::string& userId,
+                                    const std::string& description, int timeoutMs,
+                                    std::string& error);
+
+// Stop a live location share.
+// Original Kotlin: stateService.liveLocation().stopLiveLocationShare()
+std::string stopLiveLocationShare(const std::string& shareId);
+
+// Pause a live location share.
+bool pauseLiveLocationShare(const std::string& shareId);
+
+// Resume a paused live location share.
+bool resumeLiveLocationShare(const std::string& shareId);
+
+// Get all active live location shares.
+std::vector<LiveLocationShare> getActiveLiveLocationShares();
+
+// Get a live location share by ID.
+bool getLiveLocationShareById(const std::string& shareId, LiveLocationShare& out);
+
+// Get all live location shares for a room.
+std::vector<LiveLocationShare> getLiveLocationSharesForRoom(const std::string& roomId);
+
+// Get active live location shares for a specific user.
+std::vector<LiveLocationShare> getActiveLiveLocationSharesForUser(const std::string& userId);
+
+// Check if a live location share has expired.
+bool isLiveLocationShareExpired(const LiveLocationShare& share);
+
+// Compute the expiry timestamp for a live location share.
+int64_t computeLiveLocationShareExpiry(int64_t startedAt, int timeoutMs);
+
+// Build the start event JSON for a live location share (m.beacon_info).
+std::string buildLiveLocationShareStartEvent(const LiveLocationShare& share);
+
+// Build the stop event JSON for a live location share.
+std::string buildLiveLocationShareStopEvent(const std::string& shareId);
+
+// Parse a live location share event from JSON.
+LiveLocationShare parseLiveLocationShareEvent(const std::string& eventJson);
+
+// Aggregate live location beacon data.
+LiveLocationAggregationResult aggregateLiveLocationData(const std::string& shareId,
+                                                         const std::vector<LiveLocationBeaconData>& beacons);
+
+// Format the duration of a live location share as a human-readable string.
+std::string formatLiveLocationShareDuration(int64_t startedAt, int64_t nowMs);
+
 // ---- Live Location Manager ----
 
 class LiveLocationManager {

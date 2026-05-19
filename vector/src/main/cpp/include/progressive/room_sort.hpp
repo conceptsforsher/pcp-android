@@ -1,5 +1,4 @@
-#ifndef PROGRESSIVE_ROOM_SORT_HPP
-#define PROGRESSIVE_ROOM_SORT_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -32,6 +31,74 @@ struct RoomSortEntry {
     RoomTag tag = RoomTag::NoTag;  // user-defined tag
     bool isMarkedUnread = false;   // manually marked unread
     int priority = 0;              // manual priority (0 = default)
+};
+
+// ---- Room Sort Criteria ----
+// Original Kotlin: RoomSortCriteria enum
+
+enum class RoomSortCriteria {
+    NAME = 0,
+    ACTIVITY = 1,
+    UNREAD = 2,
+    NOTIFICATIONS = 3,
+    FAVOURITE = 4,
+    DIRECT_CHAT = 5,
+    SPACE = 6,
+    TAG = 7,
+    MANUAL = 8,
+};
+
+// ---- Room Sort Order ----
+// Original Kotlin: RoomSortOrder enum
+
+enum class RoomSortOrder {
+    ASC = 0,
+    DESC = 1,
+};
+
+// ---- Room Sort Config ----
+// Original Kotlin: RoomSortConfig data class
+
+struct RoomSortConfig {
+    std::vector<RoomSortCriteria> criteria;
+    std::vector<RoomSortOrder> orders;
+    bool groupBySpace = false;
+    bool pinFavourites = true;
+    bool showInvitesFirst = true;
+};
+
+// ---- Room Sort Preset ----
+// Original Kotlin: RoomSortPreset enum
+
+enum class RoomSortPreset {
+    RECENT = 0,
+    UNREAD_FIRST = 1,
+    A_TO_Z = 2,
+    Z_TO_A = 3,
+    FAVOURITES_FIRST = 4,
+    CUSTOM = 5,
+};
+
+// ---- Room Grouping Config ----
+// Original Kotlin: RoomGroupingConfig data class
+
+struct RoomGroupingConfig {
+    bool groupBySpace = false;
+    bool groupByTag = true;
+    bool collapseEmpty = true;
+};
+
+// ---- Room Group Info ----
+// Original Kotlin: RoomGroupInfo data class
+
+struct RoomGroupInfo {
+    std::string groupId;
+    std::string groupName;
+    std::vector<std::string> rooms;
+    bool isCollapsible = false;
+    bool isCollapsed = false;
+    int unreadCount = 0;
+    int highlightCount = 0;
 };
 
 // Compare function: returns true if 'a' should come before 'b'.
@@ -89,6 +156,33 @@ bool breadcrumbsRoomCompare(const RoomSortEntry& a, const RoomSortEntry& b);
 // Format sort results as JSON for the Kotlin UI.
 std::string roomSortEntryToJson(const RoomSortEntry& room);
 
-} // namespace progressive
+// ---- Extended Room Sort Functions ----
 
-#endif // PROGRESSIVE_ROOM_SORT_HPP
+// Compute a sort key for a room entry using the given config.
+// Original Kotlin: computeRoomSortKey()
+int computeRoomSortKey(const RoomSortEntry& room, const RoomSortConfig& config);
+
+// Sort rooms using a custom sort config.
+// Original Kotlin: sortRoomsByConfig()
+std::vector<RoomSortEntry> sortRoomsByConfig(std::vector<RoomSortEntry> rooms, const RoomSortConfig& config);
+
+// Get the default sort config.
+// Original Kotlin: getDefaultSortConfig()
+RoomSortConfig getDefaultSortConfig();
+
+// Get a preset sort config.
+// Original Kotlin: getPresetSortConfig()
+RoomSortConfig getPresetSortConfig(RoomSortPreset preset);
+
+// Group rooms for display in the room list.
+// Original Kotlin: groupRoomsForDisplay()
+std::vector<RoomGroupInfo> groupRoomsForDisplay(const std::vector<RoomSortEntry>& rooms,
+                                                  const RoomGroupingConfig& config);
+
+// Compute a summary for a group of rooms.
+// Original Kotlin: computeRoomGroupSummary()
+RoomGroupInfo computeRoomGroupSummary(const std::string& groupId, const std::string& groupName,
+                                        const std::vector<RoomSortEntry>& rooms,
+                                        const RoomGroupingConfig& config);
+
+} // namespace progressive

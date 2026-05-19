@@ -32,6 +32,36 @@ PowerLevelAction powerLevelActionFromString(const std::string& action) {
 }
 
 // ============================================================================
+// RoomPermissionLevel enum conversions
+// ============================================================================
+
+// Original Kotlin: RoomPermissionLevel.kt
+const char* roomPermissionLevelToString(RoomPermissionLevel level) {
+    switch (level) {
+        case RoomPermissionLevel::NONE:      return "none";
+        case RoomPermissionLevel::USER:      return "user";
+        case RoomPermissionLevel::MODERATOR: return "moderator";
+        case RoomPermissionLevel::ADMIN:     return "admin";
+    }
+    return "none";
+}
+
+RoomPermissionLevel roomPermissionLevelFromString(const std::string& s) {
+    if (s == "none")      return RoomPermissionLevel::NONE;
+    if (s == "user")      return RoomPermissionLevel::USER;
+    if (s == "moderator") return RoomPermissionLevel::MODERATOR;
+    if (s == "admin")     return RoomPermissionLevel::ADMIN;
+    return RoomPermissionLevel::NONE;
+}
+
+RoomPermissionLevel roomPermissionLevelFromInt(int level) {
+    if (level <= static_cast<int>(RoomPermissionLevel::NONE))  return RoomPermissionLevel::NONE;
+    if (level <= static_cast<int>(RoomPermissionLevel::USER))  return RoomPermissionLevel::USER;
+    if (level <= static_cast<int>(RoomPermissionLevel::MODERATOR)) return RoomPermissionLevel::MODERATOR;
+    return RoomPermissionLevel::ADMIN;
+}
+
+// ============================================================================
 // PowerLevels JSON parsing
 // ============================================================================
 
@@ -403,6 +433,188 @@ bool hasPower(const RoomPowerLevels& pl, const std::string& userId,
 
 std::string getSuggestedRole(const RoomPowerLevels& pl, const std::string& userId) {
     return pl.getSuggestedRole(userId);
+}
+
+// ============================================================================
+// Extended Permission Checks
+// ============================================================================
+
+// Original Kotlin: checkRoomPermission()
+RoomPermissionCheck checkRoomPermission(const RoomPowerLevels& pl, const std::string& userId,
+                                         const std::string& action) {
+    RoomPermissionCheck check;
+    check.userId = userId;
+    check.action = action;
+    check.userLevel = pl.getUserPowerLevel(userId);
+    check.requiredLevel = getRequiredLevelForAction(pl.powerLevelsContent, action);
+    check.isAllowed = (check.userLevel >= check.requiredLevel ||
+                       check.userLevel == PowerLevelsConstants::INFINITE_PL);
+    if (!check.isAllowed) {
+        std::ostringstream reason;
+        reason << "User " << userId << " (PL " << check.userLevel
+               << ") lacks permission for " << action
+               << " (requires PL " << check.requiredLevel << ")";
+        check.reason = reason.str();
+    }
+    return check;
+}
+
+// Original Kotlin: getRequiredLevelForAction()
+int getRequiredLevelForAction(const PowerLevels& pl, const std::string& action) {
+    if (action == "ban")                       return pl.ban;
+    if (action == "kick")                      return pl.kick;
+    if (action == "invite")                    return pl.invite;
+    if (action == "redact")                    return pl.redact;
+    if (action == "notify_room")               return pl.notify;
+
+    // Check event-level overrides
+    auto stateIt = pl.events.find(action);
+    if (stateIt != pl.events.end()) return stateIt->second;
+
+    // Check message subtype (e.g. m.room.message#image)
+    auto hashPos = action.find('#');
+    if (hashPos != std::string::npos) {
+        std::string baseType = action.substr(0, hashPos);
+        auto baseIt = pl.events.find(baseType);
+        if (baseIt != pl.events.end()) return baseIt->second;
+    }
+
+    return pl.stateDefault;
+}
+
+// Original Kotlin: isPowerLevelSufficient()
+bool isPowerLevelSufficient(const RoomPowerLevels& pl, const std::string& userId,
+                            const std::string& action) {
+    int userPL = pl.getUserPowerLevel(userId);
+    int required = getRequiredLevelForAction(pl.powerLevelsContent, action);
+    return userPL >= required || userPL == PowerLevelsConstants::INFINITE_PL;
+}
+
+// ============================================================================
+// Ban/Kick Event Builders & Parsers
+// ============================================================================
+
+namespace {
+
+std::string jExtractStr(const std::string& json, const std::string& key) {
+    auto pos = json.find("\"" + key + "\"");
+    if (pos == std::string::npos) return "";
+    pos = json.find(':', pos);
+    if (pos == std::string::npos) return "";
+    pos++;
+    while (pos < json.size() && (json[pos] == ' ' || json[pos] == '\t' || json[pos] == '\n' || json[pos] == '\r')) pos++;
+    if (pos >= json.size() || json[pos] != '"') return "";
+    pos++;
+    size_t end = pos;
+    while (end < json.size() && json[end] != '"') {
+        if (json[end] == '\\') end++;
+        end++;
+    }
+    return json.substr(pos, end - pos);
+}
+
+std::string jEscape(const std::string& s) {
+    std::string out;
+    for (char c : s) {
+        if (c == '"') out += "\\\"";
+        else if (c == '\\') out += "\\\\";
+        else out += c;
+    }
+    return out;
+}
+
+} // anonymous namespace
+
+// Original Kotlin: buildBanEvent()
+std::string buildBanEvent(const RoomBanInfo& banInfo) {
+    std::ostringstream json;
+    json << "{";
+    json << "\"membership\":\"ban\"";
+    if (!banInfo.reason.empty()) {
+        json << ",\"reason\":\"" << jEscape(banInfo.reason) << "\"";
+    }
+    json << "}";
+    return json.str();
+}
+
+// Original Kotlin: parseBanEvent()
+RoomBanInfo parseBanEvent(const std::string& stateContentJson) {
+    RoomBanInfo info;
+    info.reason = jExtractStr(stateContentJson, "reason");
+    return info;
+}
+
+// Original Kotlin: isUserBanned()
+bool isUserBanned(const std::string& userId, const std::string& membershipStateJson) {
+    (void)userId;
+    auto membership = jExtractStr(membershipStateJson, "membership");
+    return membership == "ban";
+}
+
+// Original Kotlin: buildKickEvent()
+std::string buildKickEvent(const RoomKickInfo& kickInfo) {
+    std::ostringstream json;
+    json << "{";
+    json << "\"membership\":\"leave\"";
+    if (!kickInfo.reason.empty()) {
+        json << ",\"reason\":\"" << jEscape(kickInfo.reason) << "\"";
+    }
+    json << "}";
+    return json.str();
+}
+
+// ============================================================================
+// Individual Permission Check Functions
+// ============================================================================
+
+// Original Kotlin: isUserAllowedToInvite()
+bool isUserAllowedToInvite(const RoomPowerLevels& pl, const std::string& userId) {
+    return pl.isUserAbleToInvite(userId);
+}
+
+// Original Kotlin: isUserAllowedToKick()
+bool isUserAllowedToKick(const RoomPowerLevels& pl, const std::string& userId) {
+    return pl.isUserAbleToKick(userId);
+}
+
+// Original Kotlin: isUserAllowedToBan()
+bool isUserAllowedToBan(const RoomPowerLevels& pl, const std::string& userId) {
+    return pl.isUserAbleToBan(userId);
+}
+
+// Original Kotlin: isUserAllowedToRedact()
+bool isUserAllowedToRedact(const RoomPowerLevels& pl, const std::string& userId) {
+    return pl.isUserAbleToRedact(userId);
+}
+
+// Original Kotlin: isUserAllowedToSetName()
+bool isUserAllowedToSetName(const RoomPowerLevels& pl, const std::string& userId) {
+    return isPowerLevelSufficient(pl, userId, "m.room.name");
+}
+
+// Original Kotlin: isUserAllowedToSetTopic()
+bool isUserAllowedToSetTopic(const RoomPowerLevels& pl, const std::string& userId) {
+    return isPowerLevelSufficient(pl, userId, "m.room.topic");
+}
+
+// Original Kotlin: isUserAllowedToSetAvatar()
+bool isUserAllowedToSetAvatar(const RoomPowerLevels& pl, const std::string& userId) {
+    return isPowerLevelSufficient(pl, userId, "m.room.avatar");
+}
+
+// Original Kotlin: isUserAllowedToChangeJoinRules()
+bool isUserAllowedToChangeJoinRules(const RoomPowerLevels& pl, const std::string& userId) {
+    return isPowerLevelSufficient(pl, userId, "m.room.join_rules");
+}
+
+// Original Kotlin: isUserAllowedToChangeHistoryVisibility()
+bool isUserAllowedToChangeHistoryVisibility(const RoomPowerLevels& pl, const std::string& userId) {
+    return isPowerLevelSufficient(pl, userId, "m.room.history_visibility");
+}
+
+// Original Kotlin: isUserAllowedToChangeGuestAccess()
+bool isUserAllowedToChangeGuestAccess(const RoomPowerLevels& pl, const std::string& userId) {
+    return isPowerLevelSufficient(pl, userId, "m.room.guest_access");
 }
 
 // ============================================================================

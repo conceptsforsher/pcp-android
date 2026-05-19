@@ -31,6 +31,29 @@ VoiceBroadcastState voiceBroadcastStateFromString(const std::string& s) {
 }
 
 // ====================================================================
+// VoiceBroadcastPlaybackState
+// ====================================================================
+
+// Original Kotlin: voicebroadcast/VoiceBroadcastPlaybackState.kt
+const char* voiceBroadcastPlaybackStateToString(VoiceBroadcastPlaybackState s) {
+    switch (s) {
+        case VoiceBroadcastPlaybackState::STOPPED:   return "stopped";
+        case VoiceBroadcastPlaybackState::PLAYING:   return "playing";
+        case VoiceBroadcastPlaybackState::PAUSED:    return "paused";
+        case VoiceBroadcastPlaybackState::BUFFERING: return "buffering";
+    }
+    return "stopped";
+}
+
+VoiceBroadcastPlaybackState voiceBroadcastPlaybackStateFromString(const std::string& s) {
+    if (s == "stopped")   return VoiceBroadcastPlaybackState::STOPPED;
+    if (s == "playing")   return VoiceBroadcastPlaybackState::PLAYING;
+    if (s == "paused")    return VoiceBroadcastPlaybackState::PAUSED;
+    if (s == "buffering") return VoiceBroadcastPlaybackState::BUFFERING;
+    return VoiceBroadcastPlaybackState::STOPPED;
+}
+
+// ====================================================================
 // JSON Helpers (local, manual — no dependency on json_parser)
 // ====================================================================
 
@@ -165,6 +188,19 @@ std::string buildVoiceBroadcastChunkContent(const VoiceBroadcastChunkContent& ch
     return os.str();
 }
 
+// Original Kotlin: buildVoiceBroadcastChunkEvent()
+std::string buildVoiceBroadcastChunkEvent(const std::string& roomId,
+                                          const std::string& broadcastId,
+                                          const VoiceBroadcastChunkContent& chunk) {
+    std::ostringstream os;
+    os << "{";
+    os << "\"type\":\"io.element.voicebroadcast.chunk\",";
+    os << "\"room_id\":\"" << jEscape(roomId) << "\",";
+    os << "\"content\":" << buildVoiceBroadcastChunkContent(chunk);
+    os << "}";
+    return os.str();
+}
+
 // ====================================================================
 // Parsers
 // ====================================================================
@@ -217,6 +253,17 @@ VoiceBroadcastChunkContent parseVoiceBroadcastChunk(const std::string& json) {
     return chunk;
 }
 
+// Original Kotlin: parseVoiceBroadcastChunkEvent()
+VoiceBroadcastChunkContent parseVoiceBroadcastChunkEvent(const std::string& eventJson) {
+    // First try extracting from content envelope
+    auto contentJson = jExtractObj(eventJson, "content");
+    if (!contentJson.empty()) {
+        return parseVoiceBroadcastChunk(contentJson);
+    }
+    // Fallback: parse top-level directly
+    return parseVoiceBroadcastChunk(eventJson);
+}
+
 // Original Kotlin: parseVoiceBroadcastInfo() — full aggregate
 VoiceBroadcastInfo parseVoiceBroadcastInfoJson(const std::string& json) {
     VoiceBroadcastInfo info;
@@ -260,6 +307,42 @@ VoiceBroadcastInfo parseVoiceBroadcastInfoJson(const std::string& json) {
     }
 
     return info;
+}
+
+// ====================================================================
+// Playback Controls
+// ====================================================================
+
+// Original Kotlin: VoiceBroadcastPlayer.play()
+bool playVoiceBroadcast(const std::string& broadcastId) {
+    (void)broadcastId;
+    // Real implementation hooks into audio engine for playback
+    return false;
+}
+
+// Original Kotlin: VoiceBroadcastPlayer.pause()
+bool pauseVoiceBroadcast(const std::string& broadcastId) {
+    (void)broadcastId;
+    return false;
+}
+
+// Original Kotlin: VoiceBroadcastPlayer.stop()
+bool stopVoiceBroadcast(const std::string& broadcastId) {
+    (void)broadcastId;
+    return false;
+}
+
+// Original Kotlin: VoiceBroadcastPlayer.seek()
+bool seekVoiceBroadcast(const std::string& broadcastId, int64_t positionMs) {
+    (void)broadcastId;
+    (void)positionMs;
+    return false;
+}
+
+// Original Kotlin: VoiceBroadcastPlayer.getProgress()
+std::pair<int64_t, int64_t> getVoiceBroadcastProgress(const std::string& broadcastId) {
+    (void)broadcastId;
+    return {0, 0};
 }
 
 // ====================================================================
@@ -316,6 +399,38 @@ std::string getVoiceBroadcastId(const std::string& eventContentJson) {
     std::string id = jExtractStr(eventContentJson, "voice_broadcast_id");
     if (id.empty()) id = jExtractStr(eventContentJson, "voiceBroadcastId");
     return id;
+}
+
+// ====================================================================
+// Current User Checks
+// ====================================================================
+
+// Original Kotlin: isCurrentUserBroadcasting()
+bool isCurrentUserBroadcasting(const std::string& currentUserId,
+                               const std::vector<VoiceBroadcastEvent>& events) {
+    for (const auto& ev : events) {
+        if (ev.senderId == currentUserId && ev.isInfoEvent() &&
+            (ev.state == VoiceBroadcastState::STARTED ||
+             ev.state == VoiceBroadcastState::RESUMED)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Original Kotlin: canStartVoiceBroadcast()
+bool canStartVoiceBroadcast(const std::string& currentUserId,
+                            const std::string& roomId,
+                            const std::vector<VoiceBroadcastEvent>& events) {
+    for (const auto& ev : events) {
+        if (ev.roomId == roomId &&
+            ev.senderId == currentUserId &&
+            (ev.state == VoiceBroadcastState::STARTED ||
+             ev.state == VoiceBroadcastState::RESUMED)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // ====================================================================

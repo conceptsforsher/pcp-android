@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <unordered_set>
+#include <chrono>
 
 namespace progressive {
 
@@ -146,6 +147,230 @@ std::vector<std::pair<std::string, std::string>> parseStringMap(const std::strin
 }
 
 } // anonymous namespace
+
+// ====================================================================
+// SyncErrorRecovery
+// ====================================================================
+
+// Original Kotlin: sync/SyncErrorRecovery.kt
+const char* syncErrorRecoveryToString(SyncErrorRecovery r) {
+    switch (r) {
+        case SyncErrorRecovery::RETRY:       return "retry";
+        case SyncErrorRecovery::RESET_CACHE: return "reset_cache";
+        case SyncErrorRecovery::RE_LOGIN:    return "re_login";
+        case SyncErrorRecovery::CONTINUE:    return "continue";
+    }
+    return "retry";
+}
+
+SyncErrorRecovery syncErrorRecoveryFromString(const std::string& s) {
+    if (s == "retry")       return SyncErrorRecovery::RETRY;
+    if (s == "reset_cache") return SyncErrorRecovery::RESET_CACHE;
+    if (s == "re_login")    return SyncErrorRecovery::RE_LOGIN;
+    if (s == "continue")    return SyncErrorRecovery::CONTINUE;
+    return SyncErrorRecovery::RETRY;
+}
+
+// ====================================================================
+// Sync Error Handling
+// ====================================================================
+
+// Original Kotlin: classifySyncError()
+SyncErrorRecovery classifySyncError(int httpStatus, const std::string& errorBody) {
+    // Authentication errors — require re-login
+    if (httpStatus == 401 || httpStatus == 403) return SyncErrorRecovery::RE_LOGIN;
+
+    // Server-side errors — retry with backoff
+    if (httpStatus >= 500 && httpStatus < 600) return SyncErrorRecovery::RETRY;
+
+    // Network errors (timeout, DNS, etc.) — retry
+    if (httpStatus == 0) return SyncErrorRecovery::RETRY;
+
+    // Check for known Matrix error codes in body
+    if (errorBody.find("M_UNKNOWN_TOKEN") != std::string::npos ||
+        errorBody.find("M_MISSING_TOKEN") != std::string::npos) {
+        return SyncErrorRecovery::RE_LOGIN;
+    }
+    if (errorBody.find("M_LIMIT_EXCEEDED") != std::string::npos) {
+        return SyncErrorRecovery::RETRY;
+    }
+    if (errorBody.find("M_CACHE_INVALIDATED") != std::string::npos) {
+        return SyncErrorRecovery::RESET_CACHE;
+    }
+
+    // 4xx client errors other than auth — continue
+    if (httpStatus >= 400 && httpStatus < 500) return SyncErrorRecovery::CONTINUE;
+
+    return SyncErrorRecovery::RETRY;
+}
+
+// Original Kotlin: handleSyncError()
+SyncErrorMessage handleSyncError(const std::string& errorJson, int httpStatus) {
+    SyncErrorMessage msg;
+    msg.recovery = classifySyncError(httpStatus, errorJson);
+
+    // Extract Matrix error code
+    auto errCode = extractStr(errorJson, "errcode");
+    msg.error = errCode.empty() ? std::to_string(httpStatus) : errCode;
+
+    // Extract human-readable message
+    auto errMsg = extractStr(errorJson, "error");
+    if (!errMsg.empty()) {
+        msg.message = errMsg;
+    } else {
+        msg.message = "Sync error (HTTP " + std::to_string(httpStatus) + ")";
+    }
+
+    return msg;
+}
+
+// ====================================================================
+// Sync Filter Functions
+// ====================================================================
+
+// Original Kotlin: buildSyncFilter()
+std::string buildSyncFilter(const std::vector<std::string>& roomTypes,
+                            const std::vector<std::string>& eventTypes,
+                            int limit) {
+    std::ostringstream os;
+    os << "{";
+
+    // event_fields
+    os << "\"event_fields\":[\"type\",\"content\",\"sender\",\"event_id\",\"origin_server_ts\",\"unsigned\",\"room_id\",\"state_key\"]";
+
+    // event_format
+    os << ",\"event_format\":\"client\"";
+
+    // room filter
+    os << ",\"room\":{";
+
+    // timeline
+    os << "\"timeline\":{";
+    os << "\"limit\":" << limit;
+    if (!eventTypes.empty()) {
+        os << ",\"types\":[";
+        for (size_t i = 0; i < eventTypes.size(); ++i) {
+            if (i > 0) os << ",";
+            os << "\"" << escJson(eventTypes[i]) << "\"";
+        }
+        os << "]";
+    }
+    os << ",\"not_types\":[\"m.room.member\"]";
+    os << "}";
+
+    // state
+    os << ",\"state\":{";
+    os << "\"limit\":0";
+    os << ",\"lazy_load_members\":true";
+    os << "}";
+
+    // ephemeral
+    os << ",\"ephemeral\":{";
+    os << "\"limit\":0";
+    os << "}";
+
+    // account_data
+    os << ",\"account_data\":{";
+    os << "\"limit\":0";
+    os << "}";
+
+    // room types
+    if (!roomTypes.empty()) {
+        os << ",\"room_types\":[";
+        for (size_t i = 0; i < roomTypes.size(); ++i) {
+            if (i > 0) os << ",";
+            os << "\"" << escJson(roomTypes[i]) << "\"";
+        }
+        os << "]";
+    }
+
+    os << "}"; // close room
+
+    // presence
+    os << ",\"presence\":{";
+    os << "\"limit\":0";
+    os << "}";
+
+    // account_data top-level
+    os << ",\"account_data\":{";
+    os << "\"limit\":0";
+    os << "}";
+
+    os << "}";
+    return os.str();
+}
+
+// Original Kotlin: parseSyncFilterResponse()
+std::string parseSyncFilterResponse(const std::string& responseJson) {
+    std::string filterId = extractStr(responseJson, "filter_id");
+    if (filterId.empty()) {
+        filterId = extractStr(responseJson, "id");
+    }
+    return filterId;
+}
+
+// Original Kotlin: SyncFilterManager::applyFilter()
+bool SyncFilterManager::applyFilter(const std::string& filterId) {
+    currentFilterId = filterId;
+    buildFilterParams = filterId;
+    return !filterId.empty();
+}
+
+// ====================================================================
+// Sync Scheduling
+// ====================================================================
+
+// Original Kotlin: SyncScheduler::computeBackoff()
+int64_t SyncScheduler::computeBackoff() const {
+    if (backoffMs == 0) return intervalMs;
+    return backoffMs;
+}
+
+// Original Kotlin: scheduleNextSync()
+int64_t scheduleNextSync(SyncScheduler& scheduler, bool isError) {
+    if (isError) {
+        // Exponential backoff: double on each error, cap at 10 minutes
+        if (scheduler.backoffMs == 0) {
+            scheduler.backoffMs = scheduler.intervalMs;
+        } else {
+            scheduler.backoffMs = std::min(scheduler.backoffMs * 2, static_cast<int64_t>(600000));
+        }
+    } else {
+        scheduler.backoffMs = 0;
+    }
+    scheduler.isScheduled = true;
+    return isError ? scheduler.backoffMs : scheduler.intervalMs;
+}
+
+// Original Kotlin: computeSyncInterval()
+int64_t computeSyncInterval(bool isActive, bool hasPendingEvents) {
+    if (hasPendingEvents) return 5000;
+    if (isActive) return 30000;
+    return 120000;
+}
+
+// ====================================================================
+// Sync Token Management
+// ====================================================================
+
+// Original Kotlin: SyncTokenManager::isValid()
+bool SyncTokenManager::isValid() const {
+    return isTokenValid(currentToken);
+}
+
+// Original Kotlin: rotateSyncToken()
+void rotateSyncToken(SyncTokenManager& manager, const std::string& newToken) {
+    manager.prevToken = manager.currentToken;
+    manager.currentToken = newToken;
+    manager.isInitialSync = false;
+}
+
+// Original Kotlin: isTokenValid()
+bool isTokenValid(const std::string& token) {
+    if (token.empty()) return false;
+    // Must start with "s" (sync token) and be reasonable length
+    return token.size() >= 2 && token[0] == 's';
+}
 
 // ==== processSyncResponse ====
 

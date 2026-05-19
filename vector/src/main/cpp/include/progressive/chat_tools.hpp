@@ -122,6 +122,93 @@ struct CropInfo {
 // Validate crop parameters against image dimensions.
 bool isValidCrop(int imgW, int imgH, int cropX, int cropY, int cropW, int cropH);
 
+// Original Kotlin: ChatTool enum for room action tools
+enum class ChatTool {
+    SEARCH,
+    MARK_UNREAD,
+    COPY_LINK,
+    SHARE,
+    FAVOURITE,
+    NOTIFICATION_SETTINGS,
+    LEAVE_ROOM,
+    ROOM_SETTINGS,
+    INVITE_PEOPLE,
+    REPORT_CONTENT,
+    MARK_ALL_READ,
+    JUMP_TO_DATE,
+    MUTE,
+    UNMUTE
+};
+
+// Original Kotlin: ChatToolContext — context in which tools are evaluated
+struct ChatToolContext {
+    std::string roomId;
+    std::string eventId;
+    bool isJoinedRoom = true;
+    bool isEncryptedRoom = false;
+    std::string userMembership;    // "join", "invite", "leave", "ban"
+    int userPowerLevel = 0;
+    bool isFavourite = false;
+    bool isMuted = false;
+};
+
+// Original Kotlin: ChatToolInfo — metadata about a tool
+struct ChatToolInfo {
+    ChatTool tool;
+    std::string label;
+    std::string icon;
+    bool isEnabled = true;
+    bool requiresRoom = true;
+    bool requiresEvent = false;
+    bool isDestructive = false;
+};
+
+// Original Kotlin: getToolLabel — human-readable label for a tool
+std::string getToolLabel(ChatTool tool);
+
+// Original Kotlin: getToolIcon — icon resource name for a tool
+std::string getToolIcon(ChatTool tool);
+
+// Original Kotlin: getAvailableTools — list tools available in given context
+std::vector<ChatToolInfo> getAvailableTools(const ChatToolContext& ctx);
+
+// Original Kotlin: isToolAvailable — check if a specific tool is available
+bool isToolAvailable(ChatTool tool, const ChatToolContext& ctx);
+
+// Original Kotlin: executeToolAction — perform the action for a tool (returns result or empty)
+std::string executeToolAction(ChatTool tool, const ChatToolContext& ctx);
+
+// Original Kotlin: ChatToolCategory — grouping for tool menus
+enum class ChatToolCategory {
+    NAVIGATION,
+    ROOM_ACTIONS,
+    MESSAGE_ACTIONS,
+    MODERATION,
+    NOTIFICATIONS,
+    DESTRUCTIVE
+};
+
+// Original Kotlin: getToolCategory — map tool to its category
+ChatToolCategory getToolCategory(ChatTool tool);
+
+// Original Kotlin: getToolDescription — longer description for each tool
+std::string getToolDescription(ChatTool tool);
+
+// Original Kotlin: sortToolsByOrder — sort ChatToolInfo by display order
+void sortToolsByOrder(std::vector<ChatToolInfo>& tools);
+
+// Original Kotlin: buildRoomPermalink — construct matrix.to permalink
+std::string buildRoomPermalink(const std::string& roomId, const std::string& eventId = "");
+
+// Original Kotlin: buildShareContent — construct share text for an event
+std::string buildShareContent(const std::string& roomId, const std::string& eventId, const std::string& body);
+
+// Original Kotlin: getUserMembershipLevel — numeric level for membership comparison
+int getUserMembershipLevel(const std::string& membership);
+
+// Original Kotlin: contextToJson — serialize ChatToolContext to JSON
+std::string contextToJson(const ChatToolContext& ctx);
+
 } // namespace progressive
 
 #endif // PROGRESSIVE_CHAT_TOOLS_HPP

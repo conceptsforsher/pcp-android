@@ -12,6 +12,7 @@ namespace progressive {
 void AvatarHistory::addChange(const std::string& mxcUrl, const std::string& eventId, int64_t timestamp) {
     AvatarEntry entry;
     entry.mxcUrl   = mxcUrl;
+    entry.url      = mxcUrl;
     entry.eventId  = eventId;
     entry.setAtMs  = timestamp;
     entry.setDate  = formatDate(timestamp);
@@ -244,6 +245,145 @@ std::vector<RoomMatch> matchRooms(const std::string& query, const std::vector<Ro
         result.push_back(room);
     }
     return result;
+}
+
+// ---- AvatarChangeReason ----
+
+const char* avatarChangeReasonToString(AvatarChangeReason r) {
+    // Original Kotlin: enum value mapping
+    switch (r) {
+        case AvatarChangeReason::USER_CHANGE:  return "user_change";
+        case AvatarChangeReason::PROFILE_SYNC: return "profile_sync";
+        case AvatarChangeReason::ROOM_CREATE:  return "room_create";
+        case AvatarChangeReason::UNKNOWN:      return "unknown";
+    }
+    return "unknown";
+}
+
+AvatarChangeReason avatarChangeReasonFromString(const std::string& s) {
+    // Original Kotlin: enum valueOf
+    if (s == "user_change")  return AvatarChangeReason::USER_CHANGE;
+    if (s == "profile_sync") return AvatarChangeReason::PROFILE_SYNC;
+    if (s == "room_create")  return AvatarChangeReason::ROOM_CREATE;
+    return AvatarChangeReason::UNKNOWN;
+}
+
+// ---- AvatarHistory Extended Methods ----
+
+// Original Kotlin: trackAvatarChange(url, setBy, timestamp, reason)
+void AvatarHistory::trackAvatarChange(const std::string& url, const std::string& setBy,
+                                       int64_t timestamp, AvatarChangeReason reason) {
+    (void)reason;
+    AvatarEntry entry;
+    entry.mxcUrl   = url;
+    entry.url      = url;
+    entry.eventId  = "";
+    entry.setAtMs  = timestamp;
+    entry.setDate  = formatDate(timestamp);
+    entry.setBy    = setBy;
+    entry.setAt    = formatDate(timestamp);
+
+    if (!entries_.empty() && entries_[0].removedAtMs == 0) {
+        entries_[0].removedAtMs = timestamp;
+        entries_[0].removedDate = formatDate(timestamp);
+        entries_[0].isCurrent = false;
+    }
+
+    entry.isCurrent = true;
+    entries_.insert(entries_.begin(), entry);
+}
+
+// Original Kotlin: getAvatarHistory()
+std::vector<AvatarEntry> AvatarHistory::getAvatarHistory() const {
+    return entries_;
+}
+
+// Original Kotlin: formatAvatarHistory()
+std::string AvatarHistory::formatAvatarHistory() const {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) { if (c == '"') out += "\\\""; else out += c; }
+        return out;
+    };
+    std::ostringstream out;
+    out << "Avatar History (" << entries_.size() << " changes)\n";
+    out << "-----------------\n";
+    auto history = getHistory();
+    for (size_t i = 0; i < history.size(); ++i) {
+        const auto& e = history[i];
+        out << (i + 1) << ". ";
+        if (!e.isCurrent) out << "(removed " << e.removedDate << ") ";
+        out << e.setDate;
+        if (!e.setBy.empty()) out << " by " << e.setBy;
+        if (e.isCurrent) out << " [current]";
+        out << "\n   URL: " << e.url << "\n";
+    }
+    return out.str();
+}
+
+// Original Kotlin: getPreviousAvatar()
+std::string AvatarHistory::getPreviousAvatar() const {
+    auto history = getHistory();
+    for (size_t i = 0; i < history.size(); ++i) {
+        if (!history[i].isCurrent && !history[i].url.empty()) {
+            return history[i].url;
+        }
+    }
+    return "";
+}
+
+// Original Kotlin: isAvatarChanged()
+bool AvatarHistory::isAvatarChanged() const {
+    return entries_.size() > 1;
+}
+
+// Original Kotlin: currentUrl
+std::string AvatarHistory::currentUrl() const {
+    auto* cur = getCurrent();
+    return cur ? cur->url : "";
+}
+
+// ---- Avatar Event Builders & Parsers ----
+
+// Original Kotlin: buildAvatarEvent()
+std::string buildAvatarEvent(const std::string& url) {
+    auto esc = [](const std::string& s) -> std::string {
+        std::string out;
+        for (char c : s) { if (c == '"') out += "\\\""; else out += c; }
+        return out;
+    };
+    std::ostringstream json;
+    json << R"({"url":")" << esc(url) << R"(","info":{"h":0,"w":0,"mimetype":"","size":0}})";
+    return json.str();
+}
+
+// Original Kotlin: parseAvatarEventContent()
+std::string parseAvatarEventContent(const std::string& contentJson) {
+    auto pos = contentJson.find("\"url\"");
+    if (pos == std::string::npos) return "";
+    pos = contentJson.find(':', pos);
+    if (pos == std::string::npos) return "";
+    pos++;
+    while (pos < contentJson.size() && (contentJson[pos] == ' ' || contentJson[pos] == '\t')) pos++;
+    if (pos >= contentJson.size() || contentJson[pos] != '"') return "";
+    pos++;
+    size_t end = pos;
+    while (end < contentJson.size() && contentJson[end] != '"') {
+        if (contentJson[end] == '\\') end++;
+        end++;
+    }
+    return contentJson.substr(pos, end - pos);
+}
+
+// Original Kotlin: getDefaultAvatarUrl(type)
+std::string getDefaultAvatarUrl(const std::string& kind) {
+    // Default avatars based on Matrix convention
+    if (kind == "user") {
+        return "mxc://default/user/avatar";
+    } else if (kind == "room") {
+        return "mxc://default/room/avatar";
+    }
+    return "mxc://default/avatar";
 }
 
 } // namespace progressive

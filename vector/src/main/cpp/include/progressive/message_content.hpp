@@ -300,4 +300,60 @@ std::string messageFileToJson(const MessageFileContent& msg);
 // Determine message type from msgtype string
 ParsedMessageType msgTypeFromString(const std::string& msgtype);
 
+// ================================================================
+// ContentType — expanded content type detection
+// ================================================================
+
+// Original Kotlin: ContentType enum for comprehensive message type detection
+enum class ContentType {
+    TEXT, NOTICE, EMOTE, IMAGE, VIDEO, AUDIO, FILE, LOCATION,
+    POLL_START, POLL_RESPONSE, POLL_END, STICKER,
+    BEACON_INFO, BEACON_LOCATION_DATA,
+    VERIFICATION_REQUEST, VERIFICATION_START, VERIFICATION_DONE,
+    VERIFICATION_CANCEL, VERIFICATION_READY, VERIFICATION_KEY, VERIFICATION_MAC,
+    CALL_INVITE, CALL_ANSWER, CALL_HANGUP, CALL_REJECT,
+    CALL_CANDIDATES, CALL_NEGOTIATE, CALL_SELECT_ANSWER,
+    VOICE_BROADCAST_INFO, STATE_EVENT, UNKNOWN
+};
+
+// Original Kotlin: MessageContentStats
+struct MessageContentStats {
+    int textCount = 0;
+    int imageCount = 0;
+    int videoCount = 0;
+    int audioCount = 0;
+    int fileCount = 0;
+    int locationCount = 0;
+    int pollCount = 0;
+    int stickerCount = 0;
+    int callCount = 0;
+    int verificationCount = 0;
+    int otherCount = 0;
+    int totalCount = 0;
+};
+
+// Original Kotlin: MessageContentTypeDetector
+class MessageContentTypeDetector {
+public:
+    // Detect the content type from raw event content JSON.
+    // Original Kotlin: detectContentType()
+    static ContentType detectContentType(const std::string& contentJson);
+
+    // Get a human-readable description for a content type.
+    // Original Kotlin: getContentTypeDescription()
+    static const char* getContentTypeDescription(ContentType type);
+
+    // Check if a content type is displayable in the timeline.
+    // Original Kotlin: isContentTypeDisplayable()
+    static bool isContentTypeDisplayable(ContentType type);
+
+    // Get an icon resource name for a content type.
+    // Original Kotlin: getContentTypeIcon()
+    static const char* getContentTypeIcon(ContentType type);
+};
+
+// Compute statistics across a set of message content JSONs.
+// Original Kotlin: computeMessageContentStats()
+MessageContentStats computeMessageContentStats(const std::vector<std::string>& contentJsons);
+
 } // namespace progressive

@@ -19,3 +19,6 @@
 /yarn.lock
 /node_modules
 **/out/failures
+
+# libolm - downloaded at build time (not stored in repo)
+vector/src/main/cpp/libolm/

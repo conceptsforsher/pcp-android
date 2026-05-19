@@ -272,7 +272,40 @@ target_include_directories(
 find_library(log_lib log)
 
 # --- libolm E2EE crypto (C/C++ native) ---
-add_subdirectory(libolm)
+# Downloaded at configure time — NOT stored in repo.
+set(OLM_VERSION "3.2.16")
+set(OLM_DIR "${CMAKE_BINARY_DIR}/olm-${OLM_VERSION}")
+set(OLM_ARCHIVE "${CMAKE_BINARY_DIR}/olm-${OLM_VERSION}.tar.gz")
+set(OLM_SRC_DIR "${OLM_DIR}/olm-${OLM_VERSION}")
+if(NOT EXISTS "${OLM_SRC_DIR}/CMakeLists.txt")
+    message(STATUS "Downloading libolm v${OLM_VERSION} from GitLab...")
+    file(DOWNLOAD
+        "https://gitlab.matrix.org/matrix-org/olm/-/archive/${OLM_VERSION}/olm-${OLM_VERSION}.tar.gz"
+        "${OLM_ARCHIVE}"
+        SHOW_PROGRESS
+        STATUS download_status
+        TIMEOUT 120
+    )
+    list(GET download_status 0 download_code)
+    if(NOT download_code EQUAL 0)
+        list(GET download_status 1 download_err)
+        message(FATAL_ERROR "Failed to download libolm: ${download_err}")
+    endif()
+    message(STATUS "Extracting libolm...")
+    file(MAKE_DIRECTORY "${OLM_DIR}")
+    execute_process(
+        COMMAND python3 -c "import tarfile,sys; tarfile.open(sys.argv[1],'r:gz').extractall(sys.argv[2])"
+        "${OLM_ARCHIVE}" "${OLM_DIR}"
+        WORKING_DIRECTORY "${OLM_DIR}"
+        RESULT_VARIABLE extract_result
+        ERROR_VARIABLE extract_err
+    )
+    if(NOT extract_result EQUAL 0)
+        message(FATAL_ERROR "libolm extraction failed (${extract_result}): ${extract_err}")
+    endif()
+    message(STATUS "libolm extracted to ${OLM_SRC_DIR}")
+endif()
+add_subdirectory("${OLM_SRC_DIR}" "${CMAKE_BINARY_DIR}/olm-build")
 
 target_link_libraries(
     progressive_native

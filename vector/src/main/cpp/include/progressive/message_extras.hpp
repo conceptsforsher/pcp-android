@@ -394,7 +394,55 @@ struct MessageAudioEvent {
     std::string sender;
     int64_t timestamp = 0;
     MessageAudioContent content;
+
+    // Convenience fields extracted from nested content
+    std::string audioUrl;       // content.getFileUrl()
+    int64_t duration = 0;       // content.audioInfo.duration or content.duration
+    std::vector<int> waveform;  // content.audioWaveform.waveform
+    bool voiceMessage = false;  // content.isVoiceMessage
+    int64_t fileSize = 0;       // content.audioInfo.size or content.size
+
+    // Original Kotlin: populate convenience accessors from content
+    void resolve() {
+        audioUrl = content.getFileUrl();
+        duration = content.audioInfo.duration > 0 ? content.audioInfo.duration : content.duration;
+        waveform = content.audioWaveform.waveform;
+        voiceMessage = content.isVoiceMessage;
+        fileSize = content.audioInfo.size > 0 ? content.audioInfo.size : content.size;
+        if (fileSize <= 0) fileSize = 0;
+    }
 };
+
+// ==== MessageFormatInfo ====
+//
+// Original Kotlin (MessageFormat.kt combined with formatted_body handling):
+//   Encapsulates the format + formattedBody pair used in HTML messages.
+//   format: usually "org.matrix.custom.html"
+//   formattedBody: the HTML content
+struct MessageFormatInfo {
+    std::string format;        // "format" key, e.g. "org.matrix.custom.html"
+    std::string formattedBody; // "formatted_body" key
+
+    bool hasFormat() const {
+        return !format.empty() && !formattedBody.empty();
+    }
+
+    // Original Kotlin: checks if this is valid Matrix HTML formatting
+    bool isMatrixHtml() const {
+        return format == "org.matrix.custom.html" && !formattedBody.empty();
+    }
+};
+
+// ==== Audio Waveform Constants ====
+//
+// Original Kotlin (VoiceMessageHelper.kt constants):
+//   Minimum/maximum number of amplitude values for a waveform visualization
+//   Maximum amplitude value for each sample
+namespace AudioWaveformConstants {
+    constexpr int kAudioWaveformMinValues = 30;
+    constexpr int kAudioWaveformMaxValues = 120;
+    constexpr int kAudioWaveformMaxAmplitude = 1024;
+}
 
 // Parse verification contents
 MessageVerificationRequestContent parseVerificationRequest(const std::string& contentJson);
@@ -407,5 +455,81 @@ MessageVerificationKeyContent parseVerificationKey(const std::string& contentJso
 
 // Parse Element Call notification
 ElementCallNotifyContent parseCallNotifyContent(const std::string& contentJson);
+
+// ==== Message Type Helpers ====
+
+// Original Kotlin: Determine the msgtype from content JSON (reads "msgtype" key)
+// Returns empty string if not found
+std::string getMessageType(const std::string& contentJson);
+
+// Original Kotlin: Type-check functions that inspect msgtype field
+//   fun isVoiceMessage() = root.getClearType() == MSGTYPE_AUDIO
+//       && root.contentToModel<MessageAudioContent>()?.isVoiceMessage == true
+bool isVoiceMessage(const std::string& contentJson);
+bool isVideoMessage(const std::string& contentJson);
+bool isFileMessage(const std::string& contentJson);
+bool isImageMessage(const std::string& contentJson);
+bool isAudioMessage(const std::string& contentJson);
+
+// ==== JSON Builders for Media Content ====
+
+// Serialize video content to JSON (for sending m.video messages)
+// Original Kotlin (MessageVideoContent.kt toContent()):
+//   {"msgtype":"m.video","body":"...","url":"mxc://...",
+//    "info":{"w":640,"h":480,"duration":5000,"mimetype":"video/mp4","size":123456}}
+std::string buildVideoContent(const MessageVideoContent& video);
+
+// Serialize audio content to JSON (for sending m.audio messages)
+// Original Kotlin (MessageAudioContent.kt toContent()):
+//   {"msgtype":"m.audio","body":"...","url":"mxc://...",
+//    "info":{"duration":5000,"mimetype":"audio/aac","size":123456},
+//    "org.matrix.msc3245.voice":{},"org.matrix.msc1767.audio":{"duration":5000,"waveform":[...]}}
+std::string buildAudioContent(const MessageAudioContent& audio);
+
+// Serialize file content to JSON (for sending m.file messages)
+// Original Kotlin (MessageFileContent.kt toContent()):
+//   {"msgtype":"m.file","body":"...","filename":"doc.pdf",
+//    "url":"mxc://...","info":{"mimetype":"application/pdf","size":123456}}
+std::string buildFileContent(const MessageFileContent& file);
+
+// Serialize sticker content to JSON
+// Original Kotlin (MessageStickerContent.kt toContent()):
+//   {"body":"...","url":"mxc://...","info":{"w":128,"h":128,"mimetype":"image/png","size":1024}}
+std::string buildStickerContent(const MessageStickerContent& sticker);
+
+// Serialize default/fallback content to JSON
+// Original Kotlin (MessageDefaultContent.kt toContent()):
+//   {"msgtype":"...","body":"..."}
+std::string buildDefaultContent(const MessageDefaultContent& def);
+
+// ==== Manual Parsers for Media Content ====
+
+// Parse video content from event content JSON
+// Original Kotlin (MessageVideoContent.kt fromContent()):
+//   Reads url, info{w,h,duration,mimetype,size,thumbnail_url,thumbnail_info}
+MessageVideoContent parseVideoContent(const std::string& contentJson);
+
+// Parse audio content from event content JSON
+// Original Kotlin (MessageAudioContent.kt fromContent()):
+//   Reads url, info{duration,mimetype,size}, voice indicator, waveform
+MessageAudioContent parseAudioContent(const std::string& contentJson);
+
+// Parse file content from event content JSON
+// Original Kotlin (MessageFileContent.kt fromContent()):
+//   Reads url, filename, info{mimetype,size,thumbnail_url,thumbnail_info}
+MessageFileContent parseFileContent(const std::string& contentJson);
+
+// Parse sticker content from event content JSON
+// (re-declared for completeness; implementation exists below)
+MessageStickerContent parseStickerContent(const std::string& contentJson);
+
+// ==== Audio Waveform Utilities ====
+
+// Original Kotlin (VoiceMessageHelper.formatWaveform()):
+//   Normalize waveform data for display:
+//   1. Input waveform values are scaled to [0, kAudioWaveformMaxAmplitude]
+//   2. Resampled to fit within [kAudioWaveformMinValues, kAudioWaveformMaxValues]
+//   3. Normalized relative to the maximum value
+std::vector<int> formatWaveform(const std::vector<int>& rawWaveform);
 
 } // namespace progressive

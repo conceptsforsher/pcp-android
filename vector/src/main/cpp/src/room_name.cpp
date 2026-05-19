@@ -214,4 +214,184 @@ std::string parseCanonicalAliasContent(const std::string& contentJson) {
     return "";
 }
 
+// ==== Format Member Name List ====
+//
+// Original Kotlin (RoomDisplayNameResolver.kt formatMemberNames):
+//   Formats a list of display names using English/Oxford comma style:
+//   0 → "Empty Room"
+//   1 → "Alice"
+//   2 → "Alice and Bob"
+//   3 → "Alice, Bob, and Carol"
+//   4 → "Alice, Bob, Carol, and Dave"
+//   5+ → "Alice, Bob, Carol, and 2 others"
+
+std::string formatMemberNameList(const std::vector<std::string>& memberNames) {
+    int count = static_cast<int>(memberNames.size());
+
+    if (count == 0) {
+        return "Empty Room";
+    }
+    if (count == 1) {
+        return memberNames[0];
+    }
+    if (count == 2) {
+        return memberNames[0] + " and " + memberNames[1];
+    }
+    if (count == 3) {
+        return memberNames[0] + ", " + memberNames[1] + ", and " + memberNames[2];
+    }
+    if (count == 4) {
+        return memberNames[0] + ", " + memberNames[1] + ", " +
+               memberNames[2] + ", and " + memberNames[3];
+    }
+    // 5+ members: show first 3 and count remaining
+    int remaining = count - 3;
+    return memberNames[0] + ", " + memberNames[1] + ", " +
+           memberNames[2] + ", and " + std::to_string(remaining) + " others";
+}
+
+// ==== Resolve Room Name (Full) ====
+//
+// Original Kotlin (RoomDisplayNameResolver.kt resolve with source tracking):
+//   Wraps computeRoomDisplayName and adds source attribution metadata.
+//   Determines where the final name came from: state event, alias, members, heroes, or inviter.
+
+RoomNameInfo resolveRoomName(
+    const std::string& roomNameState,
+    const std::string& canonicalAlias,
+    const std::vector<RoomMember>& heroes,
+    const std::vector<RoomMember>& activeMembers,
+    const std::vector<RoomMember>& leftMembers,
+    const std::string& myUserId,
+    const std::string& directUserId,
+    const std::string& inviterName,
+    int invitedCount,
+    int joinedCount,
+    bool isInvite,
+    const std::vector<std::string>& excludedUserIds)
+{
+    RoomNameInfo info;
+
+    // Original Kotlin: Try m.room.name state event first
+    std::string parsedRoomName = parseRoomNameContent(roomNameState);
+    if (!parsedRoomName.empty()) {
+        info.name = parsedRoomName;
+        info.computedDisplayName = parsedRoomName;
+        info.isNameFromState = true;
+        info.totalMemberCount = joinedCount + invitedCount;
+        return info;
+    }
+
+    // Original Kotlin: Try canonical alias
+    std::string parsedAlias = parseCanonicalAliasContent(canonicalAlias);
+    if (!parsedAlias.empty()) {
+        info.name = parsedAlias;
+        info.computedDisplayName = parsedAlias;
+        info.isNameFromAlias = true;
+        info.totalMemberCount = joinedCount + invitedCount;
+        return info;
+    }
+
+    // Original Kotlin: Invite rooms — show inviter
+    if (isInvite) {
+        info.name = inviterName.empty() ? "Room Invitation" : inviterName;
+        info.computedDisplayName = info.name;
+        info.isNameFromInviter = true;
+        info.totalMemberCount = joinedCount + invitedCount;
+        return info;
+    }
+
+    // Original Kotlin: Build member list for name computation
+    auto isExcluded = [&](const std::string& uid) -> bool {
+        if (uid == myUserId) return true;
+        for (const auto& ex : excludedUserIds) {
+            if (ex == uid) return true;
+        }
+        return false;
+    };
+
+    std::vector<RoomMember> others;
+
+    // Use heroes if available
+    if (!heroes.empty()) {
+        for (const auto& hero : heroes) {
+            if ((hero.membership == RoomMembership::Join || hero.membership == RoomMembership::Invite) &&
+                !isExcluded(hero.userId)) {
+                others.push_back(hero);
+            }
+        }
+        info.isNameFromHeroes = true;
+    } else {
+        // Use active members
+        for (const auto& member : activeMembers) {
+            if (isExcluded(member.userId)) continue;
+            others.push_back(member);
+            if (others.size() >= 5) break;
+        }
+        info.isNameFromMembers = true;
+    }
+
+    info.memberCount = static_cast<int>(others.size());
+    info.totalMemberCount = joinedCount + invitedCount;
+
+    // Collect source member names
+    for (const auto& m : others) {
+        info.sourceMemberNames.push_back(m.displayName.empty() ? m.userId : m.displayName);
+    }
+
+    // Compute display name from member list
+    RoomName computed = computeRoomDisplayName(
+        roomNameState, canonicalAlias, heroes, activeMembers, leftMembers,
+        myUserId, directUserId, inviterName, invitedCount, joinedCount,
+        isInvite, excludedUserIds
+    );
+
+    info.name = computed.name;
+    info.computedDisplayName = computed.name;
+
+    return info;
+}
+
+// ==== Check if Room Name is Generated ====
+//
+// Original Kotlin: Determines if the room name was auto-generated
+//   from members vs. explicitly set via state event or alias
+
+bool isRoomNameGenerated(const RoomNameInfo& info) {
+    return info.isAutoGenerated();
+}
+
+// ==== Room Name Info to JSON ====
+//
+// Original Kotlin: Serialize RoomNameInfo for JNI bridge to Kotlin UI layer
+
+std::string roomNameInfoToJson(const RoomNameInfo& info) {
+    std::ostringstream json;
+    json << "{";
+    json << R"("name":")" << info.name << R"(",)";
+    json << R"("computed_display_name":")" << info.computedDisplayName << R"(",)";
+    json << R"("is_name_from_state":)" << (info.isNameFromState ? "true" : "false") << ",";
+    json << R"("is_name_from_alias":)" << (info.isNameFromAlias ? "true" : "false") << ",";
+    json << R"("is_name_from_members":)" << (info.isNameFromMembers ? "true" : "false") << ",";
+    json << R"("is_name_from_heroes":)" << (info.isNameFromHeroes ? "true" : "false") << ",";
+    json << R"("is_name_from_inviter":)" << (info.isNameFromInviter ? "true" : "false") << ",";
+    json << R"("member_count":)" << info.memberCount << ",";
+    json << R"("total_member_count":)" << info.totalMemberCount << ",";
+    json << R"("is_auto_generated":)" << (info.isAutoGenerated() ? "true" : "false") << ",";
+    json << R"("is_empty_room":)" << (info.isEmptyRoom() ? "true" : "false") << ",";
+
+    // Source member names array
+    json << R"("source_member_names":[)";
+    bool first = true;
+    for (const auto& name : info.sourceMemberNames) {
+        if (!first) json << ",";
+        first = false;
+        json << R"(")" << name << R"(")";
+    }
+    json << "]";
+
+    json << "}";
+    return json.str();
+}
+
 } // namespace progressive

@@ -571,4 +571,531 @@ ElementCallNotifyContent parseCallNotifyContent(const std::string& json) {
     return c;
 }
 
+// ==== Message Type Helpers ====
+//
+// Original Kotlin: Determine msgtype from content JSON
+
+std::string getMessageType(const std::string& contentJson) {
+    return extractJsonString(contentJson, "msgtype");
+}
+
+// Original Kotlin (MessageVoiceContent.kt helpers):
+//   Voice messages have msgtype=m.audio and a voice indicator key
+bool isVoiceMessage(const std::string& contentJson) {
+    std::string msgType = extractJsonString(contentJson, "msgtype");
+    if (msgType != "m.audio") return false;
+    // Check for voice indicator: "org.matrix.msc3245.voice" or "org.matrix.msc2516.voice"
+    if (contentJson.find("\"org.matrix.msc3245.voice\"") != std::string::npos) return true;
+    if (contentJson.find("\"org.matrix.msc2516.voice\"") != std::string::npos) return true;
+    return false;
+}
+
+bool isVideoMessage(const std::string& contentJson) {
+    return extractJsonString(contentJson, "msgtype") == "m.video";
+}
+
+bool isFileMessage(const std::string& contentJson) {
+    return extractJsonString(contentJson, "msgtype") == "m.file";
+}
+
+bool isImageMessage(const std::string& contentJson) {
+    return extractJsonString(contentJson, "msgtype") == "m.image";
+}
+
+bool isAudioMessage(const std::string& contentJson) {
+    return extractJsonString(contentJson, "msgtype") == "m.audio";
+}
+
+// ==== Parse ThumbnailInfo from JSON ====
+//
+// Original Kotlin (ThumbnailInfo.kt:24-40):
+//   data class ThumbnailInfo(
+//       @Json(name="w") width, @Json(name="h") height,
+//       @Json(name="size") size, @Json(name="mimetype") mimeType
+//   )
+
+static ThumbnailInfo parseThumbnailInfo(const std::string& json) {
+    ThumbnailInfo info;
+    info.width = static_cast<int>(extractJsonInt64(json, "w"));
+    info.height = static_cast<int>(extractJsonInt64(json, "h"));
+    info.size = extractJsonInt64(json, "size");
+    info.mimeType = extractJsonString(json, "mimetype");
+    return info;
+}
+
+// ==== Parse VideoInfo from JSON ====
+//
+// Original Kotlin (VideoInfo.kt:25-56):
+//   data class VideoInfo(
+//       @Json(name="w") width, @Json(name="h") height,
+//       @Json(name="duration") duration, @Json(name="mimetype") mimeType,
+//       @Json(name="size") size, @Json(name="thumbnail_url") thumbnailUrl,
+//       @Json(name="thumbnail_info") thumbnailInfo
+//   )
+
+static VideoInfo parseVideoInfo(const std::string& json) {
+    VideoInfo info;
+    info.width = static_cast<int>(extractJsonInt64(json, "w"));
+    info.height = static_cast<int>(extractJsonInt64(json, "h"));
+    info.duration = static_cast<int>(extractJsonInt64(json, "duration"));
+    info.mimeType = extractJsonString(json, "mimetype");
+    info.size = extractJsonInt64(json, "size");
+    info.thumbnailUrl = extractJsonString(json, "thumbnail_url");
+
+    auto thumbJson = extractJsonObject(json, "thumbnail_info");
+    if (!thumbJson.empty()) {
+        info.thumbnailInfo = parseThumbnailInfo(thumbJson);
+    }
+
+    return info;
+}
+
+// ==== Parse AudioInfo from JSON ====
+//
+// Original Kotlin (AudioInfo.kt:23-36):
+//   data class AudioInfo(
+//       @Json(name="duration") duration, @Json(name="mimetype") mimeType,
+//       @Json(name="size") size
+//   )
+
+static AudioInfo parseAudioInfo(const std::string& json) {
+    AudioInfo info;
+    info.duration = static_cast<int>(extractJsonInt64(json, "duration"));
+    info.mimeType = extractJsonString(json, "mimetype");
+    info.size = extractJsonInt64(json, "size");
+    return info;
+}
+
+// ==== Parse FileInfo from JSON ====
+//
+// Original Kotlin (FileInfo.kt:26-46):
+//   data class FileInfo(
+//       @Json(name="mimetype") mimeType, @Json(name="size") size,
+//       @Json(name="thumbnail_url") thumbnailUrl,
+//       @Json(name="thumbnail_info") thumbnailInfo
+//   )
+
+static FileInfo parseFileInfo(const std::string& json) {
+    FileInfo info;
+    info.mimeType = extractJsonString(json, "mimetype");
+    info.size = extractJsonInt64(json, "size");
+    info.thumbnailUrl = extractJsonString(json, "thumbnail_url");
+
+    auto thumbJson = extractJsonObject(json, "thumbnail_info");
+    if (!thumbJson.empty()) {
+        info.thumbnailInfo = parseThumbnailInfo(thumbJson);
+    }
+
+    return info;
+}
+
+// ==== Parse ImageInfo from JSON ====
+//
+// Original Kotlin (ImageInfo.kt:25-55):
+//   data class ImageInfo(
+//       @Json(name="w") width, @Json(name="h") height,
+//       @Json(name="size") size, @Json(name="mimetype") mimeType,
+//       @Json(name="thumbnail_url") thumbnailUrl,
+//       @Json(name="thumbnail_info") thumbnailInfo
+//   )
+
+static ImageInfo parseImageInfo(const std::string& json) {
+    ImageInfo info;
+    info.width = static_cast<int>(extractJsonInt64(json, "w"));
+    info.height = static_cast<int>(extractJsonInt64(json, "h"));
+    info.size = extractJsonInt64(json, "size");
+    info.mimeType = extractJsonString(json, "mimetype");
+    info.thumbnailUrl = extractJsonString(json, "thumbnail_url");
+
+    auto thumbJson = extractJsonObject(json, "thumbnail_info");
+    if (!thumbJson.empty()) {
+        info.thumbnailInfo = parseThumbnailInfo(thumbJson);
+    }
+
+    return info;
+}
+
+// ==== Parse Video Content ====
+//
+// Original Kotlin (MessageVideoContent.kt:28-56):
+//   data class MessageVideoContent(
+//       @Transient override msgType = MSGTYPE_VIDEO,
+//       body, relatesTo, newContent,
+//       videoInfo, url, file
+//   ) : MessageContentWithAttachmentContent
+
+MessageVideoContent parseVideoContent(const std::string& contentJson) {
+    MessageVideoContent c;
+    c.msgType = "m.video";
+    c.body = extractJsonString(contentJson, "body");
+    c.url = extractJsonString(contentJson, "url");
+
+    auto infoJson = extractJsonObject(contentJson, "info");
+    if (!infoJson.empty()) {
+        c.videoInfo = parseVideoInfo(infoJson);
+        c.mimeType = c.videoInfo.mimeType;
+        c.duration = c.videoInfo.duration;
+        c.width = c.videoInfo.width;
+        c.height = c.videoInfo.height;
+        c.size = c.videoInfo.size;
+        c.thumbnailUrl = c.videoInfo.getThumbnailUrl();
+    }
+
+    // Parse encrypted file info
+    auto encJson = extractJsonObject(contentJson, "file");
+    if (!encJson.empty()) {
+        c.encryptedFile.url = extractJsonString(encJson, "url");
+        c.encryptedFile.iv = extractJsonString(encJson, "iv");
+        c.encryptedFile.keyJson = extractJsonString(encJson, "key");
+        c.encryptedFile.hashes = extractJsonObject(encJson, "hashes");
+    }
+
+    return c;
+}
+
+// ==== Parse Audio Content ====
+//
+// Original Kotlin (MessageAudioContent.kt:28-63):
+//   data class MessageAudioContent(
+//       @Transient override msgType = MSGTYPE_AUDIO,
+//       body, relatesTo, newContent,
+//       url, info, audioWaveFormInfo, file
+//   )
+
+MessageAudioContent parseAudioContent(const std::string& contentJson) {
+    MessageAudioContent c;
+    c.msgType = "m.audio";
+    c.body = extractJsonString(contentJson, "body");
+    c.url = extractJsonString(contentJson, "url");
+
+    auto infoJson = extractJsonObject(contentJson, "info");
+    if (!infoJson.empty()) {
+        c.audioInfo = parseAudioInfo(infoJson);
+        c.mimeType = c.audioInfo.mimeType;
+        c.duration = c.audioInfo.duration;
+        c.size = c.audioInfo.size;
+    }
+
+    // Parse voice message indicator
+    // Original Kotlin: check for "org.matrix.msc3245.voice" or "org.matrix.msc2516.voice"
+    if (contentJson.find("\"org.matrix.msc3245.voice\"") != std::string::npos ||
+        contentJson.find("\"org.matrix.msc2516.voice\"") != std::string::npos) {
+        c.isVoiceMessage = true;
+    }
+
+    // Parse audio waveform (MSC1767)
+    // {"org.matrix.msc1767.audio":{"duration":5000,"waveform":[1,2,3,...]}}
+    auto waveJson = extractJsonObject(contentJson, "org.matrix.msc1767.audio");
+    if (!waveJson.empty()) {
+        c.audioWaveform.duration = static_cast<int>(extractJsonInt64(waveJson, "duration"));
+        auto waveArr = extractJsonArray(waveJson, "waveform");
+        for (const auto& w : waveArr) {
+            int val = 0;
+            for (char ch : w) {
+                if (ch >= '0' && ch <= '9') val = val * 10 + (ch - '0');
+                else if (ch == '-') val = 0;
+            }
+            c.audioWaveform.waveform.push_back(val);
+        }
+    }
+
+    // Parse encrypted file info
+    auto encJson = extractJsonObject(contentJson, "file");
+    if (!encJson.empty()) {
+        c.encryptedFile.url = extractJsonString(encJson, "url");
+        c.encryptedFile.iv = extractJsonString(encJson, "iv");
+        c.encryptedFile.keyJson = extractJsonString(encJson, "key");
+        c.encryptedFile.hashes = extractJsonObject(encJson, "hashes");
+    }
+
+    return c;
+}
+
+// ==== Parse File Content ====
+//
+// Original Kotlin (MessageFileContent.kt:28-57):
+//   data class MessageFileContent(
+//       @Transient override msgType = MSGTYPE_FILE,
+//       body, relatesTo, newContent,
+//       url, filename, info, file
+//   )
+
+MessageFileContent parseFileContent(const std::string& contentJson) {
+    MessageFileContent c;
+    c.msgType = "m.file";
+    c.body = extractJsonString(contentJson, "body");
+    c.url = extractJsonString(contentJson, "url");
+    c.filename = extractJsonString(contentJson, "filename");
+
+    auto infoJson = extractJsonObject(contentJson, "info");
+    if (!infoJson.empty()) {
+        c.info = parseFileInfo(infoJson);
+        c.mimeType = c.info.mimeType;
+        c.size = c.info.size;
+    }
+
+    // Parse encrypted file info
+    auto encJson = extractJsonObject(contentJson, "file");
+    if (!encJson.empty()) {
+        c.encryptedFile.url = extractJsonString(encJson, "url");
+        c.encryptedFile.iv = extractJsonString(encJson, "iv");
+        c.encryptedFile.keyJson = extractJsonString(encJson, "key");
+        c.encryptedFile.hashes = extractJsonObject(encJson, "hashes");
+    }
+
+    return c;
+}
+
+// ==== JSON Builders ====
+
+// Build video info as JSON
+static std::string videoInfoToJson(const VideoInfo& info) {
+    std::string json = "{";
+    if (info.width > 0) json += "\"w\":" + std::to_string(info.width) + ",";
+    else json += "\"w\":0,";
+    if (info.height > 0) json += "\"h\":" + std::to_string(info.height) + ",";
+    else json += "\"h\":0,";
+    if (info.duration > 0) json += "\"duration\":" + std::to_string(info.duration) + ",";
+    if (!info.mimeType.empty()) json += "\"mimetype\":" + escapeJsonStr(info.mimeType) + ",";
+    if (info.size > 0) json += "\"size\":" + std::to_string(info.size) + ",";
+    if (!info.thumbnailUrl.empty()) json += "\"thumbnail_url\":" + escapeJsonStr(info.thumbnailUrl) + ",";
+    if (info.thumbnailInfo.hasData()) {
+        json += "\"thumbnail_info\":{\"w\":" + std::to_string(info.thumbnailInfo.width) +
+                ",\"h\":" + std::to_string(info.thumbnailInfo.height) + ",";
+        if (!info.thumbnailInfo.mimeType.empty())
+            json += "\"mimetype\":" + escapeJsonStr(info.thumbnailInfo.mimeType) + ",";
+        json += "\"size\":" + std::to_string(info.thumbnailInfo.size) + "},";
+    }
+    // Remove trailing comma
+    if (json.back() == ',') json.pop_back();
+    json += "}";
+    return json;
+}
+
+// Build audio info as JSON
+static std::string audioInfoToJson(const AudioInfo& info) {
+    std::string json = "{";
+    if (info.duration > 0) json += "\"duration\":" + std::to_string(info.duration) + ",";
+    if (!info.mimeType.empty()) json += "\"mimetype\":" + escapeJsonStr(info.mimeType) + ",";
+    if (info.size > 0) json += "\"size\":" + std::to_string(info.size) + ",";
+    if (json.back() == ',') json.pop_back();
+    json += "}";
+    return json;
+}
+
+// Build file info as JSON
+static std::string fileInfoToJson(const FileInfo& info) {
+    std::string json = "{";
+    if (!info.mimeType.empty()) json += "\"mimetype\":" + escapeJsonStr(info.mimeType) + ",";
+    if (info.size > 0) json += "\"size\":" + std::to_string(info.size) + ",";
+    if (!info.thumbnailUrl.empty()) json += "\"thumbnail_url\":" + escapeJsonStr(info.thumbnailUrl) + ",";
+    if (info.thumbnailInfo.hasData()) {
+        json += "\"thumbnail_info\":{\"w\":" + std::to_string(info.thumbnailInfo.width) +
+                ",\"h\":" + std::to_string(info.thumbnailInfo.height) + ",";
+        if (!info.thumbnailInfo.mimeType.empty())
+            json += "\"mimetype\":" + escapeJsonStr(info.thumbnailInfo.mimeType) + ",";
+        json += "\"size\":" + std::to_string(info.thumbnailInfo.size) + "},";
+    }
+    if (json.back() == ',') json.pop_back();
+    json += "}";
+    return json;
+}
+
+// Build image info as JSON
+static std::string imageInfoToJson(const ImageInfo& info) {
+    std::string json = "{";
+    if (info.width > 0) json += "\"w\":" + std::to_string(info.width) + ",";
+    if (info.height > 0) json += "\"h\":" + std::to_string(info.height) + ",";
+    if (!info.mimeType.empty()) json += "\"mimetype\":" + escapeJsonStr(info.mimeType) + ",";
+    if (info.size > 0) json += "\"size\":" + std::to_string(info.size) + ",";
+    if (!info.thumbnailUrl.empty()) json += "\"thumbnail_url\":" + escapeJsonStr(info.thumbnailUrl) + ",";
+    if (info.thumbnailInfo.hasData()) {
+        json += "\"thumbnail_info\":{\"w\":" + std::to_string(info.thumbnailInfo.width) +
+                ",\"h\":" + std::to_string(info.thumbnailInfo.height) + ",";
+        if (!info.thumbnailInfo.mimeType.empty())
+            json += "\"mimetype\":" + escapeJsonStr(info.thumbnailInfo.mimeType) + ",";
+        json += "\"size\":" + std::to_string(info.thumbnailInfo.size) + "},";
+    }
+    if (json.back() == ',') json.pop_back();
+    json += "}";
+    return json;
+}
+
+std::string buildVideoContent(const MessageVideoContent& video) {
+    std::string json = "{";
+    json += "\"msgtype\":\"m.video\",";
+    json += "\"body\":" + escapeJsonStr(video.body) + ",";
+    if (!video.url.empty()) json += "\"url\":" + escapeJsonStr(video.url) + ",";
+    // Build info from videoInfo
+    json += "\"info\":" + videoInfoToJson(video.videoInfo);
+
+    // If there's an encrypted file, add it
+    if (!video.encryptedFile.url.empty()) {
+        json += ",\"file\":{";
+        json += "\"url\":" + escapeJsonStr(video.encryptedFile.url) + ",";
+        json += "\"key\":" + escapeJsonStr(video.encryptedFile.keyJson) + ",";
+        json += "\"iv\":" + escapeJsonStr(video.encryptedFile.iv) + ",";
+        json += "\"hashes\":" + video.encryptedFile.hashes;
+        json += "}";
+    }
+
+    json += "}";
+    return json;
+}
+
+std::string buildAudioContent(const MessageAudioContent& audio) {
+    std::string json = "{";
+    json += "\"msgtype\":\"m.audio\",";
+    json += "\"body\":" + escapeJsonStr(audio.body) + ",";
+    if (!audio.url.empty()) json += "\"url\":" + escapeJsonStr(audio.url) + ",";
+
+    // Build info from audioInfo
+    json += "\"info\":" + audioInfoToJson(audio.audioInfo);
+
+    // Voice message indicator (MSC3245)
+    if (audio.isVoiceMessage) {
+        json += ",\"org.matrix.msc3245.voice\":{}";
+    }
+
+    // Build audio waveform if present (MSC1767)
+    if (!audio.audioWaveform.waveform.empty()) {
+        json += ",\"org.matrix.msc1767.audio\":{";
+        json += "\"duration\":" + std::to_string(audio.audioWaveform.duration) + ",";
+        json += "\"waveform\":[";
+        bool first = true;
+        for (int val : audio.audioWaveform.waveform) {
+            if (!first) json += ",";
+            first = false;
+            json += std::to_string(val);
+        }
+        json += "]}";
+    }
+
+    // Encrypted file info
+    if (!audio.encryptedFile.url.empty()) {
+        json += ",\"file\":{";
+        json += "\"url\":" + escapeJsonStr(audio.encryptedFile.url) + ",";
+        json += "\"key\":" + escapeJsonStr(audio.encryptedFile.keyJson) + ",";
+        json += "\"iv\":" + escapeJsonStr(audio.encryptedFile.iv) + ",";
+        json += "\"hashes\":" + audio.encryptedFile.hashes;
+        json += "}";
+    }
+
+    json += "}";
+    return json;
+}
+
+std::string buildFileContent(const MessageFileContent& file) {
+    std::string json = "{";
+    json += "\"msgtype\":\"m.file\",";
+    json += "\"body\":" + escapeJsonStr(file.body) + ",";
+    if (!file.filename.empty()) json += "\"filename\":" + escapeJsonStr(file.filename) + ",";
+    if (!file.url.empty()) json += "\"url\":" + escapeJsonStr(file.url) + ",";
+
+    // Build info from FileInfo
+    json += "\"info\":" + fileInfoToJson(file.info);
+
+    // Encrypted file info
+    if (!file.encryptedFile.url.empty()) {
+        json += ",\"file\":{";
+        json += "\"url\":" + escapeJsonStr(file.encryptedFile.url) + ",";
+        json += "\"key\":" + escapeJsonStr(file.encryptedFile.keyJson) + ",";
+        json += "\"iv\":" + escapeJsonStr(file.encryptedFile.iv) + ",";
+        json += "\"hashes\":" + file.encryptedFile.hashes;
+        json += "}";
+    }
+
+    json += "}";
+    return json;
+}
+
+std::string buildStickerContent(const MessageStickerContent& sticker) {
+    std::string json = "{";
+    json += "\"body\":" + escapeJsonStr(sticker.body) + ",";
+    if (!sticker.url.empty()) json += "\"url\":" + escapeJsonStr(sticker.url) + ",";
+
+    // Build info from ImageInfo
+    if (sticker.info.hasData() || !sticker.url.empty()) {
+        json += "\"info\":" + imageInfoToJson(sticker.info);
+    }
+
+    // Encrypted file info
+    if (!sticker.encryptedFile.url.empty()) {
+        json += ",\"file\":{";
+        json += "\"url\":" + escapeJsonStr(sticker.encryptedFile.url) + ",";
+        json += "\"key\":" + escapeJsonStr(sticker.encryptedFile.keyJson) + ",";
+        json += "\"iv\":" + escapeJsonStr(sticker.encryptedFile.iv) + ",";
+        json += "\"hashes\":" + sticker.encryptedFile.hashes;
+        json += "}";
+    }
+
+    json += "}";
+    return json;
+}
+
+std::string buildDefaultContent(const MessageDefaultContent& def) {
+    std::string json = "{";
+    json += "\"msgtype\":" + escapeJsonStr(def.msgType) + ",";
+    json += "\"body\":" + escapeJsonStr(def.body);
+    if (!def.newContent.empty()) json += ",\"m.new_content\":" + def.newContent;
+    if (def.hasRelation) {
+        json += ",\"m.relates_to\":{";
+        json += "\"event_id\":" + escapeJsonStr(def.relatesTo.eventId) + ",";
+        json += "\"rel_type\":" + escapeJsonStr(def.relatesTo.relationType);
+        json += "}";
+    }
+    json += "}";
+    return json;
+}
+
+// ==== Audio Waveform Utilities ====
+//
+// Original Kotlin (VoiceMessageHelper.kt formatWaveform()):
+//   Normalize raw waveform data:
+//   1. Resample to fit within [minValues, maxValues]
+//   2. Normalize amplitudes to [0, maxAmplitude]
+//   3. Scale relative to the maximum value in the sample
+
+std::vector<int> formatWaveform(const std::vector<int>& rawWaveform) {
+    std::vector<int> result;
+    if (rawWaveform.empty()) return result;
+
+    // Determine target sample count
+    int targetCount = static_cast<int>(rawWaveform.size());
+    // Original Kotlin: clamp to [kAudioWaveformMinValues, kAudioWaveformMaxValues]
+    if (targetCount < AudioWaveformConstants::kAudioWaveformMinValues)
+        targetCount = AudioWaveformConstants::kAudioWaveformMinValues;
+    if (targetCount > AudioWaveformConstants::kAudioWaveformMaxValues)
+        targetCount = AudioWaveformConstants::kAudioWaveformMaxValues;
+
+    // Resample to target count using linear interpolation
+    result.resize(targetCount, 0);
+    double ratio = static_cast<double>(rawWaveform.size()) / targetCount;
+
+    for (int i = 0; i < targetCount; ++i) {
+        double srcIdx = i * ratio;
+        int idx0 = static_cast<int>(srcIdx);
+        int idx1 = (idx0 + 1 < static_cast<int>(rawWaveform.size())) ? idx0 + 1 : idx0;
+        double frac = srcIdx - idx0;
+        double val = rawWaveform[idx0] * (1.0 - frac) + rawWaveform[idx1] * frac;
+        result[i] = static_cast<int>(val);
+    }
+
+    // Find max amplitude in result
+    int maxAmp = 0;
+    for (int val : result) {
+        if (val > maxAmp) maxAmp = val;
+    }
+
+    // Normalize to [0, kAudioWaveformMaxAmplitude]
+    if (maxAmp > 0) {
+        double scale = static_cast<double>(AudioWaveformConstants::kAudioWaveformMaxAmplitude) / maxAmp;
+        for (int& val : result) {
+            val = static_cast<int>(val * scale);
+        }
+    }
+
+    return result;
+}
+
 } // namespace progressive

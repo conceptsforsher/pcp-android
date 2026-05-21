@@ -481,6 +481,20 @@
                 <action android:name="org.unifiedpush.android.distributor.REGISTER" />
             </intent-filter>
         </receiver>
+
+        <!-- XMPP Activities -->
+        <activity
+            android:name="chat.progressive.app.features.xmpp.XmppAuthActivity"
+            android:exported="false"
+            android:label="XMPP Login"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="chat.progressive.app.features.xmpp.XmppChatListActivity"
+            android:exported="false"
+            android:label="XMPP Chats"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>

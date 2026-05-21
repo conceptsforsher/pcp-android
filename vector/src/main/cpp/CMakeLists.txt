@@ -221,6 +221,8 @@ add_library(
     src/openid_token.cpp
     src/jni_bridge.cpp
     src/eventdb.cpp
+    src/xmpp_client.cpp
+    src/xmpp_jni_bridge.cpp
 )
 
 # --- Download SQLite3 amalgamation at configure time ---
@@ -273,6 +275,88 @@ find_library(log_lib log)
 
 # --- libolm E2EE crypto (C/C++ native) ---
 add_subdirectory(libolm)
+
+# --- libexpat + libstrophe (XMPP protocol) ---
+# Both downloaded at configure time — NOT stored in repo.
+# Enable XMPP with: -DPROGRESSIVE_ENABLE_XMPP=ON
+option(PROGRESSIVE_ENABLE_XMPP "Enable XMPP support via libstrophe" OFF)
+
+if(PROGRESSIVE_ENABLE_XMPP)
+    # -- libexpat --
+    set(EXPAT_VERSION "2.6.4")
+    set(EXPAT_DIR "${CMAKE_BINARY_DIR}/expat-${EXPAT_VERSION}")
+    set(EXPAT_ARCHIVE "${CMAKE_BINARY_DIR}/expat-${EXPAT_VERSION}.tar.gz")
+    set(EXPAT_SRC_DIR "${EXPAT_DIR}/libexpat-R_${EXPAT_VERSION}")
+    if(NOT EXISTS "${EXPAT_SRC_DIR}/expat/CMakeLists.txt")
+        message(STATUS "Downloading libexpat v${EXPAT_VERSION} from GitHub...")
+        file(DOWNLOAD
+            "https://github.com/libexpat/libexpat/archive/refs/tags/R_${EXPAT_VERSION}.tar.gz"
+            "${EXPAT_ARCHIVE}"
+            SHOW_PROGRESS STATUS download_status TIMEOUT 120
+        )
+        list(GET download_status 0 download_code)
+        if(NOT download_code EQUAL 0)
+            list(GET download_status 1 download_err)
+            message(FATAL_ERROR "Failed to download libexpat: ${download_err}")
+        endif()
+        message(STATUS "Extracting libexpat...")
+        file(MAKE_DIRECTORY "${EXPAT_DIR}")
+        execute_process(
+            COMMAND python3 -c "import tarfile,sys; tarfile.open(sys.argv[1],'r:gz').extractall(sys.argv[2])"
+            "${EXPAT_ARCHIVE}" "${EXPAT_DIR}"
+            WORKING_DIRECTORY "${EXPAT_DIR}"
+            RESULT_VARIABLE extract_result ERROR_VARIABLE extract_err
+        )
+        if(NOT extract_result EQUAL 0)
+            message(FATAL_ERROR "libexpat extraction failed (${extract_result}): ${extract_err}")
+        endif()
+    endif()
+    set(EXPAT_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+    set(EXPAT_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(EXPAT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(EXPAT_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    add_subdirectory("${EXPAT_SRC_DIR}/expat" "${CMAKE_BINARY_DIR}/expat-build")
+
+    # -- libstrophe --
+    set(STROPHE_VERSION "0.14.0")
+    set(STROPHE_DIR "${CMAKE_BINARY_DIR}/libstrophe-${STROPHE_VERSION}")
+    set(STROPHE_ARCHIVE "${CMAKE_BINARY_DIR}/libstrophe-${STROPHE_VERSION}.tar.gz")
+    set(STROPHE_SRC_DIR "${STROPHE_DIR}/libstrophe-${STROPHE_VERSION}")
+    if(NOT EXISTS "${STROPHE_SRC_DIR}/CMakeLists.txt")
+        message(STATUS "Downloading libstrophe v${STROPHE_VERSION} from GitHub...")
+        file(DOWNLOAD
+            "https://github.com/strophe/libstrophe/archive/refs/tags/${STROPHE_VERSION}.tar.gz"
+            "${STROPHE_ARCHIVE}"
+            SHOW_PROGRESS STATUS download_status TIMEOUT 120
+        )
+        list(GET download_status 0 download_code)
+        if(NOT download_code EQUAL 0)
+            list(GET download_status 1 download_err)
+            message(FATAL_ERROR "Failed to download libstrophe: ${download_err}")
+        endif()
+        message(STATUS "Extracting libstrophe...")
+        file(MAKE_DIRECTORY "${STROPHE_DIR}")
+        execute_process(
+            COMMAND python3 -c "import tarfile,sys; tarfile.open(sys.argv[1],'r:gz').extractall(sys.argv[2])"
+            "${STROPHE_ARCHIVE}" "${STROPHE_DIR}"
+            WORKING_DIRECTORY "${STROPHE_DIR}"
+            RESULT_VARIABLE extract_result ERROR_VARIABLE extract_err
+        )
+        if(NOT extract_result EQUAL 0)
+            message(FATAL_ERROR "libstrophe extraction failed (${extract_result}): ${extract_err}")
+        endif()
+    endif()
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(EXPAT_LIBRARY expat CACHE FILEPATH "")
+    set(EXPAT_INCLUDE_DIR "${EXPAT_SRC_DIR}/expat/lib" CACHE PATH "")
+    set(EXPAT_FOUND TRUE CACHE BOOL "" FORCE)
+    add_subdirectory("${STROPHE_SRC_DIR}" "${CMAKE_BINARY_DIR}/strophe-build")
+    target_link_libraries(progressive_native libstrophe expat)
+    target_compile_definitions(progressive_native PRIVATE PROGRESSIVE_HAS_XMPP=1)
+    message(STATUS "XMPP support enabled (libstrophe)")
+else()
+    message(STATUS "XMPP support disabled (stubs). Enable with -DPROGRESSIVE_ENABLE_XMPP=ON")
+endif()
 
 target_link_libraries(
     progressive_native

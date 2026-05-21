@@ -1,19 +1,13 @@
 package chat.progressive.app.irc
 
 import chat.progressive.app.protocol.ConnectionState
-import chat.progressive.app.protocol.IProtocolMessage
 import chat.progressive.app.protocol.IProtocolRoom
 import chat.progressive.app.protocol.IProtocolSession
 import chat.progressive.app.protocol.ProtocolError
 import chat.progressive.app.protocol.ProtocolSessionListener
 import chat.progressive.app.protocol.ProtocolType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.json.JSONObject
-import timber.log.Timber
 
 class IrcSession(
     private val ircClient: IrcClient

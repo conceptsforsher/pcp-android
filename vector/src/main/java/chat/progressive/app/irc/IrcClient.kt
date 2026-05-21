@@ -1,14 +1,10 @@
 package chat.progressive.app.irc
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import org.json.JSONObject
 import timber.log.Timber
+import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
 class IrcClient : IrcCallback {
@@ -17,7 +13,6 @@ class IrcClient : IrcCallback {
         DISCONNECTED, CONNECTING, CONNECTED, REGISTERED, ERROR
     }
 
-    private val scope = CoroutineScope(Dispatchers.IO + Job())
     private var clientPtr: Long = 0
 
     private val _state = MutableStateFlow(State.DISCONNECTED)
@@ -168,12 +163,12 @@ class IrcClient : IrcCallback {
             }
 
             val msg = IrcMessage(
-                id = "${clientId}_${System.currentTimeMillis()}_${code}",
+                id = "${clientId}_${Instant.now().toEpochMilli()}_${code}",
                 chatId = target,
                 senderId = nick,
                 senderName = nick,
                 text = text,
-                timestamp = System.currentTimeMillis(),
+                timestamp = Instant.now().toEpochMilli(),
                 isOutgoing = nick == _currentNick,
                 contentType = contentType
             )
@@ -186,7 +181,6 @@ class IrcClient : IrcCallback {
             if (cmd == "JOIN" || cmd == "PART" || cmd == "QUIT") {
                 listeners.forEach { it.onChannelChanged(target) }
             }
-
         } catch (e: Exception) {
             Timber.e(e, "Failed to parse IRC message")
         }

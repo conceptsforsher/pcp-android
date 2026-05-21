@@ -1,6 +1,5 @@
 package chat.progressive.app.irc
 
-import chat.progressive.app.protocol.ProtocolContentType
 import chat.progressive.app.protocol.IProtocolMessage
 import chat.progressive.app.protocol.IProtocolRoom
 import chat.progressive.app.protocol.ProtocolType
@@ -31,7 +30,6 @@ class IrcRoom(
     }
 
     override suspend fun markAsRead() {
-
     }
 
     override suspend fun leave() {

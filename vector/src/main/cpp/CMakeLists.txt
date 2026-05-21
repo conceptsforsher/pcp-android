@@ -221,6 +221,10 @@ add_library(
     src/openid_token.cpp
     src/jni_bridge.cpp
     src/eventdb.cpp
+    src/irc_types.cpp
+    src/irc_parser.cpp
+    src/irc_client.cpp
+    src/irc_jni_bridge.cpp
 )
 
 # --- Download SQLite3 amalgamation at configure time ---

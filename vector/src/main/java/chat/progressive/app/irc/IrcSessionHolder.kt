@@ -1,6 +1,14 @@
 package chat.progressive.app.irc
 
-class IrcSessionHolder(context: android.content.Context) {
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class IrcSessionHolder @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
 
     private var session: IrcSession? = null
     private var ircClient: IrcClient? = null

@@ -69,27 +69,180 @@
         android:text="@string/login_splash_title"
         android:textColor="?vctr_content_primary"
         android:transitionName="loginTitleTransition"
-        app:layout_constraintBottom_toTopOf="@id/loginSplashSpace3"
+        app:layout_constraintBottom_toTopOf="@id/protocolSectionLabel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/loginSplashSpace2" />
 
-    <Space
-        android:id="@+id/loginSplashSpace3"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+    <TextView
+        android:id="@+id/protocolSectionLabel"
+        style="@style/Widget.Vector.TextView.Body"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="@string/protocol_section_label"
+        android:textColor="?vctr_content_secondary"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/cardMatrix"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loginSplashTitle" />
+
+    <!-- Matrix card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardMatrix"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:checkable="true"
+        android:checked="true"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="?vctr_system"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="1dp"
+        app:layout_constraintBottom_toTopOf="@id/cardIrc"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/protocolSectionLabel"
+        app:strokeColor="?colorPrimary"
+        app:strokeWidth="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/cardMatrixIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/element_logo_green"
+                app:tint="?colorPrimary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/cardMatrixTitle"
+                    style="@style/Widget.Vector.TextView.Subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/protocol_matrix"
+                    android:textColor="?vctr_content_primary" />
+
+                <TextView
+                    android:id="@+id/cardMatrixDesc"
+                    style="@style/Widget.Vector.TextView.Body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/protocol_matrix_desc"
+                    android:textColor="?vctr_content_secondary" />
+
+            </LinearLayout>
+
+            <RadioButton
+                android:id="@+id/radioMatrix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:clickable="false"
+                android:focusable="false" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- IRC card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardIrc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:checkable="true"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="?vctr_system"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="1dp"
         app:layout_constraintBottom_toTopOf="@id/loginSplashContent"
-        app:layout_constraintTop_toBottomOf="@id/loginSplashTitle"
-        app:layout_constraintVertical_weight="2" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardMatrix"
+        app:strokeColor="?vctr_content_quaternary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/cardIrcIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_login_splash_message_circle"
+                app:tint="?vctr_content_secondary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/cardIrcTitle"
+                    style="@style/Widget.Vector.TextView.Subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/protocol_irc"
+                    android:textColor="?vctr_content_primary" />
+
+                <TextView
+                    android:id="@+id/cardIrcDesc"
+                    style="@style/Widget.Vector.TextView.Body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/protocol_irc_desc"
+                    android:textColor="?vctr_content_secondary" />
+
+            </LinearLayout>
+
+            <RadioButton
+                android:id="@+id/radioIrc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:clickable="false"
+                android:focusable="false" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/loginSplashContent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         app:layout_constraintBottom_toTopOf="@id/loginSplashSpace4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginSplashSpace3">
+        app:layout_constraintTop_toBottomOf="@id/cardIrc">
 
         <ImageView
             android:id="@+id/loginSplashPicto1"

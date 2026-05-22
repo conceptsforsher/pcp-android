@@ -55,4 +55,5 @@ sealed class OnboardingViewEvents : VectorViewEvents {
     object OnChooseProfilePicture : OnboardingViewEvents()
     object OnPersonalizationComplete : OnboardingViewEvents()
     object OnBack : OnboardingViewEvents()
+    data class OpenIrcAuth(val protocol: String) : OnboardingViewEvents()
 }

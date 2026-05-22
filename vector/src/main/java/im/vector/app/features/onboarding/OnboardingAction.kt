@@ -21,6 +21,7 @@ sealed interface OnboardingAction : VectorViewModelAction {
 
         data class OnGetStarted(override val onboardingFlow: OnboardingFlow) : SplashAction
         data class OnIAlreadyHaveAnAccount(override val onboardingFlow: OnboardingFlow) : SplashAction
+        data class OnProtocolSelected(val protocol: String, override val onboardingFlow: OnboardingFlow) : SplashAction
     }
 
     data class UpdateServerType(val serverType: ServerType) : OnboardingAction

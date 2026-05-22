@@ -55,6 +55,10 @@ import im.vector.app.features.spaces.SpaceListBottomSheet
 import im.vector.app.features.workers.signout.BannerState
 import im.vector.app.features.workers.signout.ServerBackupStatusAction
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
+import chat.progressive.app.features.auth.IrcAuthActivity
+import chat.progressive.app.features.home.IrcChatListBottomSheet
+import chat.progressive.app.irc.IrcSessionHolder
+import chat.progressive.app.protocol.ProtocolManager
 import im.vector.lib.strings.CommonStrings
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -78,6 +82,8 @@ class NewHomeDetailFragment :
     @Inject lateinit var vectorPreferences: VectorPreferences
     @Inject lateinit var spaceStateHandler: SpaceStateHandler
     @Inject lateinit var buildMeta: BuildMeta
+    @Inject lateinit var ircSessionHolder: IrcSessionHolder
+    @Inject lateinit var protocolManager: ProtocolManager
 
     private val viewModel: HomeDetailViewModel by fragmentViewModel()
     private val newHomeDetailViewModel: NewHomeDetailViewModel by fragmentViewModel()
@@ -214,11 +220,20 @@ class NewHomeDetailFragment :
         views.newLayoutOpenSpacesButton.debouncedClicks {
             spaceListBottomSheet.takeIf { !it.isAdded }?.show(requireActivity().supportFragmentManager, SpaceListBottomSheet.TAG)
         }
+
+        views.ircFab.debouncedClicks {
+            if (ircSessionHolder.getExistingSession() != null) {
+                IrcChatListBottomSheet().show(parentFragmentManager, IrcChatListBottomSheet.TAG)
+            } else {
+                startActivity(IrcAuthActivity.newIntent(requireContext()))
+            }
+        }
     }
 
     private fun showFABs() {
         views.newLayoutCreateChatButton.show()
         views.newLayoutOpenSpacesButton.show()
+        views.ircFab.show()
     }
 
     private fun setCurrentSpace(spaceId: String?) {

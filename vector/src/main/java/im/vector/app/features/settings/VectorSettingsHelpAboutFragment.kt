@@ -99,7 +99,7 @@ class VectorSettingsHelpAboutFragment :
         findPreference<VectorPreference>(VectorPreferences.SETTINGS_CRYPTO_VERSION_PREFERENCE_KEY)!!.let {
             val cryptoVersion = Matrix.getCryptoVersion(true)
             it.summary = "libolm ${cryptoVersion}"
-            it.setOnPreferenceClickListener { pref ->
+            it.setOnPreferenceClickListener { _ ->
                 copyToClipboard(requireContext(), it.summary.orEmpty())
                 true
             }

@@ -1,9 +1,12 @@
 package chat.progressive.app.protocol
 
 import chat.progressive.app.irc.IrcSessionHolder
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ProtocolManager(
-    private val ircHolder: IrcSessionHolder?
+@Singleton
+class ProtocolManager @Inject constructor(
+    private val ircHolder: IrcSessionHolder
 ) {
 
     private val sessions = mutableListOf<IProtocolSession>()
@@ -11,11 +14,13 @@ class ProtocolManager(
 
     fun registerMatrixSession(session: IProtocolSession) {
         matrixSession = session
-        sessions.add(session)
+        if (session !in sessions) {
+            sessions.add(session)
+        }
     }
 
     fun getIrcSession(): IProtocolSession? {
-        return ircHolder?.getOrCreateSession()?.also { session ->
+        return ircHolder.getOrCreateSession()?.also { session ->
             if (session !in sessions) {
                 sessions.add(session)
             }

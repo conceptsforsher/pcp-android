@@ -284,13 +284,14 @@ option(PROGRESSIVE_ENABLE_XMPP "Enable XMPP support via libstrophe" OFF)
 if(PROGRESSIVE_ENABLE_XMPP)
     # -- libexpat --
     set(EXPAT_VERSION "2.6.4")
+    set(EXPAT_TAG "R_2_6_4")
     set(EXPAT_DIR "${CMAKE_BINARY_DIR}/expat-${EXPAT_VERSION}")
     set(EXPAT_ARCHIVE "${CMAKE_BINARY_DIR}/expat-${EXPAT_VERSION}.tar.gz")
-    set(EXPAT_SRC_DIR "${EXPAT_DIR}/libexpat-R_${EXPAT_VERSION}")
+    set(EXPAT_SRC_DIR "${EXPAT_DIR}/libexpat-${EXPAT_TAG}")
     if(NOT EXISTS "${EXPAT_SRC_DIR}/expat/CMakeLists.txt")
         message(STATUS "Downloading libexpat v${EXPAT_VERSION} from GitHub...")
         file(MAKE_DIRECTORY "${EXPAT_DIR}")
-        set(EXPAT_URL "https://codeload.github.com/libexpat/libexpat/tar.gz/refs/tags/R_${EXPAT_VERSION}")
+        set(EXPAT_URL "https://github.com/libexpat/libexpat/archive/refs/tags/${EXPAT_TAG}.tar.gz")
         execute_process(
             COMMAND curl -fsSL -o "${EXPAT_ARCHIVE}" "${EXPAT_URL}"
             RESULT_VARIABLE result ERROR_VARIABLE err
@@ -321,7 +322,7 @@ if(PROGRESSIVE_ENABLE_XMPP)
     if(NOT EXISTS "${STROPHE_SRC_DIR}/CMakeLists.txt")
         message(STATUS "Downloading libstrophe v${STROPHE_VERSION} from GitHub...")
         file(MAKE_DIRECTORY "${STROPHE_DIR}")
-        set(STROPHE_URL "https://codeload.github.com/strophe/libstrophe/tar.gz/refs/tags/${STROPHE_VERSION}")
+        set(STROPHE_URL "https://github.com/strophe/libstrophe/archive/refs/tags/${STROPHE_VERSION}.tar.gz")
         execute_process(
             COMMAND curl -fsSL -o "${STROPHE_ARCHIVE}" "${STROPHE_URL}"
             RESULT_VARIABLE result ERROR_VARIABLE err

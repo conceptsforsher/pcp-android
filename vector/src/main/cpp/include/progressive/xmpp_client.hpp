@@ -13,19 +13,9 @@
 #include <memory>
 #include <unordered_map>
 
-struct _xmpp_ctx_t;
-struct _xmpp_conn_t;
-struct _xmpp_stanza_t;
-struct _xmpp_stream_error_t;
-typedef struct _xmpp_ctx_t xmpp_ctx_t;
-typedef struct _xmpp_conn_t xmpp_conn_t;
-typedef struct _xmpp_stanza_t xmpp_stanza_t;
-typedef struct _xmpp_stream_error_t xmpp_stream_error_t;
-typedef enum {
-    XMPP_CONN_CONNECT,
-    XMPP_CONN_DISCONNECT,
-    XMPP_CONN_FAIL
-} xmpp_conn_event_t;
+extern "C" {
+#include <strophe.h>
+}
 
 namespace progressive {
 

@@ -41,11 +41,10 @@
 
         <ImageView
             android:id="@+id/logoType"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:layout_marginTop="8dp"
             android:contentDescription="@string/app_name"
-            android:scaleType="fitCenter"
             android:src="@drawable/element_logotype"
             app:tint="?colorSecondary"
             tools:ignore="MissingPrefix" />
@@ -89,7 +88,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/loginSplashTitle" />
 
-    <!-- Category toggle chips: Open source | Proprietary -->
+    <!-- Category toggle -->
     <LinearLayout
         android:id="@+id/categoryChips"
         android:layout_width="0dp"
@@ -114,7 +113,6 @@
             android:paddingTop="6dp"
             android:paddingBottom="6dp"
             android:text="@string/category_open_source"
-            android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="12sp" />
 
@@ -130,7 +128,6 @@
             android:paddingTop="6dp"
             android:paddingBottom="6dp"
             android:text="@string/category_proprietary"
-            android:textAllCaps="false"
             android:textColor="?vctr_content_primary"
             android:textSize="12sp" />
 
@@ -146,14 +143,14 @@
         android:text="@string/open_source_group_desc"
         android:textColor="?vctr_content_secondary"
         android:textSize="11sp"
-        app:layout_constraintBottom_toTopOf="@id/protocolCardsContainer"
+        app:layout_constraintBottom_toTopOf="@id/protocolCards"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/categoryChips" />
 
-    <!-- Dynamic protocol cards -->
+    <!-- Protocol cards — all defined statically, visibility toggled in fragment -->
     <LinearLayout
-        android:id="@+id/protocolCardsContainer"
+        android:id="@+id/protocolCards"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
@@ -161,9 +158,321 @@
         app:layout_constraintBottom_toTopOf="@id/loginSplashFeatures"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/groupDescription" />
+        app:layout_constraintTop_toBottomOf="@id/groupDescription">
 
-    <!-- Features section -->
+        <!-- Matrix -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardMatrix"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:checkable="true"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="?vctr_system"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="1dp"
+            app:strokeColor="?vctr_content_quaternary"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:id="@+id/cardMatrixIcon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_chat"
+                    app:tint="?vctr_content_quaternary" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/cardMatrixTitle"
+                        style="@style/Widget.Vector.TextView.Body"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/protocol_matrix"
+                        android:textColor="?vctr_content_primary"
+                        android:textStyle="bold"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/cardMatrixDesc"
+                        style="@style/Widget.Vector.TextView.Body"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/protocol_matrix_desc"
+                        android:textColor="?vctr_content_secondary"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+                <RadioButton
+                    android:id="@+id/radioMatrix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- IRC -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardIrc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:checkable="true"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="?vctr_system"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="1dp"
+            app:strokeColor="?vctr_content_quaternary"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:id="@+id/cardIrcIcon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_login_splash_message_circle"
+                    app:tint="?vctr_content_quaternary" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/cardIrcTitle"
+                        style="@style/Widget.Vector.TextView.Body"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/protocol_irc"
+                        android:textColor="?vctr_content_primary"
+                        android:textStyle="bold"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/cardIrcDesc"
+                        style="@style/Widget.Vector.TextView.Body"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/protocol_irc_desc"
+                        android:textColor="?vctr_content_secondary"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+                <RadioButton
+                    android:id="@+id/radioIrc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- XMPP (stub) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardXmpp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:alpha="0.4"
+            android:clickable="false"
+            android:focusable="false"
+            app:cardBackgroundColor="?vctr_system"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="1dp"
+            app:strokeColor="?vctr_content_quaternary"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_chat"
+                    app:tint="?vctr_content_quaternary" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/protocol_xmpp"
+                        android:textColor="?vctr_content_primary"
+                        android:textStyle="bold"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/coming_soon"
+                        android:textColor="?vctr_content_secondary"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Delta Chat (stub) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardDelta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:alpha="0.4"
+            android:clickable="false"
+            android:focusable="false"
+            app:cardBackgroundColor="?vctr_system"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="1dp"
+            app:strokeColor="?vctr_content_quaternary"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_login_splash_message_circle"
+                    app:tint="?vctr_content_quaternary" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/protocol_delta"
+                        android:textColor="?vctr_content_primary"
+                        android:textStyle="bold"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/coming_soon"
+                        android:textColor="?vctr_content_secondary"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Telegram (stub, proprietary category) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardTelegram"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:alpha="0.4"
+            android:clickable="false"
+            android:focusable="false"
+            android:visibility="gone"
+            app:cardBackgroundColor="?vctr_system"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="1dp"
+            app:strokeColor="?vctr_content_quaternary"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_chat"
+                    app:tint="?vctr_content_quaternary" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/protocol_telegram"
+                        android:textColor="?vctr_content_primary"
+                        android:textStyle="bold"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/protocol_telegram_desc"
+                        android:textColor="?vctr_content_secondary"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <!-- Features -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/loginSplashFeatures"
         android:layout_width="0dp"
@@ -172,7 +481,7 @@
         app:layout_constraintBottom_toTopOf="@id/loginSplashSpace4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/protocolCardsContainer">
+        app:layout_constraintTop_toBottomOf="@id/protocolCards">
 
         <ImageView
             android:id="@+id/loginSplashPicto1"

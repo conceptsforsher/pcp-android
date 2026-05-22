@@ -168,7 +168,7 @@ void XmppClient::sendMessage(const std::string& toJid, const std::string& body) 
     xmpp_stanza_add_child(msg, bodyEl);
     xmpp_stanza_release(bodyEl);
 
-    xmpp_stanza_send(conn, msg);
+    xmpp_send(conn, msg);
     xmpp_stanza_release(msg);
 
     auto now = std::chrono::system_clock::now();
@@ -214,7 +214,7 @@ void XmppClient::sendPresence(const std::string& status, const std::string& show
         xmpp_stanza_release(statusEl);
     }
 
-    xmpp_stanza_send(conn, pres);
+    xmpp_send(conn, pres);
     xmpp_stanza_release(pres);
 }
 
@@ -235,7 +235,7 @@ void XmppClient::sendTypingNotification(const std::string& toJid, bool isTyping)
     xmpp_stanza_add_child(msg, state);
     xmpp_stanza_release(state);
 
-    xmpp_stanza_send(conn, msg);
+    xmpp_send(conn, msg);
     xmpp_stanza_release(msg);
 }
 
@@ -250,12 +250,13 @@ void XmppClient::joinRoom(const std::string& roomJid) {
     std::string toAddr = roomJid + "/" + account.resource;
     xmpp_stanza_set_attribute(pres, "to", toAddr.c_str());
 
-    xmpp_stanza_t* x = xmpp_stanza_new_child(pres, "x");
-    if (x) {
-        xmpp_stanza_set_ns(x, "http://jabber.org/protocol/muc");
-    }
+    xmpp_stanza_t* x = xmpp_stanza_new(ctx);
+    xmpp_stanza_set_name(x, "x");
+    xmpp_stanza_set_ns(x, "http://jabber.org/protocol/muc");
+    xmpp_stanza_add_child(pres, x);
+    xmpp_stanza_release(x);
 
-    xmpp_stanza_send(conn, pres);
+    xmpp_send(conn, pres);
     xmpp_stanza_release(pres);
 }
 
@@ -271,7 +272,7 @@ void XmppClient::leaveRoom(const std::string& roomJid) {
     std::string toAddr = roomJid + "/" + account.resource;
     xmpp_stanza_set_attribute(pres, "to", toAddr.c_str());
 
-    xmpp_stanza_send(conn, pres);
+    xmpp_send(conn, pres);
     xmpp_stanza_release(pres);
 }
 
@@ -286,7 +287,7 @@ void XmppClient::setNickname(const std::string& roomJid, const std::string& nick
     std::string toAddr = roomJid + "/" + nick;
     xmpp_stanza_set_attribute(pres, "to", toAddr.c_str());
 
-    xmpp_stanza_send(conn, pres);
+    xmpp_send(conn, pres);
     xmpp_stanza_release(pres);
 }
 
@@ -689,7 +690,7 @@ void XmppClient::requestMam(const std::string& chatJid, const std::string& befor
     xmpp_stanza_add_child(iq, queryEl);
     xmpp_stanza_release(queryEl);
 
-    xmpp_stanza_send(conn, iq);
+    xmpp_send(conn, iq);
     xmpp_stanza_release(iq);
 }
 
@@ -768,7 +769,7 @@ void XmppClient::requestMamPage(const std::string& chatJid, const std::string& a
     xmpp_stanza_add_child(iq, queryEl);
     xmpp_stanza_release(queryEl);
 
-    xmpp_stanza_send(conn, iq);
+    xmpp_send(conn, iq);
     xmpp_stanza_release(iq);
 }
 
@@ -959,7 +960,7 @@ void XmppClient::requestRoomInfo(const std::string& roomJid) {
     xmpp_stanza_add_child(iq, query);
     xmpp_stanza_release(query);
 
-    xmpp_stanza_send(conn, iq);
+    xmpp_send(conn, iq);
     xmpp_stanza_release(iq);
 }
 
@@ -979,7 +980,7 @@ void XmppClient::requestRoomConfig(const std::string& roomJid) {
     xmpp_stanza_add_child(iq, query);
     xmpp_stanza_release(query);
 
-    xmpp_stanza_send(conn, iq);
+    xmpp_send(conn, iq);
     xmpp_stanza_release(iq);
 }
 
@@ -1075,7 +1076,7 @@ void XmppClient::requestVCard(const std::string& jid) {
     xmpp_stanza_add_child(iq, vcard);
     xmpp_stanza_release(vcard);
 
-    xmpp_stanza_send(conn, iq);
+    xmpp_send(conn, iq);
     xmpp_stanza_release(iq);
 }
 
@@ -1194,7 +1195,7 @@ void XmppClient::requestUploadSlot(const std::string& serviceJid, const std::str
     xmpp_stanza_add_child(iq, request);
     xmpp_stanza_release(request);
 
-    xmpp_stanza_send(conn, iq);
+    xmpp_send(conn, iq);
     xmpp_stanza_release(iq);
 }
 
@@ -1255,7 +1256,7 @@ void XmppClient::enableCarbons() {
     xmpp_stanza_add_child(iq, enable);
     xmpp_stanza_release(enable);
 
-    xmpp_stanza_send(conn, iq);
+    xmpp_send(conn, iq);
     xmpp_stanza_release(iq);
 
     LOGD("Carbones enabled");

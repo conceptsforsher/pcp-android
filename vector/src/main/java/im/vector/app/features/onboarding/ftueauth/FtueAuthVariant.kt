@@ -217,6 +217,9 @@ class FtueAuthVariant(
             OnboardingViewEvents.OnChooseProfilePicture -> onChooseProfilePicture()
             OnboardingViewEvents.OnPersonalizationComplete -> onPersonalizationComplete()
             OnboardingViewEvents.OnBack -> activity.popBackstack()
+            is OnboardingViewEvents.OpenIrcAuth -> {
+                Toast.makeText(activity, "IRC: Coming soon", Toast.LENGTH_SHORT).show()
+            }
             is OnboardingViewEvents.OpenXmppAuth -> {
                 val intent = android.content.Intent(activity, chat.progressive.app.features.xmpp.XmppAuthActivity::class.java)
                 activity.startActivity(intent)

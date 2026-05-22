@@ -126,8 +126,9 @@ class FtueAuthSplashFragment :
 
         val primaryColor = getColorFromAttr(com.google.android.material.R.attr.colorPrimary, Color.parseColor("#368BD6"))
         val quaternaryColor = getColorFromAttr(im.vector.lib.ui.styles.R.attr.vctr_content_quaternary, Color.GRAY)
-        val textPrimary = requireContext().getColor(android.R.attr.textColorPrimary)
-        val textSecondary = requireContext().getColor(android.R.attr.textColorSecondary)
+        val textPrimary = getColorFromAttr(android.R.attr.textColorPrimary, Color.BLACK)
+        val textSecondary = getColorFromAttr(android.R.attr.textColorSecondary, Color.DKGRAY)
+        val cardBackground = getColorFromAttr(android.R.attr.colorBackground, Color.WHITE)
 
         val protocols = when (currentCategory) {
             "open" -> listOf(
@@ -149,7 +150,7 @@ class FtueAuthSplashFragment :
                 ).apply { bottomMargin = 6.dpToPx() }
                 setRadius(10.dpToPx().toFloat())
                 setCardElevation(1.dpToPx().toFloat())
-                setCardBackgroundColor(requireContext().getColor(android.R.attr.colorBackground))
+                setCardBackgroundColor(cardBackground)
                 isClickable = !proto.isStub
                 isFocusable = !proto.isStub
                 isChecked = selectedProtocol == proto.id

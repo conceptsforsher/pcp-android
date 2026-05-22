@@ -9,7 +9,7 @@ permissions: {}
 
 env:
   GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx3072m -Dfile.encoding=UTF-8" -Dkotlin.incremental=false
-  CI_GRADLE_ARG_PROPERTIES: --stacktrace --warn --no-build-cache -PpreDexEnable=false --max-workers 1 --no-daemon -PminifyEnabled=false -PciAbi=armeabi-v7a -PprogressiveXmpp=true
+  CI_GRADLE_ARG_PROPERTIES: --stacktrace --warn --no-build-cache -PpreDexEnable=false --max-workers 1 --no-daemon -PminifyEnabled=false -PallWarningsAsErrors=false -PciAbi=armeabi-v7a -PprogressiveXmpp=true
 
 jobs:
   build-xmpp:

@@ -3837,4 +3837,29 @@
     <string name="view_download_replacement_app_title">Download %1$s</string>
     <string name="view_download_replacement_app_subtitle">Faster, more secure, and packed with powerful collaboration tools.</string>
 
+    <!-- Multi-protocol onboarding -->
+    <string name="protocol_section_label">Choose your protocol</string>
+    <string name="category_open_source">Open source &amp; decentralized</string>
+    <string name="category_proprietary">Proprietary</string>
+    <string name="open_source_group_desc">Decentralized, fully open and free. No single company controls them.</string>
+    <string name="protocol_matrix">Matrix</string>
+    <string name="protocol_matrix_desc">Open federation — the talk of the future</string>
+    <string name="protocol_irc">IRC</string>
+    <string name="protocol_irc_desc">Lightweight classic where old‑school hackers hang out</string>
+    <string name="protocol_xmpp">XMPP</string>
+    <string name="protocol_xmpp_desc">Federated instant messaging since 1999</string>
+    <string name="protocol_delta">Delta Chat</string>
+    <string name="protocol_delta_desc">Chat over email — no new account needed. Coming soon.</string>
+    <string name="protocol_telegram">Telegram</string>
+    <string name="protocol_telegram_desc">Popular messenger with closed-source server</string>
+    <string name="coming_soon">Coming soon</string>
+    <string name="irc_splash_text1">Chat in channels or privately with /msg</string>
+    <string name="irc_splash_text2">Lightweight — runs on anything since 1988</string>
+    <string name="irc_splash_text3">Decentralized and open, like Matrix</string>
+    <string name="xmpp_splash_text1">Chat one-on-one or in group rooms via MUC</string>
+    <string name="xmpp_splash_text2">Federated — talk to anyone on any XMPP server</string>
+    <string name="xmpp_splash_text3">Free and open standard since 1999</string>
+    <string name="proprietary_feature_1">The most popular messengers</string>
+    <string name="proprietary_feature_2">Find local communities easily</string>
+    <string name="proprietary_feature_3"><![CDATA[<font color="#FF0000">Bad for privacy</font>]]></string>
 </resources>

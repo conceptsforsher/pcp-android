@@ -217,6 +217,11 @@ class FtueAuthVariant(
             OnboardingViewEvents.OnChooseProfilePicture -> onChooseProfilePicture()
             OnboardingViewEvents.OnPersonalizationComplete -> onPersonalizationComplete()
             OnboardingViewEvents.OnBack -> activity.popBackstack()
+            is OnboardingViewEvents.OpenXmppAuth -> {
+                val intent = android.content.Intent(activity, chat.progressive.app.features.xmpp.XmppAuthActivity::class.java)
+                activity.startActivity(intent)
+                activity.finish()
+            }
             OnboardingViewEvents.EditServerSelection -> {
                 activity.addFragmentToBackstack(
                         views.loginFragmentContainer,

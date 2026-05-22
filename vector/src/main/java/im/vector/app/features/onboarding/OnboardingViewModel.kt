@@ -232,6 +232,14 @@ class OnboardingViewModel @AssistedInject constructor(
 
     private fun handleSplashAction(action: OnboardingAction.SplashAction) {
         setState { copy(onboardingFlow = action.onboardingFlow) }
+        if (action is OnboardingAction.SplashAction.OnProtocolSelected && action.protocol == "irc") {
+            _viewEvents.post(OnboardingViewEvents.OpenIrcAuth("irc"))
+            return
+        }
+        if (action is OnboardingAction.SplashAction.OnProtocolSelected && action.protocol == "xmpp") {
+            _viewEvents.post(OnboardingViewEvents.OpenXmppAuth("xmpp"))
+            return
+        }
         continueToPageAfterSplash(action.onboardingFlow)
     }
 

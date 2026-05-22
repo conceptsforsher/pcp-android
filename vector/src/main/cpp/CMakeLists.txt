@@ -289,24 +289,14 @@ if(PROGRESSIVE_ENABLE_XMPP)
     set(EXPAT_SRC_DIR "${EXPAT_DIR}/libexpat-R_${EXPAT_VERSION}")
     if(NOT EXISTS "${EXPAT_SRC_DIR}/expat/CMakeLists.txt")
         message(STATUS "Downloading libexpat v${EXPAT_VERSION} from GitHub...")
-        execute_process(
-            COMMAND curl -L -o "${EXPAT_ARCHIVE}" "https://github.com/libexpat/libexpat/archive/refs/tags/R_${EXPAT_VERSION}.tar.gz"
-            RESULT_VARIABLE download_result ERROR_VARIABLE download_err
-            TIMEOUT 120
-        )
-        if(NOT download_result EQUAL 0)
-            message(FATAL_ERROR "Failed to download libexpat: ${download_err}")
-        endif()
-        message(STATUS "Extracting libexpat...")
         file(MAKE_DIRECTORY "${EXPAT_DIR}")
         execute_process(
-            COMMAND python3 -c "import tarfile,sys; tarfile.open(sys.argv[1],'r:gz').extractall(sys.argv[2])"
-            "${EXPAT_ARCHIVE}" "${EXPAT_DIR}"
-            WORKING_DIRECTORY "${EXPAT_DIR}"
-            RESULT_VARIABLE extract_result ERROR_VARIABLE extract_err
+            COMMAND bash -c "curl -L -o '${EXPAT_ARCHIVE}' 'https://github.com/libexpat/libexpat/archive/refs/tags/R_${EXPAT_VERSION}.tar.gz' && python3 -c \"import tarfile,sys; tarfile.open('${EXPAT_ARCHIVE}','r:gz').extractall('${EXPAT_DIR}')\""
+            RESULT_VARIABLE result ERROR_VARIABLE err
+            TIMEOUT 300
         )
-        if(NOT extract_result EQUAL 0)
-            message(FATAL_ERROR "libexpat extraction failed (${extract_result}): ${extract_err}")
+        if(NOT result EQUAL 0)
+            message(FATAL_ERROR "Failed to download/extract libexpat: ${err}")
         endif()
     endif()
     set(EXPAT_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
@@ -322,24 +312,14 @@ if(PROGRESSIVE_ENABLE_XMPP)
     set(STROPHE_SRC_DIR "${STROPHE_DIR}/libstrophe-${STROPHE_VERSION}")
     if(NOT EXISTS "${STROPHE_SRC_DIR}/CMakeLists.txt")
         message(STATUS "Downloading libstrophe v${STROPHE_VERSION} from GitHub...")
-        execute_process(
-            COMMAND curl -L -o "${STROPHE_ARCHIVE}" "https://github.com/strophe/libstrophe/archive/refs/tags/${STROPHE_VERSION}.tar.gz"
-            RESULT_VARIABLE download_result ERROR_VARIABLE download_err
-            TIMEOUT 120
-        )
-        if(NOT download_result EQUAL 0)
-            message(FATAL_ERROR "Failed to download libstrophe: ${download_err}")
-        endif()
-        message(STATUS "Extracting libstrophe...")
         file(MAKE_DIRECTORY "${STROPHE_DIR}")
         execute_process(
-            COMMAND python3 -c "import tarfile,sys; tarfile.open(sys.argv[1],'r:gz').extractall(sys.argv[2])"
-            "${STROPHE_ARCHIVE}" "${STROPHE_DIR}"
-            WORKING_DIRECTORY "${STROPHE_DIR}"
-            RESULT_VARIABLE extract_result ERROR_VARIABLE extract_err
+            COMMAND bash -c "curl -L -o '${STROPHE_ARCHIVE}' 'https://github.com/strophe/libstrophe/archive/refs/tags/${STROPHE_VERSION}.tar.gz' && python3 -c \"import tarfile,sys; tarfile.open('${STROPHE_ARCHIVE}','r:gz').extractall('${STROPHE_DIR}')\""
+            RESULT_VARIABLE result ERROR_VARIABLE err
+            TIMEOUT 300
         )
-        if(NOT extract_result EQUAL 0)
-            message(FATAL_ERROR "libstrophe extraction failed (${extract_result}): ${extract_err}")
+        if(NOT result EQUAL 0)
+            message(FATAL_ERROR "Failed to download/extract libstrophe: ${err}")
         endif()
     endif()
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)

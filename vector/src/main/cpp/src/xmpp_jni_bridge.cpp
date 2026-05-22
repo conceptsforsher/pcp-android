@@ -15,6 +15,8 @@
 #ifdef PROGRESSIVE_HAS_XMPP
 
 #include "progressive/xmpp_client.hpp"
+#include "progressive/json_parser.hpp"
+#include "progressive/exporter.hpp"
 #include <memory>
 
 static JavaVM* g_xmppJvm = nullptr;
@@ -79,10 +81,10 @@ static std::string rosterToJson(const std::vector<progressive::XmppUser>& roster
     for (size_t i = 0; i < roster.size(); i++) {
         if (i > 0) os << ",";
         const auto& u = roster[i];
-        os << R"({"jid":")" << u.jid
-           << R"(","nickname":")" << u.nickname
-           << R"(","status":")" << u.status
-           << R"(","avatarHash":")" << u.avatarHash
+        os << R"({"jid":")" << progressive::escapeJson(u.jid)
+           << R"(","nickname":")" << progressive::escapeJson(u.nickname)
+           << R"(","status":")" << progressive::escapeJson(u.status)
+           << R"(","avatarHash":")" << progressive::escapeJson(u.avatarHash)
            << R"(","isOnline":)" << (u.isOnline ? "true" : "false") << "}";
     }
     os << "]";
@@ -95,19 +97,15 @@ static std::string chatsToJson(const std::vector<progressive::XmppChat>& chats) 
     for (size_t i = 0; i < chats.size(); i++) {
         if (i > 0) os << ",";
         const auto& c = chats[i];
-        os << R"({"jid":")" << c.jid
-           << R"(","name":")" << c.name
-           << R"(","lastMessage":")" << c.lastMessage
+        os << R"({"jid":")" << progressive::escapeJson(c.jid)
+           << R"(","name":")" << progressive::escapeJson(c.name)
+           << R"(","lastMessage":")" << progressive::escapeJson(c.lastMessage)
            << R"(,"lastMessageTime":)" << c.lastMessageTime
            << R"(,"unreadCount":)" << c.unreadCount
            << R"(,"isGroupChat":)" << (c.isGroupChat ? "true" : "false") << "}";
     }
     os << "]";
     return os.str();
-}
-
-static std::string accountFromJson(const std::string& json) {
-    return json;
 }
 
 // ====== JNI Functions ======
@@ -124,52 +122,12 @@ JNI_XMPP(jlong, nativeXmppConnect)(JNIEnv* env, jclass, jstring jAccountJson) {
     progressive::XmppAccount account;
     std::string json = jStr(env, jAccountJson);
 
-    auto extract = [&json](const std::string& key) -> std::string {
-        auto pp = json.find("\"" + key + "\"");
-        if (pp == std::string::npos) return "";
-        pp = json.find('"', pp + key.size() + 2);
-        if (pp == std::string::npos) return "";
-        pp++;
-        size_t e = pp;
-        while (e < json.size() && json[e] != '"') e++;
-        return json.substr(pp, e - pp);
-    };
-
-    auto extractInt = [&json](const std::string& key, int defVal) -> int {
-        auto pp = json.find("\"" + key + "\"");
-        if (pp == std::string::npos) return defVal;
-        pp = json.find(':', pp);
-        if (pp == std::string::npos) return defVal;
-        pp++;
-        while (pp < json.size() && (json[pp] == ' ' || json[pp] == '\t')) pp++;
-        if (pp >= json.size()) return defVal;
-        int val = 0;
-        bool neg = false;
-        if (json[pp] == '-') { neg = true; pp++; }
-        while (pp < json.size() && json[pp] >= '0' && json[pp] <= '9') {
-            val = val * 10 + (json[pp] - '0');
-            pp++;
-        }
-        return neg ? -val : val;
-    };
-
-    auto extractBool = [&json](const std::string& key, bool defVal) -> bool {
-        auto pp = json.find("\"" + key + "\"");
-        if (pp == std::string::npos) return defVal;
-        pp = json.find(':', pp);
-        if (pp == std::string::npos) return defVal;
-        pp++;
-        while (pp < json.size() && (json[pp] == ' ' || json[pp] == '\t')) pp++;
-        if (pp >= json.size()) return defVal;
-        return json.compare(pp, 4, "true") == 0;
-    };
-
-    account.jid = extract("jid");
-    account.password = extract("password");
-    account.server = extract("server");
-    account.resource = extract("resource");
-    account.port = extractInt("port", 5222);
-    account.useTls = extractBool("useTls", true);
+    account.jid = progressive::parseJsonStringValue(json, "jid");
+    account.password = progressive::parseJsonStringValue(json, "password");
+    account.server = progressive::parseJsonStringValue(json, "server");
+    account.resource = progressive::parseJsonStringValue(json, "resource");
+    account.port = static_cast<int>(progressive::parseJsonInt64Value(json, "port", 5222));
+    account.useTls = progressive::parseJsonBoolValue(json, "useTls", true);
 
     if (account.resource.empty()) account.resource = "Progressive";
 
@@ -184,6 +142,12 @@ JNI_XMPP(jlong, nativeXmppConnect)(JNIEnv* env, jclass, jstring jAccountJson) {
                 break;
             case progressive::XmppEventType::MESSAGE_RECEIVED:
                 xmppPostToKotlin("xmppOnMessage", data);
+                break;
+            case progressive::XmppEventType::MAM_MESSAGE:
+                xmppPostToKotlin("xmppOnMamMessage", data);
+                break;
+            case progressive::XmppEventType::MAM_COMPLETE:
+                xmppPostToKotlin("xmppOnMamComplete", data);
                 break;
             case progressive::XmppEventType::PRESENCE_CHANGED:
                 xmppPostToKotlin("xmppOnPresence", data);
@@ -319,6 +283,81 @@ JNI_XMPP(void, nativeXmppSetNickname)(JNIEnv* env, jclass, jlong jHandle, jstrin
     }
 }
 
+JNI_XMPP(void, nativeXmppRequestMam)(JNIEnv* env, jclass, jlong jHandle, jstring jChatJid, jstring jBeforeId, jint jLimit) {
+    std::lock_guard<std::mutex> lock(g_xmppMutex);
+    auto it = g_xmppClients.find(jHandle);
+    if (it != g_xmppClients.end()) {
+        it->second->requestMam(jStr(env, jChatJid), jStr(env, jBeforeId), jLimit);
+    }
+}
+
+JNI_XMPP(void, nativeXmppRequestMamPage)(JNIEnv* env, jclass, jlong jHandle, jstring jChatJid, jstring jAfterId, jint jLimit) {
+    std::lock_guard<std::mutex> lock(g_xmppMutex);
+    auto it = g_xmppClients.find(jHandle);
+    if (it != g_xmppClients.end()) {
+        it->second->requestMamPage(jStr(env, jChatJid), jStr(env, jAfterId), jLimit);
+    }
+}
+
+JNI_XMPP(jstring, nativeXmppGetRooms)(JNIEnv* env, jclass, jlong jHandle) {
+    std::lock_guard<std::mutex> lock(g_xmppMutex);
+    auto it = g_xmppClients.find(jHandle);
+    if (it != g_xmppClients.end()) {
+        auto rooms = it->second->getRooms();
+        std::ostringstream os;
+        os << "[";
+        for (size_t i = 0; i < rooms.size(); i++) {
+            if (i > 0) os << ",";
+            const auto& r = rooms[i];
+            os << R"({"jid":")" << progressive::escapeJson(r.jid)
+               << R"(","name":")" << progressive::escapeJson(r.name)
+               << R"(","subject":")" << progressive::escapeJson(r.subject)
+               << R"(","ownNickname":")" << progressive::escapeJson(r.ownNickname)
+               << R"(","isJoined":)" << (r.isJoined ? "true" : "false")
+               << R"(,"participantCount":)" << r.participants.size() << "}";
+        }
+        os << "]";
+        return env->NewStringUTF(os.str().c_str());
+    }
+    return env->NewStringUTF("[]");
+}
+
+JNI_XMPP(void, nativeXmppRequestRoomInfo)(JNIEnv* env, jclass, jlong jHandle, jstring jRoomJid) {
+    std::lock_guard<std::mutex> lock(g_xmppMutex);
+    auto it = g_xmppClients.find(jHandle);
+    if (it != g_xmppClients.end()) {
+        it->second->requestRoomInfo(jStr(env, jRoomJid));
+    }
+}
+
+JNI_XMPP(void, nativeXmppRequestVCard)(JNIEnv* env, jclass, jlong jHandle, jstring jJid) {
+    std::lock_guard<std::mutex> lock(g_xmppMutex);
+    auto it = g_xmppClients.find(jHandle);
+    if (it != g_xmppClients.end()) {
+        it->second->requestVCard(jStr(env, jJid));
+    }
+}
+
+JNI_XMPP(jstring, nativeXmppGetAvatarHash)(JNIEnv* env, jclass, jlong jHandle, jstring jJid) {
+    std::lock_guard<std::mutex> lock(g_xmppMutex);
+    auto it = g_xmppClients.find(jHandle);
+    if (it != g_xmppClients.end()) {
+        return env->NewStringUTF(it->second->getAvatarHash(jStr(env, jJid)).c_str());
+    }
+    return env->NewStringUTF("");
+}
+
+JNI_XMPP(jstring, nativeXmppRequestUploadSlot)(JNIEnv* env, jclass, jlong jHandle, jstring jServiceJid,
+    jstring jFilename, jlong jFileSize, jstring jContentType) {
+    std::lock_guard<std::mutex> lock(g_xmppMutex);
+    auto it = g_xmppClients.find(jHandle);
+    if (it != g_xmppClients.end()) {
+        it->second->requestUploadSlot(jStr(env, jServiceJid), jStr(env, jFilename),
+                                       jFileSize, jStr(env, jContentType));
+    }
+    return env->NewStringUTF("{}");
+}
+
 #else // PROGRESSIVE_HAS_XMPP not defined — stubs
 
 JNI_XMPP(jlong, nativeXmppInit)(JNIEnv*, jclass) {
@@ -368,5 +407,26 @@ JNI_XMPP(void, nativeXmppRunOnce)(JNIEnv*, jclass, jlong, jint) {}
 JNI_XMPP(void, nativeXmppSendTyping)(JNIEnv*, jclass, jlong, jstring, jboolean) {}
 
 JNI_XMPP(void, nativeXmppSetNickname)(JNIEnv*, jclass, jlong, jstring, jstring) {}
+
+JNI_XMPP(void, nativeXmppRequestMam)(JNIEnv*, jclass, jlong, jstring, jstring, jint) {}
+
+JNI_XMPP(void, nativeXmppRequestMamPage)(JNIEnv*, jclass, jlong, jstring, jstring, jint) {}
+
+JNI_XMPP(jstring, nativeXmppGetRooms)(JNIEnv* env, jclass, jlong) {
+    return env->NewStringUTF("[]");
+}
+
+JNI_XMPP(void, nativeXmppRequestRoomInfo)(JNIEnv*, jclass, jlong, jstring) {}
+
+JNI_XMPP(void, nativeXmppRequestVCard)(JNIEnv*, jclass, jlong, jstring) {}
+
+JNI_XMPP(jstring, nativeXmppGetAvatarHash)(JNIEnv* env, jclass, jlong, jstring) {
+    return env->NewStringUTF("");
+}
+
+JNI_XMPP(jstring, nativeXmppRequestUploadSlot)(JNIEnv* env, jclass, jlong, jstring,
+    jstring, jlong, jstring) {
+    return env->NewStringUTF("{}");
+}
 
 #endif // PROGRESSIVE_HAS_XMPP

@@ -28,6 +28,7 @@ class XmppSessionHolder {
 
         val jid = XmppNative.nativeXmppGetOwnJid(nativeHandle)
         session = XmppSession(nativeHandle, jid)
+        session!!.open()
         session!!.updateConnectionState(ConnectionState.CONNECTING)
 
         return session
@@ -52,6 +53,7 @@ class XmppSessionHolder {
         }
 
         session = XmppSession(nativeHandle, jid)
+        session!!.open()
         session!!.updateConnectionState(ConnectionState.CONNECTING)
 
         return session

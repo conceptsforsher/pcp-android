@@ -1,15 +1,18 @@
 package chat.progressive.app.features.xmpp
 
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import chat.progressive.app.protocol.IProtocolRoom
-import chat.progressive.app.xmpp.XmppSessionHolder
+import chat.progressive.app.protocol.ProtocolManager
+import chat.progressive.app.protocol.ProtocolType
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -17,7 +20,7 @@ import javax.inject.Inject
 class XmppChatListActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var xmppHolder: XmppSessionHolder
+    lateinit var protocolManager: ProtocolManager
 
     private val chatItems = mutableListOf<String>()
     private lateinit var adapter: ArrayAdapter<String>
@@ -32,21 +35,47 @@ class XmppChatListActivity : AppCompatActivity() {
         }
 
         val title = TextView(this).apply {
-            text = "XMPP Chats"
-            textSize = 24f
+            text = "Unified Chats (Matrix + XMPP)"
+            textSize = 20f
         }
         layout.addView(title)
 
+        val filterBar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 8, 0, 8)
+        }
+        val allBtn = Button(this).apply {
+            text = "All"
+            setOnClickListener { chatItems.forEachIndexed { idx, s ->
+                if (!s.startsWith("[")) chatItems[idx] = s.substringAfter("]", "").trim()
+            }; updateList(chats) }
+        }
+        filterBar.addView(allBtn)
+
+        val matrixBtn = Button(this).apply {
+            text = "Matrix"
+            setOnClickListener { updateList(chats.filter { it.protocolType == ProtocolType.MATRIX }) }
+        }
+        filterBar.addView(matrixBtn)
+
+        val xmppBtn = Button(this).apply {
+            text = "XMPP"
+            setOnClickListener { updateList(chats.filter { it.protocolType == ProtocolType.XMPP }) }
+        }
+        filterBar.addView(xmppBtn)
+        layout.addView(filterBar)
+
         val listView = ListView(this)
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, chatItems)
+        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_2, android.R.id.text1, chatItems)
         listView.adapter = adapter
 
         listView.setOnItemClickListener { _, _, position, _ ->
-            if (position < chatItems.size) {
-                // Navigate to chat
+            if (position < chats.size) {
+                val room = chats[position]
+                Toast.makeText(this@XmppChatListActivity,
+                    "Open: ${room.title} (${room.protocolType.displayName})", Toast.LENGTH_SHORT).show()
             }
         }
-
         layout.addView(listView)
 
         val refreshBtn = Button(this).apply {
@@ -56,27 +85,26 @@ class XmppChatListActivity : AppCompatActivity() {
         layout.addView(refreshBtn)
 
         setContentView(layout)
-
         refreshChats()
     }
 
     private fun refreshChats() {
-        val session = xmppHolder.getSession()
-        if (session != null) {
-            chats = session.getChats()
-            chatItems.clear()
-            chats.forEach { room ->
-                chatItems.add("${room.title}${if (room.unreadCount > 0) " (${room.unreadCount})" else ""}")
-            }
-            if (chatItems.isEmpty()) {
-                chatItems.add("No chats yet")
-            }
-            adapter.notifyDataSetChanged()
-        } else {
-            chatItems.clear()
-            chatItems.add("Not connected")
-            adapter.notifyDataSetChanged()
+        chats = protocolManager.getUnifiedChats()
+        updateList(chats)
+    }
+
+    private fun updateList(items: List<IProtocolRoom>) {
+        chats = items
+        chatItems.clear()
+        items.forEach { room ->
+            val prefix = "[${room.protocolType.displayName}]"
+            val unread = if (room.unreadCount > 0) " (${room.unreadCount})" else ""
+            chatItems.add("$prefix ${room.title}$unread")
         }
+        if (chatItems.isEmpty()) {
+            chatItems.add("No chats — connect a protocol first")
+        }
+        adapter.notifyDataSetChanged()
     }
 
     override fun onResume() {

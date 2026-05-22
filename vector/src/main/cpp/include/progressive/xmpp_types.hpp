@@ -5,6 +5,7 @@
 
 #include <string>
 #include <cstdint>
+#include <vector>
 
 namespace progressive {
 
@@ -49,10 +50,55 @@ struct XmppAccount {
     bool useTls = true;
 };
 
+struct XmppMamPage {
+    std::string first;
+    std::string last;
+    int count = 0;
+    bool complete = false;
+};
+
+struct XmppMamQuery {
+    std::string chatJid;
+    std::string beforeId;
+    std::string afterId;
+    int limit = 50;
+};
+
+struct XmppMucParticipant {
+    std::string jid;
+    std::string nickname;
+    std::string role;
+    std::string affiliation;
+};
+
+struct XmppMucRoom {
+    std::string jid;
+    std::string name;
+    std::string subject;
+    std::string ownNickname;
+    std::vector<XmppMucParticipant> participants;
+    bool isJoined = false;
+};
+
+struct XmppRosterItem {
+    std::string jid;
+    std::string name;
+    std::string subscription;
+    std::vector<std::string> groups;
+};
+
+struct XmppUploadSlot {
+    std::string putUrl;
+    std::string getUrl;
+    std::string error;
+};
+
 enum class XmppEventType {
     CONNECTION_CHANGED,
     AUTH_CHANGED,
     MESSAGE_RECEIVED,
+    MAM_MESSAGE,
+    MAM_COMPLETE,
     PRESENCE_CHANGED,
     ROSTER_UPDATED,
     ERROR

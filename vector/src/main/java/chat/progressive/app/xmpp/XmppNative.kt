@@ -5,6 +5,21 @@ import timber.log.Timber
 object XmppNative {
 
     private var isLoaded = false
+    interface XmppCallback {
+        fun onConnectionChanged(json: String)
+        fun onMessage(json: String)
+        fun onMamMessage(json: String)
+        fun onMamComplete(json: String)
+        fun onPresence(json: String)
+        fun onRoster(json: String)
+        fun onError(json: String)
+    }
+
+    private var callback: XmppCallback? = null
+
+    fun setCallback(cb: XmppCallback?) {
+        callback = cb
+    }
 
     fun ensureLoaded() {
         if (!isLoaded) {
@@ -65,27 +80,62 @@ object XmppNative {
     external fun nativeXmppSetNickname(handle: Long, roomJid: String, nick: String)
 
     @JvmStatic
+    external fun nativeXmppRequestMam(handle: Long, chatJid: String, beforeId: String, limit: Int)
+
+    @JvmStatic
+    external fun nativeXmppRequestMamPage(handle: Long, chatJid: String, afterId: String, limit: Int)
+
+    @JvmStatic
+    external fun nativeXmppGetRooms(handle: Long): String
+
+    @JvmStatic
+    external fun nativeXmppRequestRoomInfo(handle: Long, roomJid: String)
+
+    @JvmStatic
+    external fun nativeXmppRequestVCard(handle: Long, jid: String)
+
+    @JvmStatic
+    external fun nativeXmppGetAvatarHash(handle: Long, jid: String): String
+
+    @JvmStatic
     fun xmppOnConnection(json: String) {
         Timber.d("xmppOnConnection: %s", json)
+        callback?.onConnectionChanged(json)
     }
 
     @JvmStatic
     fun xmppOnMessage(json: String) {
         Timber.d("xmppOnMessage: %s", json)
+        callback?.onMessage(json)
     }
 
     @JvmStatic
     fun xmppOnPresence(json: String) {
         Timber.d("xmppOnPresence: %s", json)
+        callback?.onPresence(json)
     }
 
     @JvmStatic
     fun xmppOnRoster(json: String) {
         Timber.d("xmppOnRoster: %s", json)
+        callback?.onRoster(json)
     }
 
     @JvmStatic
     fun xmppOnError(json: String) {
         Timber.d("xmppOnError: %s", json)
+        callback?.onError(json)
+    }
+
+    @JvmStatic
+    fun xmppOnMamMessage(json: String) {
+        Timber.d("xmppOnMamMessage: %s", json)
+        callback?.onMamMessage(json)
+    }
+
+    @JvmStatic
+    fun xmppOnMamComplete(json: String) {
+        Timber.d("xmppOnMamComplete: %s", json)
+        callback?.onMamComplete(json)
     }
 }

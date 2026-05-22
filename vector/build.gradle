@@ -62,6 +62,15 @@ android {
         testInstrumentationRunnerArguments clearPackageData: 'true'
 
         vectorDrawables.useSupportLibrary = true
+
+        def enableXmpp = project.findProperty("progressiveXmpp")
+        if (enableXmpp == "true") {
+            externalNativeBuild {
+                cmake {
+                    arguments "-DPROGRESSIVE_ENABLE_XMPP=ON"
+                }
+            }
+        }
     }
 
     externalNativeBuild {

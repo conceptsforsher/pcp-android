@@ -11,6 +11,7 @@
 #include <mutex>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 struct _xmpp_ctx_t;
 struct _xmpp_conn_t;
@@ -52,6 +53,22 @@ public:
     std::vector<XmppUser> getRoster() const;
     std::vector<XmppChat> getChats() const;
 
+    void requestMam(const std::string& chatJid, const std::string& beforeId = "", int limit = 50);
+    void requestMamPage(const std::string& chatJid, const std::string& afterId = "", int limit = 50);
+
+    void requestRoomInfo(const std::string& roomJid);
+    void requestRoomConfig(const std::string& roomJid);
+    std::vector<XmppMucRoom> getRooms() const;
+    XmppMucRoom getRoomInfo(const std::string& roomJid) const;
+
+    void requestVCard(const std::string& jid);
+    std::string getAvatarHash(const std::string& jid) const;
+
+    void requestUploadSlot(const std::string& serviceJid, const std::string& filename,
+                           int64_t fileSize, const std::string& contentType);
+
+    void enableCarbons();
+
     using EventCallback = std::function<void(XmppEventType, const std::string& json)>;
     void setEventCallback(EventCallback cb);
 
@@ -60,13 +77,26 @@ public:
 private:
     void eventLoop();
     void onConnect(xmpp_conn_t* conn, int status);
-    void onMessage(const std::string& from, const std::string& body, const std::string& type);
+    void onMessage(const std::string& from, const std::string& body, const std::string& type,
+                   bool isMuc = false);
     void onPresence(const std::string& from, const std::string& status, const std::string& show);
+    void onMamResult(const std::string& queryChatJid, const std::string& json);
+    void onMucSubject(const std::string& roomJid, const std::string& subject, const std::string& fromNick);
+    void onMucParticipant(const std::string& roomJid, const std::string& participantJid,
+                          const std::string& nick, const std::string& role,
+                          const std::string& affiliation, bool joined);
+    void onVCard(const std::string& jid, const std::string& fullName,
+                 const std::string& photoType, const std::string& photoData);
+
+    std::string generateId();
 
     static void s_onConnect(xmpp_conn_t* conn, xmpp_conn_event_t status, int error,
                             xmpp_stream_error_t* streamError, void* userdata);
     static int s_onMessage(xmpp_conn_t* conn, xmpp_stanza_t* stanza, void* userdata);
     static int s_onPresence(xmpp_conn_t* conn, xmpp_stanza_t* stanza, void* userdata);
+    static int s_onMamIq(xmpp_conn_t* conn, xmpp_stanza_t* stanza, void* userdata);
+    static int s_onVCardIq(xmpp_conn_t* conn, xmpp_stanza_t* stanza, void* userdata);
+    static int s_onUploadIq(xmpp_conn_t* conn, xmpp_stanza_t* stanza, void* userdata);
 
     xmpp_ctx_t* ctx = nullptr;
     xmpp_conn_t* conn = nullptr;
@@ -86,6 +116,17 @@ private:
 
     EventCallback eventCallback;
     mutable std::mutex callbackMutex;
+
+    mutable std::mutex mamMutex;
+    std::unordered_map<std::string, XmppMamQuery> mamQueries;
+    int64_t iqCounter = 0;
+
+    mutable std::mutex mucMutex;
+    std::unordered_map<std::string, XmppMucRoom> mucRooms;
+
+    mutable std::mutex avatarMutex;
+    std::unordered_map<std::string, std::string> avatarHashes;
+    std::unordered_map<std::string, std::string> displayNames;
 };
 
 } // namespace progressive

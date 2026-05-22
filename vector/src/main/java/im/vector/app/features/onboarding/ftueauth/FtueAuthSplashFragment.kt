@@ -10,6 +10,7 @@ package im.vector.app.features.onboarding.ftueauth
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -104,11 +105,11 @@ class FtueAuthSplashFragment :
             else im.vector.lib.strings.R.string.protocol_telegram_desc
         )
 
-        views.cardMatrix.visibility = if (isOpen) View.VISIBLE else View.GONE
-        views.cardIrc.visibility = if (isOpen) View.VISIBLE else View.GONE
-        views.cardXmpp.visibility = if (isOpen) View.VISIBLE else View.GONE
-        views.cardDelta.visibility = if (isOpen) View.VISIBLE else View.GONE
-        views.cardTelegram.visibility = if (isOpen) View.GONE else View.VISIBLE
+        views.cardMatrix.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
+        views.cardIrc.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
+        views.cardXmpp.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
+        views.cardDelta.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
+        views.cardTelegram.visibility = if (isOpen) View.INVISIBLE else View.VISIBLE
 
         if (!isOpen) selectedProtocol = "telegram"
         else if (selectedProtocol == "telegram") selectedProtocol = "matrix"
@@ -121,10 +122,6 @@ class FtueAuthSplashFragment :
             Toast.makeText(requireContext(), getString(im.vector.lib.strings.R.string.coming_soon), Toast.LENGTH_SHORT).show()
             return
         }
-        if (currentCategory == "proprietary") {
-            Toast.makeText(requireContext(), getString(im.vector.lib.strings.R.string.coming_soon), Toast.LENGTH_SHORT).show()
-            return
-        }
         selectedProtocol = protocol
         updateCardSelection()
     }
@@ -134,22 +131,27 @@ class FtueAuthSplashFragment :
         val quaternaryColor = getColorFromAttr(im.vector.lib.ui.styles.R.attr.vctr_content_quaternary, Color.GRAY)
 
         val isMatrix = selectedProtocol == "matrix"
+        val isTelegram = selectedProtocol == "telegram"
 
         views.cardMatrix.apply {
-            isChecked = isMatrix
-            strokeWidth = if (isMatrix) 2 else 1
-            setStrokeColor(if (isMatrix) primaryColor else quaternaryColor)
+            if (visibility == View.VISIBLE) {
+                isChecked = isMatrix
+                strokeWidth = if (isMatrix) 2 else 1
+                setStrokeColor(if (isMatrix) primaryColor else quaternaryColor)
+            }
         }
         views.cardMatrixIcon.setColorFilter(if (isMatrix) primaryColor else quaternaryColor)
         views.radioMatrix.isChecked = isMatrix
 
         views.cardIrc.apply {
-            isChecked = !isMatrix
-            strokeWidth = if (isMatrix) 1 else 2
-            setStrokeColor(if (isMatrix) quaternaryColor else primaryColor)
+            if (visibility == View.VISIBLE) {
+                isChecked = !isMatrix && !isTelegram
+                strokeWidth = if (!isMatrix && !isTelegram) 2 else 1
+                setStrokeColor(if (!isMatrix && !isTelegram) primaryColor else quaternaryColor)
+            }
         }
-        views.cardIrcIcon.setColorFilter(if (isMatrix) quaternaryColor else primaryColor)
-        views.radioIrc.isChecked = !isMatrix
+        views.cardIrcIcon.setColorFilter(if (!isMatrix && !isTelegram) primaryColor else quaternaryColor)
+        views.radioIrc.isChecked = !isMatrix && !isTelegram
 
         // Features
         if (isMatrix) {
@@ -159,6 +161,13 @@ class FtueAuthSplashFragment :
             views.loginSplashPicto1.setImageResource(R.drawable.ic_login_splash_message_circle)
             views.loginSplashPicto2.setImageResource(R.drawable.ic_login_splash_lock)
             views.loginSplashPicto3.setImageResource(R.drawable.ic_login_splash_sliders)
+        } else if (isTelegram) {
+            views.loginSplashText1.setText(im.vector.lib.strings.R.string.proprietary_feature_1)
+            views.loginSplashText2.setText(im.vector.lib.strings.R.string.proprietary_feature_2)
+            views.loginSplashText3.text = Html.fromHtml(getString(im.vector.lib.strings.R.string.proprietary_feature_3), Html.FROM_HTML_MODE_COMPACT)
+            views.loginSplashPicto1.setImageResource(R.drawable.ic_login_splash_message_circle)
+            views.loginSplashPicto2.setImageResource(R.drawable.ic_public_room)
+            views.loginSplashPicto3.setImageResource(R.drawable.ic_shield_warning)
         } else {
             views.loginSplashText1.setText(im.vector.lib.strings.R.string.irc_splash_text1)
             views.loginSplashText2.setText(im.vector.lib.strings.R.string.irc_splash_text2)

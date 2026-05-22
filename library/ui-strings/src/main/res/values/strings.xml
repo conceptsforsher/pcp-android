@@ -3861,6 +3861,11 @@
     <string name="irc_splash_text2">Lightweight — runs on anything since 1988</string>
     <string name="irc_splash_text3">Decentralized and open, like Matrix</string>
 
+    <!-- Proprietary features -->
+    <string name="proprietary_feature_1">The most popular messengers</string>
+    <string name="proprietary_feature_2">Find local communities easily</string>
+    <string name="proprietary_feature_3"><![CDATA[<font color="#FF0000">Bad for privacy</font>]]></string>
+
     <!-- IRC Auth -->
     <string name="irc_connect_title">Connect to IRC</string>
     <string name="irc_connect_server_hint">Server hostname (e.g. irc.libera.chat)</string>

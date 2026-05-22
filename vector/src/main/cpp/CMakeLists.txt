@@ -290,7 +290,7 @@ if(PROGRESSIVE_ENABLE_XMPP)
     if(NOT EXISTS "${EXPAT_SRC_DIR}/expat/CMakeLists.txt")
         message(STATUS "Downloading libexpat v${EXPAT_VERSION} from GitHub...")
         file(DOWNLOAD
-            "https://github.com/libexpat/libexpat/archive/refs/tags/R_${EXPAT_VERSION}.tar.gz"
+            "https://codeload.github.com/libexpat/libexpat/tar.gz/refs/tags/R_${EXPAT_VERSION}"
             "${EXPAT_ARCHIVE}"
             SHOW_PROGRESS STATUS download_status TIMEOUT 120
         )
@@ -325,7 +325,7 @@ if(PROGRESSIVE_ENABLE_XMPP)
     if(NOT EXISTS "${STROPHE_SRC_DIR}/CMakeLists.txt")
         message(STATUS "Downloading libstrophe v${STROPHE_VERSION} from GitHub...")
         file(DOWNLOAD
-            "https://github.com/strophe/libstrophe/archive/refs/tags/${STROPHE_VERSION}.tar.gz"
+            "https://codeload.github.com/strophe/libstrophe/tar.gz/refs/tags/${STROPHE_VERSION}"
             "${STROPHE_ARCHIVE}"
             SHOW_PROGRESS STATUS download_status TIMEOUT 120
         )

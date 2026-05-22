@@ -169,6 +169,7 @@ class XmppSession(
             override val lastMessageTime: Long? = chat.lastMessageTime
             override val unreadCount: Int = chat.unreadCount
             override val isGroup: Boolean = chat.isGroupChat
+            override val topic: String? = chat.subject
             override val avatarUrl: String? = null
             override val protocolType: ProtocolType = ProtocolType.XMPP
 
@@ -215,6 +216,7 @@ class XmppSession(
         val lastMessage: String?,
         val lastMessageTime: Long,
         val unreadCount: Int,
-        val isGroupChat: Boolean
+        val isGroupChat: Boolean,
+        val subject: String? = null
     )
 }

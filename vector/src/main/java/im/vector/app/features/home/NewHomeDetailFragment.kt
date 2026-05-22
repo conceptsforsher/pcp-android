@@ -111,6 +111,10 @@ class NewHomeDetailFragment :
                 startActivity(Intent(requireContext(), PstnDialActivity::class.java))
                 true
             }
+            R.id.menu_home_xmpp -> {
+                startActivity(Intent(requireContext(), chat.progressive.app.features.xmpp.XmppAuthActivity::class.java))
+                true
+            }
             else -> false
         }
     }

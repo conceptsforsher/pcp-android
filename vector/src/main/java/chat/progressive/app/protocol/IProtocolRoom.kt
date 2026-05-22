@@ -3,6 +3,7 @@ package chat.progressive.app.protocol
 interface IProtocolRoom {
     val id: String
     val title: String
+    val topic: String?
     val lastMessage: String?
     val lastMessageTime: Long?
     val unreadCount: Int

@@ -14,6 +14,8 @@ interface IProtocolMessage {
 
 enum class ProtocolContentType {
     TEXT,
+    ACTION,
+    NOTICE,
     PHOTO,
     VIDEO,
     VOICE,
@@ -23,5 +25,12 @@ enum class ProtocolContentType {
     CONTACT,
     POLL,
     SYSTEM,
+    PRESENCE,
+    JOIN,
+    PART,
+    KICK,
+    NICK,
+    TOPIC,
+    INVITE,
     UNKNOWN
 }

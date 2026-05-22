@@ -61,7 +61,7 @@ class FtueAuthSplashFragment :
             debouncedClicks { splashSubmit(isAlreadyHaveAccountEnabled) }
         }
         views.loginSplashAlreadyHaveAccount.apply {
-            isVisible = vectorFeatures.isOnboardingAlreadyHaveAccountSplashEnabled()
+            visibility = if (vectorFeatures.isOnboardingAlreadyHaveAccountSplashEnabled()) View.VISIBLE else View.INVISIBLE
             debouncedClicks { alreadyHaveAnAccount() }
         }
 
@@ -120,7 +120,7 @@ class FtueAuthSplashFragment :
         views.loginSplashSubmit.text =
             if (isMatrix && isAlreadyHaveAccountEnabled) getString(CommonStrings.login_splash_create_account)
             else getString(CommonStrings.login_splash_submit)
-        views.loginSplashAlreadyHaveAccount.isVisible = isMatrix && isAlreadyHaveAccountEnabled
+        views.loginSplashAlreadyHaveAccount.visibility = if (isMatrix && isAlreadyHaveAccountEnabled) View.VISIBLE else View.INVISIBLE
     }
 
     private fun splashSubmit(isAlreadyHaveAccountEnabled: Boolean) {

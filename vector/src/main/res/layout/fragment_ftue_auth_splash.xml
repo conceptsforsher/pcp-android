@@ -5,11 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:colorBackground"
+    android:clipChildren="false"
     android:paddingStart="28dp"
     android:paddingEnd="28dp"
     android:paddingBottom="12dp">
-
-    <!-- Constraint chain: spacers + content, distributing remaining vertical space -->
 
     <Space
         android:id="@+id/loginSplashSpace1"
@@ -24,6 +23,7 @@
         android:id="@+id/loginSplashLogoContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@id/loginSplashSpace2"
@@ -41,10 +41,11 @@
 
         <ImageView
             android:id="@+id/logoType"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="44dp"
             android:layout_marginTop="8dp"
             android:contentDescription="@string/app_name"
+            android:scaleType="fitCenter"
             android:src="@drawable/element_logotype"
             app:tint="?colorSecondary"
             tools:ignore="MissingPrefix" />
@@ -83,175 +84,100 @@
         android:text="@string/protocol_section_label"
         android:textColor="?vctr_content_secondary"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@id/cardMatrix"
+        app:layout_constraintBottom_toTopOf="@id/categoryChips"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/loginSplashTitle" />
 
-    <!-- Matrix card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardMatrix"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:checkable="true"
-        android:clickable="true"
-        android:focusable="true"
-        app:cardBackgroundColor="?vctr_system"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="1dp"
-        app:layout_constraintBottom_toTopOf="@id/cardIrc"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/protocolSectionLabel"
-        app:strokeColor="?vctr_content_quaternary"
-        app:strokeWidth="1dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="10dp">
-
-            <ImageView
-                android:id="@+id/cardMatrixIcon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_chat"
-                app:tint="?vctr_content_quaternary" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/cardMatrixTitle"
-                    style="@style/Widget.Vector.TextView.Body"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/protocol_matrix"
-                    android:textColor="?vctr_content_primary"
-                    android:textStyle="bold"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/cardMatrixDesc"
-                    style="@style/Widget.Vector.TextView.Body"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/protocol_matrix_desc"
-                    android:textColor="?vctr_content_secondary"
-                    android:textSize="11sp" />
-
-            </LinearLayout>
-
-            <RadioButton
-                android:id="@+id/radioMatrix"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:clickable="false"
-                android:focusable="false" />
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- IRC card — identical structure to Matrix -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardIrc"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:checkable="true"
-        android:clickable="true"
-        android:focusable="true"
-        app:cardBackgroundColor="?vctr_system"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="1dp"
-        app:layout_constraintBottom_toTopOf="@id/loginSplashContent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardMatrix"
-        app:strokeColor="?vctr_content_quaternary"
-        app:strokeWidth="1dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="10dp">
-
-            <ImageView
-                android:id="@+id/cardIrcIcon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_login_splash_message_circle"
-                app:tint="?vctr_content_quaternary" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/cardIrcTitle"
-                    style="@style/Widget.Vector.TextView.Body"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/protocol_irc"
-                    android:textColor="?vctr_content_primary"
-                    android:textStyle="bold"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/cardIrcDesc"
-                    style="@style/Widget.Vector.TextView.Body"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/protocol_irc_desc"
-                    android:textColor="?vctr_content_secondary"
-                    android:textSize="11sp" />
-
-            </LinearLayout>
-
-            <RadioButton
-                android:id="@+id/radioIrc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:clickable="false"
-                android:focusable="false" />
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Features section (kept from original) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/loginSplashContent"
+    <!-- Category toggle chips: Open source | Proprietary -->
+    <LinearLayout
+        android:id="@+id/categoryChips"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/groupDescription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/protocolSectionLabel">
+
+        <TextView
+            android:id="@+id/chipOpenSource"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_protocol_chip_selected"
+            android:gravity="center"
+            android:maxLines="1"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:text="@string/category_open_source"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/chipProprietary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_protocol_chip"
+            android:gravity="center"
+            android:maxLines="1"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:text="@string/category_proprietary"
+            android:textAllCaps="false"
+            android:textColor="?vctr_content_primary"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/groupDescription"
+        style="@style/Widget.Vector.TextView.Body"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="@string/open_source_group_desc"
+        android:textColor="?vctr_content_secondary"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toTopOf="@id/protocolCardsContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/categoryChips" />
+
+    <!-- Dynamic protocol cards -->
+    <LinearLayout
+        android:id="@+id/protocolCardsContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/loginSplashFeatures"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/groupDescription" />
+
+    <!-- Features section -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/loginSplashFeatures"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
         app:layout_constraintBottom_toTopOf="@id/loginSplashSpace4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardIrc">
+        app:layout_constraintTop_toBottomOf="@id/protocolCardsContainer">
 
         <ImageView
             android:id="@+id/loginSplashPicto1"
-            android:layout_width="28dp"
+            android:layout_width="24dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_login_splash_message_circle"
             app:layout_constraintStart_toStartOf="parent"
@@ -264,11 +190,11 @@
             style="@style/Widget.Vector.TextView.Body"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="6dp"
             android:gravity="start"
             android:text="@string/login_splash_text1"
             android:textColor="?vctr_content_secondary"
-            android:textSize="12sp"
+            android:textSize="11sp"
             app:layout_constraintBottom_toTopOf="@id/loginSplashText2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/loginSplashPicto1"
@@ -276,11 +202,11 @@
 
         <ImageView
             android:id="@+id/loginSplashPicto2"
-            android:layout_width="28dp"
+            android:layout_width="24dp"
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_login_splash_lock"
-            app:layout_constraintStart_toStartOf="@id/loginSplashPicto1"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/loginSplashText2"
             app:tint="?vctr_content_secondary"
             tools:ignore="MissingPrefix" />
@@ -290,23 +216,24 @@
             style="@style/Widget.Vector.TextView.Body"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="6dp"
             android:gravity="start"
             android:text="@string/login_splash_text2"
             android:textColor="?vctr_content_secondary"
-            android:textSize="12sp"
+            android:textSize="11sp"
             app:layout_constraintBottom_toTopOf="@id/loginSplashText3"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/loginSplashText1"
+            app:layout_constraintStart_toEndOf="@id/loginSplashPicto2"
             app:layout_constraintTop_toBottomOf="@id/loginSplashText1" />
 
         <ImageView
             android:id="@+id/loginSplashPicto3"
-            android:layout_width="28dp"
+            android:layout_width="24dp"
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_login_splash_sliders"
-            app:layout_constraintStart_toStartOf="@id/loginSplashPicto1"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/loginSplashText3"
             app:tint="?vctr_content_secondary"
             tools:ignore="MissingPrefix" />
@@ -316,14 +243,15 @@
             style="@style/Widget.Vector.TextView.Body"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="6dp"
             android:gravity="start"
             android:text="@string/login_splash_text3"
             android:textColor="?vctr_content_secondary"
-            android:textSize="12sp"
+            android:textSize="11sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/loginSplashText1"
+            app:layout_constraintStart_toEndOf="@id/loginSplashPicto3"
             app:layout_constraintTop_toBottomOf="@id/loginSplashText2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -333,7 +261,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/loginSplashSubmit"
-        app:layout_constraintTop_toBottomOf="@id/loginSplashContent"
+        app:layout_constraintTop_toBottomOf="@id/loginSplashFeatures"
         app:layout_constraintVertical_weight="1" />
 
     <Button

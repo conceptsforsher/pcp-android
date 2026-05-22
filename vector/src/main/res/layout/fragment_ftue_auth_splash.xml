@@ -39,16 +39,17 @@
             android:src="@drawable/element_logo_green"
             android:transitionName="loginLogoTransition" />
 
-        <ImageView
+        <TextView
             android:id="@+id/logoType"
-            android:layout_width="260dp"
-            android:layout_height="36dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:contentDescription="@string/app_name"
-            android:scaleType="fitCenter"
-            android:src="@drawable/element_logotype"
-            app:tint="?colorSecondary"
-            tools:ignore="MissingPrefix" />
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="Progressive Chat"
+            android:textColor="?colorSecondary"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
 
@@ -580,6 +581,7 @@
         style="@style/Widget.Vector.Button.Login"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
         android:minHeight="40dp"
         android:textAllCaps="true"
         android:transitionName="loginSubmitTransition"
@@ -594,6 +596,7 @@
         style="@style/Widget.Vector.Button.Text.Login"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
         android:minHeight="32dp"
         android:text="@string/login_splash_already_have_account"
         android:textAllCaps="true"

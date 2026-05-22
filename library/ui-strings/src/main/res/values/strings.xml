@@ -3841,13 +3841,12 @@
     <string name="protocol_section_label">Choose your protocol</string>
     <string name="protocol_matrix">Matrix</string>
     <string name="protocol_irc">IRC</string>
-    <string name="protocol_matrix_desc">Decentralized, end‑to‑end encrypted, open standard</string>
-    <string name="protocol_irc_desc">Classic chat. Connect to any IRC server, join channels.</string>
+    <string name="protocol_matrix_desc">Modern messenger with end-to-end encryption</string>
+    <string name="protocol_irc_desc">Lightweight classic protocol where old-school hackers hang out</string>
 
-    <!-- IRC Auth -->
-    <string name="irc_splash_text1">Chat in channels or private with /msg</string>
-    <string name="irc_splash_text2">Connect to thousands of existing IRC networks</string>
-    <string name="irc_splash_text3">Lightweight, open protocol since 1988</string>
+    <string name="irc_splash_text1">Chat in channels or privately with /msg</string>
+    <string name="irc_splash_text2">Lightweight — runs on anything since 1988</string>
+    <string name="irc_splash_text3">Decentralized and open, like Matrix</string>
 
     <!-- IRC Auth -->
     <string name="irc_connect_title">Connect to IRC</string>

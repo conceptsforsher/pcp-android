@@ -72,6 +72,8 @@ class FtueAuthSplashFragment :
                     "Branch: ${buildMeta.gitBranchName} ${buildMeta.gitRevision}"
             views.loginSplashVersion.debouncedClicks { navigator.openDebug(requireContext()) }
         }
+
+        onProtocolSelected(selectedProtocol)
     }
 
     private fun onProtocolSelected(protocol: String) {

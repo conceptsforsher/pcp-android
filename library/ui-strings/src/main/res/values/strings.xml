@@ -3841,8 +3841,8 @@
     <string name="protocol_section_label">Choose your protocol</string>
     <string name="protocol_matrix">Matrix</string>
     <string name="protocol_irc">IRC</string>
-    <string name="protocol_matrix_desc">The technically best messenger in the world — decentralized, with true end‑to‑end encryption and an open protocol</string>
-    <string name="protocol_irc_desc">Classic Internet Relay Chat. Connect to any IRC server and join channels with a simple, lightweight protocol.</string>
+    <string name="protocol_matrix_desc">Decentralized, end‑to‑end encrypted, open standard</string>
+    <string name="protocol_irc_desc">Classic chat. Connect to any IRC server, join channels.</string>
 
     <!-- IRC Auth -->
     <string name="irc_connect_title">Connect to IRC</string>

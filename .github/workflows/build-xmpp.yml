@@ -5,7 +5,9 @@ on:
   push:
     branches: [ feat/xmpp-support ]
 
-permissions: {}
+permissions:
+  contents: read
+  actions: write
 
 env:
   GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx3072m -Dfile.encoding=UTF-8" -Dkotlin.incremental=false
@@ -34,4 +36,4 @@ jobs:
         with:
           name: progressive-fdroid-debug-xmpp
           path: |
-            vector-app/build/outputs/apk/fdroid/debug/*.apk
+            vector-app/build/outputs/apk/fdroid/debug/vector-fdroid-armeabi-v7a-debug.apk

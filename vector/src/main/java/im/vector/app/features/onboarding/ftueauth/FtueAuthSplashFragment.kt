@@ -8,7 +8,6 @@
 package im.vector.app.features.onboarding.ftueauth
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +24,7 @@ import im.vector.lib.strings.CommonStrings
 import javax.inject.Inject
 
 /**
- * Shows protocol selection (Matrix / IRC) as two tappable cards.
+ * Modified splash: compact protocol selector (Matrix / IRC chips) above the submit button.
  */
 @AndroidEntryPoint
 class FtueAuthSplashFragment :
@@ -55,48 +54,11 @@ class FtueAuthSplashFragment :
     }
 
     private fun setupViews() {
-        setupProtocolCards()
-        setupButtons()
-        setupDebugInfo()
-    }
+        views.protocolChipMatrix.debouncedClicks { onProtocolSelected("matrix") }
+        views.protocolChipIrc.debouncedClicks { onProtocolSelected("irc") }
 
-    private fun setupProtocolCards() {
-        views.cardMatrix.debouncedClicks { onProtocolSelected("matrix") }
-        views.cardIrc.debouncedClicks { onProtocolSelected("irc") }
-    }
+        onProtocolSelected(selectedProtocol)
 
-    private fun onProtocolSelected(protocol: String) {
-        selectedProtocol = protocol
-        val isMatrix = protocol == "matrix"
-
-        val primaryColor = getColorFromAttr(com.google.android.material.R.attr.colorPrimary, Color.parseColor("#368BD6"))
-        val quaternaryColor = getColorFromAttr(im.vector.lib.ui.styles.R.attr.vctr_content_quaternary, Color.GRAY)
-
-        views.cardMatrix.apply {
-            isChecked = isMatrix
-            strokeWidth = if (isMatrix) 2 else 1
-            setStrokeColor(if (isMatrix) primaryColor else quaternaryColor)
-        }
-        views.cardIrc.apply {
-            isChecked = !isMatrix
-            strokeWidth = if (isMatrix) 1 else 2
-            setStrokeColor(if (isMatrix) quaternaryColor else primaryColor)
-        }
-
-        views.radioMatrix.isChecked = isMatrix
-        views.radioIrc.isChecked = !isMatrix
-
-        val isAlreadyHaveAccountEnabled = vectorFeatures.isOnboardingAlreadyHaveAccountSplashEnabled()
-        views.loginSplashSubmit.apply {
-            setText(
-                if (isMatrix && isAlreadyHaveAccountEnabled) CommonStrings.login_splash_create_account
-                else CommonStrings.login_splash_submit
-            )
-        }
-        views.loginSplashAlreadyHaveAccount.isVisible = isMatrix && isAlreadyHaveAccountEnabled
-    }
-
-    private fun setupButtons() {
         val isAlreadyHaveAccountEnabled = vectorFeatures.isOnboardingAlreadyHaveAccountSplashEnabled()
         views.loginSplashSubmit.apply {
             setText(if (isAlreadyHaveAccountEnabled) CommonStrings.login_splash_create_account else CommonStrings.login_splash_submit)
@@ -106,17 +68,43 @@ class FtueAuthSplashFragment :
             isVisible = vectorFeatures.isOnboardingAlreadyHaveAccountSplashEnabled()
             debouncedClicks { alreadyHaveAnAccount() }
         }
-    }
 
-    private fun setupDebugInfo() {
         if (buildMeta.isDebug || vectorPreferences.developerMode()) {
             views.loginSplashVersion.isVisible = true
             @SuppressLint("SetTextI18n")
             views.loginSplashVersion.text = "Version : ${buildMeta.versionName}\n" +
-                    "Branch: ${buildMeta.gitBranchName} ${buildMeta.gitRevision}\n" +
-                    "Protocol: ${if (selectedProtocol == "matrix") "Matrix" else "IRC"}"
+                    "Branch: ${buildMeta.gitBranchName} ${buildMeta.gitRevision}"
             views.loginSplashVersion.debouncedClicks { navigator.openDebug(requireContext()) }
         }
+    }
+
+    private fun onProtocolSelected(protocol: String) {
+        selectedProtocol = protocol
+        val isMatrix = protocol == "matrix"
+
+        views.protocolChipMatrix.setBackgroundResource(
+            if (isMatrix) im.vector.app.R.drawable.bg_protocol_chip_selected
+            else im.vector.app.R.drawable.bg_protocol_chip
+        )
+        views.protocolChipMatrix.setTextColor(
+            if (isMatrix) android.graphics.Color.WHITE
+            else requireContext().getColor(android.R.attr.textColorPrimary)
+        )
+
+        views.protocolChipIrc.setBackgroundResource(
+            if (isMatrix) im.vector.app.R.drawable.bg_protocol_chip
+            else im.vector.app.R.drawable.bg_protocol_chip_selected
+        )
+        views.protocolChipIrc.setTextColor(
+            if (isMatrix) requireContext().getColor(android.R.attr.textColorPrimary)
+            else android.graphics.Color.WHITE
+        )
+
+        val isAlreadyHaveAccountEnabled = vectorFeatures.isOnboardingAlreadyHaveAccountSplashEnabled()
+        views.loginSplashSubmit.text =
+            if (isMatrix && isAlreadyHaveAccountEnabled) requireContext().getString(CommonStrings.login_splash_create_account)
+            else requireContext().getString(CommonStrings.login_splash_submit)
+        views.loginSplashAlreadyHaveAccount.isVisible = isMatrix && isAlreadyHaveAccountEnabled
     }
 
     private fun splashSubmit(isAlreadyHaveAccountEnabled: Boolean) {
@@ -130,12 +118,6 @@ class FtueAuthSplashFragment :
 
     override fun resetViewModel() {
         // Nothing to do
-    }
-
-    private fun getColorFromAttr(attr: Int, fallback: Int): Int {
-        val ta = requireContext().theme.obtainStyledAttributes(intArrayOf(attr))
-        val color = try { ta.getColor(0, fallback) } finally { ta.recycle() }
-        return color
     }
 
     companion object {

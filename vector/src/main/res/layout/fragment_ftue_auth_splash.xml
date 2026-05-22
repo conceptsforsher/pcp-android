@@ -99,7 +99,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:checkable="true"
-        android:checked="true"
         android:clickable="true"
         android:focusable="true"
         app:cardBackgroundColor="?vctr_system"
@@ -109,8 +108,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/protocolSectionLabel"
-        app:strokeColor="?colorPrimary"
-        app:strokeWidth="2dp">
+        app:strokeColor="?vctr_content_quaternary"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -124,8 +123,8 @@
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:importantForAccessibility="no"
-                android:src="@drawable/element_logo_green"
-                app:tint="?colorPrimary" />
+                android:src="@drawable/ic_chat"
+                app:tint="?vctr_content_quaternary" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -159,7 +158,7 @@
                 android:id="@+id/radioMatrix"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:clickable="false"
                 android:focusable="false" />
 
@@ -167,7 +166,7 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- IRC card -->
+    <!-- IRC card — identical structure to Matrix -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardIrc"
         android:layout_width="0dp"
@@ -199,7 +198,7 @@
                 android:layout_height="28dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_login_splash_message_circle"
-                app:tint="?vctr_content_secondary" />
+                app:tint="?vctr_content_quaternary" />
 
             <LinearLayout
                 android:layout_width="0dp"

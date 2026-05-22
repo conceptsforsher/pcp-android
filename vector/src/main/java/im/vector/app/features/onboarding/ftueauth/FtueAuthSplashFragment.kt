@@ -81,18 +81,22 @@ class FtueAuthSplashFragment :
         val primaryColor = getColorFromAttr(com.google.android.material.R.attr.colorPrimary, Color.parseColor("#368BD6"))
         val quaternaryColor = getColorFromAttr(im.vector.lib.ui.styles.R.attr.vctr_content_quaternary, Color.GRAY)
 
+        // Matrix card
         views.cardMatrix.apply {
             isChecked = isMatrix
             strokeWidth = if (isMatrix) 2 else 1
             setStrokeColor(if (isMatrix) primaryColor else quaternaryColor)
         }
+        views.cardMatrixIcon.setColorFilter(if (isMatrix) primaryColor else quaternaryColor)
+        views.radioMatrix.isChecked = isMatrix
+
+        // IRC card
         views.cardIrc.apply {
             isChecked = !isMatrix
             strokeWidth = if (isMatrix) 1 else 2
             setStrokeColor(if (isMatrix) quaternaryColor else primaryColor)
         }
-
-        views.radioMatrix.isChecked = isMatrix
+        views.cardIrcIcon.setColorFilter(if (isMatrix) quaternaryColor else primaryColor)
         views.radioIrc.isChecked = !isMatrix
 
         // Swap feature texts and icons per protocol

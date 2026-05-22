@@ -289,14 +289,12 @@ if(PROGRESSIVE_ENABLE_XMPP)
     set(EXPAT_SRC_DIR "${EXPAT_DIR}/libexpat-R_${EXPAT_VERSION}")
     if(NOT EXISTS "${EXPAT_SRC_DIR}/expat/CMakeLists.txt")
         message(STATUS "Downloading libexpat v${EXPAT_VERSION} from GitHub...")
-        file(DOWNLOAD
-            "https://codeload.github.com/libexpat/libexpat/tar.gz/refs/tags/R_${EXPAT_VERSION}"
-            "${EXPAT_ARCHIVE}"
-            SHOW_PROGRESS STATUS download_status TIMEOUT 120
+        execute_process(
+            COMMAND curl -L -o "${EXPAT_ARCHIVE}" "https://github.com/libexpat/libexpat/archive/refs/tags/R_${EXPAT_VERSION}.tar.gz"
+            RESULT_VARIABLE download_result ERROR_VARIABLE download_err
+            TIMEOUT 120
         )
-        list(GET download_status 0 download_code)
-        if(NOT download_code EQUAL 0)
-            list(GET download_status 1 download_err)
+        if(NOT download_result EQUAL 0)
             message(FATAL_ERROR "Failed to download libexpat: ${download_err}")
         endif()
         message(STATUS "Extracting libexpat...")
@@ -324,14 +322,12 @@ if(PROGRESSIVE_ENABLE_XMPP)
     set(STROPHE_SRC_DIR "${STROPHE_DIR}/libstrophe-${STROPHE_VERSION}")
     if(NOT EXISTS "${STROPHE_SRC_DIR}/CMakeLists.txt")
         message(STATUS "Downloading libstrophe v${STROPHE_VERSION} from GitHub...")
-        file(DOWNLOAD
-            "https://codeload.github.com/strophe/libstrophe/tar.gz/refs/tags/${STROPHE_VERSION}"
-            "${STROPHE_ARCHIVE}"
-            SHOW_PROGRESS STATUS download_status TIMEOUT 120
+        execute_process(
+            COMMAND curl -L -o "${STROPHE_ARCHIVE}" "https://github.com/strophe/libstrophe/archive/refs/tags/${STROPHE_VERSION}.tar.gz"
+            RESULT_VARIABLE download_result ERROR_VARIABLE download_err
+            TIMEOUT 120
         )
-        list(GET download_status 0 download_code)
-        if(NOT download_code EQUAL 0)
-            list(GET download_status 1 download_err)
+        if(NOT download_result EQUAL 0)
             message(FATAL_ERROR "Failed to download libstrophe: ${download_err}")
         endif()
         message(STATUS "Extracting libstrophe...")

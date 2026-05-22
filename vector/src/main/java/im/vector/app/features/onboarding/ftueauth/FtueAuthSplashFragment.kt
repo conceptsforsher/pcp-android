@@ -95,10 +95,27 @@ class FtueAuthSplashFragment :
         views.radioMatrix.isChecked = isMatrix
         views.radioIrc.isChecked = !isMatrix
 
+        // Swap feature texts and icons per protocol
+        if (isMatrix) {
+            views.loginSplashText1.text = getString(im.vector.lib.strings.R.string.login_splash_text1)
+            views.loginSplashText2.text = getString(im.vector.lib.strings.R.string.login_splash_text2)
+            views.loginSplashText3.text = getString(im.vector.lib.strings.R.string.login_splash_text3)
+            views.loginSplashPicto1.setImageResource(im.vector.app.R.drawable.ic_login_splash_message_circle)
+            views.loginSplashPicto2.setImageResource(im.vector.app.R.drawable.ic_login_splash_lock)
+            views.loginSplashPicto3.setImageResource(im.vector.app.R.drawable.ic_login_splash_sliders)
+        } else {
+            views.loginSplashText1.text = getString(im.vector.lib.strings.R.string.irc_splash_text1)
+            views.loginSplashText2.text = getString(im.vector.lib.strings.R.string.irc_splash_text2)
+            views.loginSplashText3.text = getString(im.vector.lib.strings.R.string.irc_splash_text3)
+            views.loginSplashPicto1.setImageResource(im.vector.app.R.drawable.ic_login_splash_message_circle)
+            views.loginSplashPicto2.setImageResource(im.vector.app.R.drawable.ic_share)
+            views.loginSplashPicto3.setImageResource(im.vector.app.R.drawable.ic_login_splash_sliders)
+        }
+
         val isAlreadyHaveAccountEnabled = vectorFeatures.isOnboardingAlreadyHaveAccountSplashEnabled()
         views.loginSplashSubmit.text =
-            if (isMatrix && isAlreadyHaveAccountEnabled) requireContext().getString(CommonStrings.login_splash_create_account)
-            else requireContext().getString(CommonStrings.login_splash_submit)
+            if (isMatrix && isAlreadyHaveAccountEnabled) getString(CommonStrings.login_splash_create_account)
+            else getString(CommonStrings.login_splash_submit)
         views.loginSplashAlreadyHaveAccount.isVisible = isMatrix && isAlreadyHaveAccountEnabled
     }
 

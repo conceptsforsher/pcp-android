@@ -3845,6 +3845,11 @@
     <string name="protocol_irc_desc">Classic chat. Connect to any IRC server, join channels.</string>
 
     <!-- IRC Auth -->
+    <string name="irc_splash_text1">Chat in channels or private with /msg</string>
+    <string name="irc_splash_text2">Connect to thousands of existing IRC networks</string>
+    <string name="irc_splash_text3">Lightweight, open protocol since 1988</string>
+
+    <!-- IRC Auth -->
     <string name="irc_connect_title">Connect to IRC</string>
     <string name="irc_connect_server_hint">Server hostname (e.g. irc.libera.chat)</string>
     <string name="irc_connect_port_hint">Port</string>

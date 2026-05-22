@@ -41,11 +41,15 @@
 
         <ImageView
             android:id="@+id/logoType"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="36dp"
             android:layout_marginTop="4dp"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/app_name"
+            android:scaleType="fitCenter"
             android:src="@drawable/element_logotype"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:tint="?colorSecondary"
             tools:ignore="MissingPrefix" />
 

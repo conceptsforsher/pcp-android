@@ -3850,8 +3850,12 @@
     <string name="protocol_xmpp_desc">Federated instant messaging since 1999</string>
     <string name="protocol_delta">Delta Chat</string>
     <string name="protocol_delta_desc">Chat over email — no new account needed. Coming soon.</string>
+    <string name="protocol_lemmy">Lemmy</string>
+    <string name="protocol_lemmy_desc">Decentralized link aggregator. Coming soon.</string>
     <string name="protocol_telegram">Telegram</string>
     <string name="protocol_telegram_desc">Popular messenger with closed-source server</string>
+    <string name="protocol_reddit">Reddit</string>
+    <string name="protocol_reddit_desc">The front page of the internet. Coming soon.</string>
     <string name="coming_soon">Coming soon</string>
     <string name="irc_splash_text1">Chat in channels or privately with /msg</string>
     <string name="irc_splash_text2">Lightweight — runs on anything since 1988</string>

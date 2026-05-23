@@ -1,0 +1,58 @@
+name: Native C++ Build
+
+on:
+  pull_request:
+    paths:
+      - 'vector/src/main/cpp/**'
+  push:
+    branches: [ main, develop, irc ]
+    paths:
+      - 'vector/src/main/cpp/**'
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  native-compile:
+    name: Compile native libs (NDK ${{ matrix.abi }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [ armeabi-v7a, arm64-v8a, x86_64 ]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c37 # v4.5.0
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@d9c87d481d55275bb5441eef3fe0e46805f9ef70 # v3.5.0
+        with:
+          cache-read-only: true
+
+      - name: Compile native ${{ matrix.abi }} via Gradle
+        run: >
+          ./gradlew :vector:externalNativeBuildDebug
+          --stacktrace --no-daemon --no-build-cache
+          -PciAbi=${{ matrix.abi }}
+          -PpreDexEnable=false
+          -PminifyEnabled=false
+          -Pandroid.enableBuildCache=false
+          -PallWarningsAsErrors=false
+          -x ktlintCheck -x ktlintKotlinScriptCheck -x detekt -x knitCheck
+          -x dependencyCheckAnalyze -x lint -x kaptDebugKotlin
+          -x compileDebugKotlin
+
+      - name: Show built libraries
+        run: |
+          find vector/.cxx -name '*.so' -type f 2>/dev/null | while read f; do
+            echo "=== $f ($(du -h "$f" | cut -f1)) ==="
+            file "$f" 2>/dev/null || true
+          done

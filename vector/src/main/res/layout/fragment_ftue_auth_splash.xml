@@ -480,7 +480,7 @@
         android:id="@+id/loginSplashFeatures"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="4dp"
         app:layout_constraintBottom_toTopOf="@id/loginSplashSpace4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

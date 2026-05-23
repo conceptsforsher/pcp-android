@@ -3857,9 +3857,9 @@
 
     <string name="coming_soon">Coming soon</string>
 
-    <string name="irc_splash_text1">Chat in channels or privately with /msg</string>
+    <string name="irc_splash_text1">Built‑in list of popular IRC channels</string>
     <string name="irc_splash_text2">Lightweight — runs on anything since 1988</string>
-    <string name="irc_splash_text3">Decentralized and open, like Matrix</string>
+    <string name="irc_splash_text3">Bots and tweaks that simplify IRC today</string>
 
     <!-- Proprietary features -->
     <string name="proprietary_feature_1">The most popular messengers</string>

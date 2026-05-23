@@ -104,6 +104,7 @@ class FtueAuthSplashFragment :
         views.cardIrc.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
         views.cardXmpp.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
         views.cardDelta.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
+        views.cardLemmy.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
         views.cardTelegram.visibility = if (isOpen) View.INVISIBLE else View.VISIBLE
         views.cardReddit.visibility = if (isOpen) View.INVISIBLE else View.VISIBLE
 

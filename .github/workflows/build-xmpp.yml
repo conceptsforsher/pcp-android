@@ -36,4 +36,4 @@ jobs:
         with:
           name: progressive-fdroid-debug-xmpp
           path: |
-            vector-app/build/outputs/apk/fdroid/debug/vector-fdroid-armeabi-v7a-debug.apk
+            vector-app/build/outputs/apk/fdroid/debug/*.apk

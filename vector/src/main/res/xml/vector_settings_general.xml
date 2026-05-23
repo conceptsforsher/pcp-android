@@ -113,6 +113,16 @@
 
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
+    <im.vector.app.core.preference.VectorPreferenceCategory android:title="Lemmy">
+
+        <im.vector.app.core.preference.VectorPreference
+            android:key="SETTINGS_CONNECT_LEMMY_KEY"
+            android:title="Connect to Lemmy"
+            android:summary="Sign in to a Lemmy instance"
+            app:iconSpaceReserved="false" />
+
+    </im.vector.app.core.preference.VectorPreferenceCategory>
+
     <im.vector.app.core.preference.VectorPreferenceCategory
         android:key="SETTINGS_DEACTIVATE_ACCOUNT_CATEGORY_KEY"
         android:title="@string/settings_deactivate_account_section">

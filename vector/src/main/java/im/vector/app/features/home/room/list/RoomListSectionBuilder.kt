@@ -77,6 +77,10 @@ class RoomListSectionBuilder(
                 // 6 sections invites / Fav / Rooms / Low Priority / Server notice / Suggested rooms
                 buildRoomsSections(sections, activeSpaceAwareQueries)
             }
+            RoomListDisplayMode.LEMMY -> {
+                // Empty — Lemmy data flows through IProtocolSession, not Matrix SDK
+                Unit
+            }
             RoomListDisplayMode.FILTERED -> {
                 // Used when searching for rooms
                 buildFilteredSection(sections)

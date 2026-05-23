@@ -51,6 +51,7 @@ import im.vector.lib.strings.CommonStrings
 import org.matrix.android.sdk.api.auth.registration.Stage
 import org.matrix.android.sdk.api.auth.toLocalizedLoginTerms
 import org.matrix.android.sdk.api.extensions.tryOrNull
+import chat.progressive.app.features.lemmy.LemmyAuthActivity
 
 private const val FRAGMENT_REGISTRATION_STAGE_TAG = "FRAGMENT_REGISTRATION_STAGE_TAG"
 private const val FRAGMENT_LOGIN_TAG = "FRAGMENT_LOGIN_TAG"
@@ -217,6 +218,11 @@ class FtueAuthVariant(
             OnboardingViewEvents.OnChooseProfilePicture -> onChooseProfilePicture()
             OnboardingViewEvents.OnPersonalizationComplete -> onPersonalizationComplete()
             OnboardingViewEvents.OnBack -> activity.popBackstack()
+            is OnboardingViewEvents.OpenLemmyAuth -> {
+                val intent = LemmyAuthActivity.newIntent(activity, fromSplash = true)
+                activity.startActivity(intent)
+                activity.finish()
+            }
             OnboardingViewEvents.EditServerSelection -> {
                 activity.addFragmentToBackstack(
                         views.loginFragmentContainer,

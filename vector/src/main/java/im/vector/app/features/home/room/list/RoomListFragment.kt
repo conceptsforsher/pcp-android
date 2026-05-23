@@ -213,6 +213,7 @@ class RoomListFragment :
             RoomListDisplayMode.NOTIFICATIONS -> views.createChatFabMenu.isVisible = true
             RoomListDisplayMode.PEOPLE -> views.createChatRoomButton.isVisible = true
             RoomListDisplayMode.ROOMS -> views.createGroupRoomButton.isVisible = true
+            RoomListDisplayMode.LEMMY -> Unit
             RoomListDisplayMode.FILTERED -> Unit // No button in this mode
         }
 
@@ -239,6 +240,7 @@ class RoomListFragment :
                                     RoomListDisplayMode.NOTIFICATIONS -> views.createChatFabMenu.hide()
                                     RoomListDisplayMode.PEOPLE -> views.createChatRoomButton.hide()
                                     RoomListDisplayMode.ROOMS -> views.createGroupRoomButton.hide()
+                                    RoomListDisplayMode.LEMMY -> Unit
                                     RoomListDisplayMode.FILTERED -> Unit
                                 }
                             }
@@ -404,6 +406,7 @@ class RoomListFragment :
                 RoomListDisplayMode.NOTIFICATIONS -> views.createChatFabMenu.show()
                 RoomListDisplayMode.PEOPLE -> views.createChatRoomButton.show()
                 RoomListDisplayMode.ROOMS -> views.createGroupRoomButton.show()
+                RoomListDisplayMode.LEMMY -> Unit
                 RoomListDisplayMode.FILTERED -> Unit
             }
         }
@@ -487,6 +490,11 @@ class RoomListFragment :
                             image = ContextCompat.getDrawable(requireContext(), R.drawable.empty_state_room),
                             isBigImage = true,
                             message = getString(CommonStrings.room_list_rooms_empty_body)
+                    )
+                RoomListDisplayMode.LEMMY ->
+                    StateView.State.Empty(
+                            title = "Lemmy",
+                            message = "Connect to a Lemmy instance from Settings"
                     )
                 RoomListDisplayMode.FILTERED ->
                     // Always display the content in this mode, because if the footer

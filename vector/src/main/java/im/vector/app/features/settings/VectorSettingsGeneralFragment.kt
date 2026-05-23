@@ -69,6 +69,7 @@ import java.io.File
 import java.net.URL
 import java.util.UUID
 import javax.inject.Inject
+import chat.progressive.app.features.lemmy.LemmyAuthActivity
 
 @AndroidEntryPoint
 class VectorSettingsGeneralFragment :
@@ -317,6 +318,12 @@ class VectorSettingsGeneralFragment :
             }
 
             false
+        }
+        // Lemmy connect
+        findPreference<VectorPreference>("SETTINGS_CONNECT_LEMMY_KEY")!!
+                .onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            startActivity(LemmyAuthActivity.newIntent(requireActivity(), fromSplash = false))
+            true
         }
         // Account deactivation is visible only if account is not managed by an external URL.
         mDeactivateAccountCategory.isVisible = homeServerCapabilities.delegatedOidcAuthEnabled.not()

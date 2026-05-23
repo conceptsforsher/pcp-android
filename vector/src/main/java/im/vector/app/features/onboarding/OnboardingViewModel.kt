@@ -231,6 +231,10 @@ class OnboardingViewModel @AssistedInject constructor(
     }
 
     private fun handleSplashAction(action: OnboardingAction.SplashAction) {
+        if (action is OnboardingAction.SplashAction.OnProtocolSelected && action.protocol == "lemmy") {
+            _viewEvents.post(OnboardingViewEvents.OpenLemmyAuth("lemmy"))
+            return
+        }
         setState { copy(onboardingFlow = action.onboardingFlow) }
         continueToPageAfterSplash(action.onboardingFlow)
     }

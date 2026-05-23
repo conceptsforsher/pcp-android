@@ -21,10 +21,17 @@
         android:visible="false" />
 
     <item
-        android:id="@+id/bottom_action_dial_pad"
+        android:id="@+id/bottom_action_call"
         android:enabled="true"
         android:icon="@drawable/ic_call_dial_pad"
         android:title="@string/call_dial_pad_title"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/bottom_action_lemmy"
+        android:enabled="true"
+        android:icon="@drawable/ic_lemmy"
+        android:title="Lemmy"
         android:visible="false" />
 
 </menu>

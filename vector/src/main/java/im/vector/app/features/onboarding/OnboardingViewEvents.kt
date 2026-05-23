@@ -55,4 +55,7 @@ sealed class OnboardingViewEvents : VectorViewEvents {
     object OnChooseProfilePicture : OnboardingViewEvents()
     object OnPersonalizationComplete : OnboardingViewEvents()
     object OnBack : OnboardingViewEvents()
+
+    // Protocol events
+    data class OpenLemmyAuth(val protocol: String) : OnboardingViewEvents()
 }

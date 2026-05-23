@@ -7,7 +7,6 @@
 
 package im.vector.app.features.onboarding.ftueauth
 
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Html
@@ -74,9 +73,6 @@ class FtueAuthSplashFragment :
         }
 
         if (buildMeta.isDebug || vectorPreferences.developerMode()) {
-            views.loginSplashVersion.isVisible = true
-            @SuppressLint("SetTextI18n")
-            views.loginSplashVersion.text = "v0.3.0\n" + buildMeta.gitBranchName
             views.loginSplashVersion.debouncedClicks { navigator.openDebug(requireContext()) }
         }
 

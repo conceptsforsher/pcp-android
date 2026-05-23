@@ -1,0 +1,33 @@
+name: C++ Unit Tests
+
+on:
+  pull_request:
+    paths:
+      - 'vector/src/main/cpp/**'
+  push:
+    branches: [ main, develop, irc ]
+    paths:
+      - 'vector/src/main/cpp/**'
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  unit-tests:
+    name: C++ unit tests (host)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Install g++
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq g++
+
+      - name: Build and run lemmy unit tests
+        working-directory: vector/src/main/cpp
+        run: |
+          g++ -std=c++20 -I include \
+            tests/test_lemmy.cpp src/lemmy_api.cpp \
+            -o /tmp/test_lemmy
+          /tmp/test_lemmy

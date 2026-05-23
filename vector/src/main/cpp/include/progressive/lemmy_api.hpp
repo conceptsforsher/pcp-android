@@ -278,6 +278,15 @@ std::string lemmyCreateSite(const std::string& auth, const std::string& siteJson
 // POST /api/v3/site/block — Block / unblock an instance
 std::string lemmyBlockInstance(const std::string& auth, int instanceId, bool block);
 
+// ==== Image Upload ====
+
+// POST /pictrs/image — Upload an image file (multipart/form-data)
+// imageData: raw file bytes; filename: e.g. "photo.jpg"
+// mimeType: e.g. "image/jpeg" or empty for auto-detect
+// Returns JSON: {"files":[{"delete_token":"...","file":"..."}],"msg":"ok"}
+std::string lemmyUploadImage(const std::string& auth, const std::string& imageData,
+                             const std::string& filename, const std::string& mimeType = "");
+
 // ==== Utility ====
 
 // Build a simple JSON object from key-value string pairs.

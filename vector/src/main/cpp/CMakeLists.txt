@@ -226,6 +226,7 @@ add_library(
     src/irc_client.cpp
     src/irc_jni_bridge.cpp
     src/lemmy_api.cpp
+    src/lemmy_jni_bridge.cpp
 )
 
 # --- Download SQLite3 amalgamation at configure time ---

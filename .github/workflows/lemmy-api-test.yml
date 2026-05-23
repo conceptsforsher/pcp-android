@@ -1,0 +1,32 @@
+name: Lemmy API Integration Test
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # daily at 06:00 UTC
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  api-test:
+    name: Smoke test Lemmy API
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        instance:
+          - https://lemmy.ml
+          - https://lemmy.world
+          - https://sh.itjust.works
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          sparse-checkout: |
+            vector/src/main/cpp/tests/test_lemmy_api.sh
+          persist-credentials: false
+
+      - name: Run API smoke tests against ${{ matrix.instance }}
+        run: |
+          chmod +x vector/src/main/cpp/tests/test_lemmy_api.sh
+          LEMMY_INSTANCE="${{ matrix.instance }}" bash vector/src/main/cpp/tests/test_lemmy_api.sh
+        timeout-minutes: 3

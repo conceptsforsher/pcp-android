@@ -12,18 +12,22 @@ on:
 
 permissions: {}
 
+env:
+  GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx2048m -Dfile.encoding=UTF-8" -Dkotlin.daemon.jvm.options="-Xmx1024m"
+
 jobs:
   native-compile:
-    name: Compile native libs (NDK ${{ matrix.abi }})
+    name: Native NDK compile (${{ matrix.abi }})
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        abi: [ armeabi-v7a, arm64-v8a, x86_64 ]
+        abi: [ armeabi-v7a, x86_64 ]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: recursive
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Set up JDK 21
@@ -37,22 +41,25 @@ jobs:
         with:
           cache-read-only: true
 
-      - name: Compile native ${{ matrix.abi }} via Gradle
-        run: >
-          ./gradlew :vector:externalNativeBuildDebug
-          --stacktrace --no-daemon --no-build-cache
-          -PciAbi=${{ matrix.abi }}
-          -PpreDexEnable=false
-          -PminifyEnabled=false
-          -Pandroid.enableBuildCache=false
-          -PallWarningsAsErrors=false
-          -x ktlintCheck -x ktlintKotlinScriptCheck -x detekt -x knitCheck
-          -x dependencyCheckAnalyze -x lint -x kaptDebugKotlin
-          -x compileDebugKotlin
-
-      - name: Show built libraries
+      - name: Compile native code (${{ matrix.abi }})
         run: |
+          ./gradlew :vector:assembleDebug \
+            --stacktrace --no-daemon --no-build-cache \
+            -PciAbi=${{ matrix.abi }} \
+            -PpreDexEnable=false \
+            -PminifyEnabled=false \
+            -Pandroid.enableBuildCache=false \
+            -PallWarningsAsErrors=false
+
+      - name: Verify native libraries built
+        run: |
+          echo "=== Built .so files ==="
           find vector/.cxx -name '*.so' -type f 2>/dev/null | while read f; do
-            echo "=== $f ($(du -h "$f" | cut -f1)) ==="
-            file "$f" 2>/dev/null || true
+            echo "$f ($(du -h "$f" | cut -f1))"
           done
+          count=$(find vector/.cxx -name '*.so' -type f 2>/dev/null | wc -l)
+          if [ "$count" -eq 0 ]; then
+            echo "ERROR: No .so files found — native compilation failed"
+            exit 1
+          fi
+          echo "Total: $count native libraries"

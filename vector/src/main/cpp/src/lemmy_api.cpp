@@ -618,4 +618,47 @@ std::string lemmyBlockInstance(const std::string& auth, int instanceId, bool blo
     }), auth, 15000);
 }
 
+// ==== Image Upload ====
+
+std::string lemmyUploadImage(const std::string& auth, const std::string& imageData,
+                             const std::string& filename, const std::string& mimeType) {
+    // Build multipart/form-data body for Pictrs
+    // field name: "images[]" (array of images)
+    static const std::string boundary = "----LemmyNativeUploadBoundary";
+    static const std::string crlf = "\r\n";
+
+    // Determine MIME type from extension if not provided
+    std::string contentType = mimeType;
+    if (contentType.empty()) {
+        auto dot = filename.rfind('.');
+        if (dot != std::string::npos) {
+            std::string ext = filename.substr(dot);
+            if (ext == ".jpg" || ext == ".jpeg") contentType = "image/jpeg";
+            else if (ext == ".png") contentType = "image/png";
+            else if (ext == ".gif") contentType = "image/gif";
+            else if (ext == ".webp") contentType = "image/webp";
+            else if (ext == ".svg") contentType = "image/svg+xml";
+            else contentType = "application/octet-stream";
+        } else {
+            contentType = "application/octet-stream";
+        }
+    }
+
+    std::string body;
+    body += "--" + boundary + crlf;
+    body += "Content-Disposition: form-data; name=\"images[]\"; filename=\"" + filename + "\"" + crlf;
+    body += "Content-Type: " + contentType + crlf;
+    body += crlf;
+    body += imageData;
+    body += crlf;
+    body += "--" + boundary + "--" + crlf;
+
+    std::unordered_map<std::string, std::string> headers;
+    headers["Content-Type"] = "multipart/form-data; boundary=" + boundary;
+    if (!auth.empty()) headers["Authorization"] = "Bearer " + auth;
+
+    HttpRequest req{"POST", lemmyBuildUrl("/pictrs/image"), body, headers, 60000};
+    return httpExecute(req).body;
+}
+
 } // namespace progressive

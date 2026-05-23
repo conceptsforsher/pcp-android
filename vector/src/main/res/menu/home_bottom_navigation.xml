@@ -21,7 +21,7 @@
         android:visible="false" />
 
     <item
-        android:id="@+id/bottom_action_call"
+        android:id="@+id/bottom_action_dial_pad"
         android:enabled="true"
         android:icon="@drawable/ic_call_dial_pad"
         android:title="@string/call_dial_pad_title"

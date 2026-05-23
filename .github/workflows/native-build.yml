@@ -46,6 +46,7 @@ jobs:
           ./gradlew :vector:assembleDebug \
             --stacktrace --no-daemon --no-build-cache \
             -PciAbi=${{ matrix.abi }} \
+            -PincludeJitsi=false \
             -PpreDexEnable=false \
             -PminifyEnabled=false \
             -Pandroid.enableBuildCache=false \

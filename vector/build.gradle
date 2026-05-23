@@ -62,9 +62,6 @@ android {
         testInstrumentationRunnerArguments clearPackageData: 'true'
 
         vectorDrawables.useSupportLibrary = true
-
-        def includeJitsi = project.findProperty('includeJitsi') ?: 'true'
-        buildConfigField "boolean", "HAS_JITSI", "${includeJitsi != 'false'}"
     }
 
     externalNativeBuild {
@@ -318,28 +315,24 @@ dependencies {
 
     implementation "androidx.emoji2:emoji2:1.3.0"
 
-    // Jitsi — optional, disable via -PincludeJitsi=false in CI to avoid 502 from jitsi_libre_maven
-    def includeJitsi = project.findProperty('includeJitsi') ?: 'true'
-    if (includeJitsi != 'false') {
-        api('org.jitsi.react:jitsi-meet-sdk:11.5.1') {
-            exclude group: 'com.google.firebase'
-            exclude group: 'com.google.android.gms'
-            exclude group: 'com.android.installreferrer'
+    // Jitsi — video conferencing
+    // CI failures from jitsi_libre_maven 502 are transient GitHub CDN issues.
+    // If persistent, set GRADLE_RO_DEP_CACHE=1 or use --offline.
+    api('org.jitsi.react:jitsi-meet-sdk:11.5.1') {
+        exclude group: 'com.google.firebase'
+        exclude group: 'com.google.android.gms'
+        exclude group: 'com.android.installreferrer'
 
-            // Exclude jitsi's android-scalablevideoview fork's support library
-            // The library exports a jetified artifact but doesn't remove the support library dependency
-            // https://github.com/MatrixFrog/Android-ScalableVideoView/blob/master/gradle.properties#L1
-            exclude group: 'com.android.support', module: 'appcompat-v7'
+        // Exclude jitsi's android-scalablevideoview fork's support library
+        // The library exports a jetified artifact but doesn't remove the support library dependency
+        // https://github.com/MatrixFrog/Android-ScalableVideoView/blob/master/gradle.properties#L1
+        exclude group: 'com.android.support', module: 'appcompat-v7'
 
-            // transitive needed to pull in the react-native dependency
-            transitive = true
-        }
-    } else {
-        // Jitsi excluded — also skip compiling its source files
-        android.sourceSets.main.java {
-            exclude '**/call/conference/**'
-        }
+        // transitive needed to pull in the react-native dependency
+        transitive = true
     }
+    def includeJitsi = project.findProperty('includeJitsi') ?: 'true'
+    buildConfigField "boolean", "HAS_JITSI", "${includeJitsi != 'false'}"
 
     // QR-code
     // Stick to 3.3.3 because of https://github.com/zxing/zxing/issues/1170

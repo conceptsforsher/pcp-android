@@ -130,7 +130,7 @@ class LemmySession(
                         title = cv.optString("title", cv.optString("name", "?")),
                         unreadCount = counts?.optInt("posts", 0) ?: 0,
                         avatarUrl = cv.optString("icon", "").takeIf { it.isNotEmpty() },
-                        session = this
+                        session = this@LemmySession
                     ))
                 }
             }

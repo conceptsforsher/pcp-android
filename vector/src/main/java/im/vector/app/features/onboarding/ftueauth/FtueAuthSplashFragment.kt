@@ -34,8 +34,6 @@ class FtueAuthSplashFragment :
     @Inject lateinit var vectorFeatures: VectorFeatures
     @Inject lateinit var buildMeta: BuildMeta
 
-    private var selectedProtocol: String = "matrix"
-
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentFtueAuthSplashBinding {
         return FragmentFtueAuthSplashBinding.inflate(inflater, container, false)
     }
@@ -43,7 +41,6 @@ class FtueAuthSplashFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupViews()
-        setupProtocolCards()
     }
 
     private fun setupViews() {
@@ -66,29 +63,13 @@ class FtueAuthSplashFragment :
         }
     }
 
-    private fun setupProtocolCards() {
-        views.cardMatrix.setOnClickListener { onProtocolSelected("matrix") }
-        views.cardLemmy.setOnClickListener { onProtocolSelected("lemmy") }
-        updateProtocolSelection()
-    }
-
-    private fun onProtocolSelected(protocol: String) {
-        selectedProtocol = protocol
-        updateProtocolSelection()
-    }
-
-    private fun updateProtocolSelection() {
-        views.radioMatrix.isChecked = selectedProtocol == "matrix"
-        views.radioLemmy.isChecked = selectedProtocol == "lemmy"
-    }
-
     private fun splashSubmit(isAlreadyHaveAccountEnabled: Boolean) {
         val getStartedFlow = if (isAlreadyHaveAccountEnabled) OnboardingFlow.SignUp else OnboardingFlow.SignInSignUp
-        viewModel.handle(OnboardingAction.SplashAction.OnProtocolSelected(selectedProtocol, getStartedFlow))
+        viewModel.handle(OnboardingAction.SplashAction.OnProtocolSelected("matrix", getStartedFlow))
     }
 
     private fun alreadyHaveAnAccount() {
-        viewModel.handle(OnboardingAction.SplashAction.OnProtocolSelected(selectedProtocol, OnboardingFlow.SignIn))
+        viewModel.handle(OnboardingAction.SplashAction.OnProtocolSelected("matrix", OnboardingFlow.SignIn))
     }
 
     override fun resetViewModel() {

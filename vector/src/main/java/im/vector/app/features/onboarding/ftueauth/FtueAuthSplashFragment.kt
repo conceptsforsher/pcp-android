@@ -100,13 +100,13 @@ class FtueAuthSplashFragment :
             else im.vector.lib.strings.R.string.protocol_telegram_desc
         )
 
-        views.cardMatrix.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
-        views.cardIrc.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
-        views.cardXmpp.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
-        views.cardDelta.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
-        views.cardLemmy.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
-        views.cardTelegram.visibility = if (isOpen) View.INVISIBLE else View.VISIBLE
-        views.cardReddit.visibility = if (isOpen) View.INVISIBLE else View.VISIBLE
+        views.cardMatrix.visibility = if (isOpen) View.VISIBLE else View.GONE
+        views.cardIrc.visibility = if (isOpen) View.VISIBLE else View.GONE
+        views.cardXmpp.visibility = if (isOpen) View.VISIBLE else View.GONE
+        views.cardDelta.visibility = if (isOpen) View.VISIBLE else View.GONE
+        views.cardLemmy.visibility = if (isOpen) View.VISIBLE else View.GONE
+        views.cardTelegram.visibility = if (isOpen) View.GONE else View.VISIBLE
+        views.cardReddit.visibility = if (isOpen) View.GONE else View.VISIBLE
 
         if (!isOpen) selectedProtocol = "telegram"
         else if (selectedProtocol == "telegram") selectedProtocol = "matrix"

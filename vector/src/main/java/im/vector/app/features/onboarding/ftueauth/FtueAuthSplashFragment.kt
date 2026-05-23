@@ -105,6 +105,7 @@ class FtueAuthSplashFragment :
         views.cardXmpp.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
         views.cardDelta.visibility = if (isOpen) View.VISIBLE else View.INVISIBLE
         views.cardTelegram.visibility = if (isOpen) View.INVISIBLE else View.VISIBLE
+        views.cardReddit.visibility = if (isOpen) View.INVISIBLE else View.VISIBLE
 
         if (!isOpen) selectedProtocol = "telegram"
         else if (selectedProtocol == "telegram") selectedProtocol = "matrix"

@@ -9,7 +9,7 @@ import org.json.JSONObject
 import timber.log.Timber
 
 class LemmySession(
-    private val instanceUrl: String
+    val instanceUrl: String
 ) : IProtocolSession {
 
     override val protocolType: ProtocolType = ProtocolType.LEMMY

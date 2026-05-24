@@ -2,8 +2,10 @@ package chat.progressive.app.features.lemmy.home
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import im.vector.app.databinding.ItemCommentBinding
+import im.vector.app.databinding.ItemPostBinding
 
 class LemmyCommentAdapter(
     private val onPostVoteClick: (Int) -> Unit,
@@ -63,7 +65,7 @@ class LemmyCommentAdapter(
             binding.postCreator.text = post.creatorName
             binding.postScore.text = "${post.score}"
             binding.postComments.text = "${post.commentCount} comments"
-            binding.postBody.text = post.body.let { it.ifEmpty { null } }
+            binding.postBody.text = if (post.body.isNotEmpty()) LemmyMarkdown.render(post.body) else null
             binding.postBody.visibility = if (post.body.isNotEmpty()) android.view.View.VISIBLE else android.view.View.GONE
             binding.postUrl.text = post.url
             binding.postUrl.visibility = if (!post.url.isNullOrEmpty()) android.view.View.VISIBLE else android.view.View.GONE

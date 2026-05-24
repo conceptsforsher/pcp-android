@@ -69,6 +69,7 @@ import java.io.File
 import java.net.URL
 import java.util.UUID
 import javax.inject.Inject
+import chat.progressive.app.features.delta.DeltaAuthActivity
 
 @AndroidEntryPoint
 class VectorSettingsGeneralFragment :
@@ -312,12 +313,19 @@ class VectorSettingsGeneralFragment :
         // Sign out
         findPreference<VectorPreference>("SETTINGS_SIGN_OUT_KEY")!!
                 .onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            activity?.let {
-                SignOutUiWorker(requireActivity()).perform()
-            }
+                    // Pop the settings activity
+                    activity?.onBackPressedDispatcher?.onBackPressed()
+                    // Ask sign out
+                    SignOutUiWorker(requireActivity()).perform()
+                    true
+                }
 
-            false
-        }
+        findPreference<VectorPreference>("SETTINGS_CONNECT_DELTACHAT_KEY")!!
+                .onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                    startActivity(DeltaAuthActivity.newIntent(requireActivity(), fromSplash = false))
+                    true
+                }
+
         // Account deactivation is visible only if account is not managed by an external URL.
         mDeactivateAccountCategory.isVisible = homeServerCapabilities.delegatedOidcAuthEnabled.not()
     }

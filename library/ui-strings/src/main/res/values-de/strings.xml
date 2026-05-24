@@ -2970,4 +2970,14 @@
     <string name="microphone_in_use_title">Mikrofon wird benutzt</string>
     <string name="call_unsupported">Nicht unterstützter Anruf</string>
     <string name="call_unsupported_matrix_rtc_call">Nicht unterstützter Anruf. Die neue Element X-App wird benötigt, um diesem Anruf beizutreten.</string>
+    <string name="connect_deltachat">DeltaChat verbinden</string>
+    <string name="settings_deltachat_section">DeltaChat</string>
+    <string name="settings_connect_deltachat_summary">E-Mail-Konto über DeltaChat-Protokoll verbinden</string>
+    <string name="login_splash_protocol_section">Protokoll wählen</string>
+    <string name="login_splash_matrix_desc">Föderiertes Matrix-Protokoll</string>
+    <string name="login_splash_delta_desc">E-Mail-basierter Chat mit Autocrypt E2EE</string>
+    <string name="bottom_action_delta">DeltaChat</string>
+    <string name="delta_auth">DeltaChat Anmeldung</string>
+    <string name="delta_chat_list">DeltaChat</string>
+
 </resources>

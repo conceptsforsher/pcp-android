@@ -221,7 +221,21 @@ add_library(
     src/openid_token.cpp
     src/jni_bridge.cpp
     src/eventdb.cpp
+    src/dc_bridge.cpp
+    src/dc_client.cpp
+    src/dc_jni_bridge.cpp
 )
+
+option(PROGRESSIVE_ENABLE_DELTACHAT "Enable DeltaChat email-based messaging support via libdeltachat" OFF)
+if(PROGRESSIVE_ENABLE_DELTACHAT)
+    find_library(DELTACHAT_LIB deltachat)
+    if(DELTACHAT_LIB)
+        target_link_libraries(progressive_native ${DELTACHAT_LIB})
+        target_compile_definitions(progressive_native PRIVATE PROGRESSIVE_HAS_DELTACHAT=1)
+    else()
+        message(WARNING "libdeltachat not found — DeltaChat support disabled")
+    endif()
+endif()
 
 # --- Download SQLite3 amalgamation at configure time ---
 # sqlite3.c (255k lines) is NOT stored in the repo.

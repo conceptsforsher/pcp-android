@@ -268,6 +268,19 @@
     <string name="bottom_action_favourites">Избранные</string>
     <string name="bottom_action_people">Люди</string>
     <string name="bottom_action_rooms">Комнаты</string>
+    <string name="bottom_action_delta">DeltaChat</string>
+
+    <string name="delta_auth">Вход в DeltaChat</string>
+    <string name="delta_chat_list">DeltaChat</string>
+
+    <string name="login_splash_protocol_section">Выберите протокол</string>
+    <string name="login_splash_matrix_desc">Федеративный протокол Matrix</string>
+    <string name="login_splash_delta_desc">Email-чат с Autocrypt E2EE</string>
+
+    <string name="connect_deltachat">Подключить DeltaChat</string>
+
+    <string name="settings_deltachat_section">DeltaChat</string>
+    <string name="settings_connect_deltachat_summary">Подключить email-аккаунт через протокол DeltaChat</string>
     <string name="home_filter_placeholder_home">Фильтр названий комнат</string>
     <string name="invitations_header">Приглашения</string>
     <string name="low_priority_header">Маловажные</string>

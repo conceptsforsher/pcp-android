@@ -54,5 +54,6 @@ sealed class OnboardingViewEvents : VectorViewEvents {
     object OnChooseDisplayName : OnboardingViewEvents()
     object OnChooseProfilePicture : OnboardingViewEvents()
     object OnPersonalizationComplete : OnboardingViewEvents()
+    data class OpenDeltaChatAuth(val protocol: String) : OnboardingViewEvents()
     object OnBack : OnboardingViewEvents()
 }

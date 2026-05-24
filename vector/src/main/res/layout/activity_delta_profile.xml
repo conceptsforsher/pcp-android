@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?android:colorBackground">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DeltaChat Profile"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="?vctr_content_primary"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Display Name"
+        android:textColor="?vctr_content_secondary"
+        android:textSize="13sp" />
+
+    <EditText
+        android:id="@+id/profileDisplayName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Your name"
+        android:padding="12dp"
+        android:layout_marginTop="4dp"
+        android:background="@android:drawable/edit_text" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status"
+        android:textColor="?vctr_content_secondary"
+        android:textSize="13sp"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/profileStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Status message"
+        android:padding="12dp"
+        android:layout_marginTop="4dp"
+        android:background="@android:drawable/edit_text" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Avatar (file path or URL)"
+        android:textColor="?vctr_content_secondary"
+        android:textSize="13sp"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/profileAvatar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="/sdcard/avatar.jpg"
+        android:padding="12dp"
+        android:layout_marginTop="4dp"
+        android:background="@android:drawable/edit_text" />
+
+    <Button
+        android:id="@+id/profileSaveButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Profile"
+        android:layout_marginTop="24dp"
+        style="@style/Widget.Vector.Button.Login" />
+
+    <Button
+        android:id="@+id/profileAddressBookSync"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sync Address Book"
+        android:layout_marginTop="12dp"
+        style="@style/Widget.Vector.Button.Text" />
+
+    <Button
+        android:id="@+id/profileAutoReplyButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Auto-Reply Settings"
+        android:layout_marginTop="8dp"
+        style="@style/Widget.Vector.Button.Text" />
+</LinearLayout>

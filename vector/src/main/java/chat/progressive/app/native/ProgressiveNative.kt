@@ -5037,4 +5037,62 @@ object ProgressiveNative {
         return (System.currentTimeMillis() - ts) < maxFutureMs
     }
 
+    // --- DeltaChat Native Bridge ---
+    @JvmStatic external fun dcInit(): Long
+    @JvmStatic external fun dcDestroy(handle: Long)
+    @JvmStatic external fun dcConfigure(handle: Long, addr: String, password: String): Boolean
+    @JvmStatic external fun dcIsConfigured(handle: Long): Boolean
+    @JvmStatic external fun dcGetInfo(handle: Long): String?
+    @JvmStatic external fun dcSendText(handle: Long, chatId: Long, text: String): Long
+    @JvmStatic external fun dcGetChats(handle: Long): String?
+    @JvmStatic external fun dcGetMessages(handle: Long, chatId: Long): String?
+    @JvmStatic external fun dcStartIo(handle: Long)
+    @JvmStatic external fun dcStopIo(handle: Long)
+    @JvmStatic external fun dcMaybeNetwork(handle: Long)
+    @JvmStatic external fun dcGetConnectivity(handle: Long): Int
+    @JvmStatic external fun dcCheckQr(handle: Long, qr: String): Int
+
+    // --- DeltaChat contacts ---
+    @JvmStatic external fun dcGetContacts(handle: Long): String?
+    @JvmStatic external fun dcCreateContact(handle: Long, name: String, addr: String): Long
+    @JvmStatic external fun dcBlockContact(handle: Long, contactId: Long, block: Int): Int
+    @JvmStatic external fun dcGetContactEncrinfo(handle: Long, contactId: Long): String?
+
+    // --- DeltaChat groups ---
+    @JvmStatic external fun dcCreateGroupChat(handle: Long, verified: Int, name: String): Long
+    @JvmStatic external fun dcAddContactToChat(handle: Long, chatId: Long, contactId: Long): Long
+    @JvmStatic external fun dcRemoveContactFromChat(handle: Long, chatId: Long, contactId: Long): Long
+    @JvmStatic external fun dcSetChatName(handle: Long, chatId: Long, name: String): Int
+    @JvmStatic external fun dcSetChatProfileImage(handle: Long, chatId: Long, image: String): Int
+
+    // --- DeltaChat SecureJoin ---
+    @JvmStatic external fun dcGetSecurejoinQr(handle: Long, chatId: Long): String?
+    @JvmStatic external fun dcJoinSecurejoin(handle: Long, qr: String): Int
+
+    // --- DeltaChat backup/IMEX ---
+    @JvmStatic external fun dcImex(handle: Long, what: Int, param1: String, param2: String): String?
+    @JvmStatic external fun dcInitiateKeyTransfer(handle: Long): String?
+
+    // --- DeltaChat config ---
+    @JvmStatic external fun dcSetConfig(handle: Long, key: String, value: String): String?
+    @JvmStatic external fun dcGetConfig(handle: Long, key: String): String?
+
+    // --- DeltaChat messages ---
+    @JvmStatic external fun dcMarkSeenMsgs(handle: Long, chatId: Long)
+    @JvmStatic external fun dcDeleteChat(handle: Long, chatId: Long)
+    @JvmStatic external fun dcLeaveChat(handle: Long, chatId: Long)
+    @JvmStatic external fun dcSendFile(handle: Long, chatId: Long, filePath: String, mimeType: String): Long
+    @JvmStatic external fun dcGetFreshMsgs(handle: Long): String?
+    @JvmStatic external fun dcGetConnectivityHtml(handle: Long): String?
+
+    // --- DeltaChat reactions + edit + voice + mute ---
+    @JvmStatic external fun dcSendReaction(handle: Long, chatId: Long, msgId: Long, reaction: String): Long
+    @JvmStatic external fun dcEditMessage(handle: Long, chatId: Long, msgId: Long, newText: String): Long
+    @JvmStatic external fun dcSendVoice(handle: Long, chatId: Long, filePath: String): Long
+    @JvmStatic external fun dcMuteChat(handle: Long, chatId: Long, durationMs: Long)
+    @JvmStatic external fun dcGetChatMedia(handle: Long, chatId: Long): String?
+
+    // --- DeltaChat fallbacks (Kotlin stubs for when native lib is unavailable) ---
+    @JvmStatic fun dcMarkAsRead(handle: Long, chatId: Long) { }
+
 }

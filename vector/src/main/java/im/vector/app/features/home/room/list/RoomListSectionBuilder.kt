@@ -84,6 +84,7 @@ class RoomListSectionBuilder(
             RoomListDisplayMode.NOTIFICATIONS -> {
                 buildNotificationsSection(sections, activeSpaceAwareQueries)
             }
+            RoomListDisplayMode.DELTACHAT -> Unit
         }
 
         spaceStateHandler.getSelectedSpaceFlow()

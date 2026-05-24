@@ -77,6 +77,16 @@
 
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
+    <im.vector.app.core.preference.VectorPreferenceCategory android:title="@string/settings_deltachat_section">
+
+        <im.vector.app.core.preference.VectorPreference
+            android:key="SETTINGS_CONNECT_DELTACHAT_KEY"
+            android:title="@string/connect_deltachat"
+            android:summary="@string/settings_connect_deltachat_summary"
+            app:iconSpaceReserved="false" />
+
+    </im.vector.app.core.preference.VectorPreferenceCategory>
+
     <im.vector.app.core.preference.VectorPreferenceCategory android:title="@string/settings_advanced">
 
         <im.vector.app.core.preference.VectorPreference

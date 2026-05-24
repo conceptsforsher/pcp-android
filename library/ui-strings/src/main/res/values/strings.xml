@@ -446,6 +446,19 @@
     <string name="bottom_action_favourites">Favorites</string>
     <string name="bottom_action_people">People</string>
     <string name="bottom_action_rooms">Rooms</string>
+    <string name="bottom_action_delta">DeltaChat</string>
+
+    <string name="delta_auth">DeltaChat Login</string>
+    <string name="delta_chat_list">DeltaChat</string>
+
+    <string name="login_splash_protocol_section">Select protocol</string>
+    <string name="login_splash_matrix_desc">Matrix federated protocol</string>
+    <string name="login_splash_delta_desc">Email-based chat with Autocrypt E2EE</string>
+
+    <string name="connect_deltachat">Connect DeltaChat</string>
+
+    <string name="settings_deltachat_section">DeltaChat</string>
+    <string name="settings_connect_deltachat_summary">Connect your email account via DeltaChat protocol</string>
 
     <!-- Home screen -->
     <string name="home_filter_placeholder_home">Filter room names</string>

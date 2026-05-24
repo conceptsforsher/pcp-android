@@ -2687,4 +2687,14 @@
     <string name="notice_display_name_changed_to">%1$s cambió su nombre público a %2$s</string>
     <string name="settings_external_account_management_title">Cuenta</string>
     <string name="avatar_of_user">Foto de perfil del usuario %1$s</string>
+    <string name="connect_deltachat">Conectar DeltaChat</string>
+    <string name="settings_deltachat_section">DeltaChat</string>
+    <string name="settings_connect_deltachat_summary">Conectar cuenta de email mediante protocolo DeltaChat</string>
+    <string name="login_splash_protocol_section">Seleccionar protocolo</string>
+    <string name="login_splash_matrix_desc">Protocolo federado Matrix</string>
+    <string name="login_splash_delta_desc">Chat por email con cifrado Autocrypt E2EE</string>
+    <string name="bottom_action_delta">DeltaChat</string>
+    <string name="delta_auth">Inicio DeltaChat</string>
+    <string name="delta_chat_list">DeltaChat</string>
+
 </resources>

@@ -43,6 +43,7 @@ import im.vector.app.features.onboarding.OnboardingVariant
 import im.vector.app.features.onboarding.OnboardingViewEvents
 import im.vector.app.features.onboarding.OnboardingViewModel
 import im.vector.app.features.onboarding.OnboardingViewState
+import chat.progressive.app.features.delta.DeltaAuthActivity
 import im.vector.app.features.onboarding.ftueauth.terms.FtueAuthLegacyStyleTermsFragment
 import im.vector.app.features.onboarding.ftueauth.terms.FtueAuthTermsFragment
 import im.vector.app.features.onboarding.ftueauth.terms.FtueAuthTermsLegacyStyleFragmentArgument
@@ -216,6 +217,11 @@ class FtueAuthVariant(
             OnboardingViewEvents.OnTakeMeHome -> navigateToHome()
             OnboardingViewEvents.OnChooseProfilePicture -> onChooseProfilePicture()
             OnboardingViewEvents.OnPersonalizationComplete -> onPersonalizationComplete()
+            is OnboardingViewEvents.OpenDeltaChatAuth -> {
+                val intent = DeltaAuthActivity.newIntent(activity, fromSplash = true)
+                activity.startActivity(intent)
+                activity.finish()
+            }
             OnboardingViewEvents.OnBack -> activity.popBackstack()
             OnboardingViewEvents.EditServerSelection -> {
                 activity.addFragmentToBackstack(

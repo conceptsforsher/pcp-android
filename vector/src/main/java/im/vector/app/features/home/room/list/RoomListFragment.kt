@@ -214,6 +214,7 @@ class RoomListFragment :
             RoomListDisplayMode.PEOPLE -> views.createChatRoomButton.isVisible = true
             RoomListDisplayMode.ROOMS -> views.createGroupRoomButton.isVisible = true
             RoomListDisplayMode.FILTERED -> Unit // No button in this mode
+            RoomListDisplayMode.DELTACHAT -> Unit
         }
 
         views.createChatRoomButton.debouncedClicks {
@@ -240,6 +241,7 @@ class RoomListFragment :
                                     RoomListDisplayMode.PEOPLE -> views.createChatRoomButton.hide()
                                     RoomListDisplayMode.ROOMS -> views.createGroupRoomButton.hide()
                                     RoomListDisplayMode.FILTERED -> Unit
+                                    RoomListDisplayMode.DELTACHAT -> Unit
                                 }
                             }
                         }
@@ -405,6 +407,7 @@ class RoomListFragment :
                 RoomListDisplayMode.PEOPLE -> views.createChatRoomButton.show()
                 RoomListDisplayMode.ROOMS -> views.createGroupRoomButton.show()
                 RoomListDisplayMode.FILTERED -> Unit
+                RoomListDisplayMode.DELTACHAT -> Unit
             }
         }
     }
@@ -491,6 +494,11 @@ class RoomListFragment :
                 RoomListDisplayMode.FILTERED ->
                     // Always display the content in this mode, because if the footer
                     StateView.State.Content
+                RoomListDisplayMode.DELTACHAT ->
+                    StateView.State.Empty(
+                            title = getString(CommonStrings.delta_chat_list),
+                            message = getString(CommonStrings.bottom_action_delta)
+                    )
             }
             views.stateView.state = emptyState
         } else {

@@ -2975,4 +2975,14 @@
     <string name="error_mas_not_supported_subtitle">Téléchargez %1$s pour utiliser %2$s avec votre compte, ou choisissez un autre serveur d’accueil.</string>
     <string name="view_download_replacement_app_title">Télécharger %1$s</string>
     <string name="view_download_replacement_app_subtitle">Plus rapide, plus sécurisé et fourni avec des outils de collaboration efficaces.</string>
+    <string name="connect_deltachat">Connecter DeltaChat</string>
+    <string name="settings_deltachat_section">DeltaChat</string>
+    <string name="settings_connect_deltachat_summary">Connecter un compte email via le protocole DeltaChat</string>
+    <string name="login_splash_protocol_section">Choisir le protocole</string>
+    <string name="login_splash_matrix_desc">Protocole fédéré Matrix</string>
+    <string name="login_splash_delta_desc">Chat par email avec chiffrement Autocrypt E2EE</string>
+    <string name="bottom_action_delta">DeltaChat</string>
+    <string name="delta_auth">Connexion DeltaChat</string>
+    <string name="delta_chat_list">DeltaChat</string>
+
 </resources>

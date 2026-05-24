@@ -102,8 +102,8 @@ class LemmyPostDetailViewModel @AssistedInject constructor(
     }
 
     private fun handleVotePost(score: Int) {
-        val post = awaitState().post ?: return
         viewModelScope.launch {
+            val post = awaitState().post ?: return@launch
             withContext(Dispatchers.IO) {
                 val sessions = sessionHolder.getAllSessions()
                 sessions.firstOrNull()?.let { session ->
@@ -144,11 +144,10 @@ class LemmyPostDetailViewModel @AssistedInject constructor(
     }
 
     private fun handleSendReply() {
-        val text = awaitState().replyText.trim()
-        if (text.isEmpty()) return
-        val post = awaitState().post ?: return
-
         viewModelScope.launch {
+            val text = awaitState().replyText.trim()
+            if (text.isEmpty()) return@launch
+            val post = awaitState().post ?: return@launch
             withContext(Dispatchers.IO) {
                 val sessions = sessionHolder.getAllSessions()
                 sessions.firstOrNull()?.let { session ->

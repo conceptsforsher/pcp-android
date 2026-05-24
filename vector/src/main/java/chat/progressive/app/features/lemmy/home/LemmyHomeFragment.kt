@@ -72,7 +72,11 @@ class LemmyHomeFragment :
                     showErrorInSnackbar(event.throwable)
                 }
                 is LemmyHomeViewEvents.OpenPost -> {
-                    // TODO: open post detail
+                    val fragment = LemmyPostDetailFragment.newInstance(event.post)
+                    parentFragmentManager.beginTransaction()
+                        .replace(im.vector.app.R.id.roomListContainer, fragment)
+                        .addToBackStack(null)
+                        .commit()
                 }
                 is LemmyHomeViewEvents.OpenCommunity -> {
                     // TODO: open community detail

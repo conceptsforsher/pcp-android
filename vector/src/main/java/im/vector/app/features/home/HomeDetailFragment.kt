@@ -324,6 +324,7 @@ class HomeDetailFragment :
                 R.id.bottom_action_people -> HomeTab.RoomList(RoomListDisplayMode.PEOPLE)
                 R.id.bottom_action_rooms -> HomeTab.RoomList(RoomListDisplayMode.ROOMS)
                 R.id.bottom_action_notification -> HomeTab.RoomList(RoomListDisplayMode.NOTIFICATIONS)
+                R.id.bottom_action_lemmy -> HomeTab.RoomList(RoomListDisplayMode.LEMMY)
                 else -> HomeTab.DialPad
             }
             viewModel.handle(HomeDetailAction.SwitchTab(tab))
@@ -440,6 +441,7 @@ class HomeDetailFragment :
         is HomeTab.RoomList -> when (displayMode) {
             RoomListDisplayMode.PEOPLE -> R.id.bottom_action_people
             RoomListDisplayMode.ROOMS -> R.id.bottom_action_rooms
+            RoomListDisplayMode.LEMMY -> R.id.bottom_action_lemmy
             else -> R.id.bottom_action_notification
         }
     }

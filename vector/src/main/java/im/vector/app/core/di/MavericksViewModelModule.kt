@@ -123,6 +123,7 @@ import im.vector.app.features.widgets.WidgetViewModel
 import im.vector.app.features.widgets.permissions.RoomWidgetPermissionViewModel
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
 import im.vector.app.features.workers.signout.SignoutCheckViewModel
+import chat.progressive.app.features.lemmy.home.LemmyHomeViewModel
 
 @InstallIn(MavericksViewModelComponent::class)
 @Module
@@ -706,4 +707,9 @@ interface MavericksViewModelModule {
     @IntoMap
     @MavericksViewModelKey(NewHomeDetailViewModel::class)
     fun newHomeDetailViewModelFactory(factory: NewHomeDetailViewModel.Factory): MavericksAssistedViewModelFactory<*, *>
+
+    @Binds
+    @IntoMap
+    @MavericksViewModelKey(LemmyHomeViewModel::class)
+    fun lemmyHomeViewModelFactory(factory: LemmyHomeViewModel.Factory): MavericksAssistedViewModelFactory<*, *>
 }

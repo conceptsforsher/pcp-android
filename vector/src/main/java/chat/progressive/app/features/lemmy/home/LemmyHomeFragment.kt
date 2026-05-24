@@ -30,6 +30,19 @@ class LemmyHomeFragment :
         super.onViewCreated(view, savedInstanceState)
 
         setupToolbar(views.toolbar).allowBack()
+        views.toolbar.inflateMenu(im.vector.app.R.menu.home_bottom_navigation)
+        views.toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                im.vector.app.R.id.bottom_action_lemmy -> {
+                    parentFragmentManager.beginTransaction()
+                        .replace(im.vector.app.R.id.roomListContainer, LemmyInboxFragment())
+                        .addToBackStack(null)
+                        .commit()
+                    true
+                }
+                else -> false
+            }
+        }
 
         postAdapter = LemmyPostAdapter(
             onPostClick = { viewModel.handle(LemmyHomeAction.SelectPost(it)) },

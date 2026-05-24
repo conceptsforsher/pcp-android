@@ -3,11 +3,11 @@ package chat.progressive.app.features.lemmy.home
 import androidx.lifecycle.viewModelScope
 import chat.progressive.app.lemmy.LemmySessionHolder
 import com.airbnb.mvrx.MavericksViewModelFactory
-import com.airbnb.mvrx.hilt.AssistedViewModelFactory
-import com.airbnb.mvrx.hilt.hiltMavericksViewModelFactory
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import im.vector.app.core.di.MavericksAssistedViewModelFactory
+import im.vector.app.core.di.hiltMavericksViewModelFactory
 import im.vector.app.core.platform.VectorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,7 +21,7 @@ class LemmyHomeViewModel @AssistedInject constructor(
 ) : VectorViewModel<LemmyHomeViewState, LemmyHomeAction, LemmyHomeViewEvents>(initialState) {
 
     @AssistedFactory
-    interface Factory : AssistedViewModelFactory<LemmyHomeViewModel, LemmyHomeViewState> {
+    interface Factory : MavericksAssistedViewModelFactory<LemmyHomeViewModel, LemmyHomeViewState> {
         override fun create(initialState: LemmyHomeViewState): LemmyHomeViewModel
     }
 

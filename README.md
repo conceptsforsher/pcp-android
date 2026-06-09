@@ -1,5 +1,7 @@
 # 📈 Progressive Chat — Android
 
+> **Note:** This is a feature-branch repository. The primary development happens in [progressive-android](https://github.com/progressive-chat/progressive-android) — the main repository of the Progressive Chat project.
+
 A Matrix client in the making. The goal: a truly progressive messenger with a **pure C++ native** core.
 
 Currently an active fork of [Element](https://github.com/element-hq) Classic ([element-android](https://github.com/element-hq/element-android)). The Rust SDK (`matrix-rust-sdk`) is being removed in favor of pure C++ crypto via libolm. Kotlin/Java components are gradually replaced with native C++ — starting with real features.

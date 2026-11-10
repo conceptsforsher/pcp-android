@@ -2,9 +2,9 @@
 
 ## Overview
 
-A native C++ markdown-to-HTML renderer for Progressive Chat.
+A native C++ markdown-to-HTML renderer for PCP.
 Replaces the Kotlin-based Markwon library with a zero-dependency,
-LL(1) recursive descent parser compiled directly into `libprogressive_native.so`.
+LL(1) recursive descent parser compiled directly into `libpcp_native.so`.
 
 **Key advantages over Markwon/Java:**
 - **No GC pressure** — renders directly on the native heap
@@ -18,7 +18,7 @@ LL(1) recursive descent parser compiled directly into `libprogressive_native.so`
 Kotlin UI (TextView)
     │
     ▼
-ProgressiveNative.nativeMarkdownToHtml(md, enableTables)
+PcpNative.nativeMarkdownToHtml(md, enableTables)
     │
     ▼ JNI call
 markdown.cpp :: markdownToHtml()
@@ -56,7 +56,7 @@ Converts markdown string to HTML.
 - **Returns** — HTML string ready for `Html.fromHtml()`
 
 ```kotlin
-val html = ProgressiveNative.nativeMarkdownToHtml(
+val html = PcpNative.nativeMarkdownToHtml(
     "**Hello** *world*\n\n| A | B |\n|---|---|\n| 1 | 2 |",
     enableTables = true
 )
@@ -68,7 +68,7 @@ val html = ProgressiveNative.nativeMarkdownToHtml(
 Parses a single table block.
 
 ```kotlin
-val tableHtml = ProgressiveNative.nativeParseMarkdownTable(
+val tableHtml = PcpNative.nativeParseMarkdownTable(
     "| Name | Age |\n|------|-----|\n| Alice | 30 |",
     withScroll = true
 )
@@ -102,10 +102,10 @@ Measured on arm64-v8a, Release build. C++ is ~10x faster due to:
 
 ## Compilation
 
-Part of `libprogressive_native.so` via CMake:
+Part of `libpcp_native.so` via CMake:
 
 ```cmake
-add_library(progressive_native SHARED
+add_library(pcp_native SHARED
     ...
     src/markdown.cpp
     ...
@@ -115,13 +115,13 @@ add_library(progressive_native SHARED
 JNI bridge in `src/jni_bridge.cpp`:
 ```cpp
 JNIEXPORT jstring JNICALL
-Java_im_vector_app_features_jumptodate_ProgressiveNative_nativeMarkdownToHtml(
+Java_im_vector_app_features_jumptodate_PcpNative_nativeMarkdownToHtml(
     JNIEnv* env, jclass, jstring jMarkdown, jboolean jEnableTables
 ) {
     auto md = std::string(env->GetStringUTFChars(jMarkdown, nullptr));
     MdConfig config;
     config.enableTables = jEnableTables;
-    auto html = progressive::markdownToHtml(md, config);
+    auto html = pcp::markdownToHtml(md, config);
     return env->NewStringUTF(html.c_str());
 }
 ```
@@ -139,12 +139,12 @@ Java_im_vector_app_features_jumptodate_ProgressiveNative_nativeMarkdownToHtml(
 ```cpp
 // Unit test example
 void testMarkdownBold() {
-    auto result = progressive::markdownToHtml("**hello**");
+    auto result = pcp::markdownToHtml("**hello**");
     assert(result == "<p><b>hello</b></p>\n");
 }
 
 void testMarkdownTable() {
-    auto result = progressive::markdownToHtml("| A | B |\n|---|---|\n| 1 | 2 |\n");
+    auto result = pcp::markdownToHtml("| A | B |\n|---|---|\n| 1 | 2 |\n");
     assert(result.find("<table") != std::string::npos);
     assert(result.find("<th>A</th>") != std::string::npos);
 }

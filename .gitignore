@@ -20,4 +20,4 @@
 /node_modules
 **/out/failures
 *.bak
-progressive/.cxx/
+pcp/.cxx/

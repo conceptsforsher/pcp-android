@@ -10,7 +10,7 @@
         <item name="android:paddingBottom">4dp</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">?vctr_fab_label_color</item>
-        <item name="android:background">@drawable/progressive_label_background</item>
+        <item name="android:background">@drawable/pcp_label_background</item>
     </style>
 
 </resources>

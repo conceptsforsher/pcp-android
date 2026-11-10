@@ -74,7 +74,7 @@ def collectProjects(predicate) {
 task generateCoverageReport(type: JacocoReport) {
     outputs.upToDateWhen { false }
     rootProject.apply plugin: 'jacoco'
-    def projects = collectProjects { ['progressive-app', 'progressive', 'matrix-sdk-android'].contains(it.name) }
+    def projects = collectProjects { ['pcp-app', 'pcp', 'matrix-sdk-android'].contains(it.name) }
     initializeReport(it, projects, excludes)
 }
 
@@ -86,6 +86,6 @@ task unitTestsWithCoverage(type: GradleBuild) {
 
 task instrumentationTestsWithCoverage(type: GradleBuild) {
     startParameter.projectProperties.coverage = "true"
-    startParameter.projectProperties['android.testInstrumentationRunnerArguments.notPackage'] = 'chat.progressive.app.ui'
-    tasks = [':progressive-app:connectedGplayDebugAndroidTest', ':vector:connectedDebugAndroidTest', 'matrix-sdk-android:connectedDebugAndroidTest']
+    startParameter.projectProperties['android.testInstrumentationRunnerArguments.notPackage'] = 'chat.pcp.app.ui'
+    tasks = [':pcp-app:connectedGplayDebugAndroidTest', ':vector:connectedDebugAndroidTest', 'matrix-sdk-android:connectedDebugAndroidTest']
 }

@@ -1,0 +1,27 @@
+/*
+ * Copyright 2022-2024 PCP
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-PCP
+ * Please see LICENSE files in the repository root for full details.
+ */
+
+package chat.pcp.app.features.location.live
+
+sealed class LiveLocationMessageBannerViewState(
+        open val bottomStartCornerRadiusInDp: Float,
+        open val bottomEndCornerRadiusInDp: Float,
+) {
+
+    data class Emitter(
+            override val bottomStartCornerRadiusInDp: Float,
+            override val bottomEndCornerRadiusInDp: Float,
+            val remainingTimeInMillis: Long,
+            val isStopButtonCenteredVertically: Boolean
+    ) : LiveLocationMessageBannerViewState(bottomStartCornerRadiusInDp, bottomEndCornerRadiusInDp)
+
+    data class Watcher(
+            override val bottomStartCornerRadiusInDp: Float,
+            override val bottomEndCornerRadiusInDp: Float,
+            val formattedLocalTimeOfEndOfLive: String,
+    ) : LiveLocationMessageBannerViewState(bottomStartCornerRadiusInDp, bottomEndCornerRadiusInDp)
+}

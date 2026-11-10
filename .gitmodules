@@ -1,3 +1,3 @@
 [submodule "vector/src/main/cpp/libolm"]
-	path = progressive/src/main/cpp/libolm
+	path = pcp/src/main/cpp/libolm
 	url = https://gitlab.matrix.org/matrix-org/olm.git

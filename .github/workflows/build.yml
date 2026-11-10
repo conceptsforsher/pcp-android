@@ -48,7 +48,7 @@ jobs:
         with:
           name: vector-${{ matrix.target }}-debug
           path: |
-            progressive-app/build/outputs/apk/*/debug/*.apk
+            pcp-app/build/outputs/apk/*/debug/*.apk
 
   release:
     name: Build unsigned GPlay APKs
@@ -85,16 +85,16 @@ jobs:
       - name: Upload Fdroid unsigned APK
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: progressive-v0.3.5-fdroid-arm32
+          name: pcp-v0.3.5-fdroid-arm32
           path: |
-            progressive-app/build/outputs/apk/fdroid/release/*.apk
+            pcp-app/build/outputs/apk/fdroid/release/*.apk
       - name: Publish to GitHub Release
         if: github.ref == 'refs/heads/main'
         run: |
           VERSION="v0.4.1"
           gh release delete "$VERSION-nightly" --cleanup-tag -y 2>/dev/null || true
           gh release create "$VERSION-nightly" \
-            --title "Progressive Chat v0.4.1 — Nightly Build" \
+            --title "PCP v0.4.1 — Nightly Build" \
             --target main \
             --notes "Automated nightly build from main branch. Commit: ${{ github.sha }}
 
@@ -109,7 +109,7 @@ jobs:
 
           APK: $VERSION-nightly — armeabi-v7a, F-Droid, unsigned" \
             --prerelease \
-            progressive-app/build/outputs/apk/fdroid/release/*.apk
+            pcp-app/build/outputs/apk/fdroid/release/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -121,7 +121,7 @@ jobs:
         id: download
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
-          name: progressive-v0.3.5-fdroid-arm32
+          name: pcp-v0.3.5-fdroid-arm32
       - name: Show apks in artifact
         run: ls -R ${STEPS_DOWNLOAD_OUTPUTS_DOWNLOAD_PATH}
         env:
@@ -130,7 +130,7 @@ jobs:
         uses: docker://exodusprivacy/exodus-standalone:latest
         with:
           # Don't fail when finding trackers so they can be reported later
-          args: /github/workspace/fdroid/release/progressive-fdroid-armeabi-v7a-release-unsigned.apk -j -o /github/workspace/exodus.json -e 0
+          args: /github/workspace/fdroid/release/pcp-fdroid-armeabi-v7a-release-unsigned.apk -j -o /github/workspace/exodus.json -e 0
       - name: Upload exodus json report
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:

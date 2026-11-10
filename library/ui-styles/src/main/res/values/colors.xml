@@ -2,8 +2,8 @@
 <resources>
 
     <!-- Error colors -->
-    <color name="progressive_warning_color_2">@color/palette_melon</color>
-    <color name="progressive_info_color">#2f9edb</color>
+    <color name="pcp_warning_color_2">@color/palette_melon</color>
+    <color name="pcp_info_color">#2f9edb</color>
 
     <!-- Notification view colors -->
     <color name="soft_resource_limit_exceeded">#2f9edb</color>

@@ -11,7 +11,7 @@ plugins {
 }
 
 android {
-    namespace "chat.progressive.lib.core.utils"
+    namespace "chat.pcp.lib.core.utils"
 
     compileSdk versions.compileSdk
     defaultConfig {

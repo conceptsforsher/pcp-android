@@ -1,8 +1,8 @@
-#include "progressive/translate.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/translate.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 std::string buildTranslateRequestBody(const TranslateRequest& request) {
     std::ostringstream json;
@@ -87,4 +87,4 @@ TranslateResult parseTranslateResponse(const std::string& responseBody, int http
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,11 +1,11 @@
-#include "progressive/event_encryption.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/event_encryption.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 EncryptionAlgorithm parseEncryptionAlgorithm(const std::string& algorithmStr) {
     EncryptionAlgorithm alg;
@@ -143,4 +143,4 @@ std::string formatSessionUsage(const SessionUsage& session) {
     return out.str();
 }
 
-} // namespace progressive
+} // namespace pcp

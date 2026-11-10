@@ -1,9 +1,9 @@
-#include "progressive/sync_analyzer.hpp"
+#include "pcp/sync_analyzer.hpp"
 #include <sstream>
 #include <algorithm>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 SyncStats analyzeSyncHistory(const std::vector<SyncEvent>& history) {
     SyncStats stats;
@@ -245,4 +245,4 @@ double getSyncSpeed(const SyncMetrics& metrics) {
     return static_cast<double>(metrics.totalEvents) / durationSec;
 }
 
-} // namespace progressive
+} // namespace pcp

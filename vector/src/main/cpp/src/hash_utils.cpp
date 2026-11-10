@@ -1,10 +1,10 @@
-#include "progressive/hash_utils.hpp"
+#include "pcp/hash_utils.hpp"
 #include <sstream>
 #include <iomanip>
 #include <cstring>
 #include <random>
 
-namespace progressive {
+namespace pcp {
 
 // ---- SHA-256 implementation ----
 
@@ -259,4 +259,4 @@ std::string base64ToUnpaddedBase64(const std::string& base64) {
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

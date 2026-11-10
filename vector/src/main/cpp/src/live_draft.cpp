@@ -1,6 +1,6 @@
-#include "progressive/live_draft.hpp"
+#include "pcp/live_draft.hpp"
 
-namespace progressive {
+namespace pcp {
 
 std::string liveDraftConfigToJson(const LiveDraftConfig& config) {
     return "{\"enabled\":" + std::string(config.enabled ? "true" : "false") +
@@ -73,4 +73,4 @@ LiveDraftConfig liveDraftConfigFromJson(const std::string& json) {
     return c;
 }
 
-} // namespace progressive
+} // namespace pcp

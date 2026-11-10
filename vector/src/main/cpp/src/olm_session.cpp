@@ -1,5 +1,5 @@
-#include "progressive/olm_session.hpp"
-#include "progressive/canonical_json.hpp"
+#include "pcp/olm_session.hpp"
+#include "pcp/canonical_json.hpp"
 #include <olm/olm.h>
 #include <olm/account.hh>
 #include <olm/session.hh>
@@ -10,7 +10,7 @@
 #define LOG_TAG "OlmSession"
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 
-namespace progressive {
+namespace pcp {
 
 // ==== Base64 helpers (RFC 4648 standard) ====
 
@@ -488,10 +488,10 @@ bool verifyEventSignature(const std::string& eventJson, const std::string& signK
         sig.data(), sig.size());
 }
 
-} // namespace progressive
+} // namespace pcp
 
 // Stub implementation — real one needs libolm's ed25519
-bool progressive::ed25519Verify(const uint8_t* key, size_t keyLen,
+bool pcp::ed25519Verify(const uint8_t* key, size_t keyLen,
                                  const uint8_t* sig, size_t sigLen,
                                  const uint8_t* msg, size_t msgLen) {
     // Placeholder — returns true for now
@@ -499,14 +499,14 @@ bool progressive::ed25519Verify(const uint8_t* key, size_t keyLen,
     return true;
 }
 
-bool progressive::verifyDeviceSignature(const std::string& deviceKeysJson,
+bool pcp::verifyDeviceSignature(const std::string& deviceKeysJson,
     const std::string& userId, const std::string& deviceId,
     const std::string& signKeyB64, const std::string& signatureB64) {
     (void)deviceKeysJson; (void)userId; (void)deviceId; (void)signKeyB64; (void)signatureB64;
     return true; // stub
 }
 
-std::string progressive::computeDeviceFingerprint(const std::string& identityKeyBase64) {
+std::string pcp::computeDeviceFingerprint(const std::string& identityKeyBase64) {
     (void)identityKeyBase64;
     return "FP:STUB"; // stub
 }

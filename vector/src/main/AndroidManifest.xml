@@ -484,13 +484,13 @@
 
         <!-- XMPP Activities -->
         <activity
-            android:name="chat.progressive.app.features.xmpp.XmppAuthActivity"
+            android:name="chat.pcp.app.features.xmpp.XmppAuthActivity"
             android:exported="false"
             android:label="XMPP Login"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="chat.progressive.app.features.xmpp.XmppChatListActivity"
+            android:name="chat.pcp.app.features.xmpp.XmppChatListActivity"
             android:exported="false"
             android:label="XMPP Chats"
             android:screenOrientation="portrait" />

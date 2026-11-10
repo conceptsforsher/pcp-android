@@ -1,8 +1,8 @@
-#include "progressive/mention_parser.hpp"
+#include "pcp/mention_parser.hpp"
 #include <regex>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 ParsedMentions parseMentions(const std::string& body, const std::string& formattedBody) {
     ParsedMentions result;
@@ -104,4 +104,4 @@ std::string resolveMentionDisplayName(const std::string& userId,
     return userId; // fallback to MXID
 }
 
-} // namespace progressive
+} // namespace pcp

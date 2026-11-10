@@ -1,9 +1,9 @@
-#include "progressive/pin_manager.hpp"
+#include "pcp/pin_manager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -312,4 +312,4 @@ int PinManagerFull::totalPinnedEvents() const {
     return total;
 }
 
-} // namespace progressive
+} // namespace pcp

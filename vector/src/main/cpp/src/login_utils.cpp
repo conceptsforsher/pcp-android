@@ -1,12 +1,12 @@
-#include "progressive/login_utils.hpp"
-#include "progressive/json_parser.hpp"
-#include "progressive/url_tools.hpp"
+#include "pcp/login_utils.hpp"
+#include "pcp/json_parser.hpp"
+#include "pcp/url_tools.hpp"
 #include <sstream>
 #include <regex>
 #include <algorithm>
 #include <random>
 
-namespace progressive {
+namespace pcp {
 
 std::vector<LoginFlow> parseLoginFlowsList(const std::string& apiResponseJson) {
     std::vector<LoginFlow> flows;
@@ -127,7 +127,7 @@ int getRateLimitRetrySeconds(const std::string& responseJson) {
 std::string generateDeviceName(const std::string& model, const std::string& osVersion) {
     if (!model.empty() && !osVersion.empty()) return model + " (" + osVersion + ")";
     if (!model.empty()) return model;
-    return "Progressive Chat";
+    return "PCP";
 }
 
 std::string generateDeviceId() {
@@ -142,7 +142,7 @@ std::string generateDeviceId() {
 
 std::string parseDeviceName(const std::string& userAgent) {
     // Extract meaningful name from UA
-    auto pos = userAgent.find("Progressive");
+    auto pos = userAgent.find("PCP");
     if (pos != std::string::npos) return userAgent.substr(pos);
     pos = userAgent.find("Element");
     if (pos != std::string::npos) return userAgent.substr(pos);
@@ -296,4 +296,4 @@ bool requiresOidc(const WellKnownResult& /*wk*/) {
     return false;
 }
 
-} // namespace progressive
+} // namespace pcp

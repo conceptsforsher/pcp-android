@@ -1,9 +1,9 @@
-#include "progressive/room_directory_manager.hpp"
+#include "pcp/room_directory_manager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Enum conversions ======
 
@@ -327,4 +327,4 @@ std::string RoomDirectoryManager::aliasResultToJson(const AliasAvailabilityResul
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,8 +1,8 @@
-#include "progressive/well_known.hpp"
+#include "pcp/well_known.hpp"
 #include <sstream>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ---- JSON parser for well-known response ----
 // Original Kotlin (WellKnown.kt):
@@ -181,4 +181,4 @@ bool needsWellKnownLookup(const std::string& serverInput) {
     return true;
 }
 
-} // namespace progressive
+} // namespace pcp

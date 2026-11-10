@@ -1,9 +1,9 @@
-#include "progressive/user_directory.hpp"
+#include "pcp/user_directory.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -287,4 +287,4 @@ std::string UserDirectoryManager::responseToJson(const UserSearchResponse& respo
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

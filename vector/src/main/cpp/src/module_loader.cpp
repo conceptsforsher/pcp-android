@@ -1,4 +1,4 @@
-#include "progressive/module_loader.hpp"
+#include "pcp/module_loader.hpp"
 #include <sstream>
 #include <algorithm>
 #include <dirent.h>
@@ -9,13 +9,13 @@
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace progressive {
+namespace pcp {
 
-bool isProgressiveModule(const std::string& soPath) {
-    // Check if .so exports progressive_module_init symbol
+bool isPcpModule(const std::string& soPath) {
+    // Check if .so exports pcp_module_init symbol
     void* handle = dlopen(soPath.c_str(), RTLD_NOW | RTLD_NOLOAD);
     if (!handle) return false;
-    bool result = dlsym(handle, "progressive_module_init") != nullptr;
+    bool result = dlsym(handle, "pcp_module_init") != nullptr;
     dlclose(handle);
     return result;
 }
@@ -23,7 +23,7 @@ bool isProgressiveModule(const std::string& soPath) {
 std::string extractModuleVersion(const std::string& soPath) {
     void* handle = dlopen(soPath.c_str(), RTLD_NOW | RTLD_NOLOAD);
     if (!handle) return "unknown";
-    auto versionFunc = reinterpret_cast<const char*(*)()>(dlsym(handle, "progressive_module_version"));
+    auto versionFunc = reinterpret_cast<const char*(*)()>(dlsym(handle, "pcp_module_version"));
     std::string version = versionFunc ? versionFunc() : "unknown";
     dlclose(handle);
     return version;
@@ -39,14 +39,14 @@ void ModuleLoader::scanDirectory(const std::string& dirPath) {
     struct dirent* entry;
     while ((entry = readdir(dir)) != nullptr) {
         std::string name(entry->d_name);
-        // Look for lib*.so files that are Progressive modules
+        // Look for lib*.so files that are PCP modules
         if (name.size() > 3 && name.rfind(".so") == name.size() - 3 &&
-            name.rfind("libprogressive_", 0) == 0) {
+            name.rfind("libpcp_", 0) == 0) {
             std::string fullPath = dirPath + "/" + name;
 
-            if (isProgressiveModule(fullPath)) {
-                // Extract module name: libprogressive_messagecontextmenu.so → messagecontextmenu
-                std::string moduleName = name.substr(14, name.size() - 17); // strip "libprogressive_" and ".so"
+            if (isPcpModule(fullPath)) {
+                // Extract module name: libpcp_messagecontextmenu.so → messagecontextmenu
+                std::string moduleName = name.substr(14, name.size() - 17); // strip "libpcp_" and ".so"
                 ModuleInfo info;
                 info.name = moduleName;
                 info.soPath = fullPath;
@@ -123,4 +123,4 @@ void ModuleLoader::unloadAll() {
     }
 }
 
-} // namespace progressive
+} // namespace pcp

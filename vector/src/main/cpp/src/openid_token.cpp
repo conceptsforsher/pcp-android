@@ -1,7 +1,7 @@
-#include "progressive/openid_token.hpp"
+#include "pcp/openid_token.hpp"
 #include <cstring>
 
-namespace progressive {
+namespace pcp {
 
 // Manual JSON parsing for OpenID token response.
 //
@@ -78,4 +78,4 @@ std::string openIdTokenToJson(const OpenIdToken& token) {
     return json;
 }
 
-} // namespace progressive
+} // namespace pcp

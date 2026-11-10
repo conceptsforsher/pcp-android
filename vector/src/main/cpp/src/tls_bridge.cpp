@@ -1,8 +1,8 @@
-#include "progressive/tls_bridge.hpp"
+#include "pcp/tls_bridge.hpp"
 #include <cstring>
 #include <jni.h>
 
-namespace progressive {
+namespace pcp {
 
 // Cached JavaVM and method IDs for JNI callbacks
 static JavaVM* gJvm = nullptr;
@@ -16,8 +16,8 @@ bool tlsBridgeInit(void* jniEnv) {
     // Cache the JavaVM
     if (env->GetJavaVM(&gJvm) != JNI_OK) return false;
 
-    // Find the bridge class — defined in ProgressiveNative.kt as companion
-    jclass localClass = env->FindClass("im/vector/app/features/jumptodate/ProgressiveNative");
+    // Find the bridge class — defined in PcpNative.kt as companion
+    jclass localClass = env->FindClass("im/vector/app/features/jumptodate/PcpNative");
     if (!localClass) return false;
 
     gBridgeClass = static_cast<jclass>(env->NewGlobalRef(localClass));
@@ -44,7 +44,7 @@ static JNIEnv* getJniEnv() {
         // Attach the current thread
         JavaVMAttachArgs args;
         args.version = JNI_VERSION_1_6;
-        args.name = "ProgressiveTLS";
+        args.name = "PcpTLS";
         args.group = nullptr;
 
         if (gJvm->AttachCurrentThread(&env, &args) == JNI_OK) {
@@ -72,7 +72,7 @@ std::string tlsBridgeRequest(
     jstring jHost = env->NewStringUTF(host.c_str());
     jstring jRequest = env->NewStringUTF(request.c_str());
 
-    // Call static method: ProgressiveNative.nativeTlsRequest(host, port, request, timeoutMs)
+    // Call static method: PcpNative.nativeTlsRequest(host, port, request, timeoutMs)
     jstring jResult = static_cast<jstring>(env->CallStaticObjectMethod(
         gBridgeClass,
         gRequestMethod,
@@ -108,4 +108,4 @@ std::string tlsBridgeRequest(
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

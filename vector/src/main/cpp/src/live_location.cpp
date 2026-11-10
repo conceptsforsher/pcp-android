@@ -1,11 +1,11 @@
-#include "progressive/live_location.hpp"
+#include "pcp/live_location.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cmath>
 #include <ctime>
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Utility helpers ======
 
@@ -731,4 +731,4 @@ int LiveLocationManager::totalUpdateCount() const {
     return totalUpdates_;
 }
 
-} // namespace progressive
+} // namespace pcp

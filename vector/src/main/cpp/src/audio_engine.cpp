@@ -1,9 +1,9 @@
-#include "progressive/audio_engine.hpp"
+#include "pcp/audio_engine.hpp"
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 std::string formatPositionInfo(int64_t positionMs, int64_t durationMs) {
     return formatDuration(positionMs) + " / " + formatDuration(durationMs);
@@ -45,4 +45,4 @@ std::string mimeToExtension(const std::string& mimeType) {
     return "";
 }
 
-} // namespace progressive
+} // namespace pcp

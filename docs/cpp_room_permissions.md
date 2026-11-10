@@ -96,7 +96,7 @@ Returns "Admin", "Moderator", or "Member" based on PL.
 ## JNI API
 
 ```kotlin
-val role = ProgressiveNative.nativeGetSuggestedRole(plJson, userId)
+val role = PcpNative.nativeGetSuggestedRole(plJson, userId)
 // → "Admin"
 ```
 

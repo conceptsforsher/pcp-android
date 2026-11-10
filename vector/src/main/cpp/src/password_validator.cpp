@@ -1,11 +1,11 @@
-#include "progressive/password_validator.hpp"
+#include "pcp/password_validator.hpp"
 #include <sstream>
 #include <cmath>
 #include <cctype>
 #include <algorithm>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 PasswordResult validatePassword(const std::string& password) {
     PasswordResult result;
@@ -163,4 +163,4 @@ std::string formatCrackTime(double seconds) {
     return "centuries";
 }
 
-} // namespace progressive
+} // namespace pcp

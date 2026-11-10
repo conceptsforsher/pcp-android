@@ -1,8 +1,8 @@
-#include "progressive/desync_detector.hpp"
+#include "pcp/desync_detector.hpp"
 #include <sstream>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 void DesyncDetector::trackEvent(const std::string& eventId, const std::string& serverName, int64_t timestamp) {
     serverEvents_[serverName].insert(eventId);
@@ -255,4 +255,4 @@ std::string getDesyncRecoveryAction(const DesyncCheckResult& result) {
     return getDesyncRecoveryAction(diagnoseDesyncCause(result));
 }
 
-} // namespace progressive
+} // namespace pcp

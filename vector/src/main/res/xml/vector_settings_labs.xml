@@ -555,7 +555,7 @@
         android:summary="@string/labs_enable_location_sharing_summary"
         android:title="@string/labs_enable_location_sharing" />
 
-    <!-- === Progressive Chat: Room Counting === -->
+    <!-- === PCP: Room Counting === -->
 
     <im.vector.app.core.preference.VectorSwitchPreference
         android:defaultValue="false"
@@ -664,7 +664,7 @@
         android:entries="@array/notification_icon_style_entries"
         android:entryValues="@array/notification_icon_style_values"
         android:key="SETTINGS_NOTIFICATION_ICON_STYLE"
-        android:summary="Choose notification icon: Element (default), Faraday/ShieldChat, or Progressive chart"
+        android:summary="Choose notification icon: Element (default), Faraday/ShieldChat, or PCP chart"
         android:title="Notification icon style" />
 
     <im.vector.app.core.preference.VectorSwitchPreference

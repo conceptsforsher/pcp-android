@@ -1,11 +1,11 @@
-#include "progressive/account_utils.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/account_utils.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <regex>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 PasswordValidation validateAccountPassword(const std::string& password, const std::string& username, int minLength) {
     PasswordValidation result;
@@ -166,4 +166,4 @@ std::string parseThreePidSid(const std::string& responseJson) {
     return parseJsonStringValue(responseJson, "sid");
 }
 
-} // namespace progressive
+} // namespace pcp

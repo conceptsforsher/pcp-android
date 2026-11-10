@@ -1,6 +1,6 @@
-#include "progressive/signout_service.hpp"
+#include "pcp/signout_service.hpp"
 
-namespace progressive {
+namespace pcp {
 
 // ==== Error classification for sign out ====
 //
@@ -30,7 +30,7 @@ SignOutResult processSignOut(const SignOutParams& params) {
     // Original Kotlin: sign out from homeserver if requested
     if (params.signOutFromHomeserver) {
         result.signOutSent = true;
-        // Note: actual HTTP call happens at Kotlin layer via ProgressiveNative.
+        // Note: actual HTTP call happens at Kotlin layer via PcpNative.
         // Here we just track the intent. The Kotlin fallback handles the actual
         // POST /_matrix/client/r0/logout call.
 
@@ -148,4 +148,4 @@ SignInAgainResult parseLoginResponse(const std::string& json, const std::string&
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

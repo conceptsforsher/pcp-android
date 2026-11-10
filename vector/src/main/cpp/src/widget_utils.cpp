@@ -1,10 +1,10 @@
-#include "progressive/widget_utils.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/widget_utils.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <regex>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 WidgetInfo parseWidgetStateContent(const std::string& stateContentJson, const std::string& widgetId, const std::string& roomId) {
     WidgetInfo w;
@@ -135,4 +135,4 @@ std::string formatPermissionRequest(const std::string& widgetName, const std::st
     return out.str();
 }
 
-} // namespace progressive
+} // namespace pcp

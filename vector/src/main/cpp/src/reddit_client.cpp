@@ -1,8 +1,8 @@
-#include "progressive/reddit_client.hpp"
+#include "pcp/reddit_client.hpp"
 #include <sstream>
 #include <cstring>
 
-namespace progressive {
+namespace pcp {
 namespace reddit {
 
 // Simple JSON string builder (no dependency on heavy JSON library)
@@ -348,4 +348,4 @@ std::string RedditClient::parseUserAbout(const std::string& rawJson) {
 }
 
 } // namespace reddit
-} // namespace progressive
+} // namespace pcp

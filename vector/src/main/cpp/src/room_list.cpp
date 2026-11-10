@@ -1,8 +1,8 @@
-#include "progressive/room_list.hpp"
+#include "pcp/room_list.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 std::string assignRoomSection(const RoomListItem& room) {
     if (room.isInvited) return "Invites";
@@ -155,4 +155,4 @@ std::string notificationStateToJson(const NotificationState& state) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

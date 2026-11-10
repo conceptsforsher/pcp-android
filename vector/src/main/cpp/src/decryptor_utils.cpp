@@ -1,8 +1,8 @@
-#include "progressive/decryptor_utils.hpp"
+#include "pcp/decryptor_utils.hpp"
 #include <algorithm>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================================
 // DecryptionQueue
@@ -326,4 +326,4 @@ std::string selectMemberContent(
     return content;
 }
 
-} // namespace progressive
+} // namespace pcp

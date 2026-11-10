@@ -1,9 +1,9 @@
 /*
- * Progressive Chat — FDroid flavor.
- * Application ID: chat.progressive.app
+ * PCP — FDroid flavor.
+ * Application ID: chat.pcp.app
  *
  * Original SPDX: Element contributors (2019-2024 New Vector Ltd, AGPL-3.0-only)
- * Forked and extended by Anton Maurer for Progressive Chat (2026).
+ * Forked and extended by Anton Maurer for PCP (2026).
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */

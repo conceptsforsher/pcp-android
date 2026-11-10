@@ -1,10 +1,10 @@
-#include "progressive/string_utils.hpp"
+#include "pcp/string_utils.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 #include <regex>
 
-namespace progressive {
+namespace pcp {
 
 std::string sanitizeRoomName(const std::string& input) {
     std::string result;
@@ -95,4 +95,4 @@ std::string formatCountToShortDecimal(int64_t value) {
     return std::to_string(value);
 }
 
-} // namespace progressive
+} // namespace pcp

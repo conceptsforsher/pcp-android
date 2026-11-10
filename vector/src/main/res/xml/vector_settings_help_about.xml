@@ -16,12 +16,12 @@
         <im.vector.app.core.preference.VectorPreference
             android:key="SETTINGS_VERSION_PREFERENCE_KEY"
             android:title="@string/settings_version"
-            tools:summary="Progressive Chat (development)" />
+            tools:summary="PCP (development)" />
 
         <im.vector.app.core.preference.VectorPreference
             android:key="SETTINGS_NATIVE_CORE_VERSION_KEY"
             android:title="Native Core (C++)"
-            tools:summary="libprogressive_native.so — 95 modules" />
+            tools:summary="libpcp_native.so — 95 modules" />
 
         <im.vector.app.core.preference.VectorPreference
             android:key="SETTINGS_SDK_VERSION_PREFERENCE_KEY"

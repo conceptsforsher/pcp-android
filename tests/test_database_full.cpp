@@ -2,10 +2,10 @@
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
-#include "progressive/database.hpp"
-#include "progressive/store_utils.hpp"
+#include "pcp/database.hpp"
+#include "pcp/store_utils.hpp"
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(DatabaseTest, Scenario1) {
@@ -5358,4 +5358,4 @@ TEST(DatabaseTest, Scenario50) {
     ASSERT_NO_THROW({{ auto d = syncData.dump(); }});
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

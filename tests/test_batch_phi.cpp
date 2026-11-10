@@ -2,7 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(BPhiTest, T1) {
@@ -915,4 +915,4 @@ TEST(BPhiTest, T35) {
     ASSERT_EQ(p["evs"].size(), 5);
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

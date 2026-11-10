@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="chat.progressive.app">
+    package="chat.pcp.app">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -19,11 +19,11 @@
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <application
-        android:name=".ProgressiveApplication"
+        android:name=".PcpApplication"
         android:allowBackup="true"
-        android:label="Progressive Chat"
+        android:label="PCP"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Progressive"
+        android:theme="@style/Theme.PCP"
         android:networkSecurityConfig="@xml/network_security_config"
         android:hardwareAccelerated="true"
         android:extractNativeLibs="true">
@@ -51,7 +51,7 @@
         </activity>
 
         <service
-            android:name=".ProgressiveService"
+            android:name=".PcpService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
 

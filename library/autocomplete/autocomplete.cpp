@@ -7,7 +7,7 @@
 #define AC_LOG_TAG "Autocomplete"
 #define AC_LOGI(...) __android_log_print(ANDROID_LOG_INFO, AC_LOG_TAG, __VA_ARGS__)
 
-namespace progressive::autocomplete {
+namespace pcp::autocomplete {
 
 AutocompleteEngine::AutocompleteEngine() = default;
 AutocompleteEngine::~AutocompleteEngine() = default;
@@ -238,4 +238,4 @@ std::string EmojiProvider::shortcodeToUnicode(const std::string& shortcode) {
     return it != m_shortcodeMap.end() ? it->second.unicode : shortcode;
 }
 
-} // namespace progressive::autocomplete
+} // namespace pcp::autocomplete

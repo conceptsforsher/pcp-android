@@ -239,7 +239,7 @@ struct ConnectionPoolConfig {
 
 struct HttpClientConfig {
     std::string baseUrl;
-    std::string userAgent = "ProgressiveMatrix/0.3.0";
+    std::string userAgent = "PcpMatrix/0.3.0";
     int defaultTimeoutMs = 30000;
     RetryPolicy retryPolicy;
     ConnectionPoolConfig connectionPool;

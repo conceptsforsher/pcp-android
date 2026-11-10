@@ -7,7 +7,7 @@
 #include <memory>
 #include <unordered_map>
 
-// ── UI Renderer for Progressive Chat ──
+// ── UI Renderer for PCP ──
 // Pure C++ OpenGL ES 3.0 renderer (no Qt dependency)
 
 class UIRenderer {

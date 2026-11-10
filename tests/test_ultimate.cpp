@@ -2,7 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 TEST(Ultimate,T1){json t;for(int e=0;e<4;++e){json v;v["eid"]="$ult_"+std::to_string(0)+"_"+std::to_string(e)+":m";v["c"]["b"]="U"+std::to_string(e);t["evs"].push_back(v);ASSERT_FALSE(v["eid"].empty());}ASSERT_EQ(t["evs"].size(),4);auto d=t.dump();ASSERT_FALSE(d.empty());auto p=json::parse(d);ASSERT_EQ(p["evs"].size(),4);}
 TEST(Ultimate,T2){json t;for(int e=0;e<4;++e){json v;v["eid"]="$ult_"+std::to_string(1)+"_"+std::to_string(e)+":m";v["c"]["b"]="U"+std::to_string(e);t["evs"].push_back(v);ASSERT_FALSE(v["eid"].empty());}ASSERT_EQ(t["evs"].size(),4);auto d=t.dump();ASSERT_FALSE(d.empty());auto p=json::parse(d);ASSERT_EQ(p["evs"].size(),4);}

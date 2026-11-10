@@ -1,8 +1,8 @@
-# Progressive Chat — Concept (100% C++ Rewrite)
+# PCP — Concept (100% C++ Rewrite)
 
-> **Note:** This is a feature-branch repository. The primary development happens in [progressive-android](https://github.com/progressive-chat/progressive-android) — the main repository of the Progressive Chat project.
+> **Note:** This is a feature-branch repository. The primary development happens in [pcp-android](https://github.com/pcp-chat/pcp-android) — the main repository of the PCP project.
 
-A concept repository for a 100% C++ rewrite of the Progressive Chat Android client — exploring pure native architecture with zero JVM dependencies.
+A concept repository for a 100% C++ rewrite of the PCP Android client — exploring pure native architecture with zero JVM dependencies.
 
 ## Goals
 
@@ -13,5 +13,5 @@ A concept repository for a 100% C++ rewrite of the Progressive Chat Android clie
 
 ## Related
 
-- [Progressive Android](https://github.com/progressive-chat/progressive-android) — the main repository
-- [progressive.chat](https://progressive.chat) — project website
+- [PCP Android](https://github.com/pcp-chat/pcp-android) — the main repository
+- [pcp.chat](https://pcp.chat) — project website

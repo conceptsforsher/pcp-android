@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <algorithm>
 
-namespace progressive::jsonviewer {
+namespace pcp::jsonviewer {
 
 JsonViewer::JsonViewer() = default;
 JsonViewer::~JsonViewer() = default;
@@ -146,4 +146,4 @@ size_t JsonViewer::estimateSize(const json& value) {
     return value.dump().size();
 }
 
-} // namespace progressive::jsonviewer
+} // namespace pcp::jsonviewer

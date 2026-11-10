@@ -15,12 +15,12 @@
 #include <unordered_set>
 #include <cstring>
 
-#define LOG_TAG "ProgressiveUIStrings"
+#define LOG_TAG "PcpUIStrings"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace progressive {
+namespace pcp {
 namespace library {
 
 using json = nlohmann::json;
@@ -455,4 +455,4 @@ template std::string UIStrings::formatString<unsigned int>(const std::string&, u
 template std::string UIStrings::formatString<double>(const std::string&, double&&) const;
 
 } // namespace library
-} // namespace progressive
+} // namespace pcp

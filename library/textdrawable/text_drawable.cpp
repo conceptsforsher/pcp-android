@@ -6,7 +6,7 @@
 #define TD_LOG_TAG "TextDrawable"
 #define TD_LOGI(...) __android_log_print(ANDROID_LOG_INFO, TD_LOG_TAG, __VA_ARGS__)
 
-namespace progressive::textdrawable {
+namespace pcp::textdrawable {
 
 // Material Design color palette for avatars
 std::vector<ColorConfig> TextDrawable::s_palette = {
@@ -154,4 +154,4 @@ void TextDrawable::drawText(std::vector<uint8_t>& bitmap, const std::string& tex
     (void)bitmap; (void)text; (void)fontSize; (void)color;
 }
 
-} // namespace progressive::textdrawable
+} // namespace pcp::textdrawable

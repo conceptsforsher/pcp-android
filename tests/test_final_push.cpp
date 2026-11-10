@@ -2,7 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
-namespace progressive { namespace test { using json = nlohmann::json;
+namespace pcp { namespace test { using json = nlohmann::json;
 
 TEST(FinalPush,T1){
   json t;t["i"]=0;t["r"]="!fr_0:m";

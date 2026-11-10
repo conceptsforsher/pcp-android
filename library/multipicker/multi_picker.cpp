@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <regex>
 
-namespace progressive::multipicker {
+namespace pcp::multipicker {
 
 MultiPicker::MultiPicker(const PickerConfig& config) : m_config(config) {}
 MultiPicker::~MultiPicker() = default;
@@ -113,4 +113,4 @@ bool FileUtils::isReadable(const std::string& path, int64_t maxSize) {
     } catch (...) { return false; }
 }
 
-} // namespace progressive::multipicker
+} // namespace pcp::multipicker

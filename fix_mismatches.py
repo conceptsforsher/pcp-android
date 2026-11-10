@@ -9,9 +9,9 @@ import os
 import re
 from pathlib import Path
 
-PROGRESSIVE_DIR = Path("/tmp/concept-repo/progressive")
-SRC_DIR = PROGRESSIVE_DIR / "src"
-INCLUDE_DIR = PROGRESSIVE_DIR / "include" / "progressive"
+PCP_DIR = Path("/tmp/concept-repo/pcp")
+SRC_DIR = PCP_DIR / "src"
+INCLUDE_DIR = PCP_DIR / "include" / "pcp"
 
 def extract_header_info(header_path):
     """Parse a header to extract all declarations."""
@@ -24,7 +24,7 @@ def extract_header_info(header_path):
     
     info = {
         'includes': [],
-        'namespace': 'progressive',
+        'namespace': 'pcp',
         'functions': [],  # (return_type, name, params)
         'structs': [],
         'enums': [],
@@ -213,7 +213,7 @@ def rewrite_mismatch(cpp_path):
     info = extract_header_info(header_path)
     
     includes = [
-        f'#include "progressive/{base_name}.hpp"',
+        f'#include "pcp/{base_name}.hpp"',
         '#include <sstream>',
         '#include <algorithm>',
         '#include <regex>',
@@ -233,7 +233,7 @@ def rewrite_mismatch(cpp_path):
     lines = []
     lines.extend(includes)
     lines.append("")
-    lines.append("namespace progressive {")
+    lines.append("namespace pcp {")
     lines.append("")
     
     if info.get('has_json'):
@@ -253,7 +253,7 @@ def rewrite_mismatch(cpp_path):
             impl = generate_impl_for_function(base_name, ret_type, func_name, params)
             lines.append(impl)
     
-    lines.append("} // namespace progressive")
+    lines.append("} // namespace pcp")
     
     new_content = "\n".join(lines) + "\n"
     

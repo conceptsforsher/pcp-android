@@ -45,7 +45,7 @@ JNIEnv* AndroidBridge::getEnv() {
 // ── JNI helper: find our bridge class ──
 static jclass findBridgeClass(JNIEnv* env) {
     if (!env) return nullptr;
-    jclass cls = env->FindClass("chat/progressive/app/AndroidBridgeHelper");
+    jclass cls = env->FindClass("chat/pcp/app/AndroidBridgeHelper");
     if (!cls) {
         LOGE("AndroidBridgeHelper class not found!");
     }

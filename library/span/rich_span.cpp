@@ -3,7 +3,7 @@
 #include <sstream>
 #include <algorithm>
 
-namespace progressive::span {
+namespace pcp::span {
 
 RichSpanBuilder::RichSpanBuilder() = default;
 RichSpanBuilder::~RichSpanBuilder() = default;
@@ -177,4 +177,4 @@ std::string RichTextParser::escapeHtml(const std::string& text) const {
     return result;
 }
 
-} // namespace progressive::span
+} // namespace pcp::span

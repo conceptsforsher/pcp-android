@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(FederationTest, Scenario1) {
@@ -2254,4 +2254,4 @@ TEST(FederationTest, Scenario30) {
     ASSERT_NO_THROW({ auto d = signed.dump(); });
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

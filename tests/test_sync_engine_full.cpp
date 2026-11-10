@@ -2,10 +2,10 @@
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
-#include "progressive/sync_utils.hpp"
-#include "progressive/sync_filter.hpp"
+#include "pcp/sync_utils.hpp"
+#include "pcp/sync_filter.hpp"
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(SyncEngineTest, Scenario1) {
@@ -2073,4 +2073,4 @@ TEST(SyncEngineTest, Scenario35) {
     ASSERT_NO_THROW({ auto d = filter.dump(); });
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

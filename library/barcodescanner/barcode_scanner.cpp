@@ -5,7 +5,7 @@
 #define BS_LOGI(...) __android_log_print(ANDROID_LOG_INFO, BS_LOG_TAG, __VA_ARGS__)
 #define BS_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, BS_LOG_TAG, __VA_ARGS__)
 
-namespace progressive::barcodescanner {
+namespace pcp::barcodescanner {
 
 BarcodeScanner::BarcodeScanner(const ScannerConfig& config) : m_config(config) {
     if (m_config.enabledFormats.empty()) {
@@ -62,4 +62,4 @@ std::string BarcodeScanner::formatName(BarcodeFormat format) const {
     }
 }
 
-} // namespace progressive::barcodescanner
+} // namespace pcp::barcodescanner

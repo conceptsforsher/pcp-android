@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(CrossSigningFullTest, Scenario1) {
@@ -1566,4 +1566,4 @@ TEST(CrossSigningFullTest, Scenario30) {
     ASSERT_EQ(reparsed["events"].size(), 5);
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-namespace progressive::autocomplete {
+namespace pcp::autocomplete {
 
 enum class CompletionType { COMMAND, EMOJI, MEMBER, ROOM };
 
@@ -106,4 +106,4 @@ private:
     std::unordered_map<std::string, EmojiData> m_shortcodeMap;
 };
 
-} // namespace progressive::autocomplete
+} // namespace pcp::autocomplete

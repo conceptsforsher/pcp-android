@@ -3,7 +3,7 @@
 #include <vector>
 #include <cstdint>
 
-namespace progressive::diff {
+namespace pcp::diff {
 
 enum class DiffOperation { EQUAL, INSERT, DELETE };
 
@@ -82,4 +82,4 @@ private:
     int bitapMatch(const std::string& text, const std::string& pattern, int loc);
 };
 
-} // namespace progressive::diff
+} // namespace pcp::diff

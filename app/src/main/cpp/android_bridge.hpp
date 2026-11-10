@@ -8,7 +8,7 @@
 #include <unordered_map>
 
 // ── Android JNI Bridge ──
-// Provides C++ ↔ Java interop for Progressive Chat
+// Provides C++ ↔ Java interop for PCP
 // All Android-specific platform APIs are accessed through this bridge.
 
 class AndroidBridge {

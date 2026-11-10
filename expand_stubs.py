@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Expand all template stub .cpp files in progressive/src from ~337 lines to 500-800+ lines.
+Expand all template stub .cpp files in pcp/src from ~337 lines to 500-800+ lines.
 Adds missing: init, handle, getStatus, reset, getStats, configFromJson, configToJson,
 stateToString, stateFromString implementations with domain-specific logic.
 """
@@ -10,9 +10,9 @@ import re
 import sys
 from pathlib import Path
 
-PROGRESSIVE_DIR = Path("/tmp/concept-repo/progressive")
-SRC_DIR = PROGRESSIVE_DIR / "src"
-INCLUDE_DIR = PROGRESSIVE_DIR / "include" / "progressive"
+PCP_DIR = Path("/tmp/concept-repo/pcp")
+SRC_DIR = PCP_DIR / "src"
+INCLUDE_DIR = PCP_DIR / "include" / "pcp"
 
 def parse_header(header_path):
     """Parse a header file to extract type names."""
@@ -405,16 +405,16 @@ def expand_file(cpp_path):
     expansion = generate_expansion_code(info, content)
     
     # Insert before closing namespace brace
-    closing = "} // namespace progressive"
+    closing = "} // namespace pcp"
     if closing in content:
         new_content = content.replace(closing, expansion + "\n" + closing)
     else:
         # Try alternate closing
-        closing2 = "}  // namespace progressive"
+        closing2 = "}  // namespace pcp"
         if closing2 in content:
             new_content = content.replace(closing2, expansion + "\n" + closing2)
         else:
-            closing3 = "} // namespace progressive\n"
+            closing3 = "} // namespace pcp\n"
             if closing3 in content:
                 new_content = content.replace(closing3, expansion + "\n" + closing3)
             else:

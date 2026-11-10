@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
-namespace progressive { namespace test { using json = nlohmann::json;
+namespace pcp { namespace test { using json = nlohmann::json;
 TEST(FinalBatch,T1){
  json t; for(int e=0;e<7;++e){json v;v["eid"]="$fin_0_"+std::to_string(e)+":m";t["evs"].push_back(v);}
  ASSERT_EQ(t["evs"].size(),7); ASSERT_NO_THROW({auto d=t.dump();});

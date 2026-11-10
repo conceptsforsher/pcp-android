@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 #include <functional>
 
-namespace progressive::jsonviewer {
+namespace pcp::jsonviewer {
 
 using json = nlohmann::json;
 
@@ -51,4 +51,4 @@ private:
     static size_t estimateSize(const json& value);
 };
 
-} // namespace progressive::jsonviewer
+} // namespace pcp::jsonviewer

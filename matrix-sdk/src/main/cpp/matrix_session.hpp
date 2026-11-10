@@ -3,8 +3,8 @@
 #include <vector>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include "progressive/event_models.hpp"
-#include "progressive/sync_models.hpp"
+#include "pcp/event_models.hpp"
+#include "pcp/sync_models.hpp"
 
 namespace matrix_sdk {
 

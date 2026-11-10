@@ -1,11 +1,11 @@
 #pragma once
 
 /**
- * core_utils.hpp - Core utility functions for the Progressive chat client library
+ * core_utils.hpp - Core utility functions for the PCP chat client library
  *
  * Provides UUID generation, SHA256 hashing, Base64 encoding/decoding,
  * string manipulation, time formatting, math helpers, and color utilities.
- * All functions live in progressive::library namespace.
+ * All functions live in pcp::library namespace.
  *
  * Dependencies: nlohmann/json (for JSON needs), <android/log.h> for logging.
  */
@@ -25,7 +25,7 @@
 #include <cctype>
 #include <array>
 
-namespace progressive {
+namespace pcp {
 namespace library {
 
 // ============================================================================
@@ -335,4 +335,4 @@ std::array<Color, 2> analogous(const Color& color);
 Color blendLab(const Color& a, const Color& b, float t);
 
 } // namespace library
-} // namespace progressive
+} // namespace pcp

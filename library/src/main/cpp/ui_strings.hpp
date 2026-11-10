@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * ui_strings.hpp - Localized UI string system for Progressive chat client.
+ * ui_strings.hpp - Localized UI string system for PCP chat client.
  *
  * Gettext-style string lookup with support for 15+ languages, plural forms,
  * format strings, and fallback chains. Language files can be loaded from JSON
@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <functional>
 
-namespace progressive {
+namespace pcp {
 namespace library {
 
 /**
@@ -216,4 +216,4 @@ private:
 };
 
 } // namespace library
-} // namespace progressive
+} // namespace pcp

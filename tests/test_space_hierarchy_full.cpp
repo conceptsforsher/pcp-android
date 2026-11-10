@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(SpaceTest, Hierarchy1) {
@@ -1454,4 +1454,4 @@ TEST(SpaceTest, Hierarchy25) {
     ASSERT_NO_THROW({ auto d = hierarchy.dump(); });
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

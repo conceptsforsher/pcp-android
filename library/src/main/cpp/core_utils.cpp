@@ -1,5 +1,5 @@
 /**
- * core_utils.cpp - Core utility implementations for Progressive chat client library.
+ * core_utils.cpp - Core utility implementations for PCP chat client library.
  *
  * All functions are implemented with real business logic, not stubs.
  * Logging uses android/log.h for NDK compatibility.
@@ -23,12 +23,12 @@
 #include <stdexcept>
 #include <unordered_map>
 
-#define LOG_TAG "ProgressiveCore"
+#define LOG_TAG "PcpCore"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace progressive {
+namespace pcp {
 namespace library {
 
 // ============================================================================
@@ -1064,4 +1064,4 @@ Color blendLab(const Color& a, const Color& b, float t) {
 }
 
 } // namespace library
-} // namespace progressive
+} // namespace pcp

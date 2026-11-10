@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(SearchTest, FullSearch1) {
@@ -1304,4 +1304,4 @@ TEST(SearchTest, FullSearch25) {
     ASSERT_NO_THROW({ auto d = searchResults.dump(); });
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

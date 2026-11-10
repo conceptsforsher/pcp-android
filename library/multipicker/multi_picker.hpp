@@ -9,7 +9,7 @@
 #define MP_LOG_TAG "MultiPicker"
 #define MP_LOGI(...) __android_log_print(ANDROID_LOG_INFO, MP_LOG_TAG, __VA_ARGS__)
 
-namespace progressive::multipicker {
+namespace pcp::multipicker {
 
 enum class PickerType { IMAGE, VIDEO, AUDIO, FILE, CAMERA, CAMERA_VIDEO, CONTACT };
 enum class PickerMode { SINGLE, MULTIPLE };
@@ -111,4 +111,4 @@ public:
     static bool isReadable(const std::string& path, int64_t maxSize);
 };
 
-} // namespace progressive::multipicker
+} // namespace pcp::multipicker

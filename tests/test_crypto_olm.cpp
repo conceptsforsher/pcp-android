@@ -91,7 +91,7 @@ TEST_CASE(Crypto - OLM, timestamp_generation) {
 }
 
 TEST_CASE(Crypto - OLM, base64_roundtrip) {
-    std::string original = "Hello Progressive!";
+    std::string original = "Hello PCP!";
     // In real test: encode then decode
     ASSERT_TRUE(!original.empty());
 }

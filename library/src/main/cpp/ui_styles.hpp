@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * ui_styles.hpp - Material Design 3 style system for Progressive chat client.
+ * ui_styles.hpp - Material Design 3 style system for PCP chat client.
  *
  * Provides a comprehensive Material Design 3 theming engine with:
  * - Color roles (primary, secondary, tertiary, error, surface, etc.)
@@ -22,7 +22,7 @@
 #include <memory>
 #include "core_utils.hpp"
 
-namespace progressive {
+namespace pcp {
 namespace library {
 
 // ============================================================================
@@ -474,4 +474,4 @@ private:
 };
 
 } // namespace library
-} // namespace progressive
+} // namespace pcp

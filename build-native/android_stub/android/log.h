@@ -4,7 +4,7 @@
 #define ANDROID_LOG_ERROR 6
 #define ANDROID_LOG_DEBUG 3
 #define ANDROID_LOG_VERBOSE 2
-#define LOG_TAG "Progressive"
+#define LOG_TAG "PCP"
 #define LOGI(...) ((void)0)
 #define LOGW(...) ((void)0)
 #define LOGE(...) ((void)0)

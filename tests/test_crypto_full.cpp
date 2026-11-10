@@ -3,11 +3,11 @@
 #include <vector>
 #include <map>
 #include <nlohmann/json.hpp>
-#include "progressive/crypto_utils.hpp"
-#include "progressive/cross_sign_utils.hpp"
-#include "progressive/backup_utils.hpp"
+#include "pcp/crypto_utils.hpp"
+#include "pcp/cross_sign_utils.hpp"
+#include "pcp/backup_utils.hpp"
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 
 TEST(CryptoTest, FullScenario1) {
     std::string userId = "@cryptouser0:matrix.org";
@@ -3489,4 +3489,4 @@ TEST(CryptoTest, FullScenario40) {
     ASSERT_NO_THROW({ auto dump = crossSigning.dump(); });
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

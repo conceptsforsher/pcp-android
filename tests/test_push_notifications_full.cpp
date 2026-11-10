@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(PushNotificationTest, Scenario1) {
@@ -42,14 +42,14 @@ TEST(PushNotificationTest, Scenario1) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000000";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 0";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -95,14 +95,14 @@ TEST(PushNotificationTest, Scenario2) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000001";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 1";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -149,14 +149,14 @@ TEST(PushNotificationTest, Scenario3) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000002";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 2";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -203,14 +203,14 @@ TEST(PushNotificationTest, Scenario4) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000003";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 3";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -257,14 +257,14 @@ TEST(PushNotificationTest, Scenario5) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000004";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 4";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -310,14 +310,14 @@ TEST(PushNotificationTest, Scenario6) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000005";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 5";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -363,14 +363,14 @@ TEST(PushNotificationTest, Scenario7) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000006";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 6";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -417,14 +417,14 @@ TEST(PushNotificationTest, Scenario8) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000007";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 7";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -471,14 +471,14 @@ TEST(PushNotificationTest, Scenario9) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000008";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 8";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -525,14 +525,14 @@ TEST(PushNotificationTest, Scenario10) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000009";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 9";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -578,14 +578,14 @@ TEST(PushNotificationTest, Scenario11) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000010";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 10";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -631,14 +631,14 @@ TEST(PushNotificationTest, Scenario12) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000011";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 11";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -685,14 +685,14 @@ TEST(PushNotificationTest, Scenario13) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000012";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 12";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -739,14 +739,14 @@ TEST(PushNotificationTest, Scenario14) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000013";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 13";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -793,14 +793,14 @@ TEST(PushNotificationTest, Scenario15) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000014";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 14";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -846,14 +846,14 @@ TEST(PushNotificationTest, Scenario16) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000015";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 15";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -899,14 +899,14 @@ TEST(PushNotificationTest, Scenario17) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000016";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 16";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -953,14 +953,14 @@ TEST(PushNotificationTest, Scenario18) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000017";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 17";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1007,14 +1007,14 @@ TEST(PushNotificationTest, Scenario19) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000018";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 18";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1061,14 +1061,14 @@ TEST(PushNotificationTest, Scenario20) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000019";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 19";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1114,14 +1114,14 @@ TEST(PushNotificationTest, Scenario21) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000020";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 20";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1167,14 +1167,14 @@ TEST(PushNotificationTest, Scenario22) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000021";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 21";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1221,14 +1221,14 @@ TEST(PushNotificationTest, Scenario23) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000022";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 22";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1275,14 +1275,14 @@ TEST(PushNotificationTest, Scenario24) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000023";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 23";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1329,14 +1329,14 @@ TEST(PushNotificationTest, Scenario25) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000024";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 24";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1382,14 +1382,14 @@ TEST(PushNotificationTest, Scenario26) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000025";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 25";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1435,14 +1435,14 @@ TEST(PushNotificationTest, Scenario27) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000026";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 26";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1489,14 +1489,14 @@ TEST(PushNotificationTest, Scenario28) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000027";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 27";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1543,14 +1543,14 @@ TEST(PushNotificationTest, Scenario29) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000028";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 28";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1597,14 +1597,14 @@ TEST(PushNotificationTest, Scenario30) {
 
     json pusher;
     pusher["pushkey"] = "PUSH_KEY_00000029";
-    pusher["app_id"] = "org.matrix.progressive";
-    pusher["app_display_name"] = "Progressive Chat";
+    pusher["app_id"] = "org.matrix.pcp";
+    pusher["app_display_name"] = "PCP";
     pusher["device_display_name"] = "Android Device 29";
     pusher["kind"] = "http";
     pusher["lang"] = "en";
     pusher["data"]["url"] = "https://push.matrix.org/notify";
     pusher["data"]["format"] = "event_id_only";
-    ASSERT_EQ(pusher["app_id"], "org.matrix.progressive");
+    ASSERT_EQ(pusher["app_id"], "org.matrix.pcp");
     ASSERT_EQ(pusher["kind"], "http");
 
     ASSERT_NO_THROW({ auto d = rule.dump(); });
@@ -1612,4 +1612,4 @@ TEST(PushNotificationTest, Scenario30) {
     ASSERT_NO_THROW({ auto d = pusher.dump(); });
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

@@ -3,7 +3,7 @@
 #include <functional>
 #include <memory>
 
-namespace progressive::barcodescanner {
+namespace pcp::barcodescanner {
 
 enum class BarcodeFormat {
     QR_CODE,
@@ -70,4 +70,4 @@ private:
     std::string formatName(BarcodeFormat format) const;
 };
 
-} // namespace progressive::barcodescanner
+} // namespace pcp::barcodescanner

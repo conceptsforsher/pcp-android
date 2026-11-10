@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 #include <string>
-namespace progressive { namespace test { using json = nlohmann::json;
+namespace pcp { namespace test { using json = nlohmann::json;
 
 TEST(DoneBatch,T1){
   json t;t["i"]=0;t["r"]="!room_0:m.org";

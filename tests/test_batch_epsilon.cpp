@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(BatchEpsilonTest, Test1) {
@@ -1246,4 +1246,4 @@ TEST(BatchEpsilonTest, Test40) {
     ASSERT_EQ(parsed["events"].size(), 4);
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

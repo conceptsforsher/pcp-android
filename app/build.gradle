@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace 'chat.progressive.app'
+    namespace 'chat.pcp.app'
     compileSdk 34
 
     defaultConfig {
-        applicationId "chat.progressive.app"
+        applicationId "chat.pcp.app"
         minSdk 26
         targetSdk 33
         versionCode 1
@@ -23,10 +23,10 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('progressive.keystore')
-            storePassword 'progressive'
-            keyAlias 'progressive'
-            keyPassword 'progressive'
+            storeFile file('pcp.keystore')
+            storePassword 'pcp'
+            keyAlias 'pcp'
+            keyPassword 'pcp'
         }
     }
 

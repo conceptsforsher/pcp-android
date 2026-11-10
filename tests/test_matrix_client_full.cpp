@@ -12,7 +12,7 @@
 
 using json = nlohmann::json;
 
-namespace progressive {
+namespace pcp {
 namespace test {
 
 // ============================================================================
@@ -1682,8 +1682,8 @@ TEST_F(MatrixClientTest, SetPusher) {
     json pusherReq;
     pusherReq["pushkey"] = "APA91bHPRgkF3JUikC4ENAHEeMrdwJs";
     pusherReq["kind"] = "http";
-    pusherReq["app_id"] = "com.example.progressive";
-    pusherReq["app_display_name"] = "Progressive Chat";
+    pusherReq["app_id"] = "com.example.pcp";
+    pusherReq["app_display_name"] = "PCP";
     pusherReq["device_display_name"] = "Android Phone";
     pusherReq["profile_tag"] = "default";
     pusherReq["lang"] = "en";
@@ -2200,7 +2200,7 @@ TEST_F(MatrixClientTest, WhoIsQuery) {
                         {
                             {"ip", "192.168.1.100"},
                             {"last_seen", 1600000000000LL},
-                            {"user_agent", "Progressive/1.0"}
+                            {"user_agent", "PCP/1.0"}
                         }
                     })}
                 }
@@ -2355,4 +2355,4 @@ TEST_F(MatrixClientTest, AggregateReadReceipts) {
 }
 
 } // namespace test
-} // namespace progressive
+} // namespace pcp

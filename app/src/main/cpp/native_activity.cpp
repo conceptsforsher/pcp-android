@@ -20,7 +20,7 @@ static AAssetManager* gAssetManager = nullptr;
 extern "C" {
 
 JNIEXPORT void JNICALL
-Java_chat_progressive_app_MainActivity_nativeSetAssetManager(JNIEnv* env, jobject thiz, jobject assetManager) {
+Java_chat_pcp_app_MainActivity_nativeSetAssetManager(JNIEnv* env, jobject thiz, jobject assetManager) {
     gAssetManager = AAssetManager_fromJava(env, assetManager);
 }
 

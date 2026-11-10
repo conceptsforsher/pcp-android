@@ -7,7 +7,7 @@
 #define DP_LOG_TAG "Dialpad"
 #define DP_LOGI(...) __android_log_print(ANDROID_LOG_INFO, DP_LOG_TAG, __VA_ARGS__)
 
-namespace progressive::dialpad {
+namespace pcp::dialpad {
 
 Dialpad::Dialpad() = default;
 Dialpad::~Dialpad() = default;
@@ -129,4 +129,4 @@ bool Dialpad::isValidNumber(const std::string& number) {
     return true;
 }
 
-} // namespace progressive::dialpad
+} // namespace pcp::dialpad

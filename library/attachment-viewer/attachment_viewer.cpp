@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace progressive::attachment_viewer {
+namespace pcp::attachment_viewer {
 
 AttachmentViewer::AttachmentViewer(const AttachmentViewerConfig& config) : m_config(config) {}
 AttachmentViewer::~AttachmentViewer() = default;
@@ -135,4 +135,4 @@ void MediaPlayer::resume() { m_paused = false; m_playing = true; }
 void MediaPlayer::stop() { m_playing = false; m_paused = false; m_position = 0; }
 void MediaPlayer::seek(int positionMs) { m_position = std::max(0, std::min(positionMs, m_duration)); }
 
-} // namespace progressive::attachment_viewer
+} // namespace pcp::attachment_viewer

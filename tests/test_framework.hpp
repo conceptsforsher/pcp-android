@@ -46,7 +46,7 @@ public:
 
     int run() {
         int totalPassed = 0, totalFailed = 0;
-        std::cout << "\n=== Progressive Chat Test Suite ===\n" << std::endl;
+        std::cout << "\n=== PCP Test Suite ===\n" << std::endl;
 
         for (auto& s : m_suites) {
             std::cout << "Suite: " << s.name << " (" << s.tests.size() << " tests)" << std::endl;

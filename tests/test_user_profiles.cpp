@@ -91,7 +91,7 @@ TEST_CASE(User Profiles, timestamp_generation) {
 }
 
 TEST_CASE(User Profiles, base64_roundtrip) {
-    std::string original = "Hello Progressive!";
+    std::string original = "Hello PCP!";
     // In real test: encode then decode
     ASSERT_TRUE(!original.empty());
 }

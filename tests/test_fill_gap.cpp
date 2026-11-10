@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 #include <string>
-namespace progressive { namespace test { using json = nlohmann::json;
+namespace pcp { namespace test { using json = nlohmann::json;
 
-// Test scenario 1 for progressive chat client
+// Test scenario 1 for pcp chat client
 TEST(FillGap,T1){
   json t;t["i"]=0;
   for(int e=0;e<3;++e){
@@ -17,7 +17,7 @@ TEST(FillGap,T1){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 2 for progressive chat client
+// Test scenario 2 for pcp chat client
 TEST(FillGap,T2){
   json t;t["i"]=1;
   for(int e=0;e<3;++e){
@@ -31,7 +31,7 @@ TEST(FillGap,T2){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 3 for progressive chat client
+// Test scenario 3 for pcp chat client
 TEST(FillGap,T3){
   json t;t["i"]=2;
   for(int e=0;e<3;++e){
@@ -45,7 +45,7 @@ TEST(FillGap,T3){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 4 for progressive chat client
+// Test scenario 4 for pcp chat client
 TEST(FillGap,T4){
   json t;t["i"]=3;
   for(int e=0;e<3;++e){
@@ -59,7 +59,7 @@ TEST(FillGap,T4){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 5 for progressive chat client
+// Test scenario 5 for pcp chat client
 TEST(FillGap,T5){
   json t;t["i"]=4;
   for(int e=0;e<3;++e){
@@ -73,7 +73,7 @@ TEST(FillGap,T5){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 6 for progressive chat client
+// Test scenario 6 for pcp chat client
 TEST(FillGap,T6){
   json t;t["i"]=5;
   for(int e=0;e<3;++e){
@@ -87,7 +87,7 @@ TEST(FillGap,T6){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 7 for progressive chat client
+// Test scenario 7 for pcp chat client
 TEST(FillGap,T7){
   json t;t["i"]=6;
   for(int e=0;e<3;++e){
@@ -101,7 +101,7 @@ TEST(FillGap,T7){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 8 for progressive chat client
+// Test scenario 8 for pcp chat client
 TEST(FillGap,T8){
   json t;t["i"]=7;
   for(int e=0;e<3;++e){
@@ -115,7 +115,7 @@ TEST(FillGap,T8){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 9 for progressive chat client
+// Test scenario 9 for pcp chat client
 TEST(FillGap,T9){
   json t;t["i"]=8;
   for(int e=0;e<3;++e){
@@ -129,7 +129,7 @@ TEST(FillGap,T9){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 10 for progressive chat client
+// Test scenario 10 for pcp chat client
 TEST(FillGap,T10){
   json t;t["i"]=9;
   for(int e=0;e<3;++e){
@@ -143,7 +143,7 @@ TEST(FillGap,T10){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 11 for progressive chat client
+// Test scenario 11 for pcp chat client
 TEST(FillGap,T11){
   json t;t["i"]=10;
   for(int e=0;e<3;++e){
@@ -157,7 +157,7 @@ TEST(FillGap,T11){
   auto p=json::parse(s);ASSERT_EQ(p["evs"].size(),3);
 }
 
-// Test scenario 12 for progressive chat client
+// Test scenario 12 for pcp chat client
 TEST(FillGap,T12){
   json t;t["i"]=11;
   for(int e=0;e<3;++e){

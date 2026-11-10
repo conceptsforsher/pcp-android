@@ -2,11 +2,11 @@
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
-#include "progressive/room_utils.hpp"
-#include "progressive/create_room.hpp"
-#include "progressive/power_level_utils.hpp"
+#include "pcp/room_utils.hpp"
+#include "pcp/create_room.hpp"
+#include "pcp/power_level_utils.hpp"
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 // Test 1: Room operation scenario
@@ -3709,4 +3709,4 @@ TEST(RoomOperationsTest, Scenario50) {
     ASSERT_NO_THROW({ auto j = membershipEvent.dump(); });
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

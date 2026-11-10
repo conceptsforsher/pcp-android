@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(progressive_app LANGUAGES CXX)
+project(pcp_app LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_library(progressive_app SHARED
+add_library(pcp_app SHARED
     main.cpp
     native_activity.cpp
     ui_renderer.cpp
@@ -12,11 +12,11 @@ add_library(progressive_app SHARED
     android_bridge.cpp
 )
 
-target_include_directories(progressive_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(pcp_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(progressive_app
+target_link_libraries(pcp_app
     PRIVATE
-        progressive
+        pcp
         matrix_sdk
         olm
         attachment_viewer

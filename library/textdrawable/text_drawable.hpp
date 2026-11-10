@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <unordered_map>
 
-namespace progressive::textdrawable {
+namespace pcp::textdrawable {
 
 struct ColorConfig {
     uint8_t r = 128, g = 128, b = 128, a = 255;
@@ -51,4 +51,4 @@ private:
                   int fontSize, ColorConfig color);
 };
 
-} // namespace progressive::textdrawable
+} // namespace pcp::textdrawable

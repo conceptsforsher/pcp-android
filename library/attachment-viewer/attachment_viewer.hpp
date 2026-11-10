@@ -9,7 +9,7 @@
 #define AV_LOGI(...) __android_log_print(ANDROID_LOG_INFO, AV_LOG_TAG, __VA_ARGS__)
 #define AV_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, AV_LOG_TAG, __VA_ARGS__)
 
-namespace progressive::attachment_viewer {
+namespace pcp::attachment_viewer {
 
 enum class AttachmentType { IMAGE, VIDEO, AUDIO, FILE, STICKER, LOCATION, UNKNOWN };
 enum class SwipeDirection { LEFT, RIGHT, UP, DOWN, NONE };
@@ -151,4 +151,4 @@ private:
     ErrorCallback m_errorCallback;
 };
 
-} // namespace progressive::attachment_viewer
+} // namespace pcp::attachment_viewer

@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-namespace progressive::span {
+namespace pcp::span {
 
 enum class SpanType {
     BOLD, ITALIC, UNDERLINE, STRIKETHROUGH,
@@ -103,4 +103,4 @@ private:
     std::string escapeHtml(const std::string& text) const;
 };
 
-} // namespace progressive::span
+} // namespace pcp::span

@@ -2,7 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(F8,T1){json t;t["s"]="F8";t["n"]=0;for(int e=0;e<5;++e){json v;v["eid"]="$f8_"+std::to_string(0)+"_"+std::to_string(e)+":m";v["c"]["b"]="Body "+std::to_string(e);t["evs"].push_back(v);}

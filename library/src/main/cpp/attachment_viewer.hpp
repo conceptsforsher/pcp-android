@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * attachment_viewer.hpp - Media/attachment viewer component for Progressive.
+ * attachment_viewer.hpp - Media/attachment viewer component for PCP.
  *
  * Provides a fully-featured media viewer supporting images, videos (stills),
  * zoom/pan with double-tap and pinch gestures, slideshow mode with
@@ -19,7 +19,7 @@
 #include <mutex>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 namespace library {
 
 // ============================================================================
@@ -359,4 +359,4 @@ private:
 };
 
 } // namespace library
-} // namespace progressive
+} // namespace pcp

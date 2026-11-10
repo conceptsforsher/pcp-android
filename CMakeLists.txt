@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(progressive-chat
+project(pcp-chat
     VERSION 0.3.0
-    DESCRIPTION "Progressive Chat — 100% C++ Android Matrix client"
+    DESCRIPTION "PCP — 100% C++ Android Matrix client"
     LANGUAGES CXX C
 )
 
@@ -37,7 +37,7 @@ endif()
 
 # ── Libraries ──
 add_subdirectory(matrix-sdk)
-add_subdirectory(progressive)
+add_subdirectory(pcp)
 
 add_subdirectory(library/attachment-viewer)
 add_subdirectory(library/multipicker)
@@ -58,9 +58,9 @@ file(GLOB APP_SOURCES
     app/src/main/cpp/android_bridge.cpp
 )
 
-add_library(progressive_app SHARED ${APP_SOURCES})
+add_library(pcp_app SHARED ${APP_SOURCES})
 
-target_include_directories(progressive_app PRIVATE app/src/main/cpp)
+target_include_directories(pcp_app PRIVATE app/src/main/cpp)
 
 if(ANDROID)
     # NDK native_app_glue (Android NativeActivity helper)
@@ -69,23 +69,23 @@ if(ANDROID)
     target_include_directories(native_app_glue PUBLIC
         ${ANDROID_NDK}/sources/android/native_app_glue)
     
-    target_include_directories(progressive_app PRIVATE
+    target_include_directories(pcp_app PRIVATE
         ${ANDROID_NDK}/sources/android/native_app_glue)
-    target_link_libraries(progressive_app PRIVATE 
+    target_link_libraries(pcp_app PRIVATE 
         android log GLESv3 EGL OpenSLES
         native_app_glue
--Wl,--whole-archive progressive -Wl,--no-whole-archive
+-Wl,--whole-archive pcp -Wl,--no-whole-archive
         
         
         matrix_sdk olm sqlite3 attachment_viewer multipicker autocomplete
         diff_match_patch jsonviewer span dialpad barcodescanner textdrawable
         nlohmann_json::nlohmann_json)
-    target_compile_definitions(progressive_app PRIVATE PROGRESSIVE_ANDROID)
+    target_compile_definitions(pcp_app PRIVATE PCP_ANDROID)
 endif()
 
 # Output the .so to jniLibs so Gradle picks it up automatically
 if(ANDROID)
-    set_target_properties(progressive_app PROPERTIES
+    set_target_properties(pcp_app PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY
         "${CMAKE_SOURCE_DIR}/app/libs/${ANDROID_ABI}"
     )

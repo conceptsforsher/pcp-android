@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * multipicker.hpp - Multi-file picker component for Progressive.
+ * multipicker.hpp - Multi-file picker component for PCP.
  *
  * Provides file browsing, selection, filtering, sorting, and thumbnail
  * generation. Designed for Android's content:// and file:// URIs.
@@ -19,7 +19,7 @@
 #include <unordered_set>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 namespace library {
 
 // ============================================================================
@@ -298,4 +298,4 @@ private:
 };
 
 } // namespace library
-} // namespace progressive
+} // namespace pcp

@@ -3,7 +3,7 @@
 #include <vector>
 #include <functional>
 
-namespace progressive::dialpad {
+namespace pcp::dialpad {
 
 enum class DialpadKey {
     KEY_0='0', KEY_1='1', KEY_2='2', KEY_3='3', KEY_4='4',
@@ -54,4 +54,4 @@ private:
     static std::pair<int, int> dtmfFrequency(DialpadKey key);
 };
 
-} // namespace progressive::dialpad
+} // namespace pcp::dialpad

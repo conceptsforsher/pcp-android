@@ -91,7 +91,7 @@ TEST_CASE(Matrix E2EE, timestamp_generation) {
 }
 
 TEST_CASE(Matrix E2EE, base64_roundtrip) {
-    std::string original = "Hello Progressive!";
+    std::string original = "Hello PCP!";
     // In real test: encode then decode
     ASSERT_TRUE(!original.empty());
 }

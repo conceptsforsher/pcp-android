@@ -17,7 +17,7 @@ target_include_directories(matrix_sdk
 target_link_libraries(matrix_sdk
     PUBLIC
         olm
-        progressive
+        pcp
         nlohmann_json::nlohmann_json
 )
 

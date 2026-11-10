@@ -51,7 +51,7 @@ struct RegisterResponse {
 struct ClientConfig {
     std::string homeserverUrl;
     std::string identityServerUrl;
-    std::string appName = "ProgressiveChat";
+    std::string appName = "PCP";
     std::string appVersion = "0.3.0";
     std::string deviceName;
     std::string databasePath;

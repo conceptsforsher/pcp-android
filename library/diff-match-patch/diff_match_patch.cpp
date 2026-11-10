@@ -4,7 +4,7 @@
 #include <sstream>
 #include <unordered_map>
 
-namespace progressive::diff {
+namespace pcp::diff {
 
 DiffMatchPatch::DiffMatchPatch() = default;
 DiffMatchPatch::~DiffMatchPatch() = default;
@@ -145,4 +145,4 @@ int DiffMatchPatch::bitapMatch(const std::string& text, const std::string& patte
     return -1;
 }
 
-} // namespace progressive::diff
+} // namespace pcp::diff

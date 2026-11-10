@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <nlohmann/json.hpp>
-#include "progressive/message_content.hpp"
-#include "progressive/content_utils.hpp"
+#include "pcp/message_content.hpp"
+#include "pcp/content_utils.hpp"
 
-namespace progressive { namespace test {
+namespace pcp { namespace test {
 using json = nlohmann::json;
 
 TEST(MessageHandlingTest, MessageType1) {
@@ -2607,4 +2607,4 @@ TEST(MessageHandlingTest, MessageType40) {
     ASSERT_NO_THROW({ auto d = edit.dump(); });
 }
 
-}} // namespace progressive::test
+}} // namespace pcp::test

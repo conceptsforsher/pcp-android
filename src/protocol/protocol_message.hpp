@@ -7,7 +7,7 @@
 #include <QStringList>
 #include <QVariant>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 enum class MessageType {
     Text,
@@ -78,4 +78,4 @@ struct ProtocolMessage {
     static MessageStatus statusFromString(const QString &str);
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

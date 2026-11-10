@@ -6,7 +6,7 @@
 #include <QNetworkAccessManager>
 #include <QDebug>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 ProtocolManager::ProtocolManager(QNetworkAccessManager *network, QObject *parent)
     : QObject(parent)
@@ -149,4 +149,4 @@ void ProtocolManager::sendMessage(const QString &roomId, const QString &body)
     }
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

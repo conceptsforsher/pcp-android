@@ -8,7 +8,7 @@
 #include <QJsonObject>
 #include <QUrl>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 MatrixLoginWidget::MatrixLoginWidget(ProtocolManager *manager, QWidget *parent)
     : QWidget(parent)
@@ -95,7 +95,7 @@ void MatrixLoginWidget::onLoginClicked()
     body["type"] = "m.login.password";
     body["identifier"] = QJsonObject{{"type", "m.id.user"}, {"user", user}};
     body["password"] = password;
-    body["initial_device_display_name"] = "Progressive Chat Desktop";
+    body["initial_device_display_name"] = "PCP Desktop";
 
     auto *reply = manager->post(request, QJsonDocument(body).toJson());
     connect(reply, &QNetworkReply::finished, this, [=]() {
@@ -130,4 +130,4 @@ void MatrixLoginWidget::setFormEnabled(bool enabled)
     m_loginBtn->setEnabled(enabled);
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

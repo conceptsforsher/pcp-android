@@ -5,7 +5,7 @@
 #include <QMenu>
 #include <QString>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class NotificationManager;
 
@@ -38,4 +38,4 @@ private:
     bool m_muted = false;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

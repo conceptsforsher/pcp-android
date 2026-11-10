@@ -4,7 +4,7 @@
 #include <QSystemTrayIcon>
 #include <QDebug>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 NotificationManager::NotificationManager(QObject *parent)
     : QObject(parent)
@@ -56,4 +56,4 @@ int NotificationManager::unreadCount() const { return m_totalUnread; }
 void NotificationManager::setEnabled(bool enabled) { m_enabled = enabled; }
 void NotificationManager::setSoundEnabled(bool enabled) { m_soundEnabled = enabled; }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

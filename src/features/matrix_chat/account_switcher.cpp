@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include <QLabel>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 AccountSwitcher::AccountSwitcher(ProtocolManager *manager, QWidget *parent)
     : QDialog(parent)
@@ -103,4 +103,4 @@ void AccountSwitcher::onRemoveAccount()
     }
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

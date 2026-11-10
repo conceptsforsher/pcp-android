@@ -4,7 +4,7 @@
 #include <QIcon>
 #include <QFont>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 ChatListWidget::ChatListWidget(QWidget *parent) : QWidget(parent)
 {
@@ -164,4 +164,4 @@ void ChatListWidget::onSearchTextChanged(const QString &text)
     }
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

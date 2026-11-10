@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QSettings>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 UserProfileDialog::UserProfileDialog(ProtocolManager *manager, QWidget *parent)
     : QDialog(parent)
@@ -102,4 +102,4 @@ void UserProfileDialog::onChangeAvatar()
     }
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

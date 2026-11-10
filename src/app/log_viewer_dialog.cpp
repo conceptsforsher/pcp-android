@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include <QSettings>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 LogViewerDialog::LogViewerDialog(QWidget *parent)
     : QDialog(parent)
@@ -85,7 +85,7 @@ void LogViewerDialog::filterLogs(const QString &filter)
 void LogViewerDialog::exportLogs()
 {
     QString path = QFileDialog::getSaveFileName(this, "Export Logs",
-        "progressive_logs_" + QDate::currentDate().toString("yyyyMMdd") + ".txt",
+        "pcp_logs_" + QDate::currentDate().toString("yyyyMMdd") + ".txt",
         "Text files (*.txt);;All files (*)");
     if (path.isEmpty()) return;
 
@@ -99,4 +99,4 @@ void LogViewerDialog::clearLogs()
     m_logView->clear();
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

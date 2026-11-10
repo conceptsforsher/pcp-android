@@ -4,7 +4,7 @@
 #include <QString>
 #include <QHash>
 
-namespace progressive_chat {
+namespace pcp_chat {
 namespace util {
 
 inline QColor colorFromUserId(const QString &userId)
@@ -38,4 +38,4 @@ inline QColor textColorForBackground(const QColor &background)
 }
 
 } // namespace util
-} // namespace progressive_chat
+} // namespace pcp_chat

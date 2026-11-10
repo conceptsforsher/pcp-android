@@ -8,7 +8,7 @@
 #include <QStyleFactory>
 #include <QDebug>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 ThemeManager::ThemeManager(QObject *parent) : QObject(parent)
 {
@@ -206,4 +206,4 @@ void ThemeManager::setStylesheet(const QString &ss)
     m_stylesheet = ss;
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

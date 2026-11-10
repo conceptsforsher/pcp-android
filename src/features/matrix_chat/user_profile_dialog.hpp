@@ -9,7 +9,7 @@
 #include <QLineEdit>
 #include <QTextEdit>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ProtocolManager;
 
@@ -35,4 +35,4 @@ private:
     QPushButton *m_changeAvatarBtn;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

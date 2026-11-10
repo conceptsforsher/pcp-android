@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 #include <QTextBrowser>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class AboutDialog : public QDialog
 {
@@ -29,4 +29,4 @@ private:
     QTextBrowser *m_creditsView;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

@@ -1,4 +1,4 @@
-// Progressive Chat — 100% C++ Qt6 desktop Matrix client
+// PCP — 100% C++ Qt6 desktop Matrix client
 // Entry point: parses CLI args, initializes application, runs event loop
 
 #include "app/application.hpp"
@@ -15,11 +15,11 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
-    progressive_chat::Application app(argc, argv);
+    pcp_chat::Application app(argc, argv);
 
-    QCoreApplication::setOrganizationName("ProgressiveChat");
-    QCoreApplication::setOrganizationDomain("progressive.chat");
-    QCoreApplication::setApplicationName("Progressive Chat");
+    QCoreApplication::setOrganizationName("PCP");
+    QCoreApplication::setOrganizationDomain("pcp.chat");
+    QCoreApplication::setApplicationName("PCP");
     QCoreApplication::setApplicationVersion("0.3.0");
 
     // Setup configuration directory
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     // Parse command line arguments
     QCommandLineParser parser;
     parser.setApplicationDescription(
-        "Progressive Chat — 100% C++ desktop Matrix/IRC/Lemmy client");
+        "PCP — 100% C++ desktop Matrix/IRC/Lemmy client");
     parser.addHelpOption();
     parser.addVersionOption();
 

@@ -6,7 +6,7 @@
 #include <QJsonObject>
 #include <QHash>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 enum class PushAction {
     Notify,
@@ -66,4 +66,4 @@ private:
     QHash<QString, PushRule> m_roomRules; // Per-room overrides
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

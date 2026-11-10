@@ -4,7 +4,7 @@
 #include <QCryptographicHash>
 #include <QDebug>
 
-namespace progressive_chat {
+namespace pcp_chat {
 namespace util {
 
 QString canonicalJson(const QJsonObject &obj)
@@ -39,4 +39,4 @@ QString eventHash(const QJsonObject &event)
 }
 
 } // namespace util
-} // namespace progressive_chat
+} // namespace pcp_chat

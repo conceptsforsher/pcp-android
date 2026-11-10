@@ -6,11 +6,11 @@
 #include <QFont>
 #include <QFile>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 {
-    setWindowTitle("About Progressive Chat");
+    setWindowTitle("About PCP");
     setMinimumSize(500, 400);
     setupUi();
 }
@@ -36,7 +36,7 @@ void AboutDialog::setupAboutTab()
     auto *layout = new QVBoxLayout(tab);
 
     // Logo
-    m_logoLabel = new QLabel("Progressive Chat");
+    m_logoLabel = new QLabel("PCP");
     QFont logoFont;
     logoFont.setPixelSize(32);
     logoFont.setBold(true);
@@ -54,7 +54,7 @@ void AboutDialog::setupAboutTab()
 
     // Description
     auto *descLabel = new QLabel(
-        "Progressive Chat is a 100% C++ desktop Matrix client.
+        "PCP is a 100% C++ desktop Matrix client.
 "
         "Built with Qt6 and modern C++23.
 
@@ -72,7 +72,7 @@ void AboutDialog::setupAboutTab()
         "• Cross-platform (Linux, macOS, Windows)
 
 "
-        "https://progressive.chat");
+        "https://pcp.chat");
     descLabel->setWordWrap(true);
     descLabel->setStyleSheet("font-size: 12px;");
     layout->addWidget(descLabel);
@@ -82,12 +82,12 @@ void AboutDialog::setupAboutTab()
     // Links
     auto *websiteBtn = new QPushButton("Website");
     connect(websiteBtn, &QPushButton::clicked, []() {
-        QDesktopServices::openUrl(QUrl("https://progressive.chat"));
+        QDesktopServices::openUrl(QUrl("https://pcp.chat"));
     });
 
     auto *sourceBtn = new QPushButton("Source Code");
     connect(sourceBtn, &QPushButton::clicked, []() {
-        QDesktopServices::openUrl(QUrl("https://github.com/progressive-chat/progressive-android-concept"));
+        QDesktopServices::openUrl(QUrl("https://github.com/pcp-chat/pcp-android-concept"));
     });
 
     auto *linkLayout = new QHBoxLayout();
@@ -110,7 +110,7 @@ void AboutDialog::setupCreditsTab()
     m_creditsView->setHtml(
         "<h2>Credits</h2>"
         "<p><b>Lead Developer:</b> MaurerAnton</p>"
-        "<p><b>Organization:</b> Progressive Chat</p>"
+        "<p><b>Organization:</b> PCP</p>"
         "<br><h3>Libraries</h3>"
         "<ul>"
         "<li><b>Qt6</b> — Cross-platform application framework</li>"
@@ -131,9 +131,9 @@ void AboutDialog::setupLicensesTab()
 
     m_licenseView = new QTextBrowser();
     m_licenseView->setPlainText(
-        "Progressive Chat
+        "PCP
 "
-        "Copyright (c) 2024-2026 Progressive Chat
+        "Copyright (c) 2024-2026 PCP
 
 "
         "Licensed under the Apache License, Version 2.0
@@ -157,4 +157,4 @@ void AboutDialog::setupLicensesTab()
     m_tabWidget->addTab(tab, "License");
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

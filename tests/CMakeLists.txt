@@ -7,19 +7,19 @@ find_package(Qt6 REQUIRED COMPONENTS Test)
 
 file(GLOB TEST_SOURCES "*.cpp")
 
-add_executable(progressive_tests ${TEST_SOURCES})
+add_executable(pcp_tests ${TEST_SOURCES})
 
-target_include_directories(progressive_tests PRIVATE
+target_include_directories(pcp_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/progressive/include
+    ${CMAKE_SOURCE_DIR}/pcp/include
 )
 
-target_link_libraries(progressive_tests
+target_link_libraries(pcp_tests
     PRIVATE
-        progressive
+        pcp
         Qt6::Test
         Qt6::Core
         Qt6::Network
 )
 
-add_test(NAME progressive_tests COMMAND progressive_tests)
+add_test(NAME pcp_tests COMMAND pcp_tests)

@@ -5,7 +5,7 @@
 #include <QMimeData>
 #include <QString>
 
-namespace progressive_chat {
+namespace pcp_chat {
 namespace util {
 
 inline void copyToClipboard(const QString &text)
@@ -37,4 +37,4 @@ inline bool clipboardHasImage()
 }
 
 } // namespace util
-} // namespace progressive_chat
+} // namespace pcp_chat

@@ -4,7 +4,7 @@
 #include <QStringList>
 #include <QRegularExpression>
 
-namespace progressive_chat {
+namespace pcp_chat {
 namespace util {
 
 inline QString ellipsize(const QString &text, int maxLen = 50)
@@ -64,4 +64,4 @@ inline QString formatBytes(qint64 bytes)
 }
 
 } // namespace util
-} // namespace progressive_chat
+} // namespace pcp_chat

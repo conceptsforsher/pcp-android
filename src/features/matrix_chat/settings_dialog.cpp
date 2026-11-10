@@ -7,7 +7,7 @@
 #include <QApplication>
 #include <QSslConfiguration>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 SettingsDialog::SettingsDialog(ProtocolManager *manager, QWidget *parent)
     : QDialog(parent)
@@ -97,7 +97,7 @@ void SettingsDialog::setupNotificationsTab()
     formNotif->addRow("", m_showMessagePreviews);
 
     m_notificationStyle = new QComboBox();
-    m_notificationStyle->addItems({"System Default", "Progressive Style", "Minimal"});
+    m_notificationStyle->addItems({"System Default", "PCP Style", "Minimal"});
     formNotif->addRow("Style:", m_notificationStyle);
 
     m_notificationDuration = new QSpinBox();
@@ -259,7 +259,7 @@ void SettingsDialog::setupAdvancedTab()
 
 void SettingsDialog::loadSettings()
 {
-    QSettings settings("ProgressiveChat", "progressive_chat");
+    QSettings settings("PCP", "pcp_chat");
 
     m_autoStart->setChecked(settings.value("general/autostart", false).toBool());
     m_minimizeToTray->setChecked(settings.value("general/minimize_to_tray", true).toBool());
@@ -282,7 +282,7 @@ void SettingsDialog::loadSettings()
 
 void SettingsDialog::saveSettings()
 {
-    QSettings settings("ProgressiveChat", "progressive_chat");
+    QSettings settings("PCP", "pcp_chat");
 
     settings.setValue("general/autostart", m_autoStart->isChecked());
     settings.setValue("general/minimize_to_tray", m_minimizeToTray->isChecked());
@@ -310,4 +310,4 @@ void SettingsDialog::applySettings()
     saveSettings();
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

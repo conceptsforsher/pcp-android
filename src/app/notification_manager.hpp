@@ -5,7 +5,7 @@
 #include <QHash>
 #include <memory>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class NotificationManager : public QObject
 {
@@ -45,4 +45,4 @@ private:
     int m_totalUnread = 0;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

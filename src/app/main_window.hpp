@@ -17,7 +17,7 @@
 #include <QListView>
 #include <QHash>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ThemeManager;
 class NotificationManager;
@@ -100,4 +100,4 @@ private:
     QString m_currentRoomId;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

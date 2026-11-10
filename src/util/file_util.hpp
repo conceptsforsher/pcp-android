@@ -4,7 +4,7 @@
 #include <QFileInfo>
 #include <QDir>
 
-namespace progressive_chat {
+namespace pcp_chat {
 namespace util {
 
 inline bool fileExists(const QString &path)
@@ -53,4 +53,4 @@ inline QString thumbnailsDirectory(const QString &appDir)
 }
 
 } // namespace util
-} // namespace progressive_chat
+} // namespace pcp_chat

@@ -5,7 +5,7 @@
 #include <QDate>
 #include <QTime>
 
-namespace progressive_chat {
+namespace pcp_chat {
 namespace util {
 
 inline QString formatTimestamp(const QDateTime &dt)
@@ -60,4 +60,4 @@ inline QString formatDate(const QDate &date)
 }
 
 } // namespace util
-} // namespace progressive_chat
+} // namespace pcp_chat

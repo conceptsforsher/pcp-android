@@ -1,6 +1,6 @@
 #include "protocol_session.hpp"
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 ProtocolSession::ProtocolSession(QObject *parent)
     : QObject(parent)
@@ -43,4 +43,4 @@ void ProtocolSession::emitMessage(const ProtocolMessage &message)
     emit messageReceived(message);
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

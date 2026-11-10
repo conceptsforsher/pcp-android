@@ -10,7 +10,7 @@
 #include <QListWidget>
 #include <QSplitter>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ProtocolManager;
 
@@ -62,4 +62,4 @@ private:
     ProtocolManager *m_protocolManager = nullptr;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

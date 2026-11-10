@@ -7,9 +7,9 @@
 #include <QApplication>
 #include <QDebug>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
-static const QString UPDATE_URL = "https://progressive.chat/api/updates/latest.json";
+static const QString UPDATE_URL = "https://pcp.chat/api/updates/latest.json";
 
 AppUpdateChecker &AppUpdateChecker::instance()
 {
@@ -65,4 +65,4 @@ void AppUpdateChecker::downloadUpdate()
     // Initiate download of the update package
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

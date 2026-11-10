@@ -14,7 +14,7 @@
 #include <QGroupBox>
 #include <QLabel>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ProtocolManager;
 
@@ -82,4 +82,4 @@ private:
     QSpinBox *m_maxCacheSize;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

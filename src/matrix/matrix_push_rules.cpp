@@ -4,7 +4,7 @@
 #include <QRegularExpression>
 #include <QDebug>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 MatrixPushRules::MatrixPushRules(QObject *parent) : QObject(parent) {}
 MatrixPushRules::~MatrixPushRules() = default;
@@ -184,4 +184,4 @@ QJsonObject MatrixPushRules::serializeRule(const PushRule &rule)
     return obj;
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

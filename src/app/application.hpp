@@ -7,7 +7,7 @@
 class QNetworkAccessManager;
 class QNetworkProxy;
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class MainWindow;
 class NotificationManager;
@@ -59,4 +59,4 @@ private:
     bool m_crashReporting = true;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

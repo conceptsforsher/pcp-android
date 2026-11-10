@@ -7,7 +7,7 @@
 #include <QUrl>
 #include <QMessageBox>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 CommandPalette::CommandPalette(ProtocolManager *manager, QWidget *parent)
     : QDialog(parent)
@@ -65,7 +65,7 @@ void CommandPalette::registerBuiltinCommands()
     m_commands.append({"User Directory", "Search for users", "Ctrl+Shift+U", []() {}});
     m_commands.append({"Spaces", "Explore spaces", "Ctrl+Shift+S", []() {}});
     m_commands.append({"Keyboard Shortcuts", "Show keyboard shortcuts reference", "Ctrl+/", []() {}});
-    m_commands.append({"About", "About Progressive Chat", "", []() {}});
+    m_commands.append({"About", "About PCP", "", []() {}});
 }
 
 void CommandPalette::filterCommands(const QString &filter)
@@ -103,4 +103,4 @@ void CommandPalette::executeSelected()
     }
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

@@ -12,7 +12,7 @@
 #include <QDebug>
 #include <QUuid>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 LemmySession::LemmySession(QNetworkAccessManager *network, QObject *parent)
     : ProtocolSession(parent)
@@ -386,4 +386,4 @@ void LemmySession::handleAuthError(int statusCode)
     }
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

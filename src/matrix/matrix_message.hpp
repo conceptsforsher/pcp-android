@@ -5,7 +5,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 enum class MatrixMsgType {
     Text, Notice, Emote, Image, Video, Audio, File,
@@ -44,4 +44,4 @@ struct MatrixMessageData {
     }
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

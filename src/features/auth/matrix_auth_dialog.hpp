@@ -13,7 +13,7 @@
 #include <QProgressBar>
 #include <QStackedWidget>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ProtocolManager;
 
@@ -70,4 +70,4 @@ private:
     QLabel *m_ssoStatus;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

@@ -4,7 +4,7 @@
 #include <QStringList>
 #include <QDateTime>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 struct IrcRoomData {
     QString name;
@@ -17,4 +17,4 @@ struct IrcRoomData {
     bool hasTopic = false;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

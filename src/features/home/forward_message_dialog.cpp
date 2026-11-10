@@ -102,7 +102,7 @@ ForwardMessageDialog::ForwardMessageDialog(const ProtocolMessage &message,
     connect(m_searchTimer, &QTimer::timeout, this, &ForwardMessageDialog::onSearchDebounceTimeout);
 
     // Determine the original source room
-    ProtocolManager *pm = progressive::Application::instance().protocolManager();
+    ProtocolManager *pm = pcp::Application::instance().protocolManager();
     if (pm) {
         const auto allRooms = pm->getAllRooms();
         for (const auto &room : allRooms) {
@@ -249,7 +249,7 @@ void ForwardMessageDialog::setupUi()
 
 void ForwardMessageDialog::populateRooms()
 {
-    ProtocolManager *pm = progressive::Application::instance().protocolManager();
+    ProtocolManager *pm = pcp::Application::instance().protocolManager();
     if (!pm)
         return;
 
@@ -416,7 +416,7 @@ void ForwardMessageDialog::onForwardClicked()
         switch (sel.protocolType) {
         case ProtocolType::MATRIX: {
             auto *session =
-                progressive::Application::instance().matrixSession();
+                pcp::Application::instance().matrixSession();
             if (!session)
                 break;
 
@@ -469,7 +469,7 @@ void ForwardMessageDialog::onForwardClicked()
         }
         case ProtocolType::IRC: {
             auto *holder =
-                progressive::Application::instance().ircSessionHolder();
+                pcp::Application::instance().ircSessionHolder();
             if (!holder)
                 break;
 
@@ -486,7 +486,7 @@ void ForwardMessageDialog::onForwardClicked()
         }
         case ProtocolType::LEMMY: {
             auto *holder =
-                progressive::Application::instance().lemmySessionHolder();
+                pcp::Application::instance().lemmySessionHolder();
             if (!holder)
                 break;
 

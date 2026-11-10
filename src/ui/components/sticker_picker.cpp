@@ -7,7 +7,7 @@
 
 StickerPicker::StickerPicker(QWidget* parent)
     : QWidget(parent, Qt::Popup)
-    , m_settings(QStringLiteral("ProgressiveMatrix"), QStringLiteral("StickerPicker"))
+    , m_settings(QStringLiteral("PcpMatrix"), QStringLiteral("StickerPicker"))
 {
     setAttribute(Qt::WA_TranslucentBackground);
     setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);

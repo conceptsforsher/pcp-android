@@ -242,7 +242,7 @@ void PowerLevelEditor::setupUi()
 
 void PowerLevelEditor::fetchCurrentPowerLevels()
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session)
         return;
 
@@ -432,7 +432,7 @@ void PowerLevelEditor::onRemoveEventClicked()
 
 void PowerLevelEditor::onSaveClicked()
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         QMessageBox::warning(this, tr("Error"), tr("No Matrix session available."));
         return;

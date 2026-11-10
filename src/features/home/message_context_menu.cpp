@@ -142,7 +142,7 @@ void MessageContextMenu::populateMenu(QMenu *menu, const ProtocolMessage &msg)
         connect(markReadAction, &QAction::triggered, this,
                 [this, msg]() {
                     // Ask the protocol session to mark room as read up to this point
-                    progressive::Application &app = progressive::Application::instance();
+                    pcp::Application &app = pcp::Application::instance();
                     switch (msg.protocolType) {
                     case ProtocolType::MATRIX:
                         if (auto *mx = app.matrixSession())
@@ -175,7 +175,7 @@ void MessageContextMenu::populateMenu(QMenu *menu, const ProtocolMessage &msg)
             QString permalink;
             switch (msg.protocolType) {
             case ProtocolType::MATRIX: {
-                auto *mx = progressive::Application::instance().matrixSession();
+                auto *mx = pcp::Application::instance().matrixSession();
                 if (mx) {
                     permalink = QStringLiteral("%1/_matrix/client/r0/rooms/%2/%3")
                         .arg(mx->homeserverUrl(), msg.roomId,
@@ -188,7 +188,7 @@ void MessageContextMenu::populateMenu(QMenu *menu, const ProtocolMessage &msg)
                 break;
             }
             case ProtocolType::LEMMY: {
-                auto *lemmyHolder = progressive::Application::instance().lemmySessionHolder();
+                auto *lemmyHolder = pcp::Application::instance().lemmySessionHolder();
                 if (lemmyHolder) {
                     const auto sessions = lemmyHolder->getAllSessions();
                     if (!sessions.isEmpty()) {
@@ -300,7 +300,7 @@ QString MessageContextMenu::extractUrl(const QString &text)
 
 bool MessageContextMenu::isOwnMessage(const ProtocolMessage &msg)
 {
-    const progressive::Application &app = progressive::Application::instance();
+    const pcp::Application &app = pcp::Application::instance();
 
     switch (msg.protocolType) {
     case ProtocolType::MATRIX:

@@ -114,7 +114,7 @@ void SystemTrayManager::createTrayIcon()
 {
     m_trayIcon = new QSystemTrayIcon(this);
     m_trayIcon->setIcon(generateTrayIcon());
-    m_trayIcon->setToolTip(QStringLiteral("Progressive Chat"));
+    m_trayIcon->setToolTip(QStringLiteral("PCP"));
 
     connect(m_trayIcon, &QSystemTrayIcon::activated,
             this, &SystemTrayManager::onActivated);

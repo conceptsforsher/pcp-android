@@ -56,7 +56,7 @@ void IrcSession::close()
 {
     if (state_ == ConnectionState::CONNECTED || state_ == ConnectionState::REGISTERED) {
         sendRaw(QStringLiteral("QUIT :%1").arg(serverInfo_.realName.isEmpty()
-                                                ? QStringLiteral("Progressive Android")
+                                                ? QStringLiteral("PCP Android")
                                                 : serverInfo_.realName));
         socket_->flush();
         socket_->disconnectFromHost();

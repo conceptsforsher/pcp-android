@@ -24,7 +24,7 @@
 #include <QPainter>
 #include <QMessageBox>
 
-using namespace progressive;
+using namespace pcp;
 
 static QPixmap makeDot(QColor color, int size = 10)
 {
@@ -66,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_addIrcAction(nullptr)
     , m_addLemmyAction(nullptr)
 {
-    setWindowTitle("Progressive Chat Concept");
+    setWindowTitle("PCP Concept");
     resize(1200, 800);
 
     setupUi();

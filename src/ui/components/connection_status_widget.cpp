@@ -10,7 +10,7 @@
 #include "protocol/protocol_manager.hpp"
 #include "protocol/protocol_session.hpp"
 
-namespace progressive {
+namespace pcp {
 
 static constexpr int kIndicatorSpacing = 8;
 static constexpr int kProtocolCircleRadius = 8;
@@ -396,4 +396,4 @@ QString ConnectionStatusWidget::textForState(ConnectionState state)
     return QStringLiteral("Unknown");
 }
 
-} // namespace progressive
+} // namespace pcp

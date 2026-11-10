@@ -7,7 +7,7 @@
 #include "matrix/matrix_session.hpp"
 #include "protocol/protocol_manager.hpp"
 
-namespace progressive {
+namespace pcp {
 
 Application& Application::instance()
 {
@@ -118,4 +118,4 @@ void Application::addLemmySession()
     // Placeholder - Lemmy session creation would go here
 }
 
-} // namespace progressive
+} // namespace pcp

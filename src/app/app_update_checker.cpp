@@ -9,11 +9,11 @@
 #include <QTimer>
 #include <QUrl>
 
-namespace progressive {
+namespace pcp {
 
 static constexpr int kPeriodicCheckIntervalMs = 24 * 60 * 60 * 1000;
 static const QString kReleasesUrl =
-    QStringLiteral("https://api.github.com/repos/progressive-chat/progressive-android-concept/releases/latest");
+    QStringLiteral("https://api.github.com/repos/pcp-chat/pcp-android-concept/releases/latest");
 
 AppUpdateChecker &AppUpdateChecker::instance()
 {
@@ -37,7 +37,7 @@ void AppUpdateChecker::checkForUpdates()
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       QStringLiteral("application/json"));
     request.setRawHeader("Accept", "application/vnd.github+json");
-    request.setRawHeader("User-Agent", "ProgressiveAndroidConcept");
+    request.setRawHeader("User-Agent", "PcpAndroidConcept");
 
     QNetworkReply *reply = m_nam->get(request);
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
@@ -150,4 +150,4 @@ void AppUpdateChecker::onReplyFinished(QNetworkReply *reply)
     }
 }
 
-} // namespace progressive
+} // namespace pcp

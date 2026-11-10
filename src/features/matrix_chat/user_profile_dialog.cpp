@@ -39,7 +39,7 @@ UserProfileDialog::UserProfileDialog(const QString &userId, QWidget *parent)
     , m_lastSeenLabel(nullptr)
     , m_deviceCountLabel(nullptr)
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     m_profile.userId = m_userId;
     m_profile.displayName = m_userId;
     if (session) {

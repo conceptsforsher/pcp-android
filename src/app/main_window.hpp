@@ -16,7 +16,7 @@ class QSplitter;
 class QListView;
 class QStringListModel;
 
-namespace progressive {
+namespace pcp {
 class Application;
 }
 
@@ -53,7 +53,7 @@ private:
 
     QLabel *createConnectionIndicator(const QString &name);
 
-    progressive::Application &m_app;
+    pcp::Application &m_app;
 
     QTabWidget *m_protocolTabs;
 

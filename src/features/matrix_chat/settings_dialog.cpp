@@ -316,7 +316,7 @@ QWidget *SettingsDialog::createAboutTab()
     layout->setContentsMargins(24, 24, 24, 24);
     layout->setSpacing(8);
 
-    auto *titleLabel = new QLabel(tr("Progressive Chat"), tab);
+    auto *titleLabel = new QLabel(tr("PCP"), tab);
     QFont titleFont = titleLabel->font();
     titleFont.setPointSize(20);
     titleFont.setBold(true);
@@ -330,7 +330,7 @@ QWidget *SettingsDialog::createAboutTab()
     layout->addSpacing(8);
 
     auto *descLabel = new QLabel(
-        tr("Progressive Chat Concept - 100%% C++ Matrix/IRC/Lemmy client"), tab);
+        tr("PCP Concept - 100%% C++ Matrix/IRC/Lemmy client"), tab);
     descLabel->setWordWrap(true);
     descLabel->setStyleSheet(QStringLiteral("font-size: 13px;"));
     layout->addWidget(descLabel);
@@ -348,8 +348,8 @@ QWidget *SettingsDialog::createAboutTab()
 
     auto *linkLabel = new QLabel(tab);
     linkLabel->setText(QStringLiteral(
-        "<a href='https://github.com/progressive-chat/concept' "
-        "style='color: #2b579a;'>github.com/progressive-chat/concept</a>"));
+        "<a href='https://github.com/pcp-chat/concept' "
+        "style='color: #2b579a;'>github.com/pcp-chat/concept</a>"));
     linkLabel->setTextFormat(Qt::RichText);
     linkLabel->setOpenExternalLinks(true);
     linkLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::TextSelectableByMouse);
@@ -361,7 +361,7 @@ QWidget *SettingsDialog::createAboutTab()
 
 void SettingsDialog::loadSettings()
 {
-    QSettings settings(QStringLiteral("ProgressiveChat"), QStringLiteral("ProgressiveChat"));
+    QSettings settings(QStringLiteral("PCP"), QStringLiteral("PCP"));
 
     settings.beginGroup(QStringLiteral("General"));
     m_languageCombo->setCurrentIndex(
@@ -445,7 +445,7 @@ void SettingsDialog::loadSettings()
 
 void SettingsDialog::saveSettings()
 {
-    QSettings settings(QStringLiteral("ProgressiveChat"), QStringLiteral("ProgressiveChat"));
+    QSettings settings(QStringLiteral("PCP"), QStringLiteral("PCP"));
 
     settings.beginGroup(QStringLiteral("General"));
     settings.setValue(QStringLiteral("language"), m_languageCombo->currentIndex());

@@ -203,7 +203,7 @@ void RoomMembersList::refresh()
 
 void RoomMembersList::fetchMembers()
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         m_spinner->stop();
         m_spinner->hide();
@@ -272,7 +272,7 @@ void RoomMembersList::fetchMembers()
 
 void RoomMembersList::fetchPowerLevels()
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         finishLoading();
         return;
@@ -295,7 +295,7 @@ void RoomMembersList::fetchPowerLevels()
             const int usersDefault = JsonUtil::optInt(json, QStringLiteral("users_default"), 0);
             m_ownPowerLevel = 0;
 
-            auto *session = progressive::Application::instance().matrixSession();
+            auto *session = pcp::Application::instance().matrixSession();
             const QString ownUid = session ? session->userId() : QString();
 
             for (auto &member : m_members) {
@@ -326,7 +326,7 @@ void RoomMembersList::fetchPresence(int memberIndex)
         return;
     }
 
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         --m_presencePending;
         if (m_presencePending <= 0)
@@ -448,7 +448,7 @@ void RoomMembersList::onSearchTextChanged(const QString & /*text*/)
 void RoomMembersList::onInviteClicked()
 {
     // Imported lazily; user sees the invite dialog
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         QMessageBox::warning(this, tr("Error"), tr("No Matrix session available."));
         return;
@@ -564,7 +564,7 @@ bool RoomMembersList::isOwnPowerLevelAtLeast(int requiredLevel) const
 
 void RoomMembersList::kickMember(const QString &userId)
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session)
         return;
 
@@ -589,7 +589,7 @@ void RoomMembersList::kickMember(const QString &userId)
 
 void RoomMembersList::banMember(const QString &userId)
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session)
         return;
 
@@ -614,7 +614,7 @@ void RoomMembersList::banMember(const QString &userId)
 
 void RoomMembersList::ignoreUser(const QString &userId)
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session)
         return;
 
@@ -644,7 +644,7 @@ void RoomMembersList::toggleModAdmin(const QString &userId, int currentLevel)
     else
         newLevel = 50;      // Promote → mod (we could be more nuanced)
 
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session)
         return;
 

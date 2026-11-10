@@ -8,7 +8,7 @@
 
 #include "protocol/protocol_type.hpp"
 
-namespace progressive {
+namespace pcp {
 
 class ConnectionStatusWidget : public QWidget
 {
@@ -67,4 +67,4 @@ private:
     qreal m_pulsePhase = 0.0;
 };
 
-} // namespace progressive
+} // namespace pcp

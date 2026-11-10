@@ -11,21 +11,21 @@ namespace FileUtil {
 
 inline QString cacheDir()
 {
-    QString dir = QDir::homePath() + "/.cache/progressive-chat/";
+    QString dir = QDir::homePath() + "/.cache/pcp-chat/";
     QDir().mkpath(dir);
     return dir;
 }
 
 inline QString dataDir()
 {
-    QString dir = QDir::homePath() + "/.local/share/progressive-chat/";
+    QString dir = QDir::homePath() + "/.local/share/pcp-chat/";
     QDir().mkpath(dir);
     return dir;
 }
 
 inline QString configDir()
 {
-    QString dir = QDir::homePath() + "/.config/progressive-chat/";
+    QString dir = QDir::homePath() + "/.config/pcp-chat/";
     QDir().mkpath(dir);
     return dir;
 }

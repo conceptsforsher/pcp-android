@@ -38,7 +38,7 @@ QPixmap AboutDialog::generateAppIcon(int size) const
 
 void AboutDialog::setupUi()
 {
-    setWindowTitle(tr("About Progressive Chat"));
+    setWindowTitle(tr("About PCP"));
     setFixedSize(420, 560);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
@@ -61,7 +61,7 @@ void AboutDialog::setupUi()
     addSpacing(4);
 
     // Title
-    m_titleLabel = new QLabel(tr("Progressive Chat Concept"), this);
+    m_titleLabel = new QLabel(tr("PCP Concept"), this);
     QFont titleFont;
     titleFont.setPointSize(18);
     titleFont.setBold(true);
@@ -82,7 +82,7 @@ void AboutDialog::setupUi()
     // Description
     m_descriptionLabel = new QLabel(
         tr("100% C++ Matrix/IRC/Lemmy client -\n"
-           "A concept rewrite of progressive-android\n"
+           "A concept rewrite of pcp-android\n"
            "in native C++"),
         this);
     m_descriptionLabel->setAlignment(Qt::AlignCenter);
@@ -115,7 +115,7 @@ void AboutDialog::setupUi()
     addSpacing(6);
 
     // Authors
-    m_authorsLabel = new QLabel(tr("Progressive Chat Team"), this);
+    m_authorsLabel = new QLabel(tr("PCP Team"), this);
     m_authorsLabel->setAlignment(Qt::AlignCenter);
     rootLayout->addWidget(m_authorsLabel);
 
@@ -124,8 +124,8 @@ void AboutDialog::setupUi()
     // GitHub link
     m_linkLabel = new QLabel(this);
     m_linkLabel->setText(QStringLiteral(
-        "<a href=\"https://github.com/progressive-chat/progressive-android-concept\" "
-        "style=\"color: #1976D2;\">github.com/progressive-chat/progressive-android-concept</a>"));
+        "<a href=\"https://github.com/pcp-chat/pcp-android-concept\" "
+        "style=\"color: #1976D2;\">github.com/pcp-chat/pcp-android-concept</a>"));
     m_linkLabel->setAlignment(Qt::AlignCenter);
     m_linkLabel->setOpenExternalLinks(true);
     m_linkLabel->setTextFormat(Qt::RichText);

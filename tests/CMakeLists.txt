@@ -9,16 +9,16 @@ set(TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/src/util/string_util.cpp
 )
 
-add_executable(progressive_tests test_main.cpp ${TEST_SOURCES})
-target_include_directories(progressive_tests PRIVATE
+add_executable(pcp_tests test_main.cpp ${TEST_SOURCES})
+target_include_directories(pcp_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/progressive/include
+    ${CMAKE_SOURCE_DIR}/pcp/include
 )
 
-target_link_libraries(progressive_tests PRIVATE
+target_link_libraries(pcp_tests PRIVATE
     Qt6::Test
     Qt6::Network
     Qt6::Core
 )
 
-add_test(NAME progressive_tests COMMAND progressive_tests)
+add_test(NAME pcp_tests COMMAND pcp_tests)

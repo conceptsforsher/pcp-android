@@ -289,7 +289,7 @@ void RoomUpgradeDialog::onVersionChanged(int index)
 
 void RoomUpgradeDialog::fetchCurrentVersion()
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         m_currentVersionLabel->setText(tr("Unknown (no session)"));
         return;
@@ -321,7 +321,7 @@ void RoomUpgradeDialog::onUpgradeClicked()
         return;
     }
 
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         QMessageBox::warning(this, tr("Error"), tr("No Matrix session available."));
         return;

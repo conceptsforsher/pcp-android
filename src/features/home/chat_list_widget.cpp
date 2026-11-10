@@ -139,7 +139,7 @@ void ChatListWidget::setupUi()
 
 void ChatListWidget::refreshRoomList()
 {
-    auto *pm = progressive::Application::instance().protocolManager();
+    auto *pm = pcp::Application::instance().protocolManager();
     if (!pm)
         return;
 

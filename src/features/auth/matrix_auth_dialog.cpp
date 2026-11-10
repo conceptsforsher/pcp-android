@@ -98,7 +98,7 @@ void MatrixAuthDialog::onLoginClicked()
     m_loginButton->setEnabled(false);
     m_registerButton->setEnabled(false);
 
-    progressive::Application::instance().startProtocolManager();
+    pcp::Application::instance().startProtocolManager();
 
     if (progressBar) {
         progressBar->setVisible(false);

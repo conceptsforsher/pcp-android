@@ -319,7 +319,7 @@ void LemmySearchWidget::performSearch(int page)
 
     showLoading(true);
 
-    auto *holder = progressive::Application::instance().lemmySessionHolder();
+    auto *holder = pcp::Application::instance().lemmySessionHolder();
     if (!holder) {
         showLoading(false);
         return;

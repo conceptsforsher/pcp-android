@@ -34,7 +34,7 @@ MediaGalleryWidget::MediaGalleryWidget(const QString &roomId, QWidget *parent)
     , m_roomId(roomId)
     , m_nam(new QNetworkAccessManager(this))
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (session) {
         m_homeserverUrl = session->homeserverUrl();
         m_accessToken = session->accessToken();

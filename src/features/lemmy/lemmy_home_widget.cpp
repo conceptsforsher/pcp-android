@@ -405,7 +405,7 @@ void LemmyHomeWidget::setActiveInstance(const QString &instanceUrl)
     if (idx >= 0)
         m_instanceSelector->setCurrentIndex(idx);
 
-    m_currentSession = progressive::Application::instance()
+    m_currentSession = pcp::Application::instance()
                            .lemmySessionHolder()
                            ->getSession(instanceUrl);
 
@@ -499,7 +499,7 @@ void LemmyHomeWidget::onInstanceChanged(int index)
         return;
 
     m_activeInstanceUrl = url;
-    m_currentSession = progressive::Application::instance()
+    m_currentSession = pcp::Application::instance()
                            .lemmySessionHolder()
                            ->getSession(url);
     m_filterCommunityId = 0;
@@ -631,7 +631,7 @@ void LemmyHomeWidget::populateInstanceSelector()
     m_instanceSelector->blockSignals(true);
     m_instanceSelector->clear();
 
-    auto *holder = progressive::Application::instance().lemmySessionHolder();
+    auto *holder = pcp::Application::instance().lemmySessionHolder();
     if (!holder) {
         m_instanceSelector->blockSignals(false);
         return;

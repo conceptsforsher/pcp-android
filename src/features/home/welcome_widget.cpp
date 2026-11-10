@@ -144,7 +144,7 @@ void WelcomeWidget::setupUi()
     rootLayout->addSpacing(8);
 
     // Heading
-    m_headingLabel = new QLabel(tr("Welcome to Progressive Chat"), this);
+    m_headingLabel = new QLabel(tr("Welcome to PCP"), this);
     QFont headingFont;
     headingFont.setPointSize(22);
     headingFont.setBold(true);
@@ -206,7 +206,7 @@ void WelcomeWidget::setupUi()
     // Learn More link
     m_learnMoreLabel = new QLabel(this);
     m_learnMoreLabel->setText(QStringLiteral(
-        "<a href=\"https://github.com/progressive-chat/progressive-android-concept\" "
+        "<a href=\"https://github.com/pcp-chat/pcp-android-concept\" "
         "style=\"color: #1976D2; text-decoration: none;\">Learn More</a>"));
     m_learnMoreLabel->setAlignment(Qt::AlignCenter);
     m_learnMoreLabel->setOpenExternalLinks(true);

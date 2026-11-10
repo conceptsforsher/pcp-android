@@ -65,10 +65,10 @@ CrashReporter::CrashReporter(QObject *parent)
 {
     m_crashDir =
         QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation)
-        + QStringLiteral("/progressive-chat/crashes");
+        + QStringLiteral("/pcp-chat/crashes");
     if (m_crashDir.isEmpty()
         || !m_crashDir.startsWith(QLatin1Char('/'))) {
-        m_crashDir = QStringLiteral("/tmp/progressive-chat/crashes");
+        m_crashDir = QStringLiteral("/tmp/pcp-chat/crashes");
     }
 
 #ifdef __linux__

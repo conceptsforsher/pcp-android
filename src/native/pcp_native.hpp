@@ -10,12 +10,12 @@
 #include <QVector>
 #include <QStringList>
 
-class ProgressiveNative : public QObject
+class PcpNative : public QObject
 {
     Q_OBJECT
 
 public:
-    static ProgressiveNative* instance();
+    static PcpNative* instance();
 
     // --- Jump to Date (MSC3030) ---
     Q_INVOKABLE QString validateAndBuildTimestamp(const QString& dateStr);
@@ -96,10 +96,10 @@ signals:
     void proxyConfigured(const QString& host, int port);
 
 private:
-    explicit ProgressiveNative(QObject* parent = nullptr);
-    ~ProgressiveNative() override = default;
-    ProgressiveNative(const ProgressiveNative&) = delete;
-    ProgressiveNative& operator=(const ProgressiveNative&) = delete;
+    explicit PcpNative(QObject* parent = nullptr);
+    ~PcpNative() override = default;
+    PcpNative(const PcpNative&) = delete;
+    PcpNative& operator=(const PcpNative&) = delete;
 
     bool m_yggdrasilEnabled = false;
     bool m_i2pEnabled = false;

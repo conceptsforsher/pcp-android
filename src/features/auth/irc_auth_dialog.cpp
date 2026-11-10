@@ -105,7 +105,7 @@ void IrcAuthDialog::onLoginClicked()
 
     m_loginButton->setEnabled(false);
 
-    progressive::Application::instance().addIrcSession();
+    pcp::Application::instance().addIrcSession();
 
     accept();
 }

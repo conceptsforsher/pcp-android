@@ -355,7 +355,7 @@ void SearchMessagesWidget::performSearch()
     m_allResults.clear();
     m_displayedCount = 0;
 
-    auto *pm = progressive::Application::instance().protocolManager();
+    auto *pm = pcp::Application::instance().protocolManager();
     if (!pm) {
         showSearchingIndicator(false);
         showNoResultsPlaceholder(true);
@@ -434,7 +434,7 @@ void SearchMessagesWidget::updateRoomFilter()
     m_roomFilter->addItem(tr("All rooms"));
     m_roomFilterIds.append(QString());
 
-    auto *pm = progressive::Application::instance().protocolManager();
+    auto *pm = pcp::Application::instance().protocolManager();
     if (pm) {
         const auto allRooms = pm->getAllRooms();
         for (const auto &room : allRooms) {

@@ -50,7 +50,7 @@ public:
         rowLayout->addWidget(joinButton);
 
         connect(joinButton, &QPushButton::clicked, this, [roomId = room.id, name = room.name, this]() {
-            auto *session = progressive::Application::instance().matrixSession();
+            auto *session = pcp::Application::instance().matrixSession();
             if (!session) {
                 QMessageBox::warning(this->window(), tr("Error"), tr("No Matrix session available."));
                 return;
@@ -118,7 +118,7 @@ void RoomDirectoryDialog::onSearchClicked()
     m_resultsList->clear();
     m_searchButton->setEnabled(false);
 
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         QMessageBox::warning(this, tr("Error"), tr("No Matrix session available."));
         m_searchButton->setEnabled(true);
@@ -150,7 +150,7 @@ void RoomDirectoryDialog::onItemDoubleClicked(QListWidgetItem *item)
         return;
 
     const QString roomId = item->data(Qt::UserRole).toString();
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         QMessageBox::warning(this, tr("Error"), tr("No Matrix session available."));
         return;

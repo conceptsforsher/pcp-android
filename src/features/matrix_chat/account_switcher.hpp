@@ -9,7 +9,7 @@
 #include <QAction>
 #include "protocol/protocol_type.hpp"
 
-namespace progressive {
+namespace pcp {
 
 struct AccountEntry {
     ProtocolType protocolType = ProtocolType::MATRIX;
@@ -74,4 +74,4 @@ private:
     ProtocolType m_currentProtocolType = ProtocolType::MATRIX;
 };
 
-} // namespace progressive
+} // namespace pcp

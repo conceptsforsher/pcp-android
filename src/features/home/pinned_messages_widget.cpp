@@ -283,7 +283,7 @@ void PinnedMessagesWidget::fetchPinnedMessages()
     m_pinnedMessages.clear();
     m_messageList->clear();
 
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         m_emptyLabel->setText(tr("No Matrix session available."));
         m_emptyLabel->show();
@@ -348,7 +348,7 @@ void PinnedMessagesWidget::fetchPinnedMessages()
 
 void PinnedMessagesWidget::fetchPinnedEventDetail(const QString &eventId)
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session)
         return;
 
@@ -508,7 +508,7 @@ void PinnedMessagesWidget::onPinNewClicked()
 
 void PinnedMessagesWidget::onUnpinClicked(const QString &eventId)
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session)
         return;
 

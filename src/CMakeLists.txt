@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_executable(progressive_android_concept main.cpp)
+add_executable(pcp_android_concept main.cpp)
 
 file(GLOB_RECURSE APP_SOURCES
     app/*.cpp
@@ -19,15 +19,15 @@ file(GLOB_RECURSE APP_SOURCES
     util/*.cpp
 )
 
-target_sources(progressive_android_concept PRIVATE ${APP_SOURCES})
+target_sources(pcp_android_concept PRIVATE ${APP_SOURCES})
 
-target_include_directories(progressive_android_concept PRIVATE
+target_include_directories(pcp_android_concept PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/progressive/include
+    ${CMAKE_SOURCE_DIR}/pcp/include
 )
 
-target_link_libraries(progressive_android_concept PRIVATE
-    progressive_native
+target_link_libraries(pcp_android_concept PRIVATE
+    pcp_native
     olm
     Qt6::Widgets
     Qt6::Network
@@ -35,6 +35,6 @@ target_link_libraries(progressive_android_concept PRIVATE
     Qt6::Core
 )
 if(TARGET Qt6::Multimedia)
-    target_link_libraries(progressive_android_concept PRIVATE Qt6::Multimedia)
-    target_compile_definitions(progressive_android_concept PRIVATE HAS_QT_MULTIMEDIA=1)
+    target_link_libraries(pcp_android_concept PRIVATE Qt6::Multimedia)
+    target_compile_definitions(pcp_android_concept PRIVATE HAS_QT_MULTIMEDIA=1)
 endif()

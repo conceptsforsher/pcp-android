@@ -9,7 +9,7 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class QTimer;
 
-namespace progressive {
+namespace pcp {
 
 class AppUpdateChecker : public QObject
 {
@@ -54,4 +54,4 @@ private:
     bool m_updateAvailable = false;
 };
 
-} // namespace progressive
+} // namespace pcp

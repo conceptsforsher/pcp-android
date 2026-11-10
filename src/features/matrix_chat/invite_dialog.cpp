@@ -418,7 +418,7 @@ void InviteDialog::onSearchDebounceTimeout()
 
 void InviteDialog::performSearch(const QString &query)
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         m_statusLabel->setText(tr("No Matrix session available."));
         m_statusLabel->setVisible(true);
@@ -484,7 +484,7 @@ void InviteDialog::performSearch(const QString &query)
 
 void InviteDialog::loadRecentContacts()
 {
-    QSettings settings(QStringLiteral("ProgressiveChat"), QStringLiteral("ProgressiveChat"));
+    QSettings settings(QStringLiteral("PCP"), QStringLiteral("PCP"));
     const QByteArray raw = settings.value(QStringLiteral("recentContacts")).toByteArray();
 
     if (raw.isEmpty())
@@ -556,7 +556,7 @@ void InviteDialog::saveRecentContact(const UserInfo &user)
         arr.append(obj);
     }
 
-    QSettings settings(QStringLiteral("ProgressiveChat"), QStringLiteral("ProgressiveChat"));
+    QSettings settings(QStringLiteral("PCP"), QStringLiteral("PCP"));
     settings.setValue(QStringLiteral("recentContacts"), QString::fromUtf8(
         QJsonDocument(arr).toJson(QJsonDocument::Compact)));
 }
@@ -741,7 +741,7 @@ void InviteDialog::onInviteClicked()
             return;
         }
 
-        auto *holder = progressive::Application::instance().ircSessionHolder();
+        auto *holder = pcp::Application::instance().ircSessionHolder();
         if (!holder) {
             QMessageBox::warning(this, tr("Error"),
                                  tr("IRC session holder not available."));
@@ -822,7 +822,7 @@ void InviteDialog::inviteNextMatrixUser()
         return;
     }
 
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         m_statusLabel->setText(tr("No Matrix session available."));
         m_statusLabel->setVisible(true);

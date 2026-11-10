@@ -78,7 +78,7 @@ void LemmyAuthDialog::onLoginClicked()
 
     m_loginButton->setEnabled(false);
 
-    progressive::Application::instance().addLemmySession();
+    pcp::Application::instance().addLemmySession();
 
     accept();
 }

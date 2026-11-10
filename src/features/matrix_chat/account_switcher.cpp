@@ -21,7 +21,7 @@
 #include "lemmy/lemmy_session_holder.hpp"
 #include "matrix/matrix_session.hpp"
 
-namespace progressive {
+namespace pcp {
 
 // ─── Connection dot painter ──────────────────────────────────────────────────
 
@@ -592,4 +592,4 @@ QPixmap AccountSwitcher::makeAvatarPixmap(const QString &name, int size, const Q
     return pix;
 }
 
-} // namespace progressive
+} // namespace pcp

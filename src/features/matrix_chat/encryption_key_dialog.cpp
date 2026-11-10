@@ -654,7 +654,7 @@ void EncryptionKeyDialog::loadBackupStatus()
 {
     m_backupEnabled = true;
     m_lastBackupTime = QDateTime::currentDateTime().addSecs(-3600 * 3);
-    m_backupLocation = QStringLiteral("~/.local/share/progressive-chat/backups/e2e_keys_2026-05-23.bak");
+    m_backupLocation = QStringLiteral("~/.local/share/pcp-chat/backups/e2e_keys_2026-05-23.bak");
 
     updateBackupStatus();
 }

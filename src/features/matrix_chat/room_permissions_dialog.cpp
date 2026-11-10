@@ -249,7 +249,7 @@ void RoomPermissionsDialog::setupUi()
 
 void RoomPermissionsDialog::fetchCurrentState()
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session)
         return;
 
@@ -418,7 +418,7 @@ void RoomPermissionsDialog::updateChangesIndicator()
 
 void RoomPermissionsDialog::onSaveClicked()
 {
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (!session) {
         QMessageBox::warning(this, tr("Error"), tr("No Matrix session available."));
         return;

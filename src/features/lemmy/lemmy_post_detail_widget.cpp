@@ -147,7 +147,7 @@ void LemmyPostDetailWidget::loadPost(qint64 postId, QString instanceUrl)
     m_commentContainers.clear();
     m_commentPage = 1;
 
-    auto *session = progressive::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
+    auto *session = pcp::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
     if (!session) {
         return;
     }
@@ -464,7 +464,7 @@ void LemmyPostDetailWidget::updateVoteDisplay(QLabel *scoreLabel, QPushButton *u
 
 void LemmyPostDetailWidget::onUpvotePost()
 {
-    auto *session = progressive::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
+    auto *session = pcp::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
     if (!session) return;
     auto *client = session->findChild<LemmyClient *>(QString(), Qt::FindDirectChildrenOnly);
     if (!client) return;
@@ -483,7 +483,7 @@ void LemmyPostDetailWidget::onUpvotePost()
 
 void LemmyPostDetailWidget::onDownvotePost()
 {
-    auto *session = progressive::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
+    auto *session = pcp::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
     if (!session) return;
     auto *client = session->findChild<LemmyClient *>(QString(), Qt::FindDirectChildrenOnly);
     if (!client) return;
@@ -502,7 +502,7 @@ void LemmyPostDetailWidget::onDownvotePost()
 
 void LemmyPostDetailWidget::onUpvoteComment(qint64 commentId)
 {
-    auto *session = progressive::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
+    auto *session = pcp::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
     if (!session) return;
     auto *client = session->findChild<LemmyClient *>(QString(), Qt::FindDirectChildrenOnly);
     if (!client) return;
@@ -531,7 +531,7 @@ void LemmyPostDetailWidget::onUpvoteComment(qint64 commentId)
 
 void LemmyPostDetailWidget::onDownvoteComment(qint64 commentId)
 {
-    auto *session = progressive::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
+    auto *session = pcp::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
     if (!session) return;
     auto *client = session->findChild<LemmyClient *>(QString(), Qt::FindDirectChildrenOnly);
     if (!client) return;
@@ -560,7 +560,7 @@ void LemmyPostDetailWidget::onDownvoteComment(qint64 commentId)
 
 void LemmyPostDetailWidget::submitComment(qint64 parentId, QString content)
 {
-    auto *session = progressive::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
+    auto *session = pcp::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
     if (!session) return;
     auto *client = session->findChild<LemmyClient *>(QString(), Qt::FindDirectChildrenOnly);
     if (!client) return;
@@ -782,7 +782,7 @@ void LemmyPostDetailWidget::onToggleCollapse(qint64 commentId)
 
 void LemmyPostDetailWidget::onLoadMoreReplies(qint64 parentId, int page)
 {
-    auto *session = progressive::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
+    auto *session = pcp::Application::instance().lemmySessionHolder()->getSession(m_instanceUrl);
     if (!session) return;
     auto *client = session->findChild<LemmyClient *>(QString(), Qt::FindDirectChildrenOnly);
     if (!client) return;

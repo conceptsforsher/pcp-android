@@ -9,7 +9,7 @@ class MatrixSession;
 class IrcSessionHolder;
 class LemmySessionHolder;
 
-namespace progressive {
+namespace pcp {
 
 class Application : public QObject
 {
@@ -48,4 +48,4 @@ private:
     bool m_initialized = false;
 };
 
-} // namespace progressive
+} // namespace pcp

@@ -85,7 +85,7 @@ DirectChatDialog::DirectChatDialog(const QString &preSelectedUserId, QWidget *pa
     m_searchTimer->setSingleShot(true);
     m_searchTimer->setInterval(kSearchDebounceMs);
 
-    auto *session = progressive::Application::instance().matrixSession();
+    auto *session = pcp::Application::instance().matrixSession();
     if (session) {
         m_homeserverUrl = session->homeserverUrl();
         m_userId = session->userId();
@@ -257,7 +257,7 @@ QString DirectChatDialog::existingDMRoomId(const QString &userId) const
 
 void DirectChatDialog::loadRecentUsers()
 {
-    QSettings settings(QStringLiteral("ProgressiveChat"), QStringLiteral("ProgressiveChat"));
+    QSettings settings(QStringLiteral("PCP"), QStringLiteral("PCP"));
     const QByteArray raw = settings.value(QStringLiteral("recentDirectChatUsers")).toByteArray();
 
     if (raw.isEmpty())
@@ -285,7 +285,7 @@ static void saveRecentUser(const DirectChatUserInfo &user)
     if (user.userId.isEmpty())
         return;
 
-    QSettings settings(QStringLiteral("ProgressiveChat"), QStringLiteral("ProgressiveChat"));
+    QSettings settings(QStringLiteral("PCP"), QStringLiteral("PCP"));
     const QByteArray raw = settings.value(QStringLiteral("recentDirectChatUsers")).toByteArray();
 
     QVector<DirectChatUserInfo> recent;

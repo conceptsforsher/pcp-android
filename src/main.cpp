@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    progressive::Application &application = progressive::Application::instance();
+    pcp::Application &application = pcp::Application::instance();
     application.loadSettings();
     application.startProtocolManager();
 

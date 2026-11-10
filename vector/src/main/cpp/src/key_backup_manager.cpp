@@ -1,12 +1,12 @@
-#include "progressive/key_backup_manager.hpp"
-#include "progressive/key_backup.hpp"
-#include "progressive/crypto_algorithms.hpp"
-#include "progressive/megolm_decryptor.hpp"
+#include "pcp/key_backup_manager.hpp"
+#include "pcp/key_backup.hpp"
+#include "pcp/crypto_algorithms.hpp"
+#include "pcp/megolm_decryptor.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON extraction helpers (local to this file) ======
 
@@ -609,4 +609,4 @@ std::string KeyBackupManager::decryptResultsToJson(const std::vector<BackupSessi
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

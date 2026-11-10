@@ -6,7 +6,7 @@ When a Matrix user joins the same room from multiple homeservers (a scenario com
 
 **The desync detector is a safety net.** It continuously tracks which events exist on each homeserver and warns the user when divergence is detected.
 
-This is a novel feature — neither Element Web nor Element Android has anything comparable. It was designed specifically for Progressive Chat's multi-account architecture where a user might be logged into `@user:matrix.org` and `@user:server.com` simultaneously in the same room.
+This is a novel feature — neither Element Web nor Element Android has anything comparable. It was designed specifically for PCP's multi-account architecture where a user might be logged into `@user:matrix.org` and `@user:server.com` simultaneously in the same room.
 
 ## How It Works
 
@@ -87,10 +87,10 @@ Helper to determine if the user-configured interval has elapsed since the last c
 
 ```kotlin
 // Kotlin timeline controller calls this for every event
-ProgressiveNative.nativeDesyncTrackEvent(eventId, "matrix.org", timestampMs)
+PcpNative.nativeDesyncTrackEvent(eventId, "matrix.org", timestampMs)
 
 // Periodic check (WorkManager / AlarmManager)
-val report = ProgressiveNative.nativeDesyncCheck(roomId, "server.com")
+val report = PcpNative.nativeDesyncCheck(roomId, "server.com")
 val json = JSONObject(report)
 if (json.getBoolean("hasDesync")) {
     showNotification(json.getString("warning"))

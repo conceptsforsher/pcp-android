@@ -1,9 +1,9 @@
-#include "progressive/session_manager_full.hpp"
+#include "pcp/session_manager_full.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Enum conversions ======
 
@@ -362,4 +362,4 @@ std::string SessionManager::paramsToJson(const SavedSessionParams& params) const
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

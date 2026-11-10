@@ -1,7 +1,7 @@
-#include "progressive/notif_formatter.hpp"
+#include "pcp/notif_formatter.hpp"
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ==== MXC URL Builder ====
 
@@ -150,4 +150,4 @@ NotificationText buildNotificationText(
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

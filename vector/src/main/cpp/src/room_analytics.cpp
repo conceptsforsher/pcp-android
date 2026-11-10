@@ -1,10 +1,10 @@
-#include "progressive/room_analytics.hpp"
+#include "pcp/room_analytics.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 void sortByJoinDate(std::vector<UserStats>& users) {
     std::sort(users.begin(), users.end(), [](const UserStats& a, const UserStats& b) {
@@ -160,4 +160,4 @@ std::string analyticsToJson(const RoomAnalytics& a) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

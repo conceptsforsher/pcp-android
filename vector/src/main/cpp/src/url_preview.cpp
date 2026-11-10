@@ -1,10 +1,10 @@
-#include "progressive/url_preview.hpp"
-#include "progressive/link_preview.hpp"
+#include "pcp/url_preview.hpp"
+#include "pcp/link_preview.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // Helper: extract content of a named attribute from HTML
 static std::string getAttr(const std::string& tag, const std::string& attr) {
@@ -148,7 +148,7 @@ std::string resolveUrl(const std::string& baseUrl, const std::string& relative) 
     return baseUrl.substr(0, lastSlash + 1) + relative;
 }
 
-// isImageUrl is defined in progressive/link_preview.cpp
+// isImageUrl is defined in pcp/link_preview.cpp
 
 std::vector<std::string> extractUrls(const std::string& html) {
     std::vector<std::string> urls;
@@ -223,4 +223,4 @@ std::string urlPreviewToJson(const UrlPreview& preview) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

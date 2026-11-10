@@ -1,9 +1,9 @@
-#include "progressive/message_retry.hpp"
+#include "pcp/message_retry.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 int64_t computeRetryDelay(int retryCount, int64_t maxDelayMs) {
     // Exponential backoff: base 1s, double each retry
@@ -193,7 +193,7 @@ std::string queueToJson(const std::vector<PendingMessage>& queue) {
 // ==== Pending Message Editing ====
 // Enables editing messages that haven't been sent yet.
 // Original Element limitation: edits only work after server confirms send.
-// Progressive Chat: edits update the pending queue immediately.
+// PCP: edits update the pending queue immediately.
 //
 // How it works:
 //   1. User types message, hits send — message enters queue (state=Pending)
@@ -254,4 +254,4 @@ PendingMessage editPendingMessage(
     return empty;
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,9 +1,9 @@
-#include "progressive/irc_parser.hpp"
+#include "pcp/irc_parser.hpp"
 #include <cstring>
 #include <cstdlib>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 namespace irc {
 
 IrcMessage IrcParser::parse(const std::string& raw) {
@@ -135,4 +135,4 @@ std::string IrcParser::commandToString(IrcCommand cmd) {
 }
 
 } // namespace irc
-} // namespace progressive
+} // namespace pcp

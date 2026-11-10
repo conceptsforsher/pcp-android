@@ -2,7 +2,7 @@
 
 ## Overview
 
-The message translation engine enables Progressive Chat to translate messages in real-time using OpenAI-compatible and Anthropic language models. Unlike traditional translation apps that require the user to copy-paste text, this module integrates directly into the message context menu — long-press any message and tap "Translate".
+The message translation engine enables PCP to translate messages in real-time using OpenAI-compatible and Anthropic language models. Unlike traditional translation apps that require the user to copy-paste text, this module integrates directly into the message context menu — long-press any message and tap "Translate".
 
 The entire translation pipeline is C++ native: prompt engineering, request body construction, and response parsing all happen on the native heap. The HTTP call itself is made by OkHttp on the Kotlin side, with the request and response flowing through JNI boundaries as JSON strings.
 
@@ -31,7 +31,7 @@ User long-presses message → "Translate" in context menu
    - Target language: from system locale or manual setting
     │
     ▼
-2. BUILD: ProgressiveNative.nativeBuildTranslateRequest(text, srcLang, tgtLang, endpoint, token, model)
+2. BUILD: PcpNative.nativeBuildTranslateRequest(text, srcLang, tgtLang, endpoint, token, model)
    → C++ builds the JSON request body
    │
    │  FOR OPENAI:
@@ -60,7 +60,7 @@ User long-presses message → "Translate" in context menu
    - Timeout: 15s connect, 30s read
     │
     ▼
-4. PARSE: ProgressiveNative.nativeParseTranslateResponse(responseBody, httpStatus)
+4. PARSE: PcpNative.nativeParseTranslateResponse(responseBody, httpStatus)
    → C++ extracts translated text from the JSON response
    │
    │  INPUT: {"choices": [{"message": {"content": "Привет, как дела?"}}]}
@@ -160,7 +160,7 @@ Java_..._nativeParseTranslateResponse(
 );
 ```
 
-Each function has a pure-Kotlin fallback in `ProgressiveNative.kt` that is used when the native library fails to load. This ensures the feature works even on devices where `libprogressive_native.so` is unavailable — the Kotlin fallback uses `org.json.JSONObject` for the same logic.
+Each function has a pure-Kotlin fallback in `PcpNative.kt` that is used when the native library fails to load. This ensures the feature works even on devices where `libpcp_native.so` is unavailable — the Kotlin fallback uses `org.json.JSONObject` for the same logic.
 
 ## Security Considerations
 

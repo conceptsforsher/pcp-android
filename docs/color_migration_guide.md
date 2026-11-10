@@ -37,7 +37,7 @@
 
 Some colors and color attribute has been removed, here is the list and what has to be used now.
 
-It can help Progressive Chat forks maintainers to migrate their code.
+It can help PCP forks maintainers to migrate their code.
 
 - riotx_text_primary -> ?vctr_content_primary
 - riotx_text_secondary -> ?vctr_content_secondary

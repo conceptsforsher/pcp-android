@@ -123,7 +123,7 @@ class FtueAuthCombinedServerSelectionFragment :
             else -> errorFormatter.toHumanReadable(throwable)
         }
         views.chooseServerCardErrorMas.isVisible = isMasSupportRequiredException
-        views.chooseServerCardDownloadReplacementApp.isVisible = false // Progressive Chat: don't redirect to Element X
+        views.chooseServerCardDownloadReplacementApp.isVisible = false // PCP: don't redirect to Element X
         if (isMasSupportRequiredException) {
             views.chooseServerSubmit.isEnabled = false
         }

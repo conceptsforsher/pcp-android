@@ -1,8 +1,8 @@
-#include "progressive/matrix_api.hpp"
-#include "progressive/tls_bridge.hpp"
+#include "pcp/matrix_api.hpp"
+#include "pcp/tls_bridge.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Global State ====
 
@@ -84,7 +84,7 @@ std::string apiRegister(const std::string& username, const std::string& password
     std::ostringstream body;
     body << R"({"username":")" << username << R"(","password":")" << password << R"(")";
     if (!deviceId.empty()) body << R"(,"device_id":")" << deviceId << R"(")";
-    body << R"(,"initial_device_display_name":"Progressive Chat")";
+    body << R"(,"initial_device_display_name":"PCP")";
     body << "}";
 
     auto resp = httpPost(g_homeserverBase + "/_matrix/client/r0/register",
@@ -315,4 +315,4 @@ std::string apiRedactEvent(const std::string& roomId, const std::string& eventId
     return resp.success ? resp.body : "";
 }
 
-} // namespace progressive
+} // namespace pcp

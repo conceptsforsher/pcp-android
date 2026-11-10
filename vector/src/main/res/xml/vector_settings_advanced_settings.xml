@@ -104,12 +104,12 @@
 
     <im.vector.app.core.preference.VectorPreferenceCategory
         android:dependency="SETTINGS_DEVELOPER_MODE_PREFERENCE_KEY"
-        android:title="Progressive Chat Debug">
+        android:title="PCP Debug">
 
         <im.vector.app.core.preference.VectorPreference
             android:key="SETTINGS_NATIVE_MODULE_STATUS"
             android:persistent="false"
-            android:summary="Shows which of the 101 C++ modules are loaded in libprogressive_native.so"
+            android:summary="Shows which of the 101 C++ modules are loaded in libpcp_native.so"
             android:title="Native Module Status" />
 
         <im.vector.app.core.preference.VectorPreference

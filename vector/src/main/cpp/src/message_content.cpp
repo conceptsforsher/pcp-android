@@ -1,7 +1,7 @@
-#include "progressive/message_content.hpp"
+#include "pcp/message_content.hpp"
 #include <cstring>
 
-namespace progressive {
+namespace pcp {
 
 // ==== JSON Extraction Helpers ====
 
@@ -394,4 +394,4 @@ std::string messageFileToJson(const MessageFileContent& msg) {
     return json;
 }
 
-} // namespace progressive
+} // namespace pcp

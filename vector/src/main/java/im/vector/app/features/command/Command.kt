@@ -64,7 +64,7 @@ enum class Command(
     UPGRADE_ROOM("/upgraderoom", null, "newVersion", CommonStrings.command_description_upgrade_room, true, false),
     JUMP_TO_DATE("/jumptodate", null, "<YYYY-MM-DD> [HH:MM]", CommonStrings.command_description_jump_to_date, false, true),
     TABLE_FLIP("/tableflip", null, "<message>", CommonStrings.command_description_table_flip, false, true),
-    // Progressive Chat commands
+    // PCP commands
     LLM("/llm", null, "<query>", CommonStrings.command_description_llm, false, true),
     LLMP("/llmp", null, "<query>", CommonStrings.command_description_llmp, false, true),
     AGENT("/agent", null, "<task>", CommonStrings.command_description_agent, false, true),

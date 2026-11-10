@@ -1,6 +1,6 @@
-#include "progressive/lightweight_settings.hpp"
+#include "pcp/lightweight_settings.hpp"
 
-namespace progressive {
+namespace pcp {
 
 // ==== SyncPresence ====
 //
@@ -161,4 +161,4 @@ std::string setSettingString(const std::string& settingsJson, const std::string&
     return newJson;
 }
 
-} // namespace progressive
+} // namespace pcp

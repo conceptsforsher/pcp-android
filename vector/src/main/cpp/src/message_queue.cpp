@@ -1,11 +1,11 @@
-#include "progressive/message_queue.hpp"
+#include "pcp/message_queue.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 #include <chrono>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 // ---- Dedup ----
 
@@ -182,4 +182,4 @@ void PinManager::clear() {
     pins_.clear();
 }
 
-} // namespace progressive
+} // namespace pcp

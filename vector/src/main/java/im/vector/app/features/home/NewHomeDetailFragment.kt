@@ -55,10 +55,10 @@ import im.vector.app.features.spaces.SpaceListBottomSheet
 import im.vector.app.features.workers.signout.BannerState
 import im.vector.app.features.workers.signout.ServerBackupStatusAction
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
-import chat.progressive.app.features.auth.IrcAuthActivity
-import chat.progressive.app.features.home.IrcChatListBottomSheet
-import chat.progressive.app.irc.IrcSessionHolder
-import chat.progressive.app.protocol.ProtocolManager
+import chat.pcp.app.features.auth.IrcAuthActivity
+import chat.pcp.app.features.home.IrcChatListBottomSheet
+import chat.pcp.app.irc.IrcSessionHolder
+import chat.pcp.app.protocol.ProtocolManager
 import im.vector.lib.strings.CommonStrings
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

@@ -66,6 +66,6 @@ sealed interface ParsedCommand {
     data class LeaveRoom(val roomId: String) : ParsedCommand
     data class UpgradeRoom(val newVersion: String) : ParsedCommand
     data class JumpToDate(val dateString: String) : ParsedCommand
-    // Progressive Chat native commands (processed by libprogressive_native.so)
-    data class ProgressiveChatCommand(val command: Command, val args: String) : ParsedCommand
+    // PCP native commands (processed by libpcp_native.so)
+    data class PCPCommand(val command: Command, val args: String) : ParsedCommand
 }

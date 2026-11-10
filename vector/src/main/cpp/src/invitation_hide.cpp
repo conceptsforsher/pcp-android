@@ -1,9 +1,9 @@
-#include "progressive/invitation_hide.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/invitation_hide.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 void InvitationHideList::hide(const HiddenInvitation& invite) {
     HiddenInvitation copy = invite;
@@ -81,11 +81,11 @@ void InvitationHideList::importJson(const std::string& json) {
         std::string objStr = json.substr(start, end - start + 1);
 
         HiddenInvitation inv;
-        inv.roomId      = progressive::parseJsonStringValue(objStr, "roomId");
-        inv.roomName    = progressive::parseJsonStringValue(objStr, "roomName");
-        inv.inviterName = progressive::parseJsonStringValue(objStr, "inviterName");
-        inv.inviterMxid = progressive::parseJsonStringValue(objStr, "inviterMxid");
-        auto hiddenAtStr = progressive::parseJsonStringValue(objStr, "hiddenAt");
+        inv.roomId      = pcp::parseJsonStringValue(objStr, "roomId");
+        inv.roomName    = pcp::parseJsonStringValue(objStr, "roomName");
+        inv.inviterName = pcp::parseJsonStringValue(objStr, "inviterName");
+        inv.inviterMxid = pcp::parseJsonStringValue(objStr, "inviterMxid");
+        auto hiddenAtStr = pcp::parseJsonStringValue(objStr, "hiddenAt");
         if (!hiddenAtStr.empty()) inv.hiddenAt = std::stoll(hiddenAtStr);
 
         if (!inv.roomId.empty()) {
@@ -100,4 +100,4 @@ void InvitationHideList::clear() {
     hidden_.clear();
 }
 
-} // namespace progressive
+} // namespace pcp

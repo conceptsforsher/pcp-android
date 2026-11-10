@@ -33,7 +33,7 @@ internal class InitialSyncResponseParser @Inject constructor(
 
     companion object {
         /**
-         * Optional callback for Progressive Chat native validation.
+         * Optional callback for PCP native validation.
          * Called with the first 64KB of the sync JSON for lightweight
          * next_batch extraction without reading the entire file.
          */
@@ -43,7 +43,7 @@ internal class InitialSyncResponseParser @Inject constructor(
     fun parse(syncStrategy: InitialSyncStrategy.Optimized, workingFile: File): SyncResponse {
         val syncResponseLength = workingFile.length()
 
-        // Progressive Chat: lightweight native validation (first 64KB only)
+        // PCP: lightweight native validation (first 64KB only)
         val validator = nativeHeaderValidator
         if (validator != null && syncResponseLength in 1024..50_000_000) {
             try {

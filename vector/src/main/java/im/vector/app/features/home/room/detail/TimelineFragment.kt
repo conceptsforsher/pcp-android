@@ -131,7 +131,7 @@ import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.action.EventSharedAction
 import im.vector.app.features.home.room.detail.timeline.action.MessageActionsBottomSheet
 import im.vector.app.features.home.room.detail.timeline.action.MessageSharedActionViewModel
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 import im.vector.app.features.home.room.detail.timeline.edithistory.ViewEditHistoryBottomSheet
 import im.vector.app.features.home.room.detail.timeline.helper.AudioMessagePlaybackTracker
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
@@ -514,11 +514,11 @@ class TimelineFragment :
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val requestJson = try {
-                    JSONObject(ProgressiveNative.nativeBuildTranslateRequest(
+                    JSONObject(PcpNative.nativeBuildTranslateRequest(
                         action.text, "", targetLang, endpoint, token, "gpt-4o-mini"
                     ))
                 } catch (e: UnsatisfiedLinkError) {
-                    ProgressiveNative.buildTranslateRequestFallback(
+                    PcpNative.buildTranslateRequestFallback(
                         action.text, "", targetLang, endpoint, token, "gpt-4o-mini"
                     )
                 }
@@ -539,10 +539,10 @@ class TimelineFragment :
                 val body = response.body?.string() ?: ""
 
                 val result = try {
-                    val raw = ProgressiveNative.nativeParseTranslateResponse(body, response.code)
+                    val raw = PcpNative.nativeParseTranslateResponse(body, response.code)
                     JSONObject(raw)
                 } catch (e: UnsatisfiedLinkError) {
-                    ProgressiveNative.parseTranslateResponseFallback(body, response.code)
+                    PcpNative.parseTranslateResponseFallback(body, response.code)
                 }
 
                 withContext(Dispatchers.Main) {

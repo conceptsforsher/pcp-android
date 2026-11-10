@@ -1,7 +1,7 @@
-#include "progressive/room_version.hpp"
+#include "pcp/room_version.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 std::vector<RoomVersion> getKnownRoomVersions() {
     std::vector<RoomVersion> versions = {
@@ -46,4 +46,4 @@ std::string roomVersionsToJson() {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,10 +1,10 @@
-#include "progressive/invite_utils.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/invite_utils.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 InviteInfo parseInviteInfo(const std::string& roomId, const std::string& stateEventsJson) {
     InviteInfo info;
@@ -140,4 +140,4 @@ std::string formatKnockReason(const std::string& reason) {
     return reason;
 }
 
-} // namespace progressive
+} // namespace pcp

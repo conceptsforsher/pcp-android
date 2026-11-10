@@ -1,8 +1,8 @@
-#include "progressive/lemmy_api.hpp"
-#include "progressive/http_client.hpp"
+#include "pcp/lemmy_api.hpp"
+#include "pcp/http_client.hpp"
 #include <cstdio>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Internal state ====
 
@@ -661,4 +661,4 @@ std::string lemmyUploadImage(const std::string& auth, const std::string& imageDa
     return httpExecute(req).body;
 }
 
-} // namespace progressive
+} // namespace pcp

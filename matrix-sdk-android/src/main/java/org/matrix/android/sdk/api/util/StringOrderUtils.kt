@@ -1,6 +1,6 @@
 package org.matrix.android.sdk.api.util
 
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 import org.json.JSONArray
 
 object StringOrderUtils {
@@ -11,7 +11,7 @@ object StringOrderUtils {
 
     @Suppress("UNUSED_PARAMETER")
     fun average(left: String, right: String, alphabet: CharArray = DEFAULT_ALPHABET): String? {
-        val result = ProgressiveNative.nativeStringAverage(left, right)
+        val result = PcpNative.nativeStringAverage(left, right)
         return result.takeIf { it != left && it != right }
     }
 
@@ -20,7 +20,7 @@ object StringOrderUtils {
         if (left == right) return null
         val a = if (left > right) right else left
         val b = if (left > right) left else right
-        val json = ProgressiveNative.nativeStringMidPoints(a, b, count)
+        val json = PcpNative.nativeStringMidPoints(a, b, count)
         val arr = JSONArray(json)
         val result = (0 until arr.length()).map { arr.getString(it) }
         return result.takeIf { it.isNotEmpty() && it.last() < b && it.first() > a }

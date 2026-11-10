@@ -4,7 +4,7 @@
 
 A high-precision network latency measurement and analysis engine. Records every HTTP request made by the Matrix SDK, computes real-time statistics including percentiles (P50/P95/P99), standard deviation, jitter, and packet loss rate. Designed as a drop-in observability tool that integrates into the OkHttp interceptor chain.
 
-This module is the foundation for Progressive Chat's network debugging capabilities. It enables features like the "Network Statistics" dashboard, per-server latency comparison, and automatic server selection based on historical performance.
+This module is the foundation for PCP's network debugging capabilities. It enables features like the "Network Statistics" dashboard, per-server latency comparison, and automatic server selection based on historical performance.
 
 ## Terminology
 
@@ -25,7 +25,7 @@ Latency samples are collected at the OkHttp interceptor level in the Kotlin laye
 1. Records `startTimeMs` using `nanoTime()`
 2. Waits for the response (or failure)
 3. Records `endTimeMs` and computes `latencyMs = endTimeMs - startTimeMs`
-4. Calls `ProgressiveNative.nativeLatencyRecord(latencyMs, serverName, endpoint, success)`
+4. Calls `PcpNative.nativeLatencyRecord(latencyMs, serverName, endpoint, success)`
 
 This interceptor approach captures ALL Matrix traffic — sync requests, media uploads, `/send` calls, `/members` queries — without modifying the SDK.
 
@@ -93,7 +93,7 @@ The Kotlin UI can display per-server stats side by side for easy comparison.
 
 ```kotlin
 // Called from OkHttp interceptor
-ProgressiveNative.nativeLatencyRecord(
+PcpNative.nativeLatencyRecord(
     latencyMs = 23.5,
     server = "matrix.org",
     endpoint = "/_matrix/client/v3/sync",
@@ -101,10 +101,10 @@ ProgressiveNative.nativeLatencyRecord(
 )
 
 // Display stats
-val json = ProgressiveNative.nativeLatencyStats()
+val json = PcpNative.nativeLatencyStats()
 // {"avgMs": 87.3, "p95Ms": 500.0, "jitterMs": 80.2, "packetLossRate": 0.0}
 
-val text = ProgressiveNative.nativeLatencyStatsText()
+val text = PcpNative.nativeLatencyStatsText()
 // Latency Stats (142 samples)
 //   Avg:   87ms
 //   P50:   19ms

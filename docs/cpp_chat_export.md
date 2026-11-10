@@ -17,10 +17,10 @@ ExportDialog → selects format (HTML/Plain/JSON), range, size limit
     ▼
 Kotlin loops over events from Realm/SQLite cache
     │
-    ├── Per-event: ProgressiveNative.nativeFormatEventHtml(sender, time, body, ...)
+    ├── Per-event: PcpNative.nativeFormatEventHtml(sender, time, body, ...)
     │
     ▼
-ProgressiveNative.nativeBuildHtmlExport(roomName, topic, date, eventHtmls[])
+PcpNative.nativeBuildHtmlExport(roomName, topic, date, eventHtmls[])
     │
     ▼
 C++ exporter.cpp builds full HTML document with embedded CSS
@@ -96,7 +96,7 @@ Takes pre-rendered event HTML blocks and wraps them in a full HTML document with
 1. **Header**: Room name, topic, export date, message count
 2. **CSS**: Full embedded stylesheet (20+ rules for all message types)
 3. **Events**: All event HTML blocks in chronological order
-4. **Footer**: "Exported with Progressive Chat"
+4. **Footer**: "Exported with PCP"
 
 ```html
 <!DOCTYPE html>
@@ -120,7 +120,7 @@ Takes pre-rendered event HTML blocks and wraps them in a full HTML document with
   </div>
   <!-- event HTML blocks here -->
   <hr>
-  <p>Exported with Progressive Chat</p>
+  <p>Exported with PCP</p>
 </body>
 </html>
 ```
@@ -178,7 +178,7 @@ Java_..._nativeFormatEventHtml(JNIEnv* env, jclass,
     ExportEvent event;
     event.senderName = std::string(env->GetStringUTFChars(sender, nullptr));
     // ... populate other fields ...
-    auto html = progressive::formatEventHtml(event, isCont);
+    auto html = pcp::formatEventHtml(event, isCont);
     return env->NewStringUTF(html.c_str());
 }
 ```

@@ -16,7 +16,7 @@
 
 package org.matrix.android.sdk.internal.util
 
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 import timber.log.Timber
 import java.util.Locale
 
@@ -51,7 +51,7 @@ internal fun String.caseInsensitiveFind(subString: String): Boolean {
 internal val spaceChars = "[\\u00A0\\u2000-\\u200B\\u2800\\u3000]".toRegex()
 
 internal fun String.replaceSpaceChars(replacement: String = "") =
-    ProgressiveNative.nativeReplaceSpaceChars(this, replacement)
+    PcpNative.nativeReplaceSpaceChars(this, replacement)
 
 internal fun String.safeCapitalize(): String {
     return replaceFirstChar { char ->
@@ -60,4 +60,4 @@ internal fun String.safeCapitalize(): String {
 }
 
 internal fun String.removeInvalidRoomNameChars() =
-    ProgressiveNative.nativeRemoveInvalidRoomNameChars(this)
+    PcpNative.nativeRemoveInvalidRoomNameChars(this)

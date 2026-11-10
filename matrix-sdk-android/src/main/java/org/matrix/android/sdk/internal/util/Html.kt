@@ -1,5 +1,5 @@
 package org.matrix.android.sdk.internal.util
 
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 
-internal fun String.unescapeHtml(): String = ProgressiveNative.nativeUnescapeHtml(this)
+internal fun String.unescapeHtml(): String = PcpNative.nativeUnescapeHtml(this)

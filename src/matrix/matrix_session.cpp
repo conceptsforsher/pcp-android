@@ -13,7 +13,7 @@
 #include <QDebug>
 #include <QUuid>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 MatrixSession::MatrixSession(QNetworkAccessManager *network, QObject *parent)
     : ProtocolSession(parent)
@@ -280,7 +280,7 @@ void MatrixSession::joinRoom(const QString &roomId)
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     QJsonObject body;
-    body["reason"] = "User joined via Progressive Chat";
+    body["reason"] = "User joined via PCP";
 
     auto *reply = m_networkManager->post(request, QJsonDocument(body).toJson());
     connect(reply, &QNetworkReply::finished, this, [this, roomId, reply]() {
@@ -344,4 +344,4 @@ void MatrixSession::sendReceipt(const QString &roomId, const QString &eventId,
     reply->deleteLater();
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

@@ -6,7 +6,7 @@
 
 class QNetworkAccessManager;
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class MatrixSession : public ProtocolSession
 {
@@ -65,4 +65,4 @@ private:
     bool m_initialSyncDone = false;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

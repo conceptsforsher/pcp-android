@@ -6,7 +6,7 @@
 #include <QPainter>
 #include <QPixmap>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 SystemTrayManager::SystemTrayManager(QObject *parent, NotificationManager *notifManager)
     : QObject(parent)
@@ -85,7 +85,7 @@ void SystemTrayManager::setupIcon()
     painter.end();
 
     m_trayIcon->setIcon(QIcon(pixmap));
-    m_trayIcon->setToolTip("Progressive Chat");
+    m_trayIcon->setToolTip("PCP");
 }
 
 bool SystemTrayManager::isVisible() const
@@ -111,4 +111,4 @@ void SystemTrayManager::toggleMuteNotifications()
     emit notificationMuteToggled(m_muted);
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

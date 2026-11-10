@@ -3,7 +3,7 @@
 #include <QString>
 #include <QDateTime>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 struct IrcMessage {
     QString raw;
@@ -23,4 +23,4 @@ struct IrcMessage {
     }
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

@@ -5,7 +5,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class WelcomeWidget : public QWidget
 {
@@ -27,4 +27,4 @@ private:
     QPushButton *m_createAccountBtn;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

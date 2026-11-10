@@ -6,7 +6,7 @@
 #include <QString>
 #include <optional>
 
-namespace progressive_chat {
+namespace pcp_chat {
 namespace util {
 
 inline std::optional<QJsonObject> parseJson(const QByteArray &data)
@@ -71,4 +71,4 @@ QJsonObject redactEvent(const QJsonObject &event);
 QString eventHash(const QJsonObject &event);
 
 } // namespace util
-} // namespace progressive_chat
+} // namespace pcp_chat

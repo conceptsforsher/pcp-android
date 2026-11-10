@@ -5,7 +5,7 @@
 #include <QDateTime>
 #include <QJsonObject>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 struct MatrixRoomData {
     QString roomId;
@@ -45,4 +45,4 @@ struct MatrixRoomData {
     }
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

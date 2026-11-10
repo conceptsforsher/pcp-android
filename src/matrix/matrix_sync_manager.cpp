@@ -12,7 +12,7 @@
 #include <QCryptographicHash>
 #include <QDebug>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 MatrixSyncManager::MatrixSyncManager(MatrixSession *session, QObject *parent)
     : QObject(parent)
@@ -197,4 +197,4 @@ void MatrixSyncManager::scheduleRetry(int retryAfterMs)
     QTimer::singleShot(retryAfterMs, this, &MatrixSyncManager::processSync);
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

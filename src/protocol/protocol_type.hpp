@@ -3,7 +3,7 @@
 #include <QString>
 #include <QMetaType>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 enum class ProtocolType {
     Matrix = 0,
@@ -30,6 +30,6 @@ inline ProtocolType protocolTypeFromString(const QString &str)
     return ProtocolType::Unknown;
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat
 
-Q_DECLARE_METATYPE(progressive_chat::ProtocolType)
+Q_DECLARE_METATYPE(pcp_chat::ProtocolType)

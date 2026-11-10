@@ -1,4 +1,4 @@
-// Progressive Chat Test Suite
+// PCP Test Suite
 // Tests for the core SDK and application modules
 
 #include <QTest>
@@ -19,37 +19,37 @@ class ProtocolTypeTests : public QObject
 private slots:
     void testProtocolTypeToString()
     {
-        QCOMPARE(progressive_chat::protocolTypeToString(
-            progressive_chat::ProtocolType::Matrix), QString("matrix"));
-        QCOMPARE(progressive_chat::protocolTypeToString(
-            progressive_chat::ProtocolType::IRC), QString("irc"));
-        QCOMPARE(progressive_chat::protocolTypeToString(
-            progressive_chat::ProtocolType::Lemmy), QString("lemmy"));
-        QCOMPARE(progressive_chat::protocolTypeToString(
-            progressive_chat::ProtocolType::Unknown), QString("unknown"));
+        QCOMPARE(pcp_chat::protocolTypeToString(
+            pcp_chat::ProtocolType::Matrix), QString("matrix"));
+        QCOMPARE(pcp_chat::protocolTypeToString(
+            pcp_chat::ProtocolType::IRC), QString("irc"));
+        QCOMPARE(pcp_chat::protocolTypeToString(
+            pcp_chat::ProtocolType::Lemmy), QString("lemmy"));
+        QCOMPARE(pcp_chat::protocolTypeToString(
+            pcp_chat::ProtocolType::Unknown), QString("unknown"));
     }
 
     void testProtocolTypeFromString()
     {
-        QCOMPARE(progressive_chat::protocolTypeFromString("matrix"),
-                 progressive_chat::ProtocolType::Matrix);
-        QCOMPARE(progressive_chat::protocolTypeFromString("irc"),
-                 progressive_chat::ProtocolType::IRC);
-        QCOMPARE(progressive_chat::protocolTypeFromString("lemmy"),
-                 progressive_chat::ProtocolType::Lemmy);
-        QCOMPARE(progressive_chat::protocolTypeFromString("invalid"),
-                 progressive_chat::ProtocolType::Unknown);
+        QCOMPARE(pcp_chat::protocolTypeFromString("matrix"),
+                 pcp_chat::ProtocolType::Matrix);
+        QCOMPARE(pcp_chat::protocolTypeFromString("irc"),
+                 pcp_chat::ProtocolType::IRC);
+        QCOMPARE(pcp_chat::protocolTypeFromString("lemmy"),
+                 pcp_chat::ProtocolType::Lemmy);
+        QCOMPARE(pcp_chat::protocolTypeFromString("invalid"),
+                 pcp_chat::ProtocolType::Unknown);
     }
 
     void testProtocolTypeRoundTrip()
     {
-        auto types = {progressive_chat::ProtocolType::Matrix,
-                      progressive_chat::ProtocolType::IRC,
-                      progressive_chat::ProtocolType::Lemmy};
+        auto types = {pcp_chat::ProtocolType::Matrix,
+                      pcp_chat::ProtocolType::IRC,
+                      pcp_chat::ProtocolType::Lemmy};
 
         for (auto type : types) {
-            QString str = progressive_chat::protocolTypeToString(type);
-            QCOMPARE(progressive_chat::protocolTypeFromString(str), type);
+            QString str = pcp_chat::protocolTypeToString(type);
+            QCOMPARE(pcp_chat::protocolTypeFromString(str), type);
         }
     }
 };
@@ -62,9 +62,9 @@ class ProtocolMessageTests : public QObject
 private slots:
     void testDefaultMessage()
     {
-        progressive_chat::ProtocolMessage msg;
-        QCOMPARE(msg.protocol, progressive_chat::ProtocolType::Unknown);
-        QCOMPARE(msg.type, progressive_chat::MessageType::Text);
+        pcp_chat::ProtocolMessage msg;
+        QCOMPARE(msg.protocol, pcp_chat::ProtocolType::Unknown);
+        QCOMPARE(msg.type, pcp_chat::MessageType::Text);
         QVERIFY(!msg.isEncrypted());
         QVERIFY(!msg.isEdited());
         QVERIFY(!msg.isReply());
@@ -73,26 +73,26 @@ private slots:
 
     void testMessageReply()
     {
-        progressive_chat::ProtocolMessage msg;
+        pcp_chat::ProtocolMessage msg;
         msg.replyToId = "$event123";
         QVERIFY(msg.isReply());
     }
 
     void testMessageThread()
     {
-        progressive_chat::ProtocolMessage msg;
+        pcp_chat::ProtocolMessage msg;
         msg.threadRootId = "$thread456";
         QVERIFY(msg.isInThread());
     }
 
     void testMessageDisplayName()
     {
-        progressive_chat::ProtocolMessage msg;
+        pcp_chat::ProtocolMessage msg;
         msg.senderName = "Alice";
         msg.senderId = "@alice:matrix.org";
         QCOMPARE(msg.displayName(), QString("Alice"));
 
-        progressive_chat::ProtocolMessage msg2;
+        pcp_chat::ProtocolMessage msg2;
         msg2.senderId = "@bob:matrix.org";
         QCOMPARE(msg2.displayName(), QString("@bob:matrix.org"));
     }
@@ -106,9 +106,9 @@ class ProtocolRoomTests : public QObject
 private slots:
     void testRoomDefaults()
     {
-        progressive_chat::ProtocolRoom room;
-        QCOMPARE(room.protocol, progressive_chat::ProtocolType::Unknown);
-        QCOMPARE(room.type, progressive_chat::ProtocolRoom::RoomType::Unknown);
+        pcp_chat::ProtocolRoom room;
+        QCOMPARE(room.protocol, pcp_chat::ProtocolType::Unknown);
+        QCOMPARE(room.type, pcp_chat::ProtocolRoom::RoomType::Unknown);
         QCOMPARE(room.memberCount, 0);
         QCOMPARE(room.unreadCount, 0);
         QVERIFY(!room.isEncrypted);
@@ -118,20 +118,20 @@ private slots:
 
     void testRoomDisplayName()
     {
-        progressive_chat::ProtocolRoom room;
+        pcp_chat::ProtocolRoom room;
         room.name = "Test Room";
         room.canonicalAlias = "#test:matrix.org";
         QCOMPARE(room.displayName(), QString("Test Room"));
 
-        progressive_chat::ProtocolRoom room2;
+        pcp_chat::ProtocolRoom room2;
         room2.canonicalAlias = "#onlyalias:matrix.org";
         QCOMPARE(room2.displayName(), QString("#onlyalias:matrix.org"));
     }
 
     void testSpaceRoom()
     {
-        progressive_chat::ProtocolRoom room;
-        room.type = progressive_chat::ProtocolRoom::RoomType::Space;
+        pcp_chat::ProtocolRoom room;
+        room.type = pcp_chat::ProtocolRoom::RoomType::Space;
         QVERIFY(room.isSpace());
     }
 };
@@ -144,20 +144,20 @@ class StringUtilTests : public QObject
 private slots:
     void testEllipsize()
     {
-        QCOMPARE(progressive_chat::util::ellipsize("Short", 10), QString("Short"));
-        QCOMPARE(progressive_chat::util::ellipsize("This is a long text", 10),
+        QCOMPARE(pcp_chat::util::ellipsize("Short", 10), QString("Short"));
+        QCOMPARE(pcp_chat::util::ellipsize("This is a long text", 10),
                  QString("This is..."));
     }
 
     void testStripHtml()
     {
-        QCOMPARE(progressive_chat::util::stripHtml("<b>Hello</b> <i>World</i>"),
+        QCOMPARE(pcp_chat::util::stripHtml("<b>Hello</b> <i>World</i>"),
                  QString("Hello World"));
     }
 
     void testSplitLines()
     {
-        QStringList lines = progressive_chat::util::splitLines("line1\\nline2\\r\\nline3");
+        QStringList lines = pcp_chat::util::splitLines("line1\\nline2\\r\\nline3");
         QCOMPARE(lines.size(), 3);
         QCOMPARE(lines[0], QString("line1"));
         QCOMPARE(lines[1], QString("line2"));
@@ -166,27 +166,27 @@ private slots:
 
     void testIsValidMatrixId()
     {
-        QVERIFY(progressive_chat::util::isValidMatrixId("@user:matrix.org"));
-        QVERIFY(progressive_chat::util::isValidMatrixId("!room:matrix.org"));
-        QVERIFY(progressive_chat::util::isValidMatrixId("#alias:matrix.org"));
-        QVERIFY(!progressive_chat::util::isValidMatrixId("invalid"));
-        QVERIFY(!progressive_chat::util::isValidMatrixId(""));
+        QVERIFY(pcp_chat::util::isValidMatrixId("@user:matrix.org"));
+        QVERIFY(pcp_chat::util::isValidMatrixId("!room:matrix.org"));
+        QVERIFY(pcp_chat::util::isValidMatrixId("#alias:matrix.org"));
+        QVERIFY(!pcp_chat::util::isValidMatrixId("invalid"));
+        QVERIFY(!pcp_chat::util::isValidMatrixId(""));
     }
 
     void testExtractServerName()
     {
-        QCOMPARE(progressive_chat::util::extractServerName("@user:matrix.org"),
+        QCOMPARE(pcp_chat::util::extractServerName("@user:matrix.org"),
                  QString("matrix.org"));
-        QCOMPARE(progressive_chat::util::extractServerName("@user:example.com:443"),
+        QCOMPARE(pcp_chat::util::extractServerName("@user:example.com:443"),
                  QString("443"));
     }
 
     void testFormatBytes()
     {
-        QCOMPARE(progressive_chat::util::formatBytes(500), QString("500 B"));
-        QCOMPARE(progressive_chat::util::formatBytes(1500), QString("1.5 KB"));
-        QCOMPARE(progressive_chat::util::formatBytes(1500000), QString("1.4 MB"));
-        QCOMPARE(progressive_chat::util::formatBytes(1500000000LL), QString("1.4 GB"));
+        QCOMPARE(pcp_chat::util::formatBytes(500), QString("500 B"));
+        QCOMPARE(pcp_chat::util::formatBytes(1500), QString("1.5 KB"));
+        QCOMPARE(pcp_chat::util::formatBytes(1500000), QString("1.4 MB"));
+        QCOMPARE(pcp_chat::util::formatBytes(1500000000LL), QString("1.4 GB"));
     }
 };
 
@@ -199,7 +199,7 @@ private slots:
     void testFormatTimestamp()
     {
         QDateTime now = QDateTime::currentDateTime();
-        QString today = progressive_chat::util::formatTimestamp(now);
+        QString today = pcp_chat::util::formatTimestamp(now);
         QVERIFY(!today.isEmpty());
     }
 
@@ -207,15 +207,15 @@ private slots:
     {
         QDateTime now = QDateTime::currentDateTime();
         QDateTime tenSecAgo = now.addSecs(-10);
-        QString relative = progressive_chat::util::formatRelativeTime(tenSecAgo);
+        QString relative = pcp_chat::util::formatRelativeTime(tenSecAgo);
         QVERIFY(relative.contains("ago"));
     }
 
     void testFormatDuration()
     {
-        QCOMPARE(progressive_chat::util::formatDuration(5000), QString("0:05"));
-        QCOMPARE(progressive_chat::util::formatDuration(65000), QString("1:05"));
-        QCOMPARE(progressive_chat::util::formatDuration(3665000), QString("1:01:05"));
+        QCOMPARE(pcp_chat::util::formatDuration(5000), QString("0:05"));
+        QCOMPARE(pcp_chat::util::formatDuration(65000), QString("1:05"));
+        QCOMPARE(pcp_chat::util::formatDuration(3665000), QString("1:01:05"));
     }
 };
 
@@ -227,8 +227,8 @@ class ColorUtilTests : public QObject
 private slots:
     void testColorFromUserId()
     {
-        QColor color1 = progressive_chat::util::colorFromUserId("@alice:matrix.org");
-        QColor color2 = progressive_chat::util::colorFromUserId("@alice:matrix.org");
+        QColor color1 = pcp_chat::util::colorFromUserId("@alice:matrix.org");
+        QColor color2 = pcp_chat::util::colorFromUserId("@alice:matrix.org");
         QVERIFY(color1.isValid());
         // Same user should get same color
         QCOMPARE(color1.name(), color2.name());
@@ -236,15 +236,15 @@ private slots:
 
     void testIsDarkColor()
     {
-        QVERIFY(progressive_chat::util::isDarkColor(QColor("#000000")));
-        QVERIFY(!progressive_chat::util::isDarkColor(QColor("#ffffff")));
+        QVERIFY(pcp_chat::util::isDarkColor(QColor("#000000")));
+        QVERIFY(!pcp_chat::util::isDarkColor(QColor("#ffffff")));
     }
 
     void testTextColorForBackground()
     {
-        QCOMPARE(progressive_chat::util::textColorForBackground(QColor("#000000")),
+        QCOMPARE(pcp_chat::util::textColorForBackground(QColor("#000000")),
                  QColor("#ffffff"));
-        QCOMPARE(progressive_chat::util::textColorForBackground(QColor("#ffffff")),
+        QCOMPARE(pcp_chat::util::textColorForBackground(QColor("#ffffff")),
                  QColor("#212121"));
     }
 };
@@ -258,12 +258,12 @@ private slots:
     void testParseJson()
     {
         QByteArray valid = R"({"key": "value"})";
-        auto result = progressive_chat::util::parseJson(valid);
+        auto result = pcp_chat::util::parseJson(valid);
         QVERIFY(result.has_value());
         QCOMPARE((*result)["key"].toString(), QString("value"));
 
         QByteArray invalid = "not json";
-        auto badResult = progressive_chat::util::parseJson(invalid);
+        auto badResult = pcp_chat::util::parseJson(invalid);
         QVERIFY(!badResult.has_value());
     }
 
@@ -271,10 +271,10 @@ private slots:
     {
         QJsonObject obj;
         obj["nested"] = QJsonObject{{"key", "val"}};
-        QJsonObject nested = progressive_chat::util::safeObject(obj["nested"]);
+        QJsonObject nested = pcp_chat::util::safeObject(obj["nested"]);
         QCOMPARE(nested["key"].toString(), QString("val"));
 
-        QJsonObject empty = progressive_chat::util::safeObject(obj["nonexistent"]);
+        QJsonObject empty = pcp_chat::util::safeObject(obj["nonexistent"]);
         QVERIFY(empty.isEmpty());
     }
 
@@ -282,7 +282,7 @@ private slots:
     {
         QJsonObject obj;
         obj["list"] = QJsonArray{1, 2, 3};
-        QJsonArray arr = progressive_chat::util::safeArray(obj["list"]);
+        QJsonArray arr = pcp_chat::util::safeArray(obj["list"]);
         QCOMPARE(arr.size(), 3);
     }
 
@@ -290,8 +290,8 @@ private slots:
     {
         QJsonObject obj;
         obj["name"] = "test";
-        QCOMPARE(progressive_chat::util::safeString(obj["name"]), QString("test"));
-        QCOMPARE(progressive_chat::util::safeString(obj["missing"], "default"),
+        QCOMPARE(pcp_chat::util::safeString(obj["name"]), QString("test"));
+        QCOMPARE(pcp_chat::util::safeString(obj["missing"], "default"),
                  QString("default"));
     }
 
@@ -299,8 +299,8 @@ private slots:
     {
         QJsonObject obj;
         obj["count"] = 42;
-        QCOMPARE(progressive_chat::util::safeInt(obj["count"]), 42);
-        QCOMPARE(progressive_chat::util::safeInt(obj["missing"], -1), -1);
+        QCOMPARE(pcp_chat::util::safeInt(obj["count"]), 42);
+        QCOMPARE(pcp_chat::util::safeInt(obj["missing"], -1), -1);
     }
 
     void testCanonicalJson()
@@ -308,7 +308,7 @@ private slots:
         QJsonObject obj;
         obj["b"] = 2;
         obj["a"] = 1;
-        QString canonical = progressive_chat::util::canonicalJson(obj);
+        QString canonical = pcp_chat::util::canonicalJson(obj);
         QVERIFY(canonical.contains("\"a\""));
         QVERIFY(canonical.contains("\"b\""));
     }
@@ -322,7 +322,7 @@ private slots:
         overlay["b"] = 3;
         overlay["c"] = 4;
 
-        QJsonObject merged = progressive_chat::util::mergeObjects(base, overlay);
+        QJsonObject merged = pcp_chat::util::mergeObjects(base, overlay);
         QCOMPARE(merged["a"].toInt(), 1);
         QCOMPARE(merged["b"].toInt(), 3);
         QCOMPARE(merged["c"].toInt(), 4);
@@ -337,21 +337,21 @@ class NetworkUtilTests : public QObject
 private slots:
     void testIsValidUrl()
     {
-        QVERIFY(progressive_chat::util::isValidUrl("https://matrix.org"));
-        QVERIFY(progressive_chat::util::isValidUrl("http://localhost:8008"));
-        QVERIFY(!progressive_chat::util::isValidUrl("not a url"));
-        QVERIFY(!progressive_chat::util::isValidUrl(""));
+        QVERIFY(pcp_chat::util::isValidUrl("https://matrix.org"));
+        QVERIFY(pcp_chat::util::isValidUrl("http://localhost:8008"));
+        QVERIFY(!pcp_chat::util::isValidUrl("not a url"));
+        QVERIFY(!pcp_chat::util::isValidUrl(""));
     }
 
     void testIsMxcUrl()
     {
-        QVERIFY(progressive_chat::util::isMxcUrl("mxc://matrix.org/abc123"));
-        QVERIFY(!progressive_chat::util::isMxcUrl("https://matrix.org/abc123"));
+        QVERIFY(pcp_chat::util::isMxcUrl("mxc://matrix.org/abc123"));
+        QVERIFY(!pcp_chat::util::isMxcUrl("https://matrix.org/abc123"));
     }
 
     void testParseMxcUrl()
     {
-        auto [server, mediaId] = progressive_chat::util::parseMxcUrl(
+        auto [server, mediaId] = pcp_chat::util::parseMxcUrl(
             "mxc://matrix.org/abc123def");
         QCOMPARE(server, QString("matrix.org"));
         QCOMPARE(mediaId, QString("abc123def"));
@@ -359,7 +359,7 @@ private slots:
 
     void testMxcToHttp()
     {
-        QString http = progressive_chat::util::mxcToHttp(
+        QString http = pcp_chat::util::mxcToHttp(
             "mxc://matrix.org/abc123", "https://matrix.org");
         QVERIFY(http.contains("_matrix/media/v3/download"));
         QVERIFY(http.contains("matrix.org"));
@@ -375,21 +375,21 @@ class FileUtilTests : public QObject
 private slots:
     void testFileExtension()
     {
-        QCOMPARE(progressive_chat::util::fileExtension("/path/to/file.jpg"),
+        QCOMPARE(pcp_chat::util::fileExtension("/path/to/file.jpg"),
                  QString("jpg"));
-        QCOMPARE(progressive_chat::util::fileExtension("test.PNG"),
+        QCOMPARE(pcp_chat::util::fileExtension("test.PNG"),
                  QString("png"));
     }
 
     void testFileName()
     {
-        QCOMPARE(progressive_chat::util::fileName("/path/to/document.pdf"),
+        QCOMPARE(pcp_chat::util::fileName("/path/to/document.pdf"),
                  QString("document.pdf"));
     }
 
     void testSanitizeFilename()
     {
-        QCOMPARE(progressive_chat::util::sanitizeFilename("file<name>:with?chars"),
+        QCOMPARE(pcp_chat::util::sanitizeFilename("file<name>:with?chars"),
                  QString("file_name__with_chars"));
     }
 };
@@ -409,36 +409,36 @@ private slots:
         ruleObj["priority_class"] = 3;
         ruleObj["actions"] = QJsonArray{"notify", QJsonObject{{"set_tweak", "sound"}, {"value", "default"}}};
 
-        auto rule = progressive_chat::MatrixPushRules::parseRule(ruleObj);
+        auto rule = pcp_chat::MatrixPushRules::parseRule(ruleObj);
         QCOMPARE(rule.ruleId, QString(".m.rule.contains_user_name"));
         QVERIFY(rule.isDefault);
         QVERIFY(rule.enabled);
         QCOMPARE(rule.priority, 3);
-        QVERIFY(rule.actions.contains(progressive_chat::PushAction::Notify));
+        QVERIFY(rule.actions.contains(pcp_chat::PushAction::Notify));
         QCOMPARE(rule.tweaks["sound"], QString("default"));
     }
 
     void testSerializeRule()
     {
-        progressive_chat::PushRule rule;
+        pcp_chat::PushRule rule;
         rule.ruleId = ".m.rule.test";
-        rule.actions.append(progressive_chat::PushAction::Notify);
+        rule.actions.append(pcp_chat::PushAction::Notify);
         rule.tweaks["sound"] = "custom.wav";
 
-        QJsonObject obj = progressive_chat::MatrixPushRules::serializeRule(rule);
+        QJsonObject obj = pcp_chat::MatrixPushRules::serializeRule(rule);
         QCOMPARE(obj["rule_id"].toString(), QString(".m.rule.test"));
     }
 
     void testShouldNotify()
     {
-        progressive_chat::PushRule notifyRule;
-        notifyRule.actions.append(progressive_chat::PushAction::Notify);
+        pcp_chat::PushRule notifyRule;
+        notifyRule.actions.append(pcp_chat::PushAction::Notify);
 
-        progressive_chat::MatrixPushRules rules;
+        pcp_chat::MatrixPushRules rules;
         QVERIFY(rules.shouldNotify(notifyRule));
 
-        progressive_chat::PushRule silentRule;
-        silentRule.actions.append(progressive_chat::PushAction::DontNotify);
+        pcp_chat::PushRule silentRule;
+        silentRule.actions.append(pcp_chat::PushAction::DontNotify);
         QVERIFY(!rules.shouldNotify(silentRule));
     }
 };
@@ -452,8 +452,8 @@ private slots:
     void testSessionDefaults()
     {
         QNetworkAccessManager network;
-        progressive_chat::MatrixSession session(&network);
-        QCOMPARE(session.protocolType(), progressive_chat::ProtocolType::Matrix);
+        pcp_chat::MatrixSession session(&network);
+        QCOMPARE(session.protocolType(), pcp_chat::ProtocolType::Matrix);
         QVERIFY(!session.isConnected());
         QVERIFY(session.homeserver().isEmpty());
         QVERIFY(session.accessToken().isEmpty());
@@ -462,7 +462,7 @@ private slots:
     void testSessionConfiguration()
     {
         QNetworkAccessManager network;
-        progressive_chat::MatrixSession session(&network);
+        pcp_chat::MatrixSession session(&network);
         session.setHomeserver("https://matrix.org");
         session.setAccessToken("test_token");
         session.setDeviceId("test_device");
@@ -474,11 +474,11 @@ private slots:
     void testSessionSignals()
     {
         QNetworkAccessManager network;
-        progressive_chat::MatrixSession session(&network);
+        pcp_chat::MatrixSession session(&network);
 
-        QSignalSpy connectedSpy(&session, &progressive_chat::MatrixSession::connected);
-        QSignalSpy disconnectedSpy(&session, &progressive_chat::MatrixSession::disconnected);
-        QSignalSpy errorSpy(&session, &progressive_chat::MatrixSession::connectionError);
+        QSignalSpy connectedSpy(&session, &pcp_chat::MatrixSession::connected);
+        QSignalSpy disconnectedSpy(&session, &pcp_chat::MatrixSession::disconnected);
+        QSignalSpy errorSpy(&session, &pcp_chat::MatrixSession::connectionError);
 
         QCOMPARE(connectedSpy.count(), 0);
         QCOMPARE(disconnectedSpy.count(), 0);
@@ -494,27 +494,27 @@ class ThemeManagerTests : public QObject
 private slots:
     void testDefaultTheme()
     {
-        progressive_chat::ThemeManager manager;
+        pcp_chat::ThemeManager manager;
         QCOMPARE(manager.activeThemeName(), QString("Light"));
     }
 
     void testThemeSwitch()
     {
-        progressive_chat::ThemeManager manager;
-        QSignalSpy themeSpy(&manager, &progressive_chat::ThemeManager::themeChanged);
+        pcp_chat::ThemeManager manager;
+        QSignalSpy themeSpy(&manager, &pcp_chat::ThemeManager::themeChanged);
 
-        manager.applyTheme(progressive_chat::ThemeManager::Theme::Dark);
+        manager.applyTheme(pcp_chat::ThemeManager::Theme::Dark);
         QCOMPARE(themeSpy.count(), 1);
         QCOMPARE(manager.activeThemeName(), QString("Dark"));
     }
 
     void testColorsAfterThemeSwitch()
     {
-        progressive_chat::ThemeManager manager;
-        manager.applyTheme(progressive_chat::ThemeManager::Theme::Dark);
+        pcp_chat::ThemeManager manager;
+        manager.applyTheme(pcp_chat::ThemeManager::Theme::Dark);
 
         QColor bg = manager.backgroundColor();
-        QVERIFY(progressive_chat::util::isDarkColor(bg));
+        QVERIFY(pcp_chat::util::isDarkColor(bg));
     }
 };
 

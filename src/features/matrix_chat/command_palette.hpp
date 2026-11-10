@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ProtocolManager;
 
@@ -37,4 +37,4 @@ private:
     QList<Command> m_commands;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

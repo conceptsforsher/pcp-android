@@ -4,7 +4,7 @@
 #include <QStringList>
 #include <QDateTime>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class LogCollector
 {
@@ -19,4 +19,4 @@ public:
     static QString currentLogPath(const QString &configDir);
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

@@ -7,7 +7,7 @@
 #include <QStringList>
 #include <QVariantMap>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 enum class RoomType {
     Direct,
@@ -49,4 +49,4 @@ struct ProtocolRoom {
     bool isSpace() const { return type == RoomType::Space; }
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

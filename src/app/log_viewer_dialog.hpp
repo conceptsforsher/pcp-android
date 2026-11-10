@@ -8,7 +8,7 @@
 #include <QComboBox>
 #include <QLabel>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class LogViewerDialog : public QDialog
 {
@@ -31,4 +31,4 @@ private:
     QPushButton *m_clearBtn;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

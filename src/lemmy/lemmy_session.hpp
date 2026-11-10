@@ -8,7 +8,7 @@
 
 class QNetworkAccessManager;
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 struct LemmyCommunity {
     QString id;
@@ -136,4 +136,4 @@ private:
     int m_pollIntervalMs = 60000;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

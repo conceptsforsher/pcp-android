@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ProtocolManager;
 
@@ -38,4 +38,4 @@ private:
     QLabel *m_infoLabel;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

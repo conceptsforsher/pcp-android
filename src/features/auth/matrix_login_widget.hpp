@@ -9,7 +9,7 @@
 #include <QCheckBox>
 #include <QProgressBar>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ProtocolManager;
 
@@ -39,4 +39,4 @@ private:
     QProgressBar *m_progressBar;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

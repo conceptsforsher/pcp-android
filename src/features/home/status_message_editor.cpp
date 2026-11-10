@@ -1,7 +1,7 @@
 #include "status_message_editor.hpp"
 #include <QIcon>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 StatusMessageEditor::StatusMessageEditor(QWidget *parent) : QWidget(parent)
 {
@@ -33,4 +33,4 @@ void StatusMessageEditor::setStatus(const QString &status)
     m_statusInput->setText(status);
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

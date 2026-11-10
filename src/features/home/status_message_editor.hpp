@@ -5,7 +5,7 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class StatusMessageEditor : public QWidget
 {
@@ -23,4 +23,4 @@ private:
     QPushButton *m_setBtn;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

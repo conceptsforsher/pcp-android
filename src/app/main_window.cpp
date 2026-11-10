@@ -32,12 +32,12 @@
 #include <QDialog>
 #include <QTimer>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    setWindowTitle("Progressive Chat");
+    setWindowTitle("PCP");
     setMinimumSize(900, 600);
     resize(1280, 800);
 }
@@ -114,7 +114,7 @@ void MainWindow::setupMenuBar()
 
     // Help menu
     QMenu *helpMenu = mb->addMenu(tr("&Help"));
-    QAction *aboutAction = helpMenu->addAction(tr("&About Progressive Chat"));
+    QAction *aboutAction = helpMenu->addAction(tr("&About PCP"));
     connect(aboutAction, &QAction::triggered, this, &MainWindow::showAboutDialog);
 
     QAction *logAction = helpMenu->addAction(tr("&Log Viewer..."));
@@ -321,7 +321,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::saveWindowState()
 {
-    QSettings settings("ProgressiveChat", "progressive_chat");
+    QSettings settings("PCP", "pcp_chat");
     settings.setValue("mainwindow/geometry", saveGeometry());
     settings.setValue("mainwindow/state", saveState());
     settings.setValue("mainwindow/compact", m_compactMode);
@@ -330,7 +330,7 @@ void MainWindow::saveWindowState()
 
 void MainWindow::restoreWindowState()
 {
-    QSettings settings("ProgressiveChat", "progressive_chat");
+    QSettings settings("PCP", "pcp_chat");
     if (settings.contains("mainwindow/geometry"))
         restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
     if (settings.contains("mainwindow/state"))
@@ -339,4 +339,4 @@ void MainWindow::restoreWindowState()
     m_sidebarVisible = settings.value("mainwindow/sidebar", true).toBool();
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

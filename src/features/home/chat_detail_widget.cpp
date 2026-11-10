@@ -7,7 +7,7 @@
 #include <QFont>
 #include <QStyle>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 ChatDetailWidget::ChatDetailWidget(QWidget *parent) : QWidget(parent)
 {
@@ -185,4 +185,4 @@ void ChatDetailWidget::onRoomInfoClicked()
     emit roomInfoRequested();
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

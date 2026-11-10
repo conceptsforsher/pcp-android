@@ -9,14 +9,14 @@
 #include <QDebug>
 #include <QUuid>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 IrcSession::IrcSession(QNetworkAccessManager *network, QObject *parent)
     : ProtocolSession(parent)
     , m_networkManager(network)
 {
     m_protocolType = ProtocolType::IRC;
-    m_nickname = "progressive_" + QUuid::createUuid().toString().mid(1, 8);
+    m_nickname = "pcp_" + QUuid::createUuid().toString().mid(1, 8);
 }
 
 IrcSession::~IrcSession()
@@ -78,7 +78,7 @@ void IrcSession::disconnect()
 {
     m_pingTimer.stop();
     if (m_socket) {
-        sendRaw("QUIT :Progressive Chat signing off");
+        sendRaw("QUIT :PCP signing off");
         m_socket->disconnectFromHost();
     }
 }
@@ -340,4 +340,4 @@ QPair<QString, QString> IrcSession::parsePrefix(const QString &prefix)
     return {prefix, ""};
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

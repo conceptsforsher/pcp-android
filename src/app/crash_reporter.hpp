@@ -4,7 +4,7 @@
 #include <QObject>
 #include <functional>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class CrashReporter : public QObject
 {
@@ -42,4 +42,4 @@ private:
     QStringList m_recentActions;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

@@ -6,7 +6,7 @@
 #include <QFileInfoList>
 #include <QDebug>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 QStringList LogCollector::collectRecentLogs(int maxLines)
 {
@@ -57,8 +57,8 @@ QString LogCollector::logDirectory(const QString &configDir)
 
 QString LogCollector::currentLogPath(const QString &configDir)
 {
-    return logDirectory(configDir) + "/progressive_" +
+    return logDirectory(configDir) + "/pcp_" +
            QDate::currentDate().toString("yyyy-MM-dd") + ".log";
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

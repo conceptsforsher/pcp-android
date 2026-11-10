@@ -7,7 +7,7 @@
 class QNetworkAccessManager;
 class QTcpSocket;
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class IrcSession : public ProtocolSession
 {
@@ -74,11 +74,11 @@ private:
     int m_port = 6667;
     QString m_nickname;
     QString m_password;
-    QString m_realName = "Progressive Chat User";
+    QString m_realName = "PCP User";
     bool m_useSsl = false;
     QTimer m_pingTimer;
     QString m_readBuffer;
     bool m_registered = false;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

@@ -11,13 +11,13 @@
 #include <QMessageBox>
 #include <QTimer>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 MatrixAuthDialog::MatrixAuthDialog(ProtocolManager *manager, QWidget *parent)
     : QDialog(parent)
     , m_protocolManager(manager)
 {
-    setWindowTitle("Progressive Chat — Sign In");
+    setWindowTitle("PCP — Sign In");
     setMinimumSize(450, 400);
 
     auto *mainLayout = new QVBoxLayout(this);
@@ -174,7 +174,7 @@ void MatrixAuthDialog::onLoginClicked()
     body["type"] = "m.login.password";
     body["identifier"] = QJsonObject{{"type", "m.id.user"}, {"user", user}};
     body["password"] = password;
-    body["initial_device_display_name"] = "Progressive Chat Desktop";
+    body["initial_device_display_name"] = "PCP Desktop";
 
     auto *reply = manager->post(request, QJsonDocument(body).toJson());
     connect(reply, &QNetworkReply::finished, this, [=]() {
@@ -244,7 +244,7 @@ void MatrixAuthDialog::onRegisterClicked()
     QJsonObject body;
     body["username"] = user;
     body["password"] = password;
-    body["initial_device_display_name"] = "Progressive Chat Desktop";
+    body["initial_device_display_name"] = "PCP Desktop";
 
     auto *reply = manager->post(request, QJsonDocument(body).toJson());
     connect(reply, &QNetworkReply::finished, this, [=]() {
@@ -282,7 +282,7 @@ void MatrixAuthDialog::onSsoLoginClicked()
     m_ssoStatus->setText("Opening browser for SSO authentication...");
 
     // Build SSO URL
-    QString redirectUrl = "progressive-chat://sso/callback";
+    QString redirectUrl = "pcp-chat://sso/callback";
     QUrl ssoUrl(server + "/_matrix/client/v3/login/sso/redirect");
     ssoUrl.setQuery("redirectUrl=" + QUrl::toPercentEncoding(redirectUrl));
 
@@ -329,4 +329,4 @@ void MatrixAuthDialog::setFormEnabled(bool enabled)
     m_loginBtn->setEnabled(enabled);
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

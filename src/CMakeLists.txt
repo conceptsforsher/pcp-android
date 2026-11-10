@@ -33,13 +33,13 @@ file(GLOB_RECURSE APP_HEADERS
     "util/*.hpp"
 )
 
-add_executable(progressive_chat ${APP_SOURCES} ${APP_HEADERS})
+add_executable(pcp_chat ${APP_SOURCES} ${APP_HEADERS})
 
-target_include_directories(progressive_chat PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(pcp_chat PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(progressive_chat
+target_link_libraries(pcp_chat
     PRIVATE
-        progressive
+        pcp
         Qt6::Widgets
         Qt6::Network
         Qt6::Sql
@@ -49,9 +49,9 @@ target_link_libraries(progressive_chat
         Qt6::Core5Compat
 )
 
-set_target_properties(progressive_chat PROPERTIES
+set_target_properties(pcp_chat PROPERTIES
     WIN32_EXECUTABLE TRUE
     MACOSX_BUNDLE TRUE
 )
 
-install(TARGETS progressive_chat DESTINATION bin)
+install(TARGETS pcp_chat DESTINATION bin)

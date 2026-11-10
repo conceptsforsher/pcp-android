@@ -21,7 +21,7 @@
 #include <QMutex>
 #include <iostream>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 Application::Application(int &argc, char **argv)
     : QApplication(argc, argv)
@@ -114,7 +114,7 @@ int Application::run()
 void Application::setupLogging()
 {
     if (m_debugLogging) {
-        QLoggingCategory::setFilterRules("*.debug=true\nprogressive.*=true");
+        QLoggingCategory::setFilterRules("*.debug=true\npcp.*=true");
     }
 
     qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &ctx, const QString &msg) {
@@ -213,4 +213,4 @@ ProtocolManager *Application::protocolManager() const
     return m_protocolManager.get();
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

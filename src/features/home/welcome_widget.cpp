@@ -2,7 +2,7 @@
 #include <QFont>
 #include <QSpacerItem>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 WelcomeWidget::WelcomeWidget(QWidget *parent) : QWidget(parent)
 {
@@ -18,7 +18,7 @@ void WelcomeWidget::setupUi()
     layout->addStretch(2);
 
     // Title
-    m_titleLabel = new QLabel("Welcome to Progressive Chat");
+    m_titleLabel = new QLabel("Welcome to PCP");
     QFont titleFont;
     titleFont.setPixelSize(32);
     titleFont.setBold(true);
@@ -32,7 +32,7 @@ void WelcomeWidget::setupUi()
     m_subtitleLabel = new QLabel(
         "100% C++ desktop Matrix client.
 "
-        "Fast. Secure. Progressive.");
+        "Fast. Secure. PCP.");
     m_subtitleLabel->setAlignment(Qt::AlignCenter);
     m_subtitleLabel->setStyleSheet("color: #888; font-size: 14px;");
     layout->addWidget(m_subtitleLabel);
@@ -63,7 +63,7 @@ void WelcomeWidget::setupUi()
     layout->addStretch(3);
 
     // Version label
-    auto *versionLabel = new QLabel("v0.3.0 — progressive.chat");
+    auto *versionLabel = new QLabel("v0.3.0 — pcp.chat");
     versionLabel->setAlignment(Qt::AlignCenter);
     versionLabel->setStyleSheet("color: #666; font-size: 11px;");
     layout->addWidget(versionLabel);
@@ -72,4 +72,4 @@ void WelcomeWidget::setupUi()
     connect(m_createAccountBtn, &QPushButton::clicked, this, &WelcomeWidget::createAccountRequested);
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

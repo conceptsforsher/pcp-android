@@ -9,7 +9,7 @@
 
 class QNetworkAccessManager;
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ProtocolManager : public QObject
 {
@@ -51,4 +51,4 @@ private:
     ProtocolSession *m_activeSession = nullptr;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

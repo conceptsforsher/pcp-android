@@ -11,7 +11,7 @@
 #include <QJsonArray>
 #include <QDebug>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 CrashReporter &CrashReporter::instance()
 {
@@ -108,4 +108,4 @@ void CrashReporter::uploadReport(const QString &report)
     Q_UNUSED(report);
 }
 
-} // namespace progressive_chat
+} // namespace pcp_chat

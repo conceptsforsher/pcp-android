@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22.0)
-project(progressive-android-concept
+project(pcp-android-concept
     VERSION 0.3.0
-    DESCRIPTION "Progressive Chat — 100% C++ desktop Matrix client"
+    DESCRIPTION "PCP — 100% C++ desktop Matrix client"
     LANGUAGES CXX C
 )
 
@@ -24,8 +24,8 @@ find_package(Qt6 REQUIRED COMPONENTS
 # OLM encryption library
 add_subdirectory(libolm)
 
-# Progressive core SDK library
-add_subdirectory(progressive)
+# PCP core SDK library
+add_subdirectory(pcp)
 
 # Main application
 add_subdirectory(src)

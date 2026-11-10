@@ -8,7 +8,7 @@
 #include <QStringList>
 #include <QHash>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ProtocolSession : public QObject
 {
@@ -69,4 +69,4 @@ protected:
     QHash<QString, ProtocolRoom> m_rooms;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

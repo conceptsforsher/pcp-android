@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVersionNumber>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class AppUpdateChecker : public QObject
 {
@@ -41,4 +41,4 @@ private:
     bool m_checked = false;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

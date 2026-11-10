@@ -8,7 +8,7 @@
 
 class QNetworkAccessManager;
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class MatrixSession;
 
@@ -57,4 +57,4 @@ private:
     int m_syncTimeoutMs = 30000;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

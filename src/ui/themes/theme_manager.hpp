@@ -7,7 +7,7 @@
 #include <QMap>
 #include <QColor>
 
-namespace progressive_chat {
+namespace pcp_chat {
 
 class ThemeManager : public QObject
 {
@@ -60,4 +60,4 @@ private:
     QMap<QString, QColor> m_colors;
 };
 
-} // namespace progressive_chat
+} // namespace pcp_chat

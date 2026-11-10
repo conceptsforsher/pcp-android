@@ -4,7 +4,7 @@
 #include <QUrl>
 #include <QNetworkRequest>
 
-namespace progressive_chat {
+namespace pcp_chat {
 namespace util {
 
 inline bool isValidUrl(const QString &url)
@@ -51,4 +51,4 @@ inline QString mxcToHttp(const QString &mxcUrl, const QString &homeserver)
 }
 
 } // namespace util
-} // namespace progressive_chat
+} // namespace pcp_chat

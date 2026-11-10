@@ -1,10 +1,10 @@
-#include "progressive/poll_manager.hpp"
+#include "pcp/poll_manager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers (local) ======
 
@@ -449,4 +449,4 @@ std::string PollManager::getPollEventDescription(const std::string& eventType) c
     return "Poll event";
 }
 
-} // namespace progressive
+} // namespace pcp

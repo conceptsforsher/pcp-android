@@ -1,10 +1,10 @@
-#include "progressive/scheduled_edit.hpp"
+#include "pcp/scheduled_edit.hpp"
 #include <sstream>
 #include <algorithm>
 #include <chrono>
 #include <regex>
 
-namespace progressive {
+namespace pcp {
 
 std::string ScheduledEditQueue::generateId() {
     auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -247,4 +247,4 @@ void ScheduledEditQueue::clear() {
     queue_.clear();
 }
 
-} // namespace progressive
+} // namespace pcp

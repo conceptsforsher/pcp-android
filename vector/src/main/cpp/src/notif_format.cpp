@@ -1,9 +1,9 @@
-#include "progressive/notif_format.hpp"
+#include "pcp/notif_format.hpp"
 #include <sstream>
 #include <iomanip>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================================
 // NotifSound
@@ -437,4 +437,4 @@ std::string formatBadgeText(int totalCount) {
     return "999+";
 }
 
-} // namespace progressive
+} // namespace pcp

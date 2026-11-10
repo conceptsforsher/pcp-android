@@ -1,5 +1,5 @@
-#include "progressive/media_utils.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/media_utils.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
@@ -7,7 +7,7 @@
 #include <cstring>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 // ================================================================
 // Internal MIME type lookup table
@@ -384,4 +384,4 @@ BlurhashResult parseBlurhash(const std::string& contentJson) {
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.22.1)
-project("progressive_native")
+project("pcp_native")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(
-    progressive_native
+    pcp_native
     SHARED
     src/jumptodate.cpp
     src/json_parser.cpp
@@ -263,11 +263,11 @@ if(NOT EXISTS "${SQLITE3_SRC}")
     message(STATUS "SQLite3 amalgamation extracted to ${SQLITE3_DIR}")
 endif()
 # Add to build after download+extraction
-target_sources(progressive_native PRIVATE "${SQLITE3_SRC}")
-target_include_directories(progressive_native PUBLIC "${SQLITE3_DIR}")
+target_sources(pcp_native PRIVATE "${SQLITE3_SRC}")
+target_include_directories(pcp_native PUBLIC "${SQLITE3_DIR}")
 
 target_include_directories(
-    progressive_native
+    pcp_native
     PUBLIC
     include
 )
@@ -311,12 +311,12 @@ endif()
 add_subdirectory("${OLM_SRC_DIR}" "${CMAKE_BINARY_DIR}/olm-build")
 
 target_link_libraries(
-    progressive_native
+    pcp_native
     ${log_lib}
     olm
 )
 
-target_compile_definitions(progressive_native PRIVATE PROGRESSIVE_HAS_OLM=1)
+target_compile_definitions(pcp_native PRIVATE PCP_HAS_OLM=1)
 
 # SQLite3 amalgamation compile flags (optimize for Android, downloaded at build time)
 set_source_files_properties(

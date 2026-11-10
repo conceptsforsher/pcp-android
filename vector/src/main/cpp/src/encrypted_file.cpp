@@ -1,11 +1,11 @@
-#include "progressive/encrypted_file.hpp"
+#include "pcp/encrypted_file.hpp"
 #include <sstream>
 #include <cstring>
 #include <cstdlib>
 #include <random>
 #include <array>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================================
 // Internal helpers
@@ -705,4 +705,4 @@ bool decryptAttachment(const std::vector<uint8_t>& ciphertext,
     return true;
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,4 +1,4 @@
-#include "progressive/message_location.hpp"
+#include "pcp/message_location.hpp"
 #include <sstream>
 #include <cmath>
 #include <chrono>
@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-namespace progressive {
+namespace pcp {
 
 // =============================================================================
 // Internal JSON extraction helpers
@@ -706,4 +706,4 @@ double computeDistance(double lat1, double lon1, double lat2, double lon2) {
     return R * c;
 }
 
-} // namespace progressive
+} // namespace pcp

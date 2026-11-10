@@ -1,9 +1,9 @@
-#include "progressive/sliding_sync.hpp"
-#include "progressive/http_client.hpp"
+#include "pcp/sliding_sync.hpp"
+#include "pcp/http_client.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ==== SlidingSyncList → JSON ====
 
@@ -327,4 +327,4 @@ SlidingSyncRequest SlidingSyncState::buildRequest(int timeout) const {
     return req;
 }
 
-} // namespace progressive
+} // namespace pcp

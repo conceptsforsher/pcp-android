@@ -1,9 +1,9 @@
-#include "progressive/read_marker.hpp"
+#include "pcp/read_marker.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 ReadMarkerState computeReadMarker(const std::string& lastReadEventId,
     const std::vector<std::string>& loadedEventIds,
@@ -262,4 +262,4 @@ bool shouldShowJumpToReadMarker(const ReadMarkerPosition& position, int firstVis
     return position.displayIndex < firstVisibleIndex;
 }
 
-} // namespace progressive
+} // namespace pcp

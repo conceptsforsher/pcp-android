@@ -1,9 +1,9 @@
-#include "progressive/connection_monitor.hpp"
+#include "pcp/connection_monitor.hpp"
 #include <sstream>
 #include <chrono>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 int64_t ConnectionMonitor::nowMs() const {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -397,4 +397,4 @@ ConnectionFailReason classifyConnectionError(int nativeErrorCode,
     return ConnectionFailReason::UNKNOWN;
 }
 
-} // namespace progressive
+} // namespace pcp

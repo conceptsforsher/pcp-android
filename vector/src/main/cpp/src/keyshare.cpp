@@ -1,9 +1,9 @@
-#include "progressive/keyshare.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/keyshare.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 // ---- Existing functions ----
 
@@ -238,4 +238,4 @@ KeyShareDecision decideKeyShare(bool isRoomMember, bool isDeviceVerified,
     return KeyShareDecision::DEFER;
 }
 
-} // namespace progressive
+} // namespace pcp

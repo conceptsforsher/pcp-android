@@ -1,11 +1,11 @@
-#include "progressive/widget_manager.hpp"
-#include "progressive/widget_utils.hpp"
+#include "pcp/widget_manager.hpp"
+#include "pcp/widget_utils.hpp"
 #include <sstream>
 #include <algorithm>
 #include <regex>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ---- Capability to/from string ----
 
@@ -515,7 +515,7 @@ WidgetUrlTemplate WidgetManager::buildTemplate() const {
     t.roomId = roomId_;
     t.displayName = displayName_;
     t.avatarUrl = avatarUrl_;
-    t.clientId = "chat.progressive.app";
+    t.clientId = "chat.pcp.app";
     t.clientTheme = "light";
     return t;
 }
@@ -934,4 +934,4 @@ std::string WidgetManager::buildGlobalCsp() const {
 
 // Utility wrapper from widget_utils (kept for backward compat)
 
-} // namespace progressive
+} // namespace pcp

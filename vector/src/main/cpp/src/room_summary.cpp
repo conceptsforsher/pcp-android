@@ -1,9 +1,9 @@
-#include "progressive/room_summary.hpp"
+#include "pcp/room_summary.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 // ================================================================
 // Room Summary Update (ported from RoomSummaryUpdater.kt:89-213)
@@ -568,4 +568,4 @@ RoomSummaryUpdateEvent getRoomSummaryUpdateType(
     return RoomSummaryUpdateEvent::NONE;
 }
 
-} // namespace progressive
+} // namespace pcp

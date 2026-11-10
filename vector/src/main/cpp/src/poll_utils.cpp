@@ -1,11 +1,11 @@
-#include "progressive/poll_utils.hpp"
+#include "pcp/poll_utils.hpp"
 #include <sstream>
 #include <algorithm>
 #include <chrono>
 #include <random>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 // ================================================================
 // Internal JSON helpers
@@ -722,4 +722,4 @@ std::string formatPollResults(
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

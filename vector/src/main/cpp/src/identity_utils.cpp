@@ -1,5 +1,5 @@
-#include "progressive/identity_utils.hpp"
-#include "progressive/matrix_patterns.hpp"
+#include "pcp/identity_utils.hpp"
+#include "pcp/matrix_patterns.hpp"
 #include <sstream>
 #include <regex>
 #include <algorithm>
@@ -7,7 +7,7 @@
 #include <cstring>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ====== ResolvedId ======
 
@@ -440,4 +440,4 @@ std::string disambiguateName(const std::string& displayName, const std::string& 
     return displayName + " (" + mxid + ")";
 }
 
-} // namespace progressive
+} // namespace pcp

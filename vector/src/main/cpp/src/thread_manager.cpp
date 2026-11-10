@@ -1,9 +1,9 @@
-#include "progressive/thread_manager.hpp"
+#include "pcp/thread_manager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -1300,4 +1300,4 @@ std::string threadSummaryListToJson(const std::vector<ThreadSummary>& list) {
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

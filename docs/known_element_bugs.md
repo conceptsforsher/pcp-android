@@ -1,6 +1,6 @@
 # Known Element Android Classic Bugs
 
-Bugs in Element Android Classic that Progressive Chat's C++ port intentionally
+Bugs in Element Android Classic that PCP's C++ port intentionally
 fixes rather than inherits.
 
 ## Reaction Count Miscounting

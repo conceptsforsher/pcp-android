@@ -1,10 +1,10 @@
-#include "progressive/webrtc_utils.hpp"
-#include "progressive/event_classifier.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/webrtc_utils.hpp"
+#include "pcp/event_classifier.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 // ====================================================================
 // JSON Helpers (local)
@@ -662,4 +662,4 @@ std::string getCallState(const std::string& eventContentJson) {
     return "unknown";
 }
 
-} // namespace progressive
+} // namespace pcp

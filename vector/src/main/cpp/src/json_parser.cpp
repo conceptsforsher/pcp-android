@@ -1,8 +1,8 @@
-#include "progressive/json_parser.hpp"
+#include "pcp/json_parser.hpp"
 #include <cstddef>
 #include <cstdlib>
 
-namespace progressive {
+namespace pcp {
 
 std::string parseJsonStringValue(const std::string& json, const std::string& key) {
     // Search for "key"
@@ -52,4 +52,4 @@ int64_t parseJsonInt64Value(const std::string& json, const std::string& key, int
     return std::strtoll(val.c_str(), nullptr, 10);
 }
 
-} // namespace progressive
+} // namespace pcp

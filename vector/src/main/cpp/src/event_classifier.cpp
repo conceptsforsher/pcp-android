@@ -1,7 +1,7 @@
-#include "progressive/event_classifier.hpp"
+#include "pcp/event_classifier.hpp"
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Enum to String Converters ====
 
@@ -656,4 +656,4 @@ EventTextType eventTextTypeFromJson(const std::string& json) {
     return eventTextTypeFromString(s);
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,5 +1,5 @@
-#include "progressive/event_utils.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/event_utils.hpp"
+#include "pcp/json_parser.hpp"
 #include <algorithm>
 #include <sstream>
 #include <chrono>
@@ -7,7 +7,7 @@
 #include <unordered_set>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Event Summary ====
 
@@ -877,4 +877,4 @@ int64_t extractEventTimestamp(const std::string& eventJson) {
     return localExtractJsonInt64(eventJson, "origin_server_ts");
 }
 
-} // namespace progressive
+} // namespace pcp

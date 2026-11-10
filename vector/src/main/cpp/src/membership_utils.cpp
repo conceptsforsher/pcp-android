@@ -1,11 +1,11 @@
-#include "progressive/membership_utils.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/membership_utils.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_set>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 MemberState parseMemberState(const std::string& membershipStr) {
     if (membershipStr == "join")     return MemberState::Join;
@@ -593,4 +593,4 @@ std::string resolveRoomAvatar(
     return "";
 }
 
-} // namespace progressive
+} // namespace pcp

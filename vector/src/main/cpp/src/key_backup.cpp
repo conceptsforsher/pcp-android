@@ -1,11 +1,11 @@
-#include "progressive/key_backup.hpp"
+#include "pcp/key_backup.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 #include <random>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 bool isValidBase58Char(char c) {
     static const char* alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -686,4 +686,4 @@ KeyBackupAuthData parseKeyBackupAuthData(const std::string& authDataJson) {
     return auth;
 }
 
-} // namespace progressive
+} // namespace pcp

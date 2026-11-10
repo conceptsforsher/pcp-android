@@ -1,16 +1,16 @@
-# 📈 Progressive Chat — Android
+# 📈 PCP — Android
 
-> **Note:** This is a feature-branch repository. The primary development happens in [progressive-android](https://github.com/progressive-chat/progressive-android) — the main repository of the Progressive Chat project.
+> **Note:** This is a feature-branch repository. The primary development happens in [pcp-android](https://github.com/pcp-chat/pcp-android) — the main repository of the PCP project.
 
-A Matrix client in the making. The goal: a truly progressive messenger with a **pure C++ native** core.
+A Matrix client in the making. The goal: a truly modern messenger with a **pure C++ native** core.
 
 Currently an active fork of [Element](https://github.com/element-hq) Classic ([element-android](https://github.com/element-hq/element-android)). The Rust SDK (`matrix-rust-sdk`) is being removed in favor of pure C++ crypto via libolm. Kotlin/Java components are gradually replaced with native C++ — starting with real features.
 
 🚀 **Rocket-speed development** — a full Matrix client implemented in months, not years. 170+ C++ native modules and counting.
 
-**Website:** [progressive.chat](https://progressive.chat)
+**Website:** [pcp.chat](https://pcp.chat)
 
-> 💬 **Chat with the author:** Join [#community:progressive.chat](https://matrix.to/#/#community:progressive.chat) on Matrix
+> 💬 **Chat with the author:** Join [#community:pcp.chat](https://matrix.to/#/#community:pcp.chat) on Matrix
 
 ## The Vision
 
@@ -21,7 +21,7 @@ Currently an active fork of [Element](https://github.com/element-hq) Classic ([e
 
 ## AI Agent (`/agent`)
 
-Progressive Chat includes an LLM-powered agent system — like Claude Code for your chats.
+PCP includes an LLM-powered agent system — like Claude Code for your chats.
 
 ```
 /agent find messages from Alice about the future
@@ -51,7 +51,7 @@ The agent can:
 
 ## C++ Native Modules
 
-Progressive Chat replaces slow Kotlin/Java components with native C++:
+PCP replaces slow Kotlin/Java components with native C++:
 
 | Module | File | Replaces |
 |--------|------|----------|
@@ -120,7 +120,7 @@ Current version: **v0.1.5**. Before 1.0.0, all bets are off — rapid iteration 
 
 ### Post-1.0.0 (SemVer)
 
-Once the core stabilizes, Progressive Chat will adopt strict [Semantic Versioning 2.0.0](https://semver.org/):
+Once the core stabilizes, PCP will adopt strict [Semantic Versioning 2.0.0](https://semver.org/):
 
 | Segment | Meaning | Cadence |
 |---|---|---|
@@ -136,15 +136,15 @@ Nightly builds will continue alongside stable releases.
 
 ## How You Can Help
 
-Progressive Chat is in active development. We have months of debugging and polishing ahead before the first stable release. Here's how you can contribute:
+PCP is in active development. We have months of debugging and polishing ahead before the first stable release. Here's how you can contribute:
 
 - **Test and report bugs** — run the F-Droid debug APK, use the features, and open issues
-- **C++ code review** — all native modules in `progressive/src/main/cpp/` welcome scrutiny
+- **C++ code review** — all native modules in `pcp/src/main/cpp/` welcome scrutiny
 - **Kotlin integration** — JNI wrappers are ready, UI wiring needs love
 - **Translations** — help localize the growing list of labs settings
 - **Documentation** — improve setup guides, feature descriptions
-- **Spread the word** — tell your Matrix friends about `progressive.chat`
+- **Spread the word** — tell your Matrix friends about `pcp.chat`
 
 ## License
 
-AGPL-3.0-only — inherited from Element and likely to remain forever. All original C++ code and Progressive Chat modifications are AGPL-3.0-only as well.
+AGPL-3.0-only — inherited from Element and likely to remain forever. All original C++ code and PCP modifications are AGPL-3.0-only as well.

@@ -1,7 +1,7 @@
-#include "progressive/sync_models.hpp"
+#include "pcp/sync_models.hpp"
 #include <cstring>
 
-namespace progressive {
+namespace pcp {
 
 // ==== JSON Helpers ====
 
@@ -671,4 +671,4 @@ std::string syncResponseToJson(const SyncResponse& response) {
     return json;
 }
 
-} // namespace progressive
+} // namespace pcp

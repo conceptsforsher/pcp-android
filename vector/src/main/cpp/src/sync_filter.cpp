@@ -1,4 +1,4 @@
-#include "progressive/sync_filter.hpp"
+#include "pcp/sync_filter.hpp"
 
 #include <sstream>
 #include <cctype>
@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <functional>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================
 //  Internal JSON Helper Functions
@@ -868,4 +868,4 @@ std::string filterResponseToJson(const FilterResponse& response) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

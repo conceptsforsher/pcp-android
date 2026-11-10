@@ -1,10 +1,10 @@
-#include "progressive/olm.hpp"
+#include "pcp/olm.hpp"
 #include <olm/olm.h>
 #include <sstream>
 #include <cstring>
 #include <cstdlib>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Utility functions ====
 
@@ -841,4 +841,4 @@ std::string formatMegolmSessionId(const std::string& sessionId, int prefixLen) {
     return sessionId.substr(0, prefixLen) + "..." + sessionId.substr(sessionId.size() - prefixLen);
 }
 
-} // namespace progressive
+} // namespace pcp

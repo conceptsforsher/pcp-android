@@ -1,11 +1,11 @@
-#include "progressive/hash_utils.hpp"
+#include "pcp/hash_utils.hpp"
 #include <sstream>
 #include <iomanip>
 #include <cstring>
 #include <random>
 #include <array>
 
-namespace progressive {
+namespace pcp {
 
 // ---- SHA-256 implementation ----
 
@@ -1084,4 +1084,4 @@ bool verifyContentHash(const std::vector<uint8_t>& content, const ContentHash& h
     return matched;
 }
 
-} // namespace progressive
+} // namespace pcp

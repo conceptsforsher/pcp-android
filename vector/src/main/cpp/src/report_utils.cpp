@@ -1,9 +1,9 @@
-#include "progressive/report_utils.hpp"
+#include "pcp/report_utils.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Enum conversions ======
 
@@ -434,4 +434,4 @@ std::vector<std::string> getDefaultReportReasons() {
     };
 }
 
-} // namespace progressive
+} // namespace pcp

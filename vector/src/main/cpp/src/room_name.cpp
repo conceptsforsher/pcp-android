@@ -1,9 +1,9 @@
-#include "progressive/room_name.hpp"
+#include "pcp/room_name.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Room Name Error Functions ====
 
@@ -577,4 +577,4 @@ std::string roomNameInfoToJson(const RoomNameInfo& info) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

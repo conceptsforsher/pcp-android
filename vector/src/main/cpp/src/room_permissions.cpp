@@ -1,10 +1,10 @@
-#include "progressive/room_permissions.hpp"
-#include "progressive/json_parser.hpp"
-#include "progressive/create_room.hpp"
+#include "pcp/room_permissions.hpp"
+#include "pcp/json_parser.hpp"
+#include "pcp/create_room.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================================
 // PowerLevelAction enum conversions
@@ -649,4 +649,4 @@ std::string permissionsToJson(const RoomPermissions& perms) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

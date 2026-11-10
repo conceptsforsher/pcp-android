@@ -1,9 +1,9 @@
-#include "progressive/room_sort.hpp"
+#include "pcp/room_sort.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 bool roomSortCompare(const RoomSortEntry& a, const RoomSortEntry& b) {
     // Original Kotlin (RoomComparator.kt):
@@ -419,4 +419,4 @@ RoomGroupInfo computeRoomGroupSummary(const std::string& groupId, const std::str
     return info;
 }
 
-} // namespace progressive
+} // namespace pcp

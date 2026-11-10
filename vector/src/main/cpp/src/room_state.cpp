@@ -1,8 +1,8 @@
-#include "progressive/room_state.hpp"
+#include "pcp/room_state.hpp"
 #include <sstream>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // Helper: extract string field from JSON
 static std::string extractStr(const std::string& json, const std::string& field) {
@@ -793,11 +793,11 @@ std::string buildDirectoryVisibilityContent(RoomDirectoryVisibility visibility) 
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp
 
 //==== Room Member State (from RoomDataSource.kt + LoadRoomMembersTask) ====
 
-namespace progressive {
+namespace pcp {
 
 // Helper: extract string value from JSON (local copy to avoid dependency)
 static std::string _extractStr(const std::string& json, const std::string& field) {
@@ -1243,4 +1243,4 @@ std::vector<PowerLevelsChange> computePowerLevelsChange(
     return changes;
 }
 
-} // namespace progressive
+} // namespace pcp

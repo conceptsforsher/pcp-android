@@ -1,8 +1,8 @@
-#include "progressive/openid_token.hpp"
+#include "pcp/openid_token.hpp"
 #include <cstring>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================================
 // Manual JSON helpers
@@ -362,4 +362,4 @@ std::string buildOpenIdUserinfoUrl(const std::string& homeserverBase,
            + "/openid/userinfo?access_token=" + accessToken;
 }
 
-} // namespace progressive
+} // namespace pcp

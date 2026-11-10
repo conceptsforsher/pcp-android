@@ -2,7 +2,7 @@
 
 ## Overview
 
-Manages continuous location sharing sessions for Progressive Chat. Tracks who is sharing, to which room, at what interval, with auto-stop support. Includes Haversine distance calculation and GeoJSON formatting.
+Manages continuous location sharing sessions for PCP. Tracks who is sharing, to which room, at what interval, with auto-stop support. Includes Haversine distance calculation and GeoJSON formatting.
 
 ## Architecture
 
@@ -91,17 +91,17 @@ struct LocationSession {
 
 ```kotlin
 // Start sharing
-val sessionId = ProgressiveNative.nativeLocationStartSession(
+val sessionId = PcpNative.nativeLocationStartSession(
     roomId, userId, 60, true, 60  // every minute, auto-stop after 1h
 )
 
 // Check if due
-if (ProgressiveNative.nativeLocationIsDue(sessionId)) {
+if (PcpNative.nativeLocationIsDue(sessionId)) {
     // Get GPS position
-    val msg = ProgressiveNative.nativeLocationFormatMessage(lat, lon, acc, "")
+    val msg = PcpNative.nativeLocationFormatMessage(lat, lon, acc, "")
     // Send to room
     room.sendService().sendTextMessage(msg)
-    ProgressiveNative.nativeLocationMarkSent(sessionId, lat, lon, acc)
+    PcpNative.nativeLocationMarkSent(sessionId, lat, lon, acc)
 }
 ```
 

@@ -1,11 +1,11 @@
-#include "progressive/live_location.hpp"
+#include "pcp/live_location.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cmath>
 #include <ctime>
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Utility helpers ======
 
@@ -949,4 +949,4 @@ std::string formatLiveLocationShareDuration(int64_t startedAt, int64_t nowMs) {
     return out.str();
 }
 
-} // namespace progressive
+} // namespace pcp

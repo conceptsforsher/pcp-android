@@ -1,9 +1,9 @@
-#include "progressive/call_manager.hpp"
+#include "pcp/call_manager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Call State/Reason String Conversions ======
 
@@ -1016,4 +1016,4 @@ bool CallSessionManager::isCallEvent(const std::string& eventType) const {
     return manager_.isCallEvent(eventType);
 }
 
-} // namespace progressive
+} // namespace pcp

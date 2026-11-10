@@ -1,11 +1,11 @@
-#include "progressive/avatar_history.hpp"
+#include "pcp/avatar_history.hpp"
 #include <sstream>
 #include <ctime>
 #include <algorithm>
 #include <regex>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ---- AvatarHistory ----
 
@@ -386,4 +386,4 @@ std::string getDefaultAvatarUrl(const std::string& kind) {
     return "mxc://default/avatar";
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,9 +1,9 @@
-#include "progressive/reaction_utils.hpp"
+#include "pcp/reaction_utils.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 ReactionSummary aggregateReactions(
     const std::string& eventId,
@@ -321,4 +321,4 @@ ReactionEvent parseReactionEvent(const std::string& eventId, const std::string& 
     return ev;
 }
 
-} // namespace progressive
+} // namespace pcp

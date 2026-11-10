@@ -1,10 +1,10 @@
-#include "progressive/spellcheck.hpp"
+#include "pcp/spellcheck.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 // ---- SpellChecker (existing implementation) ----
 
@@ -614,4 +614,4 @@ std::vector<std::string> buildDictionaryWordList(const std::string& frequencyDat
     return words;
 }
 
-} // namespace progressive
+} // namespace pcp

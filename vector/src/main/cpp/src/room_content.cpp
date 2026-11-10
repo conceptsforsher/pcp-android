@@ -1,7 +1,7 @@
-#include "progressive/room_content.hpp"
+#include "pcp/room_content.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Membership ====
 
@@ -838,4 +838,4 @@ bool isAliasAvailable(const std::string& responseJson) {
     return roomId.empty();
 }
 
-} // namespace progressive
+} // namespace pcp

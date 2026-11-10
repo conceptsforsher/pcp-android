@@ -1,10 +1,10 @@
-#include "progressive/media_filter.hpp"
+#include "pcp/media_filter.hpp"
 #include <algorithm>
 #include <cctype>
 #include <sstream>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 static std::string toLower(const std::string& s) {
     std::string r = s;
@@ -83,4 +83,4 @@ std::vector<std::string> getAvailableExtensions(const std::vector<MediaItem>& it
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

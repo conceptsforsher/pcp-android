@@ -1,11 +1,11 @@
-#include "progressive/search_index.hpp"
+#include "pcp/search_index.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 #include <chrono>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 std::string SearchIndex::toLower(const std::string& s) {
     std::string r = s;
@@ -527,4 +527,4 @@ SearchEventContext parseSearchContext(const std::string& json) {
     return ctx;
 }
 
-} // namespace progressive
+} // namespace pcp

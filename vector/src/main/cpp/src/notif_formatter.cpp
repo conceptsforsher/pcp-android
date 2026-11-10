@@ -1,8 +1,8 @@
-#include "progressive/notif_formatter.hpp"
+#include "pcp/notif_formatter.hpp"
 #include <algorithm>
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================================
 // NotificationStyle
@@ -675,4 +675,4 @@ NotificationText buildNotificationText(
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,10 +1,10 @@
-#include "progressive/username_validator.hpp"
+#include "pcp/username_validator.hpp"
 #include <sstream>
 #include <cctype>
 #include <algorithm>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 UsernameValidation validateUsername(const std::string& username) {
     UsernameValidation result;
@@ -141,4 +141,4 @@ std::string usernameToDisplayName(const std::string& username) {
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

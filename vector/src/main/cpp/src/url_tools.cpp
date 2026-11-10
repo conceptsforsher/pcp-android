@@ -1,4 +1,4 @@
-#include "progressive/url_tools.hpp"
+#include "pcp/url_tools.hpp"
 #include <sstream>
 #include <regex>
 #include <iomanip>
@@ -6,7 +6,7 @@
 #include <cctype>
 #include <set>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================
 // LEGACY URL PARSING — url_tools original API
@@ -783,4 +783,4 @@ bool isUrlBlacklisted(const std::string& url,
     return false;
 }
 
-} // namespace progressive
+} // namespace pcp

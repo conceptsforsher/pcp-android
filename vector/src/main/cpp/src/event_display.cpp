@@ -1,12 +1,12 @@
-#include "progressive/event_display.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/event_display.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <ctime>
 #include <algorithm>
 #include <chrono>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Manual JSON Helpers ====
 
@@ -1037,4 +1037,4 @@ std::string formatEditionHistory(int editCount) {
     return "Edited " + std::to_string(editCount) + " times";
 }
 
-} // namespace progressive
+} // namespace pcp

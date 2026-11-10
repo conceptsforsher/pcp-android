@@ -1,10 +1,10 @@
-#include "progressive/content_guard.hpp"
+#include "pcp/content_guard.hpp"
 #include <sstream>
 #include <unordered_set>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Emoji Detection ====
 // Unicode emoji ranges from https://unicode.org/emoji/charts/full-emoji-list.html
@@ -358,4 +358,4 @@ void removeFromBlockList(ContentGuardConfig& config, const std::string& pattern)
     config.explicitBlocked.erase(pattern);
 }
 
-} // namespace progressive
+} // namespace pcp

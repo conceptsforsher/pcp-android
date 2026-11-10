@@ -1,9 +1,9 @@
-#include "progressive/composer_manager.hpp"
+#include "pcp/composer_manager.hpp"
 #include <sstream>
 #include <regex>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Enum ======
 
@@ -358,4 +358,4 @@ std::string ComposerManager::sendModeToJson(const SendMode& mode) const {
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

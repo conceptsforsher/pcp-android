@@ -1,7 +1,7 @@
-#include "progressive/lightweight_settings.hpp"
+#include "pcp/lightweight_settings.hpp"
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 // ==== SyncPresence ====
 //
@@ -475,4 +475,4 @@ std::string castSettingValue(const std::string& value, LightweightSettingType ty
     }
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,8 +1,8 @@
-#include "progressive/terms_manager.hpp"
+#include "pcp/terms_manager.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 const char* termsServiceTypeToString(TermsServiceType type) {
     switch (type) {
@@ -208,4 +208,4 @@ std::string TermsManager::responseToJson(const TermsResponse& resp) {
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

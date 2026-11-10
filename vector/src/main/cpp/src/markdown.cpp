@@ -1,11 +1,11 @@
-#include "progressive/markdown.hpp"
+#include "pcp/markdown.hpp"
 #include <sstream>
 #include <regex>
 #include <vector>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================================
 // Helper utilities
@@ -1188,4 +1188,4 @@ std::string wrapInMatrixReply(
     return out.str();
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,6 +1,6 @@
-#include "progressive/message_extras.hpp"
+#include "pcp/message_extras.hpp"
 
-namespace progressive {
+namespace pcp {
 
 // ==== JSON Helpers ====
 
@@ -1098,4 +1098,4 @@ std::vector<int> formatWaveform(const std::vector<int>& rawWaveform) {
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

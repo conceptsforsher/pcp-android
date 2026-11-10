@@ -1,9 +1,9 @@
-#include "progressive/user_directory.hpp"
+#include "pcp/user_directory.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -660,4 +660,4 @@ void invalidateCache() {
     g_displayNameCache.invalidateCache();
 }
 
-} // namespace progressive
+} // namespace pcp

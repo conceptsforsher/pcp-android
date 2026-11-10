@@ -1,4 +1,4 @@
-#include "progressive/string_order.hpp"
+#include "pcp/string_order.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cmath>
@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include <stdexcept>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Simple Big Integer Helpers (decimal strings) ====
 // Original Kotlin:
@@ -1268,4 +1268,4 @@ StringFuzzyMatch fuzzyMatch(const std::string& haystack, const std::string& need
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

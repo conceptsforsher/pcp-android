@@ -1,8 +1,8 @@
-#include "progressive/e2ee_decoration.hpp"
+#include "pcp/e2ee_decoration.hpp"
 #include <sstream>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 E2eeMessageDecoration computeE2eeDecoration(
     bool isEncrypted,
@@ -223,4 +223,4 @@ bool shieldLevelChanged(
     return oldLevel != newLevel;
 }
 
-} // namespace progressive
+} // namespace pcp

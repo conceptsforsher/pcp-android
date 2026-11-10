@@ -1,5 +1,5 @@
-#include "progressive/translate.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/translate.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
@@ -7,7 +7,7 @@
 #include <unordered_set>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================================
 // Existing: OpenAI-compatible translation
@@ -735,4 +735,4 @@ std::string translateMessage(
     return {};
 }
 
-} // namespace progressive
+} // namespace pcp

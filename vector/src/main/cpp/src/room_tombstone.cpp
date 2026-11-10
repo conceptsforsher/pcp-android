@@ -1,6 +1,6 @@
-#include "progressive/room_tombstone.hpp"
+#include "pcp/room_tombstone.hpp"
 
-namespace progressive {
+namespace pcp {
 
 // ==== JSON Helper ====
 // Manual JSON field extractor — extracts a string value for the given key.
@@ -511,4 +511,4 @@ std::string formatUpgradeNotice(const UpgradeInfo& info) {
     return "This room has been replaced. Continue in the new room?";
 }
 
-} // namespace progressive
+} // namespace pcp

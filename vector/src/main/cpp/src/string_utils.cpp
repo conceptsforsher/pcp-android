@@ -1,10 +1,10 @@
-#include "progressive/string_utils.hpp"
+#include "pcp/string_utils.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 #include <regex>
 
-namespace progressive {
+namespace pcp {
 
 std::string sanitizeRoomName(const std::string& input) {
     std::string result;
@@ -856,4 +856,4 @@ std::string padRight(const std::string& input, int width, char padChar) {
     return input + std::string(width - input.size(), padChar);
 }
 
-} // namespace progressive
+} // namespace pcp

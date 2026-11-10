@@ -1,9 +1,9 @@
-#include "progressive/presence_utils.hpp"
+#include "pcp/presence_utils.hpp"
 #include <sstream>
 #include <chrono>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 PresenceInfo parsePresence(const std::string& userId, const std::string& apiResponseJson) {
     PresenceInfo info;
@@ -528,4 +528,4 @@ bool isCurrentlyActive(const PresenceUpdateInfo& info) {
     return info.lastActiveAgoMs >= 0 && info.lastActiveAgoMs < 300000;
 }
 
-} // namespace progressive
+} // namespace pcp

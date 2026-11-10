@@ -1,4 +1,4 @@
-#include "progressive/audio_engine.hpp"
+#include "pcp/audio_engine.hpp"
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
@@ -7,7 +7,7 @@
 #include <vector>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 // ============================================================
 // EXISTING APIS — format utilities
@@ -767,4 +767,4 @@ std::vector<float> computeTimeData(const std::vector<int16_t>& pcmSamples, int n
 
 } // namespace AudioVisualizer
 
-} // namespace progressive
+} // namespace pcp

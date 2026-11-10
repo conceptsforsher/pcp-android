@@ -1,10 +1,10 @@
-#include "progressive/svg_draw.hpp"
+#include "pcp/svg_draw.hpp"
 #include <sstream>
 #include <regex>
 #include <cmath>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ---- SVG Parser ----
 
@@ -232,4 +232,4 @@ std::string DrawingCanvas::toSvgPath() const {
     return d.str();
 }
 
-} // namespace progressive
+} // namespace pcp

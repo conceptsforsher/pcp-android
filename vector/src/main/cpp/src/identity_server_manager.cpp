@@ -1,10 +1,10 @@
-#include "progressive/identity_server_manager.hpp"
+#include "pcp/identity_server_manager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 #include <cstring>
 
-namespace progressive {
+namespace pcp {
 
 // ====== SHA-256 Implementation (public domain, FIPS 180-4) ======
 // Original Kotlin: Sha256Converter.kt -> MessageDigest.getInstance("SHA-256") -> toBase64NoPadding()
@@ -456,7 +456,7 @@ std::string IdentityServerManager::buildIdentityApiRequest(
 std::string IdentityServerManager::buildBulkLookupBody(const std::vector<ThreePid>& threepids) const {
     // Original Kotlin: builds "threepids" JSON array format
     // Delegates to free function in identity_utils.hpp by explicit namespace qualifier
-    return progressive::buildBulkLookupBody(threepids);
+    return pcp::buildBulkLookupBody(threepids);
 }
 
 // ====== NEW: Hashed Lookup Request (member) ======
@@ -781,4 +781,4 @@ std::string buildHashedLookupRequest(const std::vector<std::string>& hashedAddre
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

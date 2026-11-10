@@ -1,11 +1,11 @@
-#include "progressive/device_manager.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/device_manager.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
 #include <chrono>
 #include <regex>
 
-namespace progressive {
+namespace pcp {
 
 DeviceStats parseDeviceList(const std::string& apiResponseJson, const std::string& currentDeviceId) {
     DeviceStats stats;
@@ -520,4 +520,4 @@ CryptoDeviceInfo parseCryptoDeviceInfo(const std::string& json) {
     return info;
 }
 
-} // namespace progressive
+} // namespace pcp

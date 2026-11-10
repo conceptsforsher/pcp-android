@@ -1,11 +1,11 @@
-#include "progressive/content_filter.hpp"
-#include "progressive/content_guard.hpp"
+#include "pcp/content_filter.hpp"
+#include "pcp/content_guard.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 #include <regex>
 
-namespace progressive {
+namespace pcp {
 
 // ---- KeywordFilter ----
 
@@ -320,4 +320,4 @@ ContentFilterResult applyContentFilters(const std::string& content,
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

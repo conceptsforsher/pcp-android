@@ -1,9 +1,9 @@
-#include "progressive/room_counter.hpp"
-#include "progressive/room_summary.hpp"
+#include "pcp/room_counter.hpp"
+#include "pcp/room_summary.hpp"
 #include <algorithm>
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ==== countRooms ====
 //
@@ -202,7 +202,7 @@ std::vector<RoomCountEntry> extractRoomEntriesFromCache(
     // Note: actual cache file scanning is platform-specific (Realm database).
     // The Kotlin layer provides the raw event data; C++ processes it.
     // This function is a placeholder for the algorithm — the actual data
-    // comes from ProgressiveNative.kt JNI calls that extract events from
+    // comes from PcpNative.kt JNI calls that extract events from
     // the database and pass them to this function as JSON.
 
     return result;
@@ -415,4 +415,4 @@ bool shouldNotifyForEvent(
     return false;
 }
 
-} // namespace progressive
+} // namespace pcp

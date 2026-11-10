@@ -1,7 +1,7 @@
-#include "progressive/create_room.hpp"
+#include "pcp/create_room.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ================================================================
 // Room Directory Visibility Helpers
@@ -906,4 +906,4 @@ bool isCreateRoomAllowed() {
     return true;
 }
 
-} // namespace progressive
+} // namespace pcp

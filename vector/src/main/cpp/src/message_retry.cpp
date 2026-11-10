@@ -1,12 +1,12 @@
-#include "progressive/message_retry.hpp"
+#include "pcp/message_retry.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cmath>
-#include "progressive/message_queue.hpp"
+#include "pcp/message_queue.hpp"
 #include <random>
 #include <thread>
 
-namespace progressive {
+namespace pcp {
 
 int64_t computeRetryDelay(int retryCount, int64_t maxDelayMs) {
     // Exponential backoff: base 1s, double each retry
@@ -196,7 +196,7 @@ std::string queueToJson(const std::vector<PendingMessage>& queue) {
 // ==== Pending Message Editing ====
 // Enables editing messages that haven't been sent yet.
 // Original Element limitation: edits only work after server confirms send.
-// Progressive Chat: edits update the pending queue immediately.
+// PCP: edits update the pending queue immediately.
 //
 // How it works:
 //   1. User types message, hits send — message enters queue (state=Pending)
@@ -464,7 +464,7 @@ int64_t computeBackoffDelay(int attempt, const RetryPolicy& policy) {
     // Plus jitter from getRetryDelay (+100ms) and WorkManager backoff.
     if (attempt < 0) attempt = 0;
 
-    // Progressive exponential: baseDelayMs * backoffMultiplier^attempt
+    // PCP exponential: baseDelayMs * backoffMultiplier^attempt
     int capped = std::min(attempt, 20);  // clamp to prevent overflow
     int64_t delay = policy.baseDelayMs;
     for (int i = 0; i < capped; ++i) {
@@ -755,4 +755,4 @@ bool checkHomeServerAvailability(const std::string& host, int port, int timeoutM
     return !host.empty() && port > 0 && port <= 65535;
 }
 
-} // namespace progressive
+} // namespace pcp

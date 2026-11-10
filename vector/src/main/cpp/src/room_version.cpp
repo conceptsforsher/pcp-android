@@ -1,9 +1,9 @@
-#include "progressive/room_version.hpp"
+#include "pcp/room_version.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 // ====================================================================
 // RoomVersionStatus
@@ -472,4 +472,4 @@ RoomVersionCapability parseRoomVersionsCapability(const std::string& capabilitie
     return cap;
 }
 
-} // namespace progressive
+} // namespace pcp

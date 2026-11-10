@@ -1,10 +1,10 @@
-#include "progressive/space_utils.hpp"
-#include "progressive/json_parser.hpp"
-#include "progressive/space_graph.hpp"   // For SpaceChildWithOrder
+#include "pcp/space_utils.hpp"
+#include "pcp/json_parser.hpp"
+#include "pcp/space_graph.hpp"   // For SpaceChildWithOrder
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 SpaceInfo parseSpaceInfo(const std::string& roomId, const std::string& stateEventsJson) {
     SpaceInfo info;
@@ -423,4 +423,4 @@ std::pair<std::string, SpaceParentEntry> parseSpaceParentEvent(const std::string
     return {spaceId, entry};
 }
 
-} // namespace progressive
+} // namespace pcp

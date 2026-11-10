@@ -1,11 +1,11 @@
-#include "progressive/space_graph.hpp"
+#include "pcp/space_graph.hpp"
 #include <sstream>
 #include <algorithm>
 #include <queue>
 #include <stack>
 #include <functional>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -1265,4 +1265,4 @@ void sortSpaceChildren(std::vector<SpaceChildWithOrder>& children,
         });
 }
 
-} // namespace progressive
+} // namespace pcp

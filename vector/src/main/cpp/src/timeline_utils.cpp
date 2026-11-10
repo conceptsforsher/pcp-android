@@ -1,12 +1,12 @@
-#include "progressive/timeline_utils.hpp"
-#include "progressive/timeline_chunk.hpp"
+#include "pcp/timeline_utils.hpp"
+#include "pcp/timeline_chunk.hpp"
 #include <sstream>
 #include <algorithm>
 #include <iomanip>
 #include <chrono>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 std::vector<std::string> mergeTimelineChunks(const std::vector<TimelineChunk>& chunks) {
     if (chunks.empty()) return {};
@@ -524,4 +524,4 @@ TimelineRange computeTimelineRange(int visibleStart, int visibleEnd, int totalEv
     return range;
 }
 
-} // namespace progressive
+} // namespace pcp

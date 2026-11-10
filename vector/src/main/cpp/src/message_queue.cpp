@@ -1,4 +1,4 @@
-#include "progressive/message_queue.hpp"
+#include "pcp/message_queue.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
@@ -7,7 +7,7 @@
 #include <random>
 #include <thread>
 
-namespace progressive {
+namespace pcp {
 
 // ---- Dedup ----
 
@@ -805,4 +805,4 @@ bool isInProgressState(SendState state) {
     return state == SendState::SENDING;
 }
 
-} // namespace progressive
+} // namespace pcp

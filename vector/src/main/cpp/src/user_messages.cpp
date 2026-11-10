@@ -1,8 +1,8 @@
-#include "progressive/user_messages.hpp"
+#include "pcp/user_messages.hpp"
 #include <algorithm>
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 std::vector<const UserMessage*> getLatestMessages(
     const std::vector<UserMessage>& allMessages,
@@ -68,4 +68,4 @@ std::string formatUserMessagePreview(const UserMessage& msg, int maxLen) {
     return out.str();
 }
 
-} // namespace progressive
+} // namespace pcp

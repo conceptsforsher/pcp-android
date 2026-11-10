@@ -1,9 +1,9 @@
-#include "progressive/raw_service.hpp"
-#include "progressive/login_utils.hpp"
+#include "pcp/raw_service.hpp"
+#include "pcp/login_utils.hpp"
 #include <algorithm>
 #include <cstdio>
 
-namespace progressive {
+namespace pcp {
 
 // ==== JSON Escape/Unescape Helpers ====
 
@@ -304,7 +304,7 @@ std::string buildMultipartBody(
 {
     std::string bd = boundary;
     if (bd.empty()) {
-        bd = "----ProgressiveMultipartBoundary";
+        bd = "----PcpMultipartBoundary";
     }
 
     std::string result;
@@ -440,4 +440,4 @@ RequestMetrics computeRequestMetrics(const std::vector<RequestLog>& logs) {
     return m;
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,11 +1,11 @@
-#include "progressive/network_monitor.hpp"
+#include "pcp/network_monitor.hpp"
 #include <vector>
 #include <sstream>
 #include <chrono>
 #include <algorithm>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 NetworkQuality computeNetworkQuality(
     NetworkType type, bool connected, bool metered, bool roaming,
@@ -350,4 +350,4 @@ NetworkStatsSummary computeNetworkStatsSummary(
     return summary;
 }
 
-} // namespace progressive
+} // namespace pcp

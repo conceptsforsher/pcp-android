@@ -460,7 +460,7 @@
     <string name="home_layout_preferences_sort_name">A - Z</string>
 
     <string name="labs_enable_new_app_layout_title">Enable new layout</string>
-    <string name="labs_enable_new_app_layout_summary">A simplified Progressive with optional tabs</string>
+    <string name="labs_enable_new_app_layout_summary">A simplified PCP with optional tabs</string>
 
     <string name="labs_enable_deferred_dm_title">Enable deferred DMs</string>
     <string name="labs_enable_deferred_dm_summary">Create DM only on first message</string>
@@ -836,7 +836,7 @@
     <string name="shortcut_disabled_reason_room_left">The room has been left!</string>
     <string name="shortcut_disabled_reason_sign_out">The session has been signed out!</string>
 
-    <!-- Progressive Chat Settings -->
+    <!-- PCP Settings -->
 
     <string name="settings_profile_picture">Profile Picture</string>
     <string name="settings_display_name">Display Name</string>
@@ -2827,7 +2827,7 @@
     <string name="notice_crypto_unable_to_decrypt_merged">Waiting for encryption history</string>
 
     <!-- TODO TO BE REMOVED -->
-    <string tools:ignore="UnusedResources" name="disclaimer_title">Riot is now Progressive Chat!</string>
+    <string tools:ignore="UnusedResources" name="disclaimer_title">Riot is now PCP!</string>
     <!-- TODO TO BE REMOVED -->
     <string tools:ignore="UnusedResources" name="disclaimer_content">We’re excited to announce we’ve changed name! Your app is up to date and you’re signed in to your account.</string>
     <!-- TODO TO BE REMOVED -->
@@ -3832,7 +3832,7 @@
     <string name="pill_message_unknown_room_or_space">Room/Space</string>
 
     <string name="error_mas_not_supported_title">Registration on %1$s requires new authentication method</string>
-    <string name="error_mas_not_supported_subtitle">Support for the new Matrix Authentication Service (MAS/OIDC) is coming soon to Progressive Chat. Please use a different homeserver for now, or wait for the next update.</string>
+    <string name="error_mas_not_supported_subtitle">Support for the new Matrix Authentication Service (MAS/OIDC) is coming soon to PCP. Please use a different homeserver for now, or wait for the next update.</string>
     <string name="view_download_replacement_app_title">Download %1$s</string>
     <string name="view_download_replacement_app_subtitle">Faster, more secure, and packed with powerful collaboration tools.</string>
 

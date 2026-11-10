@@ -31,7 +31,7 @@ import im.vector.app.features.home.room.detail.ChatEffect
 import im.vector.app.features.home.room.detail.composer.rainbow.RainbowGenerator
 import im.vector.app.features.home.room.detail.composer.voice.VoiceMessageRecorderView
 import im.vector.app.features.home.room.detail.toMessageType
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 import im.vector.app.features.session.coroutineScope
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.voice.VoiceFailure
@@ -555,7 +555,7 @@ class MessageComposerViewModel @AssistedInject constructor(
                              _viewEvents.post(MessageComposerViewEvents.SlashCommandResultOk(parsedCommand))
                              popDraft(room)
                          }
-                         is ParsedCommand.ProgressiveChatCommand -> {
+                         is ParsedCommand.PCPCommand -> {
                              when (parsedCommand.command) {
                                  Command.HIDE_EMOJI -> {
                                      vectorPreferences.toggleEmojiBlacklist()
@@ -1067,7 +1067,7 @@ class MessageComposerViewModel @AssistedInject constructor(
             try {
                 _viewEvents.post(MessageComposerViewEvents.SlashCommandLoading)
 
-                ProgressiveNative.ensureLoaded()
+                PcpNative.ensureLoaded()
 
                 val sessionParams = session.sessionParams
                 val serverUrl = sessionParams.homeServerUrlBase
@@ -1077,7 +1077,7 @@ class MessageComposerViewModel @AssistedInject constructor(
                 // Native C++ validation + URL construction, with Kotlin fallback
                 val isEnabled = vectorPreferences.isJumpToDateEnabled()
                 val resultJson = try {
-                    val raw = ProgressiveNative.nativeValidateAndBuild(
+                    val raw = PcpNative.nativeValidateAndBuild(
                         room.roomId,
                         command.dateString,
                         serverUrl,
@@ -1086,8 +1086,8 @@ class MessageComposerViewModel @AssistedInject constructor(
                     )
                     JSONObject(raw)
                 } catch (e: UnsatisfiedLinkError) {
-                    Timber.w(e, "progressive_native not loaded, using Kotlin fallback")
-                    ProgressiveNative.validateAndBuildFallback(
+                    Timber.w(e, "pcp_native not loaded, using Kotlin fallback")
+                    PcpNative.validateAndBuildFallback(
                         room.roomId,
                         command.dateString,
                         serverUrl,
@@ -1118,10 +1118,10 @@ class MessageComposerViewModel @AssistedInject constructor(
 
                 // Native C++ response parsing, with Kotlin fallback
                 val parsedResult = try {
-                    val raw = ProgressiveNative.nativeParseResponse(responseBody, response.code)
+                    val raw = PcpNative.nativeParseResponse(responseBody, response.code)
                     JSONObject(raw)
                 } catch (e: UnsatisfiedLinkError) {
-                    ProgressiveNative.parseResponseFallback(responseBody, response.code)
+                    PcpNative.parseResponseFallback(responseBody, response.code)
                 }
 
                 if (parsedResult.has("eventId")) {

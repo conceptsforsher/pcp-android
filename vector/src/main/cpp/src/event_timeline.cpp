@@ -1,11 +1,11 @@
-#include "progressive/event_timeline.hpp"
-#include "progressive/event_classifier.hpp"
+#include "pcp/event_timeline.hpp"
+#include "pcp/event_classifier.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Manual JSON Helpers ====
 
@@ -764,4 +764,4 @@ InsertMode insertModeFromJson(const std::string& json) {
     return insertModeFromString(s);
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,10 +1,10 @@
-#include "progressive/room_directory.hpp"
+#include "pcp/room_directory.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_set>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -555,4 +555,4 @@ std::string buildThirdPartyRoomRequest(const std::string& networkId, const std::
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

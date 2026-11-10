@@ -1,9 +1,9 @@
-#include "progressive/user_status.hpp"
+#include "pcp/user_status.hpp"
 #include <sstream>
 #include <ctime>
 #include <vector>
 
-namespace progressive {
+namespace pcp {
 
 // ==== UserStatus Methods ====
 
@@ -302,4 +302,4 @@ std::string formatUserStatus(const UserStatusInfo& info) {
     return base;
 }
 
-} // namespace progressive
+} // namespace pcp

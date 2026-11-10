@@ -1,9 +1,9 @@
-#include "progressive/verification_utils.hpp"
+#include "pcp/verification_utils.hpp"
 #include <sstream>
 #include <iomanip>
 #include <cstdlib>
 
-namespace progressive {
+namespace pcp {
 
 // ---- internal JSON helpers ----
 
@@ -459,4 +459,4 @@ std::string buildVerificationCancelBody(const std::string& transactionId,
     return buildVerificationCancel(transactionId, reason);
 }
 
-} // namespace progressive
+} // namespace pcp

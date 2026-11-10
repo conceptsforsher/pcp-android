@@ -1,8 +1,8 @@
-#include "progressive/content_scanner.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/content_scanner.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 ScanResult parseScanResult(const std::string& apiResponseJson) {
     ScanResult result;
@@ -529,4 +529,4 @@ ScanResult scanContent(const std::string& mxcUrl,
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,9 +1,9 @@
-#include "progressive/thumbnail.hpp"
+#include "pcp/thumbnail.hpp"
 #include <sstream>
 #include <cmath>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ================================================================
 // Thumbnail URL Builder (enhanced — takes ThumbnailRequest)
@@ -284,4 +284,4 @@ ImageSize parseImageSize(const std::string& infoJson) {
     return size;
 }
 
-} // namespace progressive
+} // namespace pcp

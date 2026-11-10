@@ -1,10 +1,10 @@
-#include "progressive/media_viewer.hpp"
+#include "pcp/media_viewer.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cmath>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -455,4 +455,4 @@ std::string getMediaCachePath(const std::string& mxcUrl, const std::string& cach
     return path.str();
 }
 
-} // namespace progressive
+} // namespace pcp

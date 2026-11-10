@@ -1,9 +1,9 @@
-#include "progressive/crypto_algorithms.hpp"
+#include "pcp/crypto_algorithms.hpp"
 #include <olm/crypto.h>
 #include <cstring>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ==== SHA-256 (via libolm) ====
 
@@ -163,4 +163,4 @@ std::vector<uint8_t> base58Decode(const std::string& input) {
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

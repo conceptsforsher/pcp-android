@@ -1,9 +1,9 @@
-#include "progressive/key_backup.hpp"
+#include "pcp/key_backup.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 bool isValidBase58Char(char c) {
     static const char* alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -327,4 +327,4 @@ std::string secretStorageKeyToJson(const SecretStorageKey& key) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

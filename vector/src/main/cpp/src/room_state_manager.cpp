@@ -1,9 +1,9 @@
-#include "progressive/room_state_manager.hpp"
-#include "progressive/room_content.hpp"
+#include "pcp/room_state_manager.hpp"
+#include "pcp/room_content.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Enums ======
 
@@ -101,11 +101,11 @@ std::string buildJoinRulesContent(RoomJoinRule rule) {
 
 
 
-// ====== progressive::RoomStateManager ======
+// ====== pcp::RoomStateManager ======
 
 RoomStateManager::RoomStateManager() {}
 
-void progressive::RoomStateManager::setHistoryVisibility(const std::string& roomId, RSM_RoomHistoryVisibility visibility) {
+void pcp::RoomStateManager::setHistoryVisibility(const std::string& roomId, RSM_RoomHistoryVisibility visibility) {
     auto it = rooms_.find(roomId);
     auto& state = it->second;
     state.historyVisibility = visibility;
@@ -113,7 +113,7 @@ void progressive::RoomStateManager::setHistoryVisibility(const std::string& room
     state.canShareHistory = shouldShareHistory(visibility);
 }
 
-void progressive::RoomStateManager::setJoinRule(const std::string& roomId, RoomJoinRule rule) {
+void pcp::RoomStateManager::setJoinRule(const std::string& roomId, RoomJoinRule rule) {
     auto it = rooms_.find(roomId);
     if (it == rooms_.end()) {
         RoomStateSummary s;
@@ -126,19 +126,19 @@ void progressive::RoomStateManager::setJoinRule(const std::string& roomId, RoomJ
     state.isPublicRoom = (rule == RoomJoinRule::PUBLIC);
 }
 
-void progressive::RoomStateManager::setRoomName(const std::string& roomId, const std::string& name) {
+void pcp::RoomStateManager::setRoomName(const std::string& roomId, const std::string& name) {
     rooms_[roomId].roomName = name;
 }
 
-void progressive::RoomStateManager::setEncrypted(const std::string& roomId, bool encrypted) {
+void pcp::RoomStateManager::setEncrypted(const std::string& roomId, bool encrypted) {
     rooms_[roomId].isEncrypted = encrypted;
 }
 
-void progressive::RoomStateManager::setMemberCount(const std::string& roomId, int count) {
+void pcp::RoomStateManager::setMemberCount(const std::string& roomId, int count) {
     rooms_[roomId].memberCount = count;
 }
 
-RoomStateSummary progressive::RoomStateManager::getRoomState(const std::string& roomId) const {
+RoomStateSummary pcp::RoomStateManager::getRoomState(const std::string& roomId) const {
     auto it = rooms_.find(roomId);
     if (it != rooms_.end()) return it->second;
     RoomStateSummary s;
@@ -146,33 +146,33 @@ RoomStateSummary progressive::RoomStateManager::getRoomState(const std::string& 
     return s;
 }
 
-bool progressive::RoomStateManager::canShareRoomHistory(const std::string& roomId) const {
+bool pcp::RoomStateManager::canShareRoomHistory(const std::string& roomId) const {
     auto state = getRoomState(roomId);
     return state.canShareHistory;
 }
 
-bool progressive::RoomStateManager::isPublicRoom(const std::string& roomId) const {
+bool pcp::RoomStateManager::isPublicRoom(const std::string& roomId) const {
     return getRoomState(roomId).isPublicRoom;
 }
 
-bool progressive::RoomStateManager::isWorldReadable(const std::string& roomId) const {
+bool pcp::RoomStateManager::isWorldReadable(const std::string& roomId) const {
     return getRoomState(roomId).isWorldReadable;
 }
 
-bool progressive::RoomStateManager::isInviteOnly(const std::string& roomId) const {
+bool pcp::RoomStateManager::isInviteOnly(const std::string& roomId) const {
     return getRoomState(roomId).joinRule == RoomJoinRule::INVITE;
 }
 
-bool progressive::RoomStateManager::areGuestsAllowed(const std::string& roomId) const {
+bool pcp::RoomStateManager::areGuestsAllowed(const std::string& roomId) const {
     auto state = getRoomState(roomId);
     return state.isPublicRoom && state.isWorldReadable;
 }
 
-void progressive::RoomStateManager::clear() { rooms_.clear(); }
+void pcp::RoomStateManager::clear() { rooms_.clear(); }
 
 // ====== Serialization ======
 
-std::string progressive::RoomStateManager::roomStateToJson(const RoomStateSummary& state) const {
+std::string pcp::RoomStateManager::roomStateToJson(const RoomStateSummary& state) const {
     auto esc = [](const std::string& s) -> std::string {
         std::string out;
         for (char c : s) { if (c == '"') out += "\\\""; else out += c; }
@@ -195,4 +195,4 @@ std::string progressive::RoomStateManager::roomStateToJson(const RoomStateSummar
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

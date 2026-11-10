@@ -1,6 +1,6 @@
-#include "progressive/room_uploads.hpp"
+#include "pcp/room_uploads.hpp"
 
-namespace progressive {
+namespace pcp {
 
 // ==== Sticker Detection ====
 //
@@ -213,4 +213,4 @@ std::string getUploadsResultToJson(const GetUploadsResult& result) {
     return json;
 }
 
-} // namespace progressive
+} // namespace pcp

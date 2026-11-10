@@ -30,7 +30,7 @@ Timeline Loading (normal scrolling)
     │ TimelineEventController.enrichWithModels() iterates all visible events
     │
     ├── For each event:
-    │     ProgressiveNative.nativeCachePut(eventId, senderName, body,
+    │     PcpNative.nativeCachePut(eventId, senderName, body,
     │         msgType, relationType, sourceEventId, sentByMe)
     │
     ▼
@@ -42,7 +42,7 @@ EventCache (C++ native memory)
     ▼
 User Long-Press
     │
-    │ ProgressiveNative.nativeCacheGetContext(eventId)
+    │ PcpNative.nativeCacheGetContext(eventId)
     │
     ▼
 Single JSON response with ALL context menu data
@@ -103,7 +103,7 @@ Populated in `TimelineEventController.enrichWithModels()` at line ~505. This met
 
 ```kotlin
 events.forEach { event ->
-    ProgressiveNative.nativeCachePut(
+    PcpNative.nativeCachePut(
         event.eventId,
         event.root.senderId ?: "",
         event.senderInfo.disambiguatedDisplayName,
@@ -123,7 +123,7 @@ events.forEach { event ->
 Consumed in `MessageActionsViewModel` when building the action list. The cache check happens before any Realm queries:
 
 ```kotlin
-val cached = ProgressiveNative.nativeCacheGetContext(eventId)
+val cached = PcpNative.nativeCacheGetContext(eventId)
 val cachedJson = JSONObject(cached)
 if (cachedJson.optBoolean("cached", false)) {
     // Use cached data directly — skip Realm queries
@@ -140,7 +140,7 @@ if (cachedJson.optBoolean("cached", false)) {
 Cleared on room switch in `TimelineFragment.onDestroyView()`:
 
 ```kotlin
-ProgressiveNative.nativeCacheClear()
+PcpNative.nativeCacheClear()
 ```
 
 ## Performance Measurements

@@ -77,7 +77,7 @@
 ### Kotlin (через JNI)
 ```kotlin
 // Распарсить команду
-val json = ProgressiveNative.nativeParseSlashCommand(text)
+val json = PcpNative.nativeParseSlashCommand(text)
 val result = JSONObject(json)
 if (result.getBoolean("isSlashCommand")) {
     when (result.getString("command")) {
@@ -90,13 +90,13 @@ if (result.getBoolean("isSlashCommand")) {
 
 ### C++ (напрямую)
 ```cpp
-auto cmd = progressive::parseSlashCommand("/me привет всем", "", false);
+auto cmd = pcp::parseSlashCommand("/me привет всем", "", false);
 // cmd.resultType == ParseResultType::SendEmote
 // cmd.message == "привет всем"
 ```
 
 ### Поиск команды по префиксу
 ```cpp
-auto suggestions = progressive::getSlashCommandSuggestions("/j");
+auto suggestions = pcp::getSlashCommandSuggestions("/j");
 // → ["/join", "/j", "/joinSpace", "/jumptodate"]
 ```

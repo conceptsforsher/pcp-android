@@ -1,10 +1,10 @@
-#include "progressive/message_location.hpp"
+#include "pcp/message_location.hpp"
 #include <vector>
 #include <sstream>
 #include <algorithm>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 TimelinePosition computeTimelinePosition(const std::string& eventId, int index,
     int totalLoaded, int estimatedTotal) {
@@ -95,4 +95,4 @@ int estimatePaginationRequests(int missingEvents, int pageSize) {
     return (missingEvents + pageSize - 1) / pageSize;
 }
 
-} // namespace progressive
+} // namespace pcp

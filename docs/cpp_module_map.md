@@ -1,4 +1,4 @@
-# Progressive Chat — Module Porting Map
+# PCP — Module Porting Map
 
 ## Kotlin → C++ Correspondence Table
 
@@ -95,7 +95,7 @@
 чтобы читатель мог сравнить логику построчно.
 
 ### 3. Kotlin Fallback
-Для каждой JNI-функции есть pure-Kotlin реализация в `ProgressiveNative.kt`
+Для каждой JNI-функции есть pure-Kotlin реализация в `PcpNative.kt`
 на случай, если `.so` не загрузится (`UnsatisfiedLinkError`).
 
 ### 4. NDK 21 Совместимость

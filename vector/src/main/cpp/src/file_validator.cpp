@@ -1,10 +1,10 @@
-#include "progressive/file_validator.hpp"
+#include "pcp/file_validator.hpp"
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 static const std::unordered_map<std::string, std::string> EXT_TO_MIME = {
     {"jpg", "image/jpeg"}, {"jpeg", "image/jpeg"}, {"png", "image/png"},
@@ -158,4 +158,4 @@ std::string sanitizeFileName(const std::string& fileName) {
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

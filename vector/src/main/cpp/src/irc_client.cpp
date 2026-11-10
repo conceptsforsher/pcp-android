@@ -1,5 +1,5 @@
-#include "progressive/irc_client.hpp"
-#include "progressive/irc_parser.hpp"
+#include "pcp/irc_client.hpp"
+#include "pcp/irc_parser.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -11,7 +11,7 @@
 #include <chrono>
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 namespace irc {
 
 IrcClient::IrcClient() {}
@@ -307,4 +307,4 @@ std::string formatIrcMessage(const std::string& command, const std::vector<std::
 }
 
 } // namespace irc
-} // namespace progressive
+} // namespace pcp

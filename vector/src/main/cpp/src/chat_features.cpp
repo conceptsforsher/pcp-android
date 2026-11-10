@@ -1,10 +1,10 @@
-#include "progressive/chat_features.hpp"
+#include "pcp/chat_features.hpp"
 #include <sstream>
 #include <ctime>
 #include <vector>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ---- Timezone ----
 
@@ -137,4 +137,4 @@ std::string getStrippableMimeTypes() {
            "audio/mpeg, audio/mp4, video/mp4, video/quicktime";
 }
 
-} // namespace progressive
+} // namespace pcp

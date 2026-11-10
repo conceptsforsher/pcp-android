@@ -1,9 +1,9 @@
 # Reporting a Vulnerability
 
-If you've found a security vulnerability in Progressive Chat, please contact
+If you've found a security vulnerability in PCP, please contact
 the project author privately:
 
-**Anton Maurer** — [GitHub: progressive-chat](https://github.com/progressive-chat)
+**Anton Maurer** — [GitHub: pcp-chat](https://github.com/pcp-chat)
 
 Please do NOT open a public issue for security vulnerabilities.
 We follow responsible disclosure: you report privately, we fix, then announce.

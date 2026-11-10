@@ -1,316 +1,316 @@
 #include <jni.h>
 #include <string>
 #include <android/log.h>
-#include "progressive/jumptodate.hpp"
-#include "progressive/relation.hpp"
-#include "progressive/olm_session.hpp"
-#include "progressive/bidirectional_utils.hpp"
-#include "progressive/sas_verification.hpp"
-#include "progressive/megolm_decryptor.hpp"
-#include "progressive/exporter.hpp"
-#include "progressive/eventcache.hpp"
-#include "progressive/translate.hpp"
-#include "progressive/proxy.hpp"
-#include "progressive/yggdrasil.hpp"
-#include "progressive/markdown.hpp"
-#include "progressive/account_export.hpp"
-#include "progressive/audio_engine.hpp"
-#include "progressive/media_filter.hpp"
-#include "progressive/content_filter.hpp"
-#include "progressive/network_stats.hpp"
-#include "progressive/masquerade.hpp"
-#include "progressive/user_mask.hpp"
-#include "progressive/chunked_upload.hpp"
-#include "progressive/chat_features.hpp"
-#include "progressive/invitation_hide.hpp"
-#include "progressive/thread_aggregator.hpp"
-#include "progressive/user_messages.hpp"
-#include "progressive/room_version.hpp"
-#include "progressive/chat_preview.hpp"
-#include "progressive/ram_monitor.hpp"
-#include "progressive/message_aggregator.hpp"
-#include "progressive/room_info.hpp"
-#include "progressive/deleted_archive.hpp"
-#include "progressive/search_index.hpp"
-#include "progressive/module_loader.hpp"
-#include "progressive/notification.hpp"
-#include "progressive/room_mirror.hpp"
-#include "progressive/input_tools.hpp"
-#include "progressive/llm.hpp"
-#include "progressive/alarm_engine.hpp"
-#include "progressive/notif_mode.hpp"
-#include "progressive/read_receipts.hpp"
-#include "progressive/room_analytics.hpp"
-#include "progressive/chat_tools.hpp"
-#include "progressive/lang_detect.hpp"
-#include "progressive/avatar_history.hpp"
-#include "progressive/event_link.hpp"
-#include "progressive/lightweight_call.hpp"
-#include "progressive/scheduled_edit.hpp"
-#include "progressive/svg_draw.hpp"
-#include "progressive/profile_swiper.hpp"
-#include "progressive/rainbow.hpp"
-#include "progressive/text_formats.hpp"
-#include "progressive/url_tools.hpp"
-#include "progressive/event_classifier.hpp"
-#include "progressive/live_draft.hpp"
-#include "progressive/encrypted_file.hpp"
-#include "progressive/notif_priority.hpp"
-#include "progressive/matrix_patterns.hpp"
-#include "progressive/content_utils.hpp"
-#include "progressive/desync_detector.hpp"
-#include "progressive/latency_stats.hpp"
-#include "progressive/string_utils.hpp"
-#include "progressive/create_room.hpp"
-#include "progressive/tls_bridge.hpp"
-#include "progressive/location_sharing.hpp"
-#include "progressive/color_utils.hpp"
-#include "progressive/e2ee_utils.hpp"
-#include "progressive/thumbnail.hpp"
-#include "progressive/waveform.hpp"
-#include "progressive/session_timeout.hpp"
-#include "progressive/password_validator.hpp"
-#include "progressive/spellcheck.hpp"
-#include "progressive/draft_manager.hpp"
-#include "progressive/link_preview.hpp"
-#include "progressive/hash_utils.hpp"
-#include "progressive/room_stats.hpp"
-#include "progressive/mention_parser.hpp"
-#include "progressive/poll_utils.hpp"
-#include "progressive/reaction_utils.hpp"
-#include "progressive/file_validator.hpp"
-#include "progressive/date_utils.hpp"
-#include "progressive/message_queue.hpp"
-#include "progressive/pinned_events.hpp"
-#include "progressive/server_capabilities.hpp"
-#include "progressive/username_validator.hpp"
-#include "progressive/emoji_analyzer.hpp"
-#include "progressive/identity_utils.hpp"
-#include "progressive/notif_analyzer.hpp"
-#include "progressive/sync_analyzer.hpp"
-#include "progressive/user_rating.hpp"
-#include "progressive/event_timeline.hpp"
-#include "progressive/room_directory.hpp"
-#include "progressive/widget_utils.hpp"
-#include "progressive/sso_utils.hpp"
-#include "progressive/backup_utils.hpp"
-#include "progressive/device_manager.hpp"
-#include "progressive/presence_utils.hpp"
-#include "progressive/room_permissions.hpp"
-#include "progressive/room_summary.hpp"
-#include "progressive/membership_utils.hpp"
-#include "progressive/event_validator.hpp"
-#include "progressive/room_encryption.hpp"
-#include "progressive/login_utils.hpp"
-#include "progressive/connection_monitor.hpp"
-#include "progressive/push_rules.hpp"
-#include "progressive/space_utils.hpp"
-#include "progressive/event_relations.hpp"
-#include "progressive/relation_builder.hpp"
-#include "progressive/e2ee_decoration.hpp"
-#include "progressive/room_list.hpp"
-#include "progressive/media_utils.hpp"
-#include "progressive/notif_settings.hpp"
-#include "progressive/invite_utils.hpp"
-#include "progressive/session_manager.hpp"
-#include "progressive/auth_utils.hpp"
-#include "progressive/content_scanner.hpp"
-#include "progressive/event_encryption.hpp"
-#include "progressive/report_utils.hpp"
-#include "progressive/webrtc_utils.hpp"
-#include "progressive/message_retry.hpp"
-#include "progressive/sync_utils.hpp"
-#include "progressive/event_display.hpp"
-#include "progressive/permalink.hpp"
-#include "progressive/network_monitor.hpp"
-#include "progressive/client_info.hpp"
-#include "progressive/keyshare.hpp"
-#include "progressive/displayname_utils.hpp"
-#include "progressive/message_location.hpp"
-#include "progressive/timeline_utils.hpp"
-#include "progressive/timeline_chunk.hpp"
-#include "progressive/sliding_sync.hpp"
-#include "progressive/oidc_auth.hpp"
-#include "progressive/unified_push.hpp"
-#include "progressive/sqlite_wrapper.hpp"
-#include "progressive/eventdb.hpp"
-#include "progressive/room_filter.hpp"
-#include "progressive/thumbnail.hpp"
-#include "progressive/sync_models.hpp"
-#include "progressive/event_models.hpp"
-#include "progressive/matrix_api.hpp"
-#include "progressive/common_utils.hpp"
-#include "progressive/media_utils_extra.hpp"
-#include "progressive/account_data_utils.hpp"
-#include "progressive/room_tombstone.hpp"
-#include "progressive/openid_token.hpp"
-#include "progressive/event_utils.hpp"
-#include "progressive/content_builder.hpp"
-#include "progressive/displayname_utils.hpp"
-#include "progressive/permalink.hpp"
-#include "progressive/media_utils.hpp"
-#include "progressive/key_backup.hpp"
-#include "progressive/room_encryption.hpp"
-#include "progressive/event_display.hpp"
-#include "progressive/date_utils.hpp"
-#include "progressive/presence_utils.hpp"
-#include "progressive/device_naming.hpp"
-#include "progressive/account_utils.hpp"
-#include "progressive/login_utils.hpp"
-#include "progressive/poll_utils.hpp"
-#include "progressive/membership_utils.hpp"
-#include "progressive/invite_utils.hpp"
-#include "progressive/event_validator.hpp"
-#include "progressive/widget_utils.hpp"
-#include "progressive/cross_signing.hpp"
-#include "progressive/edit_history.hpp"
-#include "progressive/read_marker.hpp"
-#include "progressive/slash_command.hpp"
-#include "progressive/typing_monitor.hpp"
-#include "progressive/url_preview.hpp"
-#include "progressive/power_levels.hpp"
-#include "progressive/well_known.hpp"
-#include "progressive/room_content.hpp"
-#include "progressive/user_status.hpp"
-#include "progressive/content_guard.hpp"
-#include "progressive/room_directory_manager.hpp"
-#include "progressive/room_permissions_manager.hpp"
-#include "progressive/room_state_manager.hpp"
-#include "progressive/server_notice_manager.hpp"
-#include "progressive/session_manager_full.hpp"
-#include "progressive/space_graph.hpp"
-#include "progressive/spoiler_manager.hpp"
-#include "progressive/terms_manager.hpp"
-#include "progressive/live_location.hpp"
-#include "progressive/cross_signing_manager.hpp"
-#include "progressive/poll_manager.hpp"
-#include "progressive/profiler.hpp"
-#include "progressive/identity_server_manager.hpp"
-#include "progressive/device_manager_full.hpp"
-#include "progressive/offline_cache.hpp"
-#include "progressive/oidc_manager.hpp"
-#include "progressive/pin_manager.hpp"
-#include "progressive/widget_manager.hpp"
-#include "progressive/text_undo_manager.hpp"
-#include "progressive/thread_manager.hpp"
-#include "progressive/transparent_overlay.hpp"
-#include "progressive/user_directory.hpp"
-#include "progressive/web_search.hpp"
-#include "progressive/federation_version.hpp"
-#include "progressive/canonical_json.hpp"
-#include "progressive/room_uploads.hpp"
-#include "progressive/notif_formatter.hpp"
-#include "progressive/notif_format.hpp"
-#include "progressive/call_models.hpp"
-#include "progressive/lightweight_settings.hpp"
-#include "progressive/raw_service.hpp"
-#include "progressive/json_parser.hpp"
-#include "progressive/signout_service.hpp"
-#include "progressive/matrix_error.hpp"
-#include "progressive/call_manager.hpp"
-#include "progressive/event_relations_manager.hpp"
-#include "progressive/composer_manager.hpp"
-#include "progressive/media_upload_manager.hpp"
-#include "progressive/media_viewer.hpp"
-#include "progressive/key_backup_manager.hpp"
+#include "pcp/jumptodate.hpp"
+#include "pcp/relation.hpp"
+#include "pcp/olm_session.hpp"
+#include "pcp/bidirectional_utils.hpp"
+#include "pcp/sas_verification.hpp"
+#include "pcp/megolm_decryptor.hpp"
+#include "pcp/exporter.hpp"
+#include "pcp/eventcache.hpp"
+#include "pcp/translate.hpp"
+#include "pcp/proxy.hpp"
+#include "pcp/yggdrasil.hpp"
+#include "pcp/markdown.hpp"
+#include "pcp/account_export.hpp"
+#include "pcp/audio_engine.hpp"
+#include "pcp/media_filter.hpp"
+#include "pcp/content_filter.hpp"
+#include "pcp/network_stats.hpp"
+#include "pcp/masquerade.hpp"
+#include "pcp/user_mask.hpp"
+#include "pcp/chunked_upload.hpp"
+#include "pcp/chat_features.hpp"
+#include "pcp/invitation_hide.hpp"
+#include "pcp/thread_aggregator.hpp"
+#include "pcp/user_messages.hpp"
+#include "pcp/room_version.hpp"
+#include "pcp/chat_preview.hpp"
+#include "pcp/ram_monitor.hpp"
+#include "pcp/message_aggregator.hpp"
+#include "pcp/room_info.hpp"
+#include "pcp/deleted_archive.hpp"
+#include "pcp/search_index.hpp"
+#include "pcp/module_loader.hpp"
+#include "pcp/notification.hpp"
+#include "pcp/room_mirror.hpp"
+#include "pcp/input_tools.hpp"
+#include "pcp/llm.hpp"
+#include "pcp/alarm_engine.hpp"
+#include "pcp/notif_mode.hpp"
+#include "pcp/read_receipts.hpp"
+#include "pcp/room_analytics.hpp"
+#include "pcp/chat_tools.hpp"
+#include "pcp/lang_detect.hpp"
+#include "pcp/avatar_history.hpp"
+#include "pcp/event_link.hpp"
+#include "pcp/lightweight_call.hpp"
+#include "pcp/scheduled_edit.hpp"
+#include "pcp/svg_draw.hpp"
+#include "pcp/profile_swiper.hpp"
+#include "pcp/rainbow.hpp"
+#include "pcp/text_formats.hpp"
+#include "pcp/url_tools.hpp"
+#include "pcp/event_classifier.hpp"
+#include "pcp/live_draft.hpp"
+#include "pcp/encrypted_file.hpp"
+#include "pcp/notif_priority.hpp"
+#include "pcp/matrix_patterns.hpp"
+#include "pcp/content_utils.hpp"
+#include "pcp/desync_detector.hpp"
+#include "pcp/latency_stats.hpp"
+#include "pcp/string_utils.hpp"
+#include "pcp/create_room.hpp"
+#include "pcp/tls_bridge.hpp"
+#include "pcp/location_sharing.hpp"
+#include "pcp/color_utils.hpp"
+#include "pcp/e2ee_utils.hpp"
+#include "pcp/thumbnail.hpp"
+#include "pcp/waveform.hpp"
+#include "pcp/session_timeout.hpp"
+#include "pcp/password_validator.hpp"
+#include "pcp/spellcheck.hpp"
+#include "pcp/draft_manager.hpp"
+#include "pcp/link_preview.hpp"
+#include "pcp/hash_utils.hpp"
+#include "pcp/room_stats.hpp"
+#include "pcp/mention_parser.hpp"
+#include "pcp/poll_utils.hpp"
+#include "pcp/reaction_utils.hpp"
+#include "pcp/file_validator.hpp"
+#include "pcp/date_utils.hpp"
+#include "pcp/message_queue.hpp"
+#include "pcp/pinned_events.hpp"
+#include "pcp/server_capabilities.hpp"
+#include "pcp/username_validator.hpp"
+#include "pcp/emoji_analyzer.hpp"
+#include "pcp/identity_utils.hpp"
+#include "pcp/notif_analyzer.hpp"
+#include "pcp/sync_analyzer.hpp"
+#include "pcp/user_rating.hpp"
+#include "pcp/event_timeline.hpp"
+#include "pcp/room_directory.hpp"
+#include "pcp/widget_utils.hpp"
+#include "pcp/sso_utils.hpp"
+#include "pcp/backup_utils.hpp"
+#include "pcp/device_manager.hpp"
+#include "pcp/presence_utils.hpp"
+#include "pcp/room_permissions.hpp"
+#include "pcp/room_summary.hpp"
+#include "pcp/membership_utils.hpp"
+#include "pcp/event_validator.hpp"
+#include "pcp/room_encryption.hpp"
+#include "pcp/login_utils.hpp"
+#include "pcp/connection_monitor.hpp"
+#include "pcp/push_rules.hpp"
+#include "pcp/space_utils.hpp"
+#include "pcp/event_relations.hpp"
+#include "pcp/relation_builder.hpp"
+#include "pcp/e2ee_decoration.hpp"
+#include "pcp/room_list.hpp"
+#include "pcp/media_utils.hpp"
+#include "pcp/notif_settings.hpp"
+#include "pcp/invite_utils.hpp"
+#include "pcp/session_manager.hpp"
+#include "pcp/auth_utils.hpp"
+#include "pcp/content_scanner.hpp"
+#include "pcp/event_encryption.hpp"
+#include "pcp/report_utils.hpp"
+#include "pcp/webrtc_utils.hpp"
+#include "pcp/message_retry.hpp"
+#include "pcp/sync_utils.hpp"
+#include "pcp/event_display.hpp"
+#include "pcp/permalink.hpp"
+#include "pcp/network_monitor.hpp"
+#include "pcp/client_info.hpp"
+#include "pcp/keyshare.hpp"
+#include "pcp/displayname_utils.hpp"
+#include "pcp/message_location.hpp"
+#include "pcp/timeline_utils.hpp"
+#include "pcp/timeline_chunk.hpp"
+#include "pcp/sliding_sync.hpp"
+#include "pcp/oidc_auth.hpp"
+#include "pcp/unified_push.hpp"
+#include "pcp/sqlite_wrapper.hpp"
+#include "pcp/eventdb.hpp"
+#include "pcp/room_filter.hpp"
+#include "pcp/thumbnail.hpp"
+#include "pcp/sync_models.hpp"
+#include "pcp/event_models.hpp"
+#include "pcp/matrix_api.hpp"
+#include "pcp/common_utils.hpp"
+#include "pcp/media_utils_extra.hpp"
+#include "pcp/account_data_utils.hpp"
+#include "pcp/room_tombstone.hpp"
+#include "pcp/openid_token.hpp"
+#include "pcp/event_utils.hpp"
+#include "pcp/content_builder.hpp"
+#include "pcp/displayname_utils.hpp"
+#include "pcp/permalink.hpp"
+#include "pcp/media_utils.hpp"
+#include "pcp/key_backup.hpp"
+#include "pcp/room_encryption.hpp"
+#include "pcp/event_display.hpp"
+#include "pcp/date_utils.hpp"
+#include "pcp/presence_utils.hpp"
+#include "pcp/device_naming.hpp"
+#include "pcp/account_utils.hpp"
+#include "pcp/login_utils.hpp"
+#include "pcp/poll_utils.hpp"
+#include "pcp/membership_utils.hpp"
+#include "pcp/invite_utils.hpp"
+#include "pcp/event_validator.hpp"
+#include "pcp/widget_utils.hpp"
+#include "pcp/cross_signing.hpp"
+#include "pcp/edit_history.hpp"
+#include "pcp/read_marker.hpp"
+#include "pcp/slash_command.hpp"
+#include "pcp/typing_monitor.hpp"
+#include "pcp/url_preview.hpp"
+#include "pcp/power_levels.hpp"
+#include "pcp/well_known.hpp"
+#include "pcp/room_content.hpp"
+#include "pcp/user_status.hpp"
+#include "pcp/content_guard.hpp"
+#include "pcp/room_directory_manager.hpp"
+#include "pcp/room_permissions_manager.hpp"
+#include "pcp/room_state_manager.hpp"
+#include "pcp/server_notice_manager.hpp"
+#include "pcp/session_manager_full.hpp"
+#include "pcp/space_graph.hpp"
+#include "pcp/spoiler_manager.hpp"
+#include "pcp/terms_manager.hpp"
+#include "pcp/live_location.hpp"
+#include "pcp/cross_signing_manager.hpp"
+#include "pcp/poll_manager.hpp"
+#include "pcp/profiler.hpp"
+#include "pcp/identity_server_manager.hpp"
+#include "pcp/device_manager_full.hpp"
+#include "pcp/offline_cache.hpp"
+#include "pcp/oidc_manager.hpp"
+#include "pcp/pin_manager.hpp"
+#include "pcp/widget_manager.hpp"
+#include "pcp/text_undo_manager.hpp"
+#include "pcp/thread_manager.hpp"
+#include "pcp/transparent_overlay.hpp"
+#include "pcp/user_directory.hpp"
+#include "pcp/web_search.hpp"
+#include "pcp/federation_version.hpp"
+#include "pcp/canonical_json.hpp"
+#include "pcp/room_uploads.hpp"
+#include "pcp/notif_formatter.hpp"
+#include "pcp/notif_format.hpp"
+#include "pcp/call_models.hpp"
+#include "pcp/lightweight_settings.hpp"
+#include "pcp/raw_service.hpp"
+#include "pcp/json_parser.hpp"
+#include "pcp/signout_service.hpp"
+#include "pcp/matrix_error.hpp"
+#include "pcp/call_manager.hpp"
+#include "pcp/event_relations_manager.hpp"
+#include "pcp/composer_manager.hpp"
+#include "pcp/media_upload_manager.hpp"
+#include "pcp/media_viewer.hpp"
+#include "pcp/key_backup_manager.hpp"
 #include <sstream>
 #include <chrono>
 
-using namespace progressive;
+using namespace pcp;
 
 // --- Singleton keyword filter ---
-static progressive::KeywordFilter g_keywordFilter;
+static pcp::KeywordFilter g_keywordFilter;
 
 // --- Singleton network stats collector ---
-static progressive::NetworkStatsCollector g_netStats;
+static pcp::NetworkStatsCollector g_netStats;
 
 // --- Singleton user mask registry ---
-static progressive::UserMaskRegistry g_userMasks;
+static pcp::UserMaskRegistry g_userMasks;
 
 // --- Singleton chunked uploader ---
-static progressive::ChunkedUploader g_uploader;
+static pcp::ChunkedUploader g_uploader;
 
 // --- Singleton invitation hide list ---
-static progressive::InvitationHideList g_inviteHide;
+static pcp::InvitationHideList g_inviteHide;
 
 // --- Singleton thread aggregator ---
-static progressive::ThreadAggregator g_threadAgg;
+static pcp::ThreadAggregator g_threadAgg;
 
 // --- Singleton message aggregator ---
-static progressive::MessageAggregator g_msgAgg;
+static pcp::MessageAggregator g_msgAgg;
 
 // --- Singleton deleted archive ---
-static progressive::DeletedMessageArchive g_deletedArchive;
+static pcp::DeletedMessageArchive g_deletedArchive;
 
 // --- Singleton search index ---
-static progressive::SearchIndex g_searchIndex;
+static pcp::SearchIndex g_searchIndex;
 
 // --- Singleton module loader ---
-static progressive::ModuleLoader g_moduleLoader;
+static pcp::ModuleLoader g_moduleLoader;
 
 // --- Singleton notification keywords ---
-static progressive::NotificationKeywords g_notifKeywords;
+static pcp::NotificationKeywords g_notifKeywords;
 
 // --- Singleton room mirror manager ---
-static progressive::RoomMirrorManager g_mirrorMgr;
+static pcp::RoomMirrorManager g_mirrorMgr;
 
 // --- Singleton symbol bar ---
-static progressive::SymbolBar g_symbolBar;
+static pcp::SymbolBar g_symbolBar;
 
 // --- Singleton replacement engine ---
-static progressive::ReplacementEngine g_replacementEngine;
+static pcp::ReplacementEngine g_replacementEngine;
 
 // --- Singleton user MXID visibility ---
-static progressive::UserMxidVisibility g_mxidVisibility;
+static pcp::UserMxidVisibility g_mxidVisibility;
 
 // --- Singleton user hide manager ---
-static progressive::UserHideManager g_userHide;
+static pcp::UserHideManager g_userHide;
 
 // --- Singleton message queue ---
-static progressive::MessageQueue g_msgQueue;
+static pcp::MessageQueue g_msgQueue;
 
 // --- Singleton language hide manager ---
-static progressive::LanguageHideManager g_langHide;
+static pcp::LanguageHideManager g_langHide;
 
 // --- Singleton chat push down ---
-static progressive::ChatPushDownManager g_chatPushDown;
+static pcp::ChatPushDownManager g_chatPushDown;
 
 // --- Singleton emoji blacklist ---
-static progressive::EmojiBlacklist g_emojiBlacklist;
+static pcp::EmojiBlacklist g_emojiBlacklist;
 
 // --- Singleton avatar history ---
-static progressive::AvatarHistory g_avatarHistory;
+static pcp::AvatarHistory g_avatarHistory;
 
 // --- Singleton lightweight call manager ---
-static progressive::LightweightCallManager g_lightCall;
+static pcp::LightweightCallManager g_lightCall;
 
 // --- Singleton scheduled edit queue ---
-static progressive::ScheduledEditQueue g_schedEdits;
+static pcp::ScheduledEditQueue g_schedEdits;
 
 // --- Singleton drawing canvas ---
-static progressive::DrawingCanvas g_drawCanvas;
+static pcp::DrawingCanvas g_drawCanvas;
 
 // --- Singleton profile swiper ---
-static progressive::ProfileSwiper g_profileSwiper;
+static pcp::ProfileSwiper g_profileSwiper;
 
 // --- Singleton connection monitor ---
-static progressive::ConnectionMonitor g_connectionMonitor;
+static pcp::ConnectionMonitor g_connectionMonitor;
 
 // --- Singleton desync detector ---
-static progressive::DesyncDetector g_desyncDetector;
+static pcp::DesyncDetector g_desyncDetector;
 
 // --- Singleton latency tracker ---
-static progressive::LatencyTracker g_latencyTracker;
+static pcp::LatencyTracker g_latencyTracker;
 
 // --- Singleton location sharing manager ---
-static progressive::LocationSharingManager g_locationSharing;
+static pcp::LocationSharingManager g_locationSharing;
 
-#define LOG_TAG "ProgressiveNative"
+#define LOG_TAG "PcpNative"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 #define JNI_FUNC(ret, name) \
-    JNIEXPORT ret JNICALL Java_chat_progressive_app_native_ProgressiveNative_##name
+    JNIEXPORT ret JNICALL Java_chat_pcp_app_native_PcpNative_##name
 
 static std::string jStr(JNIEnv* env, jstring js) {
     if (!js) return "";
@@ -348,174 +348,174 @@ static bool jExtractBool(const std::string& json, const std::string& key) {
 }
 
 extern "C" {
-static std::unique_ptr<progressive::ServerNoticeManager> g_serverNotice;
+static std::unique_ptr<pcp::ServerNoticeManager> g_serverNotice;
 
-static progressive::ServerNoticeManager* getServerNotice() {
-    if (!g_serverNotice) g_serverNotice.reset(new progressive::ServerNoticeManager());
+static pcp::ServerNoticeManager* getServerNotice() {
+    if (!g_serverNotice) g_serverNotice.reset(new pcp::ServerNoticeManager());
     return g_serverNotice.get();
 }
-static std::unique_ptr<progressive::LiveLocationManager> g_locationMgr;
+static std::unique_ptr<pcp::LiveLocationManager> g_locationMgr;
 
-static progressive::LiveLocationManager* getLocationMgr() {
-    if (!g_locationMgr) g_locationMgr.reset(new progressive::LiveLocationManager());
+static pcp::LiveLocationManager* getLocationMgr() {
+    if (!g_locationMgr) g_locationMgr.reset(new pcp::LiveLocationManager());
     return g_locationMgr.get();
 }
-static std::unique_ptr<progressive::TermsManager> g_termsMgr;
+static std::unique_ptr<pcp::TermsManager> g_termsMgr;
 
-static progressive::TermsManager* getTermsMgr() {
-    if (!g_termsMgr) g_termsMgr.reset(new progressive::TermsManager());
+static pcp::TermsManager* getTermsMgr() {
+    if (!g_termsMgr) g_termsMgr.reset(new pcp::TermsManager());
     return g_termsMgr.get();
 }
-static std::unique_ptr<progressive::CrossSigningManager> g_crossSigningMgr;
+static std::unique_ptr<pcp::CrossSigningManager> g_crossSigningMgr;
 
-static progressive::CrossSigningManager* getCrossSigningMgr() {
-    if (!g_crossSigningMgr) g_crossSigningMgr.reset(new progressive::CrossSigningManager());
+static pcp::CrossSigningManager* getCrossSigningMgr() {
+    if (!g_crossSigningMgr) g_crossSigningMgr.reset(new pcp::CrossSigningManager());
     return g_crossSigningMgr.get();
 }
-static std::unique_ptr<progressive::SpoilerManager> g_spoilerMgr;
+static std::unique_ptr<pcp::SpoilerManager> g_spoilerMgr;
 
-static progressive::SpoilerManager* getSpoilerMgr() {
-    if (!g_spoilerMgr) g_spoilerMgr.reset(new progressive::SpoilerManager());
+static pcp::SpoilerManager* getSpoilerMgr() {
+    if (!g_spoilerMgr) g_spoilerMgr.reset(new pcp::SpoilerManager());
     return g_spoilerMgr.get();
 }
-static std::unique_ptr<progressive::UserDirectoryManager> g_userDir;
+static std::unique_ptr<pcp::UserDirectoryManager> g_userDir;
 
-static progressive::UserDirectoryManager* getUserDir() {
-    if (!g_userDir) g_userDir.reset(new progressive::UserDirectoryManager());
+static pcp::UserDirectoryManager* getUserDir() {
+    if (!g_userDir) g_userDir.reset(new pcp::UserDirectoryManager());
     return g_userDir.get();
 }
-static std::unique_ptr<progressive::TransparentOverlayEngine> g_overlayEngine;
+static std::unique_ptr<pcp::TransparentOverlayEngine> g_overlayEngine;
 
-static progressive::TransparentOverlayEngine* getOverlayEngine() {
-    if (!g_overlayEngine) g_overlayEngine.reset(new progressive::TransparentOverlayEngine());
+static pcp::TransparentOverlayEngine* getOverlayEngine() {
+    if (!g_overlayEngine) g_overlayEngine.reset(new pcp::TransparentOverlayEngine());
     return g_overlayEngine.get();
 }
-static std::unique_ptr<progressive::PollManager> g_pollMgr;
+static std::unique_ptr<pcp::PollManager> g_pollMgr;
 
-static progressive::PollManager* getPollMgr() {
-    if (!g_pollMgr) g_pollMgr.reset(new progressive::PollManager());
+static pcp::PollManager* getPollMgr() {
+    if (!g_pollMgr) g_pollMgr.reset(new pcp::PollManager());
     return g_pollMgr.get();
 }
-static std::unique_ptr<progressive::DraftManager> g_draftMgr;
+static std::unique_ptr<pcp::DraftManager> g_draftMgr;
 
-static progressive::DraftManager* getDraftMgr() {
-    if (!g_draftMgr) g_draftMgr.reset(new progressive::DraftManager());
+static pcp::DraftManager* getDraftMgr() {
+    if (!g_draftMgr) g_draftMgr.reset(new pcp::DraftManager());
     return g_draftMgr.get();
 }
-static std::unique_ptr<progressive::RoomStateManager> g_roomStateMgr;
+static std::unique_ptr<pcp::RoomStateManager> g_roomStateMgr;
 
-static progressive::RoomStateManager* getRoomStateMgr() {
-    if (!g_roomStateMgr) g_roomStateMgr.reset(new progressive::RoomStateManager());
+static pcp::RoomStateManager* getRoomStateMgr() {
+    if (!g_roomStateMgr) g_roomStateMgr.reset(new pcp::RoomStateManager());
     return g_roomStateMgr.get();
 }
-static std::unique_ptr<progressive::IdentityServerManager> g_identityMgr;
+static std::unique_ptr<pcp::IdentityServerManager> g_identityMgr;
 
-static progressive::IdentityServerManager* getIdentityMgr() {
-    if (!g_identityMgr) g_identityMgr.reset(new progressive::IdentityServerManager());
+static pcp::IdentityServerManager* getIdentityMgr() {
+    if (!g_identityMgr) g_identityMgr.reset(new pcp::IdentityServerManager());
     return g_identityMgr.get();
 }
-static std::unique_ptr<progressive::DeviceManager> g_deviceMgr;
+static std::unique_ptr<pcp::DeviceManager> g_deviceMgr;
 
-static progressive::DeviceManager* getDeviceMgr() {
-    if (!g_deviceMgr) g_deviceMgr.reset(new progressive::DeviceManager());
+static pcp::DeviceManager* getDeviceMgr() {
+    if (!g_deviceMgr) g_deviceMgr.reset(new pcp::DeviceManager());
     return g_deviceMgr.get();
 }
-static std::unique_ptr<progressive::RoomPermissionsManager> g_permMgr;
+static std::unique_ptr<pcp::RoomPermissionsManager> g_permMgr;
 
-static progressive::RoomPermissionsManager* getPermMgr() {
-    if (!g_permMgr) g_permMgr.reset(new progressive::RoomPermissionsManager());
+static pcp::RoomPermissionsManager* getPermMgr() {
+    if (!g_permMgr) g_permMgr.reset(new pcp::RoomPermissionsManager());
     return g_permMgr.get();
 }
-static std::unique_ptr<progressive::OfflineCacheManager> g_cacheMgr;
+static std::unique_ptr<pcp::OfflineCacheManager> g_cacheMgr;
 
-static progressive::OfflineCacheManager* getCacheMgr() {
-    if (!g_cacheMgr) g_cacheMgr.reset(new progressive::OfflineCacheManager());
+static pcp::OfflineCacheManager* getCacheMgr() {
+    if (!g_cacheMgr) g_cacheMgr.reset(new pcp::OfflineCacheManager());
     return g_cacheMgr.get();
 }
-static std::unique_ptr<progressive::WidgetManager> g_widgetMgr;
+static std::unique_ptr<pcp::WidgetManager> g_widgetMgr;
 
-static progressive::WidgetManager* getWidgetMgr() {
+static pcp::WidgetManager* getWidgetMgr() {
     if (!g_widgetMgr) {
-        g_widgetMgr.reset(new progressive::WidgetManager("", "", "", ""));
+        g_widgetMgr.reset(new pcp::WidgetManager("", "", "", ""));
     }
     return g_widgetMgr.get();
 }
-static std::unique_ptr<progressive::PinManagerFull> g_pinMgr;
+static std::unique_ptr<pcp::PinManagerFull> g_pinMgr;
 
-static progressive::PinManagerFull* getPinMgr() {
-    if (!g_pinMgr) g_pinMgr.reset(new progressive::PinManagerFull());
+static pcp::PinManagerFull* getPinMgr() {
+    if (!g_pinMgr) g_pinMgr.reset(new pcp::PinManagerFull());
     return g_pinMgr.get();
 }
-static std::unique_ptr<progressive::CallManager> g_callMgr;
+static std::unique_ptr<pcp::CallManager> g_callMgr;
 
-static progressive::CallManager* getCallMgr() {
-    if (!g_callMgr) g_callMgr.reset(new progressive::CallManager());
+static pcp::CallManager* getCallMgr() {
+    if (!g_callMgr) g_callMgr.reset(new pcp::CallManager());
     return g_callMgr.get();
 }
-static std::unique_ptr<progressive::EventRelationsManager> g_relationsMgr;
+static std::unique_ptr<pcp::EventRelationsManager> g_relationsMgr;
 
-static progressive::EventRelationsManager* getRelationsMgr() {
-    if (!g_relationsMgr) g_relationsMgr.reset(new progressive::EventRelationsManager());
+static pcp::EventRelationsManager* getRelationsMgr() {
+    if (!g_relationsMgr) g_relationsMgr.reset(new pcp::EventRelationsManager());
     return g_relationsMgr.get();
 }
-static std::unique_ptr<progressive::ThreadManager> g_threadMgr;
+static std::unique_ptr<pcp::ThreadManager> g_threadMgr;
 
-static progressive::ThreadManager* getThreadMgr() {
-    if (!g_threadMgr) g_threadMgr.reset(new progressive::ThreadManager());
+static pcp::ThreadManager* getThreadMgr() {
+    if (!g_threadMgr) g_threadMgr.reset(new pcp::ThreadManager());
     return g_threadMgr.get();
 }
-static std::unique_ptr<progressive::ComposerManager> g_composerMgr;
+static std::unique_ptr<pcp::ComposerManager> g_composerMgr;
 
-static progressive::ComposerManager* getComposerMgr() {
-    if (!g_composerMgr) g_composerMgr.reset(new progressive::ComposerManager());
+static pcp::ComposerManager* getComposerMgr() {
+    if (!g_composerMgr) g_composerMgr.reset(new pcp::ComposerManager());
     return g_composerMgr.get();
 }
-static std::unique_ptr<progressive::MediaUploadManager> g_uploadMgr;
+static std::unique_ptr<pcp::MediaUploadManager> g_uploadMgr;
 
-static progressive::MediaUploadManager* getUploadMgr() {
-    if (!g_uploadMgr) g_uploadMgr.reset(new progressive::MediaUploadManager());
+static pcp::MediaUploadManager* getUploadMgr() {
+    if (!g_uploadMgr) g_uploadMgr.reset(new pcp::MediaUploadManager());
     return g_uploadMgr.get();
 }
-static std::unique_ptr<progressive::SpaceGraph> g_spaceGraph;
+static std::unique_ptr<pcp::SpaceGraph> g_spaceGraph;
 
-static progressive::SpaceGraph* getSpaceGraph() {
-    if (!g_spaceGraph) g_spaceGraph.reset(new progressive::SpaceGraph());
+static pcp::SpaceGraph* getSpaceGraph() {
+    if (!g_spaceGraph) g_spaceGraph.reset(new pcp::SpaceGraph());
     return g_spaceGraph.get();
 }
-static std::unique_ptr<progressive::SessionManager> g_sessionMgrFull;
+static std::unique_ptr<pcp::SessionManager> g_sessionMgrFull;
 
-static progressive::SessionManager* getSessionMgrFull() {
-    if (!g_sessionMgrFull) g_sessionMgrFull.reset(new progressive::SessionManager());
+static pcp::SessionManager* getSessionMgrFull() {
+    if (!g_sessionMgrFull) g_sessionMgrFull.reset(new pcp::SessionManager());
     return g_sessionMgrFull.get();
 }
-static std::unique_ptr<progressive::TextUndoManager> g_undoMgr;
+static std::unique_ptr<pcp::TextUndoManager> g_undoMgr;
 
-static progressive::TextUndoManager* getUndoMgr() {
-    if (!g_undoMgr) g_undoMgr.reset(new progressive::TextUndoManager());
+static pcp::TextUndoManager* getUndoMgr() {
+    if (!g_undoMgr) g_undoMgr.reset(new pcp::TextUndoManager());
     return g_undoMgr.get();
 }
-static std::unique_ptr<progressive::KeyBackupManager> g_backupMgr;
+static std::unique_ptr<pcp::KeyBackupManager> g_backupMgr;
 
-static progressive::KeyBackupManager* getBackupMgr() {
-    if (!g_backupMgr) g_backupMgr.reset(new progressive::KeyBackupManager());
+static pcp::KeyBackupManager* getBackupMgr() {
+    if (!g_backupMgr) g_backupMgr.reset(new pcp::KeyBackupManager());
     return g_backupMgr.get();
 }
-static std::unique_ptr<progressive::RoomDirectoryManager> g_roomDir;
+static std::unique_ptr<pcp::RoomDirectoryManager> g_roomDir;
 
-static progressive::RoomDirectoryManager* getRoomDir() {
-    if (!g_roomDir) g_roomDir.reset(new progressive::RoomDirectoryManager());
+static pcp::RoomDirectoryManager* getRoomDir() {
+    if (!g_roomDir) g_roomDir.reset(new pcp::RoomDirectoryManager());
     return g_roomDir.get();
 }
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeValidateAndBuild
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)Ljava/lang/String;
  *
  * Returns JSON string: {"url": "...", ...} or {"error": "..."}
  */
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeValidateAndBuild(
+Java_chat_pcp_app_native_PcpNative_nativeValidateAndBuild(
     JNIEnv* env,
     jclass /* this */,
     jstring jRoomId,
@@ -541,7 +541,7 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeValidateAndBuild(
     const char* serverUrlCh  = env->GetStringUTFChars(jServerUrl, nullptr);
     const char* accessTokenCh = env->GetStringUTFChars(jAccessToken, nullptr);
 
-    progressive::JumpToDateRequest request;
+    pcp::JumpToDateRequest request;
     request.roomId        = std::string(roomIdCh);
     request.dateString    = std::string(dateCh);
     request.serverBaseUrl = std::string(serverUrlCh);
@@ -556,13 +556,13 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeValidateAndBuild(
     LOGD("nativeJumpToDate called: roomId=%s date=%s", request.roomId.c_str(), request.dateString.c_str());
 
     // Validate date and compute timestamp
-    if (!progressive::validateAndComputeTimestamp(request)) {
+    if (!pcp::validateAndComputeTimestamp(request)) {
         std::string errorJson = R"({"error":")" + request.errorMessage + R"("})";
         return env->NewStringUTF(errorJson.c_str());
     }
 
     // Build the MSC3030 URL
-    std::string url = progressive::buildMsc3030Url(request);
+    std::string url = pcp::buildMsc3030Url(request);
     LOGD("MSC3030 URL: %s", url.c_str());
 
     // Return the URL and timestamp to Kotlin — HTTP call happens in Kotlin layer
@@ -575,14 +575,14 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeValidateAndBuild(
 }
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeParseResponse
  * Signature: (Ljava/lang/String;I)Ljava/lang/String;
  *
  * Parses the HTTP response body and returns JSON with eventId or error.
  */
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeParseResponse(
+Java_chat_pcp_app_native_PcpNative_nativeParseResponse(
     JNIEnv* env,
     jclass /* this */,
     jstring jResponseBody,
@@ -600,7 +600,7 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeParseResponse(
 
     LOGD("nativeParseResponse: status=%d body_len=%zu", httpStatus, body.size());
 
-    auto result = progressive::parseTimestampToEventResponse(body, httpStatus);
+    auto result = pcp::parseTimestampToEventResponse(body, httpStatus);
 
     if (result.success) {
         std::string json = R"({"eventId":")" + result.eventId + R"("})";
@@ -614,7 +614,7 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeParseResponse(
 }
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeParseRelation
  * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  *
@@ -626,7 +626,7 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeParseResponse(
  * Returns JSON: {"sourceEventId": "$xyz", "relationType": "m.annotation"} or {"isRelation": false}
  */
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeParseRelation(
+Java_chat_pcp_app_native_PcpNative_nativeParseRelation(
     JNIEnv* env,
     jclass /* this */,
     jstring jEventJson,
@@ -644,7 +644,7 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeParseRelation(
 
     LOGD("nativeParseRelation: eventJson_len=%zu", json.size());
 
-    auto relation = progressive::parseRelation(json);
+    auto relation = pcp::parseRelation(json);
 
     if (!relation.isRelation) {
         return env->NewStringUTF(R"({"isRelation": false})");
@@ -658,11 +658,11 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeParseRelation(
         env->ReleaseStringUTFChars(jAllowedTypes, allowedCh);
 
         if (!allowedStr.empty()) {
-            allowed = progressive::isJumpableRelationType(relation.relationType) &&
+            allowed = pcp::isJumpableRelationType(relation.relationType) &&
                       allowedStr.find(relation.relationType) != std::string::npos;
         }
     } else {
-        allowed = progressive::isJumpableRelationType(relation.relationType);
+        allowed = pcp::isJumpableRelationType(relation.relationType);
     }
 
     if (!allowed) {
@@ -676,7 +676,7 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeParseRelation(
 }
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeFormatEventHtml
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)Ljava/lang/String;
  *
@@ -691,7 +691,7 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeParseRelation(
  * @param isContinuation Whether this event is from the same sender as previous
  */
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeFormatEventHtml(
+Java_chat_pcp_app_native_PcpNative_nativeFormatEventHtml(
     JNIEnv* env,
     jclass /* this */,
     jstring jSenderName,
@@ -725,19 +725,19 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeFormatEventHtml(
     if (jFileName)     env->ReleaseStringUTFChars(jFileName, event.fileName.c_str());
     if (jRelationType) env->ReleaseStringUTFChars(jRelationType, event.relationType.c_str());
 
-    auto html = progressive::formatEventHtml(event, jIsContinuation);
+    auto html = pcp::formatEventHtml(event, jIsContinuation);
     return env->NewStringUTF(html.c_str());
 }
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeFormatEventPlainText
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  *
  * Formats a single event as plain text line.
  */
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeFormatEventPlainText(
+Java_chat_pcp_app_native_PcpNative_nativeFormatEventPlainText(
     JNIEnv* env,
     jclass /* this */,
     jstring jSenderName,
@@ -762,12 +762,12 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeFormatEventPlainText(
     if (jFileName)     env->ReleaseStringUTFChars(jFileName, event.fileName.c_str());
     if (jRelationType) env->ReleaseStringUTFChars(jRelationType, event.relationType.c_str());
 
-    auto text = progressive::formatEventPlainText(event);
+    auto text = pcp::formatEventPlainText(event);
     return env->NewStringUTF(text.c_str());
 }
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeBuildHtmlExport
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/String;
  *
@@ -778,7 +778,7 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeFormatEventPlainText(
  * @param eventHtmls  Array of pre-rendered event HTML strings
  */
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeBuildHtmlExport(
+Java_chat_pcp_app_native_PcpNative_nativeBuildHtmlExport(
     JNIEnv* env,
     jclass /* this */,
     jstring jRoomName,
@@ -836,22 +836,22 @@ hr { border: none; border-top: 1px solid #e0e0e0; margin: 16px 0; }
         }
     }
 
-    html << "<hr>\n<p style=\"color:#999;text-align:center;\">Exported with Progressive Chat</p>\n";
+    html << "<hr>\n<p style=\"color:#999;text-align:center;\">Exported with PCP</p>\n";
     html << "</body>\n</html>";
 
     return env->NewStringUTF(html.str().c_str());
 }
 
 // --- Event Cache (global singleton for Stage 2 acceleration) ---
-static progressive::EventCache g_eventCache;
+static pcp::EventCache g_eventCache;
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeCachePut
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V
  */
 JNIEXPORT void JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeCachePut(
+Java_chat_pcp_app_native_PcpNative_nativeCachePut(
     JNIEnv* env,
     jclass /* this */,
     jstring jEventId,
@@ -892,12 +892,12 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeCachePut(
 }
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeCacheGetContext
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeCacheGetContext(
+Java_chat_pcp_app_native_PcpNative_nativeCacheGetContext(
     JNIEnv* env,
     jclass /* this */,
     jstring jEventId
@@ -914,12 +914,12 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeCacheGetContext(
 }
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeCacheSize
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeCacheSize(
+Java_chat_pcp_app_native_PcpNative_nativeCacheSize(
     JNIEnv* /* env */,
     jclass /* this */
 ) {
@@ -929,12 +929,12 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeCacheSize(
 // --- Translation ---
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeBuildTranslateRequest
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeBuildTranslateRequest(
+Java_chat_pcp_app_native_PcpNative_nativeBuildTranslateRequest(
     JNIEnv* env, jclass,
     jstring jText, jstring jSourceLang, jstring jTargetLang,
     jstring jApiEndpoint, jstring jApiToken, jstring jModel
@@ -954,17 +954,17 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeBuildTranslateRequest(
     if (jApiToken)    env->ReleaseStringUTFChars(jApiToken, req.apiToken.c_str());
     if (jModel)       env->ReleaseStringUTFChars(jModel, req.model.c_str());
 
-    auto body = progressive::buildTranslateRequestBody(req);
+    auto body = pcp::buildTranslateRequestBody(req);
     return env->NewStringUTF(body.c_str());
 }
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeParseTranslateResponse
  * Signature: (Ljava/lang/String;I)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeParseTranslateResponse(
+Java_chat_pcp_app_native_PcpNative_nativeParseTranslateResponse(
     JNIEnv* env, jclass,
     jstring jResponseBody, jint jHttpStatus
 ) {
@@ -974,7 +974,7 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeParseTranslateResponse(
     auto body = std::string(env->GetStringUTFChars(jResponseBody, nullptr));
     env->ReleaseStringUTFChars(jResponseBody, body.c_str());
 
-    auto result = progressive::parseTranslateResponse(body, jHttpStatus);
+    auto result = pcp::parseTranslateResponse(body, jHttpStatus);
 
     if (result.success) {
         std::string json = R"({"success": true, "translatedText": ")" + result.translatedText + R"("})";
@@ -989,12 +989,12 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeParseTranslateResponse(
 // --- Proxy Configuration ---
 
 /*
- * Class: chat.progressive.app.native.ProgressiveNative
+ * Class: chat.pcp.app.native.PcpNative
  * Method: nativeComputeProxyConfig
  * Signature: (IILjava/lang/String;ILjava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeComputeProxyConfig(
+Java_chat_pcp_app_native_PcpNative_nativeComputeProxyConfig(
     JNIEnv* env, jclass,
     jint jConnType, jint jProxyType,
     jstring jHost, jint jPort,
@@ -1011,7 +1011,7 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeComputeProxyConfig(
     if (jUsername) env->ReleaseStringUTFChars(jUsername, username.c_str());
     if (jPassword) env->ReleaseStringUTFChars(jPassword, password.c_str());
 
-    auto config = progressive::computeProxyConfig(
+    auto config = pcp::computeProxyConfig(
         connType, proxyType, host, jPort, username, password
     );
 
@@ -1022,38 +1022,38 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeComputeProxyConfig(
 // --- Yggdrasil ---
 
 JNIEXPORT jboolean JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeIsYggdrasilAddress(
+Java_chat_pcp_app_native_PcpNative_nativeIsYggdrasilAddress(
     JNIEnv* env, jclass, jstring jAddr
 ) {
     if (!jAddr) return JNI_FALSE;
     auto addr = std::string(env->GetStringUTFChars(jAddr, nullptr));
     env->ReleaseStringUTFChars(jAddr, addr.c_str());
-    return progressive::isYggdrasilAddress(addr) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isYggdrasilAddress(addr) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jboolean JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeIsYggdrasilDomain(
+Java_chat_pcp_app_native_PcpNative_nativeIsYggdrasilDomain(
     JNIEnv* env, jclass, jstring jHost
 ) {
     if (!jHost) return JNI_FALSE;
     auto host = std::string(env->GetStringUTFChars(jHost, nullptr));
     env->ReleaseStringUTFChars(jHost, host.c_str());
-    return progressive::isYggdrasilDomain(host) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isYggdrasilDomain(host) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeBuildYggHomeserverUrl(
+Java_chat_pcp_app_native_PcpNative_nativeBuildYggHomeserverUrl(
     JNIEnv* env, jclass, jstring jAddr, jint jPort, jboolean jTls
 ) {
     if (!jAddr) return env->NewStringUTF("");
     auto addr = std::string(env->GetStringUTFChars(jAddr, nullptr));
     env->ReleaseStringUTFChars(jAddr, addr.c_str());
-    auto url = progressive::buildYggHomeserverUrl(addr, jPort, jTls);
+    auto url = pcp::buildYggHomeserverUrl(addr, jPort, jTls);
     return env->NewStringUTF(url.c_str());
 }
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeRewriteHomeserverUrl(
+Java_chat_pcp_app_native_PcpNative_nativeRewriteHomeserverUrl(
     JNIEnv* env, jclass, jstring jOriginalUrl, jstring jYggAddr
 ) {
     if (!jOriginalUrl || !jYggAddr) return env->NewStringUTF("");
@@ -1061,20 +1061,20 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeRewriteHomeserverUrl(
     auto ygg = std::string(env->GetStringUTFChars(jYggAddr, nullptr));
     env->ReleaseStringUTFChars(jOriginalUrl, original.c_str());
     env->ReleaseStringUTFChars(jYggAddr, ygg.c_str());
-    auto result = progressive::rewriteHomeserverUrl(original, ygg);
+    auto result = pcp::rewriteHomeserverUrl(original, ygg);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Read Marker Time Label ---
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_nativeFormatJumpToUnreadLabel(
+Java_chat_pcp_app_native_PcpNative_nativeFormatJumpToUnreadLabel(
     JNIEnv* env, jclass, jstring jReadMarkerJson, jlong jNowMs
 ) {
     auto json = jReadMarkerJson ? std::string(env->GetStringUTFChars(jReadMarkerJson, nullptr)) : "{}";
     if (jReadMarkerJson) env->ReleaseStringUTFChars(jReadMarkerJson, json.c_str());
 
-    progressive::ReadMarkerState state;
+    pcp::ReadMarkerState state;
     // Quick parse from JSON
     if (json.find("\"hasUnread\": true") != std::string::npos ||
         json.find("\"hasUnread\":true") != std::string::npos) state.hasUnread = true;
@@ -1092,18 +1092,18 @@ Java_chat_progressive_app_native_ProgressiveNative_nativeFormatJumpToUnreadLabel
         }
     }
 
-    auto label = progressive::formatJumpToUnreadLabel(state, jNowMs);
+    auto label = pcp::formatJumpToUnreadLabel(state, jNowMs);
     return env->NewStringUTF(label.c_str());
 }
 
-// ==== Progressive Chat v0.2 JNI Bridges ====
+// ==== PCP v0.2 JNI Bridges ====
 
 // --- Event Summary ---
 JNI_FUNC(jstring, nativeFormatEventSummary)(JNIEnv* env, jclass,
     jstring jType, jstring jMsgType, jstring jSender, jstring jBody,
     jstring jMembership, jstring jDisplayName, jboolean jRedacted, jboolean jEncrypted)
 {
-    auto result = progressive::formatEventSummary(
+    auto result = pcp::formatEventSummary(
         jStr(env, jType), jStr(env, jMsgType), jStr(env, jSender), jStr(env, jBody),
         jStr(env, jMembership), jStr(env, jDisplayName), jRedacted, jEncrypted);
     return env->NewStringUTF(result.c_str());
@@ -1111,8 +1111,8 @@ JNI_FUNC(jstring, nativeFormatEventSummary)(JNIEnv* env, jclass,
 
 // --- Typing Indicator ---
 JNI_FUNC(jstring, nativeFormatTypingIndicator)(JNIEnv* env, jclass, jstring jNamesJson, jint jMax) {
-    auto names = progressive::parseJsonStringArray(jStr(env, jNamesJson));
-    auto result = progressive::formatTypingIndicator(names, jMax);
+    auto names = pcp::parseJsonStringArray(jStr(env, jNamesJson));
+    auto result = pcp::formatTypingIndicator(names, jMax);
     return env->NewStringUTF(result.c_str());
 }
 
@@ -1120,7 +1120,7 @@ JNI_FUNC(jstring, nativeFormatTypingIndicator)(JNIEnv* env, jclass, jstring jNam
 JNI_FUNC(jstring, nativeCalculateCapabilities)(JNIEnv* env, jclass, jint u, jint e, jint s,
     jint i, jint k, jint b, jint r, jint n)
 {
-    auto caps = progressive::calculateCapabilities(u, e, s, i, k, b, r, n);
+    auto caps = pcp::calculateCapabilities(u, e, s, i, k, b, r, n);
     std::ostringstream os;
     os << R"({"isOwner":)" << caps.isOwner
        << R"(,"isModerator":)" << caps.isModerator
@@ -1134,89 +1134,89 @@ JNI_FUNC(jstring, nativeCalculateCapabilities)(JNIEnv* env, jclass, jint u, jint
 
 // --- Content Builder ---
 JNI_FUNC(jstring, nativeBuildTextContent)(JNIEnv* env, jclass, jstring jType, jstring jBody, jstring jFb) {
-    auto result = progressive::buildTextContent(jStr(env, jType), jStr(env, jBody), jStr(env, jFb));
+    auto result = pcp::buildTextContent(jStr(env, jType), jStr(env, jBody), jStr(env, jFb));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildImageContent)(JNIEnv* env, jclass, jstring jBody, jstring jUrl,
     jint jW, jint jH, jlong jSz, jstring jMime) {
-    auto result = progressive::buildImageContent(jStr(env, jBody), jStr(env, jUrl), jW, jH, jSz, jStr(env, jMime));
+    auto result = pcp::buildImageContent(jStr(env, jBody), jStr(env, jUrl), jW, jH, jSz, jStr(env, jMime));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildFileContent)(JNIEnv* env, jclass, jstring jBody, jstring jUrl,
     jstring jFn, jlong jSz, jstring jMime) {
-    auto result = progressive::buildFileContent(jStr(env, jBody), jStr(env, jUrl), jStr(env, jFn), jSz, jStr(env, jMime));
+    auto result = pcp::buildFileContent(jStr(env, jBody), jStr(env, jUrl), jStr(env, jFn), jSz, jStr(env, jMime));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Media ---
 JNI_FUNC(jstring, nativeFormatFileSize)(JNIEnv* env, jclass, jlong jBytes) {
-    return env->NewStringUTF(progressive::formatFileSize(jBytes).c_str());
+    return env->NewStringUTF(pcp::formatFileSize(jBytes).c_str());
 }
 JNI_FUNC(jstring, nativeFormatDuration)(JNIEnv* env, jclass, jlong jMs) {
-    return env->NewStringUTF(progressive::formatDuration(jMs).c_str());
+    return env->NewStringUTF(pcp::formatDuration(jMs).c_str());
 }
 JNI_FUNC(jstring, nativeSanitizeFilename)(JNIEnv* env, jclass, jstring jName, jint jLen) {
-    return env->NewStringUTF(progressive::sanitizeFilename(jStr(env, jName), jLen).c_str());
+    return env->NewStringUTF(pcp::sanitizeFilename(jStr(env, jName), jLen).c_str());
 }
 
 // --- Account Data ---
 JNI_FUNC(jstring, nativeParseDirectMessages)(JNIEnv* env, jclass, jstring jJson) {
-    auto dm = progressive::parseDirectMessageMap(jStr(env, jJson));
-    return env->NewStringUTF(progressive::buildDirectMessageMapJson(dm).c_str());
+    auto dm = pcp::parseDirectMessageMap(jStr(env, jJson));
+    return env->NewStringUTF(pcp::buildDirectMessageMapJson(dm).c_str());
 }
 JNI_FUNC(jstring, nativeParseIgnoredUsers)(JNIEnv* env, jclass, jstring jJson) {
-    auto list = progressive::parseIgnoredUsers(jStr(env, jJson));
+    auto list = pcp::parseIgnoredUsers(jStr(env, jJson));
     std::ostringstream os; os << "["; for (size_t i = 0; i < list.size(); i++) {
         if (i>0) os<<","; os<<"\""<<list[i]<<"\""; } os<<"]";
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeAddBreadcrumb)(JNIEnv* env, jclass, jstring jJson, jstring jRoom) {
-    auto result = progressive::addBreadcrumb(jStr(env, jJson), jStr(env, jRoom));
+    auto result = pcp::addBreadcrumb(jStr(env, jJson), jStr(env, jRoom));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsValidUserId)(JNIEnv* env, jclass, jstring jId) {
-    return progressive::isValidUserId(jStr(nullptr, jId));
+    return pcp::isValidUserId(jStr(nullptr, jId));
 }
 JNI_FUNC(jstring, nativeServerNameFromMxid)(JNIEnv* env, jclass, jstring jMxid) {
-    return env->NewStringUTF(progressive::serverNameFromMxid(jStr(env, jMxid)).c_str());
+    return env->NewStringUTF(pcp::serverNameFromMxid(jStr(env, jMxid)).c_str());
 }
 
 // --- Relation Builder ---
 JNI_FUNC(jstring, nativeBuildReplyRelation)(JNIEnv* env, jclass, jstring jId) {
-    return env->NewStringUTF(progressive::buildReplyRelation(jStr(env, jId)).c_str());
+    return env->NewStringUTF(pcp::buildReplyRelation(jStr(env, jId)).c_str());
 }
 JNI_FUNC(jstring, nativeBuildThreadRelation)(JNIEnv* env, jclass, jstring jR, jstring jL, jboolean jFb) {
-    return env->NewStringUTF(progressive::buildThreadRelation(jStr(env, jR), jStr(env, jL), jFb).c_str());
+    return env->NewStringUTF(pcp::buildThreadRelation(jStr(env, jR), jStr(env, jL), jFb).c_str());
 }
 JNI_FUNC(jstring, nativeBuildEditRelation)(JNIEnv* env, jclass, jstring jId) {
-    return env->NewStringUTF(progressive::buildReplaceRelation(jStr(env, jId)).c_str());
+    return env->NewStringUTF(pcp::buildReplaceRelation(jStr(env, jId)).c_str());
 }
 JNI_FUNC(jstring, nativeBuildReactionRelation)(JNIEnv* env, jclass, jstring jId, jstring jKey) {
-    return env->NewStringUTF(progressive::buildReactionRelation(jStr(env, jId), jStr(env, jKey)).c_str());
+    return env->NewStringUTF(pcp::buildReactionRelation(jStr(env, jId), jStr(env, jKey)).c_str());
 }
 JNI_FUNC(jstring, nativeWrapWithRelation)(JNIEnv* env, jclass, jstring jContent, jstring jRel) {
-    return env->NewStringUTF(progressive::wrapWithRelation(jStr(env, jContent), jStr(env, jRel)).c_str());
+    return env->NewStringUTF(pcp::wrapWithRelation(jStr(env, jContent), jStr(env, jRel)).c_str());
 }
 
 // --- Timeline Chunk (native pagination) ---
 JNI_FUNC(jint, nativeTimelineAddEvents)(JNIEnv* env, jclass, jstring jRoom, jstring jEvents, jstring jPrev, jstring jNext, jint jDir) {
-    static std::unordered_map<std::string, std::unique_ptr<progressive::TimelineChunkManager>> managers;
+    static std::unordered_map<std::string, std::unique_ptr<pcp::TimelineChunkManager>> managers;
     auto room = jStr(env, jRoom);
-    if (managers.find(room) == managers.end()) managers[room] = std::make_unique<progressive::TimelineChunkManager>(room);
+    if (managers.find(room) == managers.end()) managers[room] = std::make_unique<pcp::TimelineChunkManager>(room);
     auto& mgr = *managers[room];
     // Parse events JSON array
     auto eventsJson = jStr(env, jEvents);
-    std::vector<progressive::TimelineEventData> events;
+    std::vector<pcp::TimelineEventData> events;
     // Simplified: each event is a JSON object with event_id, type, sender, etc.
     // Full implementation would parse the array
-    auto dir = jDir == 0 ? progressive::TimelineDirection::FORWARDS : progressive::TimelineDirection::BACKWARDS;
+    auto dir = jDir == 0 ? pcp::TimelineDirection::FORWARDS : pcp::TimelineDirection::BACKWARDS;
     return mgr.addChunk("chunk_" + std::to_string(time(nullptr)), events, jStr(env, jPrev), jStr(env, jNext), dir);
 }
 
 JNI_FUNC(jstring, nativeTimelineGetEvents)(JNIEnv* env, jclass, jstring jRoom) {
-    static std::unordered_map<std::string, std::unique_ptr<progressive::TimelineChunkManager>> managers;
+    static std::unordered_map<std::string, std::unique_ptr<pcp::TimelineChunkManager>> managers;
     auto room = jStr(env, jRoom);
-    if (managers.find(room) == managers.end()) managers[room] = std::make_unique<progressive::TimelineChunkManager>(room);
+    if (managers.find(room) == managers.end()) managers[room] = std::make_unique<pcp::TimelineChunkManager>(room);
     auto& mgr = *managers[room];
     auto events = mgr.getEventsInOrder();
     std::ostringstream os; os << "[";
@@ -1233,7 +1233,7 @@ JNI_FUNC(jstring, nativeTimelineGetEvent)(JNIEnv* env, jclass, jstring jId) {
 }
 
 JNI_FUNC(void, nativeTimelineClear)(JNIEnv* env, jclass, jstring jRoom) {
-    static std::unordered_map<std::string, std::unique_ptr<progressive::TimelineChunkManager>> managers;
+    static std::unordered_map<std::string, std::unique_ptr<pcp::TimelineChunkManager>> managers;
     auto room = jStr(env, jRoom);
     auto it = managers.find(room);
     if (it != managers.end()) it->second->clear();
@@ -1259,15 +1259,15 @@ JNI_FUNC(jstring, nativeFilterRooms)(JNIEnv* env, jclass, jstring jRooms, jint j
 
 // --- Sliding Sync ---
 JNI_FUNC(jstring, nativeSlidingSync)(JNIEnv* env, jclass, jstring jReq, jstring jHs, jstring jTok) {
-    progressive::SlidingSyncRequest req;
+    pcp::SlidingSyncRequest req;
     req.pos = ""; req.timeout = 30000;
-    auto resp = progressive::slidingSync(req, jStr(env, jHs), jStr(env, jTok));
+    auto resp = pcp::slidingSync(req, jStr(env, jHs), jStr(env, jTok));
     return resp.success ? env->NewStringUTF(resp.pos.c_str()) : env->NewStringUTF("");
 }
 
 // --- OIDC ---
 JNI_FUNC(jstring, nativeDiscoverOidc)(JNIEnv* env, jclass, jstring jHs) {
-    auto d = progressive::discoverOidc(jStr(env, jHs));
+    auto d = pcp::discoverOidc(jStr(env, jHs));
     std::ostringstream os;
     os << R"({"supportsOidc":)" << d.supportsOidc
        << R"(,"supportsPassword":)" << d.supportsPassword
@@ -1276,32 +1276,32 @@ JNI_FUNC(jstring, nativeDiscoverOidc)(JNIEnv* env, jclass, jstring jHs) {
 }
 
 JNI_FUNC(jstring, nativeBuildOAuthUrl)(JNIEnv* env, jclass, jstring jCid, jstring jRedir, jstring jState, jstring jPkce, jstring jPrompt) {
-    progressive::OidcDiscovery disc;
+    pcp::OidcDiscovery disc;
     disc.authorizationEndpoint = jStr(env, jRedir);
-    auto url = progressive::buildOAuthAuthorizationUrl(disc, jStr(env, jCid), jStr(env, jRedir), jStr(env, jState), jStr(env, jPkce), jStr(env, jPrompt));
+    auto url = pcp::buildOAuthAuthorizationUrl(disc, jStr(env, jCid), jStr(env, jRedir), jStr(env, jState), jStr(env, jPkce), jStr(env, jPrompt));
     return env->NewStringUTF(url.c_str());
 }
 
 JNI_FUNC(jstring, nativeExchangeOidcCode)(JNIEnv* env, jclass, jstring jEp, jstring jCid, jstring jRedir, jstring jCode, jstring jVerifier) {
-    auto tok = progressive::exchangeOidcCode(jStr(env, jEp), jStr(env, jCid), jStr(env, jRedir), jStr(env, jCode), jStr(env, jVerifier));
+    auto tok = pcp::exchangeOidcCode(jStr(env, jEp), jStr(env, jCid), jStr(env, jRedir), jStr(env, jCode), jStr(env, jVerifier));
     std::ostringstream os;
     os << R"({"success":)" << tok.success << R"(,"accessToken":")" << tok.accessToken << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 
 JNI_FUNC(jstring, nativeParseOAuthCallback)(JNIEnv* env, jclass, jstring jUrl, jstring jRedir) {
-    auto cb = progressive::parseOAuthCallback(jStr(env, jUrl), jStr(env, jRedir));
+    auto cb = pcp::parseOAuthCallback(jStr(env, jUrl), jStr(env, jRedir));
     std::ostringstream os;
-    os << R"({"action":")" << (cb.action == progressive::OAuthAction::SUCCESS ? "success" : cb.action == progressive::OAuthAction::GO_BACK ? "go_back" : "none") << "\"}";
+    os << R"({"action":")" << (cb.action == pcp::OAuthAction::SUCCESS ? "success" : cb.action == pcp::OAuthAction::GO_BACK ? "go_back" : "none") << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 
 JNI_FUNC(jstring, nativeGenerateOAuthState)(JNIEnv* env, jclass) {
-    return env->NewStringUTF(progressive::generateOAuthState().c_str());
+    return env->NewStringUTF(pcp::generateOAuthState().c_str());
 }
 
 JNI_FUNC(jstring, nativeGeneratePkce)(JNIEnv* env, jclass) {
-    auto pkce = progressive::generatePkce();
+    auto pkce = pcp::generatePkce();
     std::ostringstream os;
     os << R"({"codeVerifier":")" << pkce.codeVerifier << R"(","codeChallenge":")" << pkce.codeChallenge << "\"}";
     return env->NewStringUTF(os.str().c_str());
@@ -1309,7 +1309,7 @@ JNI_FUNC(jstring, nativeGeneratePkce)(JNIEnv* env, jclass) {
 
 // --- UnifiedPush ---
 JNI_FUNC(jstring, nativeParseUnifiedPushMessage)(JNIEnv* env, jclass, jstring jJson) {
-    auto msg = progressive::parseUnifiedPushMessage(jStr(env, jJson));
+    auto msg = pcp::parseUnifiedPushMessage(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"eventId":")" << msg.eventId << R"(","roomId":")" << msg.roomId
        << R"(","valid":)" << msg.valid << "}";
@@ -1318,10 +1318,10 @@ JNI_FUNC(jstring, nativeParseUnifiedPushMessage)(JNIEnv* env, jclass, jstring jJ
 
 // --- Thumbnail Calc ---
 JNI_FUNC(jstring, nativeCalculateThumbnailSize)(JNIEnv* env, jclass, jint jOw, jint jOh, jint jMw, jint jMh) {
-    progressive::ThumbnailParams params;
+    pcp::ThumbnailParams params;
     params.sourceW = jOw; params.sourceH = jOh;
     params.maxW = jMw; params.maxH = jMh;
-    auto result = progressive::computeThumbnail(params);
+    auto result = pcp::computeThumbnail(params);
     std::ostringstream os;
     os << R"({"width":)" << result.targetW << R"(,"height":)" << result.targetH << "}";
     return env->NewStringUTF(os.str().c_str());
@@ -1330,8 +1330,8 @@ JNI_FUNC(jstring, nativeCalculateThumbnailSize)(JNIEnv* env, jclass, jint jOw, j
 // --- Native SQLite Database (SqliteDB - replaces Realm for timeline storage) ---
 // Controlled by Labs: SETTINGS_LABS_NATIVE_DB
 
-static progressive::EventDatabase g_eventDb;
-static std::unordered_map<std::string, std::unique_ptr<progressive::SqliteDB>> g_sqliteDbs;
+static pcp::EventDatabase g_eventDb;
+static std::unordered_map<std::string, std::unique_ptr<pcp::SqliteDB>> g_sqliteDbs;
 
 // EventDatabase JNI (existing Kotlin signatures)
 JNI_FUNC(jboolean, nativeDbOpen)(JNIEnv* env, jclass, jstring jPath) {
@@ -1347,7 +1347,7 @@ JNI_FUNC(void, nativeDbInsertEvent)(JNIEnv* env, jclass,
     jstring jTimestamp, jstring jBody, jstring jMsgType, jstring jEventType,
     jstring jRelType, jstring jSourceId,
     jlong jOriginTs, jint jDi, jboolean jSentByMe) {
-    progressive::DbEvent e;
+    pcp::DbEvent e;
     e.eventId = jStr(env, jEventId);
     e.roomId = jStr(env, jRoomId);
     e.senderId = jStr(env, jSenderId);
@@ -1379,11 +1379,11 @@ JNI_FUNC(jint, nativeDbCount)(JNIEnv* env, jclass) {
 
 // SqliteDB JNI (richer API with room summaries, transactions)
 JNI_FUNC(jboolean, nativeSqliteDbOpen)(JNIEnv* env, jclass, jstring jPath, jstring jKey) {
-    auto db = progressive::SqliteDB::open(jStr(env, jPath));
+    auto db = pcp::SqliteDB::open(jStr(env, jPath));
     if (!db.isOpen()) return JNI_FALSE;
     db.createTimelineSchema();
     auto key = jStr(env, jKey);
-    g_sqliteDbs[key] = std::make_unique<progressive::SqliteDB>(std::move(db));
+    g_sqliteDbs[key] = std::make_unique<pcp::SqliteDB>(std::move(db));
     return JNI_TRUE;
 }
 
@@ -1510,7 +1510,7 @@ JNI_FUNC(jint, nativeSqliteDbSchemaVersion)(JNIEnv* env, jclass, jstring jKey) {
 // Controlled by Labs: SETTINGS_LABS_NATIVE_SYNC_PARSER
 
 JNI_FUNC(jstring, nativeParseSyncResponse)(JNIEnv* env, jclass, jstring jJson) {
-    auto response = progressive::parseSyncResponse(jStr(env, jJson));
+    auto response = pcp::parseSyncResponse(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"next_batch":")" << response.nextBatch
        << R"(","account_data_count":)" << response.accountData.events.size()
@@ -1525,12 +1525,12 @@ JNI_FUNC(jstring, nativeParseSyncResponse)(JNIEnv* env, jclass, jstring jJson) {
 }
 
 JNI_FUNC(jstring, nativeGetNextBatch)(JNIEnv* env, jclass, jstring jJson) {
-    auto response = progressive::parseSyncResponse(jStr(env, jJson));
+    auto response = pcp::parseSyncResponse(jStr(env, jJson));
     return env->NewStringUTF(response.nextBatch.c_str());
 }
 
 JNI_FUNC(jstring, nativeParseSyncRoomsJson)(JNIEnv* env, jclass, jstring jJson) {
-    auto rooms = progressive::parseSyncRooms(jStr(env, jJson));
+    auto rooms = pcp::parseSyncRooms(jStr(env, jJson));
     std::ostringstream os; os << "[";
     bool first = true;
     for (auto& kv : rooms.join) {
@@ -1550,7 +1550,7 @@ JNI_FUNC(jstring, nativeParseSyncRoomsJson)(JNIEnv* env, jclass, jstring jJson) 
 }
 
 JNI_FUNC(jstring, nativeParseEvent)(JNIEnv* env, jclass, jstring jJson) {
-    auto event = progressive::parseEvent(jStr(env, jJson));
+    auto event = pcp::parseEvent(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"event_id":")" << event.eventId
        << R"(","type":")" << event.type
@@ -1563,7 +1563,7 @@ JNI_FUNC(jstring, nativeParseEvent)(JNIEnv* env, jclass, jstring jJson) {
 }
 
 JNI_FUNC(jstring, nativeParseTimeline)(JNIEnv* env, jclass, jstring jJson) {
-    auto timeline = progressive::parseSyncTimeline(jStr(env, jJson));
+    auto timeline = pcp::parseSyncTimeline(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"events_count":)" << timeline.events.size()
        << R"(,"limited":)" << (timeline.limited ? "true" : "false")
@@ -1572,7 +1572,7 @@ JNI_FUNC(jstring, nativeParseTimeline)(JNIEnv* env, jclass, jstring jJson) {
 }
 
 JNI_FUNC(jint, nativeCountEventsInSync)(JNIEnv* env, jclass, jstring jJson) {
-    auto response = progressive::parseSyncResponse(jStr(env, jJson));
+    auto response = pcp::parseSyncResponse(jStr(env, jJson));
     int total = 0;
     total += response.accountData.events.size();
     total += response.presence.events.size();
@@ -1586,8 +1586,8 @@ JNI_FUNC(jint, nativeCountEventsInSync)(JNIEnv* env, jclass, jstring jJson) {
 
 // Full sync JSON round-trip: parse → re-serialize (validates C++ parser against Moshi)
 JNI_FUNC(jstring, nativeSyncResponseRoundtrip)(JNIEnv* env, jclass, jstring jJson) {
-    auto response = progressive::parseSyncResponse(jStr(env, jJson));
-    auto result = progressive::syncResponseToJson(response);
+    auto response = pcp::parseSyncResponse(jStr(env, jJson));
+    auto result = pcp::syncResponseToJson(response);
     return env->NewStringUTF(result.c_str());
 }
 
@@ -1595,15 +1595,15 @@ JNI_FUNC(jstring, nativeSyncResponseRoundtrip)(JNIEnv* env, jclass, jstring jJso
 // Controlled by Labs: SETTINGS_LABS_NATIVE_HTTP
 
 JNI_FUNC(void, nativeSetHomeserverUrl)(JNIEnv* env, jclass, jstring jUrl) {
-    progressive::setHomeserverBaseUrl(jStr(env, jUrl));
+    pcp::setHomeserverBaseUrl(jStr(env, jUrl));
 }
 
 JNI_FUNC(void, nativeSetAccessToken)(JNIEnv* env, jclass, jstring jToken) {
-    progressive::setAccessToken(jStr(env, jToken));
+    pcp::setAccessToken(jStr(env, jToken));
 }
 
 JNI_FUNC(jstring, nativeApiLogin)(JNIEnv* env, jclass, jstring jUser, jstring jPass, jstring jDev) {
-    auto creds = progressive::apiLogin(jStr(env, jUser), jStr(env, jPass), jStr(env, jDev));
+    auto creds = pcp::apiLogin(jStr(env, jUser), jStr(env, jPass), jStr(env, jDev));
     std::ostringstream os;
     os << R"({"user_id":")" << creds.userId
        << R"(","access_token":")" << creds.accessToken
@@ -1614,7 +1614,7 @@ JNI_FUNC(jstring, nativeApiLogin)(JNIEnv* env, jclass, jstring jUser, jstring jP
 }
 
 JNI_FUNC(jstring, nativeApiSync)(JNIEnv* env, jclass, jstring jFilter, jstring jSince, jint jTimeout) {
-    auto response = progressive::apiSync(
+    auto response = pcp::apiSync(
         jStr(env, jFilter), jStr(env, jSince), jTimeout);
     std::ostringstream os;
     os << R"({"next_batch":")" << response.nextBatch
@@ -1630,7 +1630,7 @@ JNI_FUNC(jstring, nativeApiSync)(JNIEnv* env, jclass, jstring jFilter, jstring j
 }
 
 JNI_FUNC(jstring, nativeApiSendEvent)(JNIEnv* env, jclass, jstring jRoom, jstring jType, jstring jTxn, jstring jContent) {
-    auto result = progressive::apiSendEvent(
+    auto result = pcp::apiSendEvent(
         jStr(env, jRoom), jStr(env, jType), jStr(env, jTxn), jStr(env, jContent));
     return env->NewStringUTF(result.c_str());
 }
@@ -1638,47 +1638,47 @@ JNI_FUNC(jstring, nativeApiSendEvent)(JNIEnv* env, jclass, jstring jRoom, jstrin
 // --- Room / Profile / Account API ---
 
 JNI_FUNC(jstring, nativeApiJoinRoom)(JNIEnv* env, jclass, jstring jRoom, jstring jReason) {
-    auto result = progressive::apiJoinRoom(jStr(env, jRoom), jStr(env, jReason));
+    auto result = pcp::apiJoinRoom(jStr(env, jRoom), jStr(env, jReason));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiLeaveRoom)(JNIEnv* env, jclass, jstring jRoom) {
-    auto result = progressive::apiLeaveRoom(jStr(env, jRoom));
+    auto result = pcp::apiLeaveRoom(jStr(env, jRoom));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiGetProfile)(JNIEnv* env, jclass, jstring jUser) {
-    auto result = progressive::apiGetProfile(jStr(env, jUser));
+    auto result = pcp::apiGetProfile(jStr(env, jUser));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiWhoAmI)(JNIEnv* env, jclass) {
-    auto result = progressive::apiWhoAmI();
+    auto result = pcp::apiWhoAmI();
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeApiLogout)(JNIEnv* env, jclass) {
-    return progressive::apiLogout() ? JNI_TRUE : JNI_FALSE;
+    return pcp::apiLogout() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeApiGetRoomMembers)(JNIEnv* env, jclass, jstring jRoom) {
-    auto result = progressive::apiGetRoomMembers(jStr(env, jRoom));
+    auto result = pcp::apiGetRoomMembers(jStr(env, jRoom));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiInviteUser)(JNIEnv* env, jclass, jstring jRoom, jstring jUser, jstring jReason) {
-    auto result = progressive::apiInviteUser(jStr(env, jRoom), jStr(env, jUser), jStr(env, jReason));
+    auto result = pcp::apiInviteUser(jStr(env, jRoom), jStr(env, jUser), jStr(env, jReason));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeApiAvailable)(JNIEnv* env, jclass) {
-    return progressive::nativeApiAvailable() ? JNI_TRUE : JNI_FALSE;
+    return pcp::nativeApiAvailable() ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Extended API ---
 
 JNI_FUNC(jstring, nativeApiGetRoomMessages)(JNIEnv* env, jclass, jstring jRoom, jstring jFrom, jstring jDir, jint jLimit) {
-    auto result = progressive::apiGetRoomMessages(
+    auto result = pcp::apiGetRoomMessages(
         jStr(env, jRoom), jStr(env, jFrom), jStr(env, jDir), jLimit);
     return env->NewStringUTF(result.c_str());
 }
@@ -1695,95 +1695,95 @@ JNI_FUNC(jstring, nativeApiCreateRoom)(JNIEnv* env, jclass, jstring jName, jstri
             p = c + 1;
         }
     }
-    auto result = progressive::apiCreateRoom(jStr(env, jName), jStr(env, jTopic), jDirect, users);
+    auto result = pcp::apiCreateRoom(jStr(env, jName), jStr(env, jTopic), jDirect, users);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiSearch)(JNIEnv* env, jclass, jstring jQuery, jstring jRoom, jint jLimit) {
-    auto result = progressive::apiSearch(jStr(env, jQuery), jStr(env, jRoom), jLimit);
+    auto result = pcp::apiSearch(jStr(env, jQuery), jStr(env, jRoom), jLimit);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiKickUser)(JNIEnv* env, jclass, jstring jRoom, jstring jUser, jstring jReason) {
-    auto result = progressive::apiKickUser(jStr(env, jRoom), jStr(env, jUser), jStr(env, jReason));
+    auto result = pcp::apiKickUser(jStr(env, jRoom), jStr(env, jUser), jStr(env, jReason));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiBanUser)(JNIEnv* env, jclass, jstring jRoom, jstring jUser, jstring jReason) {
-    auto result = progressive::apiBanUser(jStr(env, jRoom), jStr(env, jUser), jStr(env, jReason));
+    auto result = pcp::apiBanUser(jStr(env, jRoom), jStr(env, jUser), jStr(env, jReason));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiUnbanUser)(JNIEnv* env, jclass, jstring jRoom, jstring jUser) {
-    auto result = progressive::apiUnbanUser(jStr(env, jRoom), jStr(env, jUser));
+    auto result = pcp::apiUnbanUser(jStr(env, jRoom), jStr(env, jUser));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiRedactEvent)(JNIEnv* env, jclass, jstring jRoom, jstring jEvent, jstring jTxn) {
-    auto result = progressive::apiRedactEvent(jStr(env, jRoom), jStr(env, jEvent), jStr(env, jTxn));
+    auto result = pcp::apiRedactEvent(jStr(env, jRoom), jStr(env, jEvent), jStr(env, jTxn));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiGetPushRules)(JNIEnv* env, jclass) {
-    auto result = progressive::apiGetPushRules();
+    auto result = pcp::apiGetPushRules();
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiCreateFilter)(JNIEnv* env, jclass, jstring jUser, jstring jFilter) {
-    auto result = progressive::apiCreateFilter(jStr(env, jUser), jStr(env, jFilter));
+    auto result = pcp::apiCreateFilter(jStr(env, jUser), jStr(env, jFilter));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiGetDisplayName)(JNIEnv* env, jclass, jstring jUser) {
-    auto result = progressive::apiGetDisplayName(jStr(env, jUser));
+    auto result = pcp::apiGetDisplayName(jStr(env, jUser));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiSetDisplayName)(JNIEnv* env, jclass, jstring jUser, jstring jName) {
-    auto result = progressive::apiSetDisplayName(jStr(env, jUser), jStr(env, jName));
+    auto result = pcp::apiSetDisplayName(jStr(env, jUser), jStr(env, jName));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeApiGetVersions)(JNIEnv* env, jclass) {
-    auto result = progressive::apiGetVersions();
+    auto result = pcp::apiGetVersions();
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeApiLogoutAll)(JNIEnv* env, jclass) {
-    return progressive::apiLogoutAll() ? JNI_TRUE : JNI_FALSE;
+    return pcp::apiLogoutAll() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeApiPublicRooms)(JNIEnv* env, jclass, jstring jServer, jstring jQuery, jint jLimit) {
-    auto result = progressive::apiPublicRooms(jStr(env, jServer), jStr(env, jQuery), jLimit);
+    auto result = pcp::apiPublicRooms(jStr(env, jServer), jStr(env, jQuery), jLimit);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Display Name & Avatar Utilities ---
 
 JNI_FUNC(jstring, nativeUserIdToDisplayName)(JNIEnv* env, jclass, jstring jUserId, jboolean jCap) {
-    auto result = progressive::userIdToDisplayName(jStr(env, jUserId), jCap);
+    auto result = pcp::userIdToDisplayName(jStr(env, jUserId), jCap);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeGetInitials)(JNIEnv* env, jclass, jstring jName, jint jMax) {
-    auto result = progressive::getInitials(jStr(env, jName), jMax);
+    auto result = pcp::getInitials(jStr(env, jName), jMax);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Permalink Builder ---
 
 JNI_FUNC(jstring, nativeBuildEventPermalink)(JNIEnv* env, jclass, jstring jRoom, jstring jEvent) {
-    auto result = progressive::buildEventPermalink(jStr(env, jRoom), jStr(env, jEvent));
+    auto result = pcp::buildEventPermalink(jStr(env, jRoom), jStr(env, jEvent));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeBuildRoomPermalink)(JNIEnv* env, jclass, jstring jRoom) {
-    auto result = progressive::buildRoomPermalink(jStr(env, jRoom));
+    auto result = pcp::buildRoomPermalink(jStr(env, jRoom));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeBuildUserPermalink)(JNIEnv* env, jclass, jstring jUser) {
-    auto result = progressive::buildUserPermalink(jStr(env, jUser));
+    auto result = pcp::buildUserPermalink(jStr(env, jUser));
     return env->NewStringUTF(result.c_str());
 }
 
@@ -1793,35 +1793,35 @@ JNI_FUNC(jstring, nativeBuildUserPermalink)(JNIEnv* env, jclass, jstring jUser) 
 
 JNI_FUNC(jstring, nativeFormatPresence)(JNIEnv* env, jclass, jstring jPresence, jlong jLastActiveMs) {
     auto ps = jStr(env, jPresence);
-    progressive::Presence p = progressive::Presence::Offline;
-    if (ps == "online") p = progressive::Presence::Online;
-    else if (ps == "unavailable") p = progressive::Presence::Unavailable;
-    auto result = progressive::formatPresenceWithTime(p, jLastActiveMs);
+    pcp::Presence p = pcp::Presence::Offline;
+    if (ps == "online") p = pcp::Presence::Online;
+    else if (ps == "unavailable") p = pcp::Presence::Unavailable;
+    auto result = pcp::formatPresenceWithTime(p, jLastActiveMs);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Device Naming ---
 
 JNI_FUNC(jstring, nativeBuildDeviceDisplayName)(JNIEnv* env, jclass, jstring jApp, jstring jModel) {
-    auto result = progressive::buildDeviceDisplayName(jStr(env, jApp), jStr(env, jModel));
+    auto result = pcp::buildDeviceDisplayName(jStr(env, jApp), jStr(env, jModel));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeGenerateDeviceName)(JNIEnv* env, jclass, jstring jModel, jstring jOs) {
-    auto result = progressive::generateDeviceName(jStr(env, jModel), jStr(env, jOs));
+    auto result = pcp::generateDeviceName(jStr(env, jModel), jStr(env, jOs));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Account Validation ---
 
 JNI_FUNC(jboolean, nativeIsValidDisplayName)(JNIEnv* env, jclass, jstring jName, jint jMax) {
-    return progressive::isValidDisplayName(jStr(env, jName), jMax) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidDisplayName(jStr(env, jName), jMax) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Well-Known Server Discovery ---
 
 JNI_FUNC(jstring, nativeParseWellKnown)(JNIEnv* env, jclass, jstring jJson) {
-    auto result = progressive::parseWellKnown(jStr(env, jJson));
+    auto result = pcp::parseWellKnown(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"homeserver_url":")" << result.homeServerBaseUrl
        << R"(","identity_server":")" << result.identityServerBaseUrl
@@ -1830,60 +1830,60 @@ JNI_FUNC(jstring, nativeParseWellKnown)(JNIEnv* env, jclass, jstring jJson) {
 }
 
 JNI_FUNC(jboolean, nativeNeedsWellKnownDiscovery)(JNIEnv* env, jclass, jstring jUrl) {
-    return progressive::needsWellKnownDiscovery(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::needsWellKnownDiscovery(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Polls ---
 
 JNI_FUNC(jboolean, nativeIsPollEnded)(JNIEnv* env, jclass, jlong jCloseTs) {
-    return progressive::isPollEnded(jCloseTs) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isPollEnded(jCloseTs) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Membership ---
 
 JNI_FUNC(jboolean, nativeCanReadMessages)(JNIEnv* env, jclass, jstring jMembership) {
     auto ms = jStr(env, jMembership);
-    progressive::MemberState m = progressive::MemberState::Leave;
-    if (ms == "join") m = progressive::MemberState::Join;
-    else if (ms == "invite") m = progressive::MemberState::Invite;
-    else if (ms == "knock") m = progressive::MemberState::Knock;
-    else if (ms == "ban") m = progressive::MemberState::Ban;
-    else if (ms == "leave") m = progressive::MemberState::Leave;
-    return progressive::canReadMessages(m) ? JNI_TRUE : JNI_FALSE;
+    pcp::MemberState m = pcp::MemberState::Leave;
+    if (ms == "join") m = pcp::MemberState::Join;
+    else if (ms == "invite") m = pcp::MemberState::Invite;
+    else if (ms == "knock") m = pcp::MemberState::Knock;
+    else if (ms == "ban") m = pcp::MemberState::Ban;
+    else if (ms == "leave") m = pcp::MemberState::Leave;
+    return pcp::canReadMessages(m) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Invites ---
 
 JNI_FUNC(jstring, nativeBuildInviteBody)(JNIEnv* env, jclass, jstring jUser, jstring jReason) {
-    auto result = progressive::buildInviteBody(jStr(env, jUser), jStr(env, jReason));
+    auto result = pcp::buildInviteBody(jStr(env, jUser), jStr(env, jReason));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Event Validation ---
 
 JNI_FUNC(jboolean, nativeIsBodyWithinLimits)(JNIEnv* env, jclass, jstring jBody, jint jMax) {
-    return progressive::isBodyWithinLimits(jStr(env, jBody), jMax) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isBodyWithinLimits(jStr(env, jBody), jMax) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Widgets ---
 
 JNI_FUNC(jboolean, nativeIsJitsiWidget)(JNIEnv* env, jclass, jstring jType) {
-    return progressive::isJitsiWidget(jStr(env, jType)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isJitsiWidget(jStr(env, jType)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeGetWidgetTypeName)(JNIEnv* env, jclass, jstring jType) {
-    auto result = progressive::getWidgetTypeName(jStr(env, jType));
+    auto result = pcp::getWidgetTypeName(jStr(env, jType));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- WebRTC / Calls ---
 
 JNI_FUNC(jboolean, nativeIsCallExpired)(JNIEnv* env, jclass, jlong jCreatedMs, jint jTimeout) {
-    return progressive::isCallExpired(jCreatedMs, jTimeout) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isCallExpired(jCreatedMs, jTimeout) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeFormatCallDuration)(JNIEnv* env, jclass, jint jSeconds) {
-    auto result = progressive::formatCallDuration(jSeconds);
+    auto result = pcp::formatCallDuration(jSeconds);
     return env->NewStringUTF(result.c_str());
 }
 
@@ -1891,40 +1891,40 @@ JNI_FUNC(jstring, nativeFormatCallDuration)(JNIEnv* env, jclass, jint jSeconds) 
 
 JNI_FUNC(jstring, nativeFormatNotifMode)(JNIEnv* env, jclass, jstring jMode) {
     auto ms = jStr(env, jMode);
-    progressive::NotifMode m = progressive::NotifMode::Default;
-    if (ms == "all") m = progressive::NotifMode::All;
-    else if (ms == "mentions") m = progressive::NotifMode::Mentions;
-    else if (ms == "none") m = progressive::NotifMode::None;
-    auto result = progressive::formatNotifMode(m);
+    pcp::NotifMode m = pcp::NotifMode::Default;
+    if (ms == "all") m = pcp::NotifMode::All;
+    else if (ms == "mentions") m = pcp::NotifMode::Mentions;
+    else if (ms == "none") m = pcp::NotifMode::None;
+    auto result = pcp::formatNotifMode(m);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeParseNotifMode)(JNIEnv* env, jclass, jstring jAction) {
-    auto mode = progressive::parseNotifMode(jStr(env, jAction));
+    auto mode = pcp::parseNotifMode(jStr(env, jAction));
     const char* s = "default";
-    if (mode == progressive::NotifMode::All) s = "all";
-    else if (mode == progressive::NotifMode::Mentions) s = "mentions";
-    else if (mode == progressive::NotifMode::None) s = "none";
+    if (mode == pcp::NotifMode::All) s = "all";
+    else if (mode == pcp::NotifMode::Mentions) s = "mentions";
+    else if (mode == pcp::NotifMode::None) s = "none";
     return env->NewStringUTF(s);
 }
 
 // --- Crypto / E2EE ---
 
 JNI_FUNC(jboolean, nativeIsValidDeviceKey)(JNIEnv* env, jclass, jstring jKey) {
-    return progressive::isValidDeviceKey(jStr(env, jKey)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidDeviceKey(jStr(env, jKey)) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Server Info ---
 
 JNI_FUNC(jstring, nativeParseServerVersion)(JNIEnv* env, jclass, jstring jJson) {
-    auto result = progressive::parseServerVersion(jStr(env, jJson));
+    auto result = pcp::parseServerVersion(jStr(env, jJson));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Time Formatting ---
 
 JNI_FUNC(jstring, nativeFormatTimeAgoLabel)(JNIEnv* env, jclass, jlong jTs, jlong jNow) {
-    auto result = progressive::formatTimeAgoLabel(jTs, jNow);
+    auto result = pcp::formatTimeAgoLabel(jTs, jNow);
     return env->NewStringUTF(result.c_str());
 }
 
@@ -1942,7 +1942,7 @@ JNI_FUNC(jstring, nativeFormatEditSummary)(JNIEnv* env, jclass, jstring jOrigina
 }
 
 JNI_FUNC(jstring, nativeGetEditBadgeText)(JNIEnv* env, jclass, jint jEditCount) {
-    auto result = progressive::getEditBadgeText(jEditCount);
+    auto result = pcp::getEditBadgeText(jEditCount);
     return env->NewStringUTF(result.c_str());
 }
 
@@ -1974,32 +1974,32 @@ JNI_FUNC(jstring, nativeFormatCrossSigningStatus)(JNIEnv* env, jclass, jstring j
 // --- Event Display Classification ---
 
 JNI_FUNC(jstring, nativeGetEventTypeDescription)(JNIEnv* env, jclass, jstring jType, jstring jMsgType) {
-    auto dt = progressive::classifyEvent(jStr(env, jType), jStr(env, jMsgType));
-    auto result = progressive::getEventTypeDescription(dt);
+    auto dt = pcp::classifyEvent(jStr(env, jType), jStr(env, jMsgType));
+    auto result = pcp::getEventTypeDescription(dt);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeGetEventTypeIcon)(JNIEnv* env, jclass, jstring jType, jstring jMsgType) {
-    auto dt = progressive::classifyEvent(jStr(env, jType), jStr(env, jMsgType));
-    auto result = progressive::getEventTypeIcon(dt);
+    auto dt = pcp::classifyEvent(jStr(env, jType), jStr(env, jMsgType));
+    auto result = pcp::getEventTypeIcon(dt);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeIsContinuation)(JNIEnv* env, jclass, jstring jCurSender, jstring jPrevSender,
     jlong jCurTs, jlong jPrevTs) {
-    return progressive::isContinuation(
+    return pcp::isContinuation(
         jStr(env, jCurSender), jStr(env, jPrevSender), jCurTs, jPrevTs) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeShouldShowAvatar)(JNIEnv* env, jclass, jstring jCurSender, jstring jPrevSender, jboolean jIsLast) {
-    return progressive::shouldShowAvatar(
+    return pcp::shouldShowAvatar(
         jStr(env, jCurSender), jStr(env, jPrevSender), jIsLast) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Power Levels ---
 
 JNI_FUNC(jstring, nativeParseRoomPowerLevels)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto pl = progressive::parseRoomPowerLevels(jStr(env, jStateJson));
+    auto pl = pcp::parseRoomPowerLevels(jStr(env, jStateJson));
     std::ostringstream os;
     os << R"({"users_default":)" << pl.usersDefault
        << R"(,"events_default":)" << pl.eventsDefault
@@ -2012,7 +2012,7 @@ JNI_FUNC(jstring, nativeParseRoomPowerLevels)(JNIEnv* env, jclass, jstring jStat
 
 JNI_FUNC(jboolean, nativeHasPower)(JNIEnv* env, jclass, jstring jPlJson, jstring jUserId, jstring jAction) {
     auto json = jStr(env, jPlJson);
-    progressive::RoomPowerLevels pl;
+    pcp::RoomPowerLevels pl;
     pl.usersDefault = 0; pl.eventsDefault = 0; pl.stateDefault = 50;
     pl.ban = 50; pl.kick = 50; pl.redact = 50; pl.invite = 50;
     // Parse defaults from JSON
@@ -2047,24 +2047,24 @@ JNI_FUNC(jboolean, nativeHasPower)(JNIEnv* env, jclass, jstring jPlJson, jstring
             }
         }
     }
-    return progressive::hasPower(pl, uid, jStr(env, jAction)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::hasPower(pl, uid, jStr(env, jAction)) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- SSO ---
 
 JNI_FUNC(jboolean, nativeIsSsoCallbackUrl)(JNIEnv* env, jclass, jstring jUrl) {
-    return progressive::isSsoCallbackUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isSsoCallbackUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeExtractSsoProvider)(JNIEnv* env, jclass, jstring jIdpId) {
-    auto result = progressive::extractSsoProvider(jStr(env, jIdpId));
+    auto result = pcp::extractSsoProvider(jStr(env, jIdpId));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Room Tombstone ---
 
 JNI_FUNC(jstring, nativeParseRoomTombstoneContent)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto ts = progressive::parseRoomTombstoneContent(jStr(env, jStateJson));
+    auto ts = pcp::parseRoomTombstoneContent(jStr(env, jStateJson));
     std::ostringstream os;
     os << R"({"replacement_room":")" << ts.replacementRoomId << R"(")"
        << R"(,"body":")" << ts.body << "\"}";
@@ -2074,32 +2074,32 @@ JNI_FUNC(jstring, nativeParseRoomTombstoneContent)(JNIEnv* env, jclass, jstring 
 // --- Network Quality ---
 
 JNI_FUNC(jstring, nativeClassifyNetworkQuality)(JNIEnv* env, jclass, jint jSignal, jdouble jLatency, jdouble jLossRate) {
-    auto result = progressive::classifyQualityLabel(jSignal, jLatency, jLossRate);
+    auto result = pcp::classifyQualityLabel(jSignal, jLatency, jLossRate);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Connection Monitor ---
 
 JNI_FUNC(jstring, nativeFormatDowntime)(JNIEnv* env, jclass, jlong jDowntimeMs) {
-    auto result = progressive::ConnectionMonitor::formatDowntime(jDowntimeMs);
+    auto result = pcp::ConnectionMonitor::formatDowntime(jDowntimeMs);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Event Preview (room list last message) ---
 
 JNI_FUNC(jstring, nativeFormatEventPreview)(JNIEnv* env, jclass, jstring jSender, jstring jBody, jstring jType, jstring jMsgType, jboolean jShowSender) {
-    progressive::DisplayEvent ev;
+    pcp::DisplayEvent ev;
     ev.senderName = jStr(env, jSender);
     ev.body = jStr(env, jBody);
-    ev.type = progressive::classifyEvent(jStr(env, jType), jStr(env, jMsgType));
-    auto result = progressive::formatEventPreview(ev, jShowSender);
+    ev.type = pcp::classifyEvent(jStr(env, jType), jStr(env, jMsgType));
+    auto result = pcp::formatEventPreview(ev, jShowSender);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Room Encryption ---
 
 JNI_FUNC(jstring, nativeParseEncryptionConfig)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto cfg = progressive::parseEncryptionConfig(jStr(env, jStateJson));
+    auto cfg = pcp::parseEncryptionConfig(jStr(env, jStateJson));
     std::ostringstream os;
     os << R"({"algorithm":")" << cfg.algorithm
        << R"(","rotation_period_ms":)" << cfg.rotationPeriodMs
@@ -2120,19 +2120,19 @@ JNI_FUNC(jstring, nativeComputeEncryptionStatus)(JNIEnv* env, jclass, jstring jA
 // --- Key Backup ---
 
 JNI_FUNC(jstring, nativeGetBackupAlgorithmDescription)(JNIEnv* env, jclass, jstring jAlgo) {
-    auto result = progressive::getBackupAlgorithmDescription(jStr(env, jAlgo));
+    auto result = pcp::getBackupAlgorithmDescription(jStr(env, jAlgo));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeIsSupportedBackupAlgorithm)(JNIEnv* env, jclass, jstring jAlgo) {
-    return progressive::isSupportedBackupAlgorithm(jStr(env, jAlgo)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isSupportedBackupAlgorithm(jStr(env, jAlgo)) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Space Utilities ---
 
 JNI_FUNC(jstring, nativeParseSpaceChildren)(JNIEnv* env, jclass, jstring jJson) {
-    auto children = progressive::parseSpaceChildren(jStr(env, jJson));
-    progressive::sortSpaceChildren(children);
+    auto children = pcp::parseSpaceChildren(jStr(env, jJson));
+    pcp::sortSpaceChildren(children);
     std::ostringstream os; os << "[";
     for (size_t i = 0; i < children.size(); i++) {
         if (i > 0) os << ",";
@@ -2148,37 +2148,37 @@ JNI_FUNC(jstring, nativeParseSpaceChildren)(JNIEnv* env, jclass, jstring jJson) 
 
 JNI_FUNC(jstring, nativeGetE2eeIconName)(JNIEnv* env, jclass, jstring jState) {
     auto s = jStr(env, jState);
-    progressive::E2eeState st = progressive::E2eeState::None;
-    if (s == "verified") st = progressive::E2eeState::Verified;
-    else if (s == "unverified") st = progressive::E2eeState::Unverified;
-    else if (s == "warning") st = progressive::E2eeState::Warning;
-    else if (s == "error") st = progressive::E2eeState::Error;
-    else if (s == "blacklisted") st = progressive::E2eeState::Blacklisted;
-    auto result = progressive::getE2eeIconName(st);
+    pcp::E2eeState st = pcp::E2eeState::None;
+    if (s == "verified") st = pcp::E2eeState::Verified;
+    else if (s == "unverified") st = pcp::E2eeState::Unverified;
+    else if (s == "warning") st = pcp::E2eeState::Warning;
+    else if (s == "error") st = pcp::E2eeState::Error;
+    else if (s == "blacklisted") st = pcp::E2eeState::Blacklisted;
+    auto result = pcp::getE2eeIconName(st);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeGetE2eeColor)(JNIEnv* env, jclass, jstring jState) {
     auto s = jStr(env, jState);
-    progressive::E2eeState st = progressive::E2eeState::None;
-    if (s == "verified") st = progressive::E2eeState::Verified;
-    else if (s == "unverified") st = progressive::E2eeState::Unverified;
-    else if (s == "warning") st = progressive::E2eeState::Warning;
-    else if (s == "error") st = progressive::E2eeState::Error;
-    else if (s == "blacklisted") st = progressive::E2eeState::Blacklisted;
-    auto result = progressive::getE2eeColor(st);
+    pcp::E2eeState st = pcp::E2eeState::None;
+    if (s == "verified") st = pcp::E2eeState::Verified;
+    else if (s == "unverified") st = pcp::E2eeState::Unverified;
+    else if (s == "warning") st = pcp::E2eeState::Warning;
+    else if (s == "error") st = pcp::E2eeState::Error;
+    else if (s == "blacklisted") st = pcp::E2eeState::Blacklisted;
+    auto result = pcp::getE2eeColor(st);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Backup Utilities ---
 
 JNI_FUNC(jstring, nativeBuildCreateBackupBody)(JNIEnv* env, jclass, jstring jAlgo, jstring jAuth) {
-    auto result = progressive::buildCreateBackupBody(jStr(env, jAlgo), jStr(env, jAuth));
+    auto result = pcp::buildCreateBackupBody(jStr(env, jAlgo), jStr(env, jAuth));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeFormatBackupStats)(JNIEnv* env, jclass, jstring jInfoJson) {
-    progressive::BackupInfo info;
+    pcp::BackupInfo info;
     auto json = jStr(env, jInfoJson);
     // Manual parse of BackupInfo from JSON
     auto extractStr = [&](const std::string& key) -> std::string {
@@ -2203,12 +2203,12 @@ JNI_FUNC(jstring, nativeFormatBackupStats)(JNIEnv* env, jclass, jstring jInfoJso
     info.algorithm = extractStr("algorithm");
     info.totalKeys = extractInt("total_keys");
     info.backedUpKeys = extractInt("backed_up_keys");
-    auto result = progressive::formatBackupStats(info);
+    auto result = pcp::formatBackupStats(info);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeNeedsBackupAttention)(JNIEnv* env, jclass, jstring jInfoJson) {
-    progressive::BackupInfo info;
+    pcp::BackupInfo info;
     auto json = jStr(env, jInfoJson);
     auto extractInt = [&](const std::string& key) -> int {
         auto p = json.find("\"" + key + "\"");
@@ -2220,29 +2220,29 @@ JNI_FUNC(jboolean, nativeNeedsBackupAttention)(JNIEnv* env, jclass, jstring jInf
     };
     info.totalKeys = extractInt("total_keys");
     info.backedUpKeys = extractInt("backed_up_keys");
-    return progressive::needsBackupAttention(info) ? JNI_TRUE : JNI_FALSE;
+    return pcp::needsBackupAttention(info) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Read Marker / Notifications ---
 
 JNI_FUNC(jstring, nativeBuildRoomNotifSettingsBody)(JNIEnv* env, jclass, jstring jMode) {
     auto ms = jStr(env, jMode);
-    progressive::NotifMode m = progressive::NotifMode::Default;
-    if (ms == "all") m = progressive::NotifMode::All;
-    else if (ms == "mentions") m = progressive::NotifMode::Mentions;
-    else if (ms == "none") m = progressive::NotifMode::None;
-    auto result = progressive::buildRoomNotifSettingsBody(m);
+    pcp::NotifMode m = pcp::NotifMode::Default;
+    if (ms == "all") m = pcp::NotifMode::All;
+    else if (ms == "mentions") m = pcp::NotifMode::Mentions;
+    else if (ms == "none") m = pcp::NotifMode::None;
+    auto result = pcp::buildRoomNotifSettingsBody(m);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- URL Preview ---
 
 JNI_FUNC(jboolean, nativeIsPreviewableUrl)(JNIEnv* env, jclass, jstring jUrl) {
-    return progressive::isPreviewableUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isPreviewableUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeExtractUrls)(JNIEnv* env, jclass, jstring jText) {
-    auto urls = progressive::extractUrls(jStr(env, jText));
+    auto urls = pcp::extractUrls(jStr(env, jText));
     std::ostringstream os; os << "[";
     for (size_t i = 0; i < urls.size(); i++) {
         if (i > 0) os << ",";
@@ -2255,160 +2255,160 @@ JNI_FUNC(jstring, nativeExtractUrls)(JNIEnv* env, jclass, jstring jText) {
 // --- Device Manager ---
 
 JNI_FUNC(jstring, nativeFormatDeviceLastSeen)(JNIEnv* env, jclass, jlong jLastSeenMs) {
-    auto result = progressive::formatDeviceLastSeen(jLastSeenMs);
+    auto result = pcp::formatDeviceLastSeen(jLastSeenMs);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Permalink Utilities ---
 
 JNI_FUNC(jboolean, nativeIsSameRoomPermalink)(JNIEnv* env, jclass, jstring jUrl1, jstring jUrl2) {
-    return progressive::isSameRoomPermalink(jStr(env, jUrl1), jStr(env, jUrl2)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isSameRoomPermalink(jStr(env, jUrl1), jStr(env, jUrl2)) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Display Name (advanced) ---
 
 JNI_FUNC(jstring, nativeGetBestDisplayName)(JNIEnv* env, jclass, jstring jName, jstring jUserId) {
-    auto result = progressive::getBestDisplayName(jStr(env, jName), jStr(env, jUserId));
+    auto result = pcp::getBestDisplayName(jStr(env, jName), jStr(env, jUserId));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeFormatMemberName)(JNIEnv* env, jclass, jstring jName, jstring jUserId, jint jPower, jboolean jShowBadge) {
-    auto result = progressive::formatMemberName(jStr(env, jName), jStr(env, jUserId), jPower, jShowBadge);
+    auto result = pcp::formatMemberName(jStr(env, jName), jStr(env, jUserId), jPower, jShowBadge);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Identity Utilities ---
 
 JNI_FUNC(jboolean, nativeIsEmail)(JNIEnv* env, jclass, jstring jInput) {
-    return progressive::isEmail(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isEmail(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeIsMsisdn)(JNIEnv* env, jclass, jstring jInput) {
-    return progressive::isMsisdn(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isMsisdn(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeExtractAliasLocalpart)(JNIEnv* env, jclass, jstring jAlias) {
-    auto result = progressive::extractAliasLocalpart(jStr(env, jAlias));
+    auto result = pcp::extractAliasLocalpart(jStr(env, jAlias));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Link Preview ---
 
 JNI_FUNC(jboolean, nativeIsImageUrl)(JNIEnv* env, jclass, jstring jUrl) {
-    return progressive::isImageUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isImageUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Permalink Parser ---
 
 JNI_FUNC(jstring, nativeExtractRoomIdFromPermalink)(JNIEnv* env, jclass, jstring jUrl) {
-    auto result = progressive::extractRoomIdFromPermalink(jStr(env, jUrl));
+    auto result = pcp::extractRoomIdFromPermalink(jStr(env, jUrl));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeExtractEventIdFromPermalink)(JNIEnv* env, jclass, jstring jUrl) {
-    auto result = progressive::extractEventIdFromPermalink(jStr(env, jUrl));
+    auto result = pcp::extractEventIdFromPermalink(jStr(env, jUrl));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeExtractUserIdFromPermalink)(JNIEnv* env, jclass, jstring jUrl) {
-    auto result = progressive::extractUserIdFromPermalink(jStr(env, jUrl));
+    auto result = pcp::extractUserIdFromPermalink(jStr(env, jUrl));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- URL Preview ---
 
 JNI_FUNC(jstring, nativeStripHtmlTags)(JNIEnv* env, jclass, jstring jHtml) {
-    auto result = progressive::stripHtmlTags(jStr(env, jHtml));
+    auto result = pcp::stripHtmlTags(jStr(env, jHtml));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeTruncateDescription)(JNIEnv* env, jclass, jstring jText, jint jMax) {
-    auto result = progressive::truncateDescription(jStr(env, jText), jMax);
+    auto result = pcp::truncateDescription(jStr(env, jText), jMax);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Device Type ---
 
 JNI_FUNC(jstring, nativeClassifyDeviceType)(JNIEnv* env, jclass, jstring jAgent, jstring jClient) {
-    auto result = progressive::classifyDeviceType(jStr(env, jAgent), jStr(env, jClient));
+    auto result = pcp::classifyDeviceType(jStr(env, jAgent), jStr(env, jClient));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Version Comparison ---
 
 JNI_FUNC(jint, nativeCompareSemver)(JNIEnv* env, jclass, jstring jA, jstring jB) {
-    return progressive::compareSemver(jStr(env, jA), jStr(env, jB));
+    return pcp::compareSemver(jStr(env, jA), jStr(env, jB));
 }
 
 // --- Knock Reason ---
 
 JNI_FUNC(jstring, nativeFormatKnockReason)(JNIEnv* env, jclass, jstring jReason) {
-    auto result = progressive::formatKnockReason(jStr(env, jReason));
+    auto result = pcp::formatKnockReason(jStr(env, jReason));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Server Compatibility ---
 
 JNI_FUNC(jboolean, nativeIsServerCompatible)(JNIEnv* env, jclass, jstring jVersion, jstring jMinRequired) {
-    return progressive::isServerCompatible(jStr(env, jVersion), jStr(env, jMinRequired)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isServerCompatible(jStr(env, jVersion), jStr(env, jMinRequired)) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Device Fingerprint ---
 
 JNI_FUNC(jstring, nativeExtractDeviceFingerprint)(JNIEnv* env, jclass, jstring jDeviceId, jstring jKeysJson) {
-    auto result = progressive::extractDeviceFingerprint(jStr(env, jDeviceId), jStr(env, jKeysJson));
+    auto result = pcp::extractDeviceFingerprint(jStr(env, jDeviceId), jStr(env, jKeysJson));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Event Distance ---
 
 JNI_FUNC(jint, nativeEventDistance)(JNIEnv* env, jclass, jint jA, jint jB) {
-    return progressive::eventDistance(jA, jB);
+    return pcp::eventDistance(jA, jB);
 }
 
 // --- Widget Validation ---
 
 JNI_FUNC(jboolean, nativeIsEtherpadWidget)(JNIEnv* env, jclass, jstring jType) {
-    return progressive::isEtherpadWidget(jStr(env, jType)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isEtherpadWidget(jStr(env, jType)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeIsValidWidgetUrl)(JNIEnv* env, jclass, jstring jUrl) {
-    return progressive::isValidWidgetUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidWidgetUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Encryption Defaults ---
 
 JNI_FUNC(jstring, nativeGetDefaultEncryptionAlgorithm)(JNIEnv* env, jclass) {
-    auto result = progressive::getDefaultEncryptionAlgorithm();
+    auto result = pcp::getDefaultEncryptionAlgorithm();
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeRequiresDeviceVerification)(JNIEnv* env, jclass, jstring jAlgo) {
-    return progressive::requiresDeviceVerification(jStr(env, jAlgo)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::requiresDeviceVerification(jStr(env, jAlgo)) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Event Timestamp Validation ---
 
 JNI_FUNC(jboolean, nativeIsReasonableTimestamp)(JNIEnv* env, jclass, jstring jTs, jlong jMaxFuture) {
-    return progressive::isReasonableTimestamp(jStr(env, jTs), jMaxFuture) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isReasonableTimestamp(jStr(env, jTs), jMaxFuture) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Read Marker / Jump to Unread ---
 
 JNI_FUNC(jstring, nativeAdvanceReadMarker)(JNIEnv* env, jclass, jstring jRoomId, jstring jLatestEventId) {
-    auto result = progressive::advanceReadMarker(jStr(env, jRoomId), jStr(env, jLatestEventId));
+    auto result = pcp::advanceReadMarker(jStr(env, jRoomId), jStr(env, jLatestEventId));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeReadMarkerToJson)(JNIEnv* env, jclass, jstring jLastReadEventId,
     jint jUnreadCount, jint jUnreadMentions, jint jUnreadHighlights, jboolean jHasUnread) {
-    progressive::ReadMarkerState state;
+    pcp::ReadMarkerState state;
     state.lastReadEventId = jStr(env, jLastReadEventId);
     state.unreadCount = jUnreadCount;
     state.unreadMentions = jUnreadMentions;
     state.unreadHighlights = jUnreadHighlights;
     state.hasUnread = jHasUnread;
-    auto result = progressive::readMarkerToJson(state);
+    auto result = pcp::readMarkerToJson(state);
     return env->NewStringUTF(result.c_str());
 }
 
@@ -2430,15 +2430,15 @@ JNI_FUNC(jboolean, nativeShouldShowJumpToUnread)(JNIEnv* env, jclass, jstring jR
         p++; while (p < json.size() && (json[p] == ' ' || json[p] == '\t')) p++;
         return json.compare(p, 4, "true") == 0;
     };
-    progressive::ReadMarkerState state;
+    pcp::ReadMarkerState state;
     state.unreadCount = extractInt("unread_count");
     state.hasUnread = extractBool("has_unread");
     state.firstUnreadEventId = jStr(env, jReadMarkerJson).substr(0, 10);  // dummy — parsed from json
-    return progressive::shouldShowJumpToUnread(state) ? JNI_TRUE : JNI_FALSE;
+    return pcp::shouldShowJumpToUnread(state) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeFormatUnreadJumpLabel)(JNIEnv* env, jclass, jstring jReadMarkerJson) {
-    progressive::ReadMarkerState state;
+    pcp::ReadMarkerState state;
     auto json = jStr(env, jReadMarkerJson);
     auto extractInt = [&](const std::string& key) -> int {
         auto p = json.find("\"" + key + "\"");
@@ -2451,25 +2451,25 @@ JNI_FUNC(jstring, nativeFormatUnreadJumpLabel)(JNIEnv* env, jclass, jstring jRea
     state.unreadCount = extractInt("unread_count");
     state.unreadMentions = extractInt("unread_mentions");
     state.hasUnread = state.unreadCount > 0;
-    auto result = progressive::formatUnreadJumpLabel(state);
+    auto result = pcp::formatUnreadJumpLabel(state);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Notifications / Badge ---
 
 JNI_FUNC(jstring, nativeFormatBadgeText)(JNIEnv* env, jclass, jint jCount) {
-    auto result = progressive::formatBadgeText(jCount);
+    auto result = pcp::formatBadgeText(jCount);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Presence ---
 
 JNI_FUNC(jstring, nativeParsePresence)(JNIEnv* env, jclass, jstring jUserId, jstring jJson) {
-    auto info = progressive::parsePresence(jStr(env, jUserId), jStr(env, jJson));
+    auto info = pcp::parsePresence(jStr(env, jUserId), jStr(env, jJson));
     std::ostringstream os;
     const char* presenceStr = "offline";
-    if (info.presence == progressive::Presence::Online) presenceStr = "online";
-    else if (info.presence == progressive::Presence::Unavailable) presenceStr = "unavailable";
+    if (info.presence == pcp::Presence::Online) presenceStr = "online";
+    else if (info.presence == pcp::Presence::Unavailable) presenceStr = "unavailable";
     os << R"({"user_id":")" << info.userId
        << R"(","presence":")" << presenceStr
        << R"(","last_active_ago_ms":)" << info.lastActiveAgoMs << "}";
@@ -2479,65 +2479,65 @@ JNI_FUNC(jstring, nativeParsePresence)(JNIEnv* env, jclass, jstring jUserId, jst
 // --- Matrix Error ---
 
 JNI_FUNC(jlong, nativeGetRetryAfterMs)(JNIEnv* env, jclass, jstring jErrorJson) {
-    auto error = progressive::parseMatrixErrorJson(jStr(env, jErrorJson));
-    return progressive::getRetryAfterMs(error);
+    auto error = pcp::parseMatrixErrorJson(jStr(env, jErrorJson));
+    return pcp::getRetryAfterMs(error);
 }
 
 // --- OpenID Token ---
 
 JNI_FUNC(jstring, nativeParseOpenIdToken)(JNIEnv* env, jclass, jstring jJson) {
-    auto token = progressive::parseOpenIdToken(jStr(env, jJson));
-    auto result = progressive::openIdTokenToJson(token);
+    auto token = pcp::parseOpenIdToken(jStr(env, jJson));
+    auto result = pcp::openIdTokenToJson(token);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Notification Counts ---
 
 JNI_FUNC(jstring, nativeFormatCombinedNotificationCount)(JNIEnv* env, jclass, jint jRooms, jint jThreads) {
-    auto result = progressive::formatCombinedNotificationCount(jRooms, jThreads);
+    auto result = pcp::formatCombinedNotificationCount(jRooms, jThreads);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jint, nativeGetTotalUnreadCount)(JNIEnv* env, jclass, jint jRooms, jint jThreads) {
-    return progressive::getTotalUnreadCount(jRooms, jThreads);
+    return pcp::getTotalUnreadCount(jRooms, jThreads);
 }
 
 // --- Presence Indicator ---
 
 JNI_FUNC(jstring, nativeGetPresenceIndicator)(JNIEnv* env, jclass, jstring jPresence) {
     auto ps = jStr(env, jPresence);
-    progressive::Presence p = progressive::Presence::Offline;
-    if (ps == "online") p = progressive::Presence::Online;
-    else if (ps == "unavailable") p = progressive::Presence::Unavailable;
-    auto result = progressive::getPresenceIndicator(p);
+    pcp::Presence p = pcp::Presence::Offline;
+    if (ps == "online") p = pcp::Presence::Online;
+    else if (ps == "unavailable") p = pcp::Presence::Unavailable;
+    auto result = pcp::getPresenceIndicator(p);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeIsPresenceStale)(JNIEnv* env, jclass, jlong jLastUpdatedMs) {
-    return progressive::isPresenceStale(jLastUpdatedMs) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isPresenceStale(jLastUpdatedMs) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeFormatStatusMessage)(JNIEnv* env, jclass, jstring jMsg, jint jMax) {
-    auto result = progressive::formatStatusMessage(jStr(env, jMsg), jMax);
+    auto result = pcp::formatStatusMessage(jStr(env, jMsg), jMax);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Space Utilities ---
 
 JNI_FUNC(jstring, nativeBuildSpaceChildContent)(JNIEnv* env, jclass, jboolean jSuggested, jstring jOrder, jboolean jAutoJoin, jboolean jCanonical) {
-    auto result = progressive::buildSpaceChildContent(jSuggested, jStr(env, jOrder), jAutoJoin, jCanonical);
+    auto result = pcp::buildSpaceChildContent(jSuggested, jStr(env, jOrder), jAutoJoin, jCanonical);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeBuildSpaceParentContent)(JNIEnv* env, jclass, jstring jParentSpaceId, jboolean jCanonical) {
-    auto result = progressive::buildSpaceParentContent(jStr(env, jParentSpaceId), jCanonical);
+    auto result = pcp::buildSpaceParentContent(jStr(env, jParentSpaceId), jCanonical);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Widget Utilities ---
 
 JNI_FUNC(jstring, nativeParseWidgetStateContent)(JNIEnv* env, jclass, jstring jJson, jstring jWidgetId, jstring jRoomId) {
-    auto widget = progressive::parseWidgetStateContent(jStr(env, jJson), jStr(env, jWidgetId), jStr(env, jRoomId));
+    auto widget = pcp::parseWidgetStateContent(jStr(env, jJson), jStr(env, jWidgetId), jStr(env, jRoomId));
     std::ostringstream os;
     os << R"({"widget_id":")" << widget.widgetId
        << R"(","type":")" << widget.type
@@ -2549,18 +2549,18 @@ JNI_FUNC(jstring, nativeParseWidgetStateContent)(JNIEnv* env, jclass, jstring jJ
 // --- Key Share Requests ---
 
 JNI_FUNC(jboolean, nativeShouldShareKey)(JNIEnv* env, jclass, jstring jAlgo, jboolean jHasSession, jboolean jSessionVerified, jboolean jUserTrusted) {
-    return progressive::shouldShareKey(jStr(env, jAlgo), jHasSession, jSessionVerified, jUserTrusted) ? JNI_TRUE : JNI_FALSE;
+    return pcp::shouldShareKey(jStr(env, jAlgo), jHasSession, jSessionVerified, jUserTrusted) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Recovery Key ---
 
 JNI_FUNC(jstring, nativeComputeRecoveryKey)(JNIEnv* env, jclass, jstring jCurve25519Key) {
-    auto result = progressive::computeRecoveryKey(jStr(env, jCurve25519Key));
+    auto result = pcp::computeRecoveryKey(jStr(env, jCurve25519Key));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeExtractCurveKeyFromRecoveryKey)(JNIEnv* env, jclass, jstring jRecoveryKey) {
-    auto result = progressive::extractCurveKeyFromRecoveryKey(jStr(env, jRecoveryKey));
+    auto result = pcp::extractCurveKeyFromRecoveryKey(jStr(env, jRecoveryKey));
     return env->NewStringUTF(result.c_str());
 }
 
@@ -2568,35 +2568,35 @@ JNI_FUNC(jstring, nativeExtractCurveKeyFromRecoveryKey)(JNIEnv* env, jclass, jst
 
 JNI_FUNC(jstring, nativeFormatMembership)(JNIEnv* env, jclass, jstring jMembership) {
     auto ms = jStr(env, jMembership);
-    progressive::MemberState m = progressive::MemberState::Leave;
-    if (ms == "join") m = progressive::MemberState::Join;
-    else if (ms == "invite") m = progressive::MemberState::Invite;
-    else if (ms == "knock") m = progressive::MemberState::Knock;
-    else if (ms == "ban") m = progressive::MemberState::Ban;
-    auto result = progressive::formatMemberState(m);
+    pcp::MemberState m = pcp::MemberState::Leave;
+    if (ms == "join") m = pcp::MemberState::Join;
+    else if (ms == "invite") m = pcp::MemberState::Invite;
+    else if (ms == "knock") m = pcp::MemberState::Knock;
+    else if (ms == "ban") m = pcp::MemberState::Ban;
+    auto result = pcp::formatMemberState(m);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeIsActiveMember)(JNIEnv* env, jclass, jstring jMembership) {
     auto ms = jStr(env, jMembership);
-    progressive::MemberState m = progressive::MemberState::Leave;
-    if (ms == "join") m = progressive::MemberState::Join;
-    else if (ms == "invite") m = progressive::MemberState::Invite;
-    else if (ms == "knock") m = progressive::MemberState::Knock;
-    return progressive::isActiveMember(m) ? JNI_TRUE : JNI_FALSE;
+    pcp::MemberState m = pcp::MemberState::Leave;
+    if (ms == "join") m = pcp::MemberState::Join;
+    else if (ms == "invite") m = pcp::MemberState::Invite;
+    else if (ms == "knock") m = pcp::MemberState::Knock;
+    return pcp::isActiveMember(m) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- WebRTC / Calls ---
 
 JNI_FUNC(jstring, nativeBuildCallHangupContent)(JNIEnv* env, jclass, jstring jCallId, jstring jReason) {
-    auto result = progressive::buildCallHangupContent(jStr(env, jCallId), jStr(env, jReason));
+    auto result = pcp::buildCallHangupContent(jStr(env, jCallId), jStr(env, jReason));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeFormatCallNotification)(JNIEnv* env, jclass, jstring jCallJson) {
     // Parse CallInfo from JSON, format notification
     auto json = jStr(env, jCallJson);
-    progressive::CallSession call;
+    pcp::CallSession call;
     auto extractStr = [&](const std::string& key) -> std::string {
         auto p = json.find("\"" + key + "\"");
         if (p == std::string::npos) return "";
@@ -2609,7 +2609,7 @@ JNI_FUNC(jstring, nativeFormatCallNotification)(JNIEnv* env, jclass, jstring jCa
     call.callId = extractStr("call_id");
     call.callerName = extractStr("caller_name");
     call.isVideoOn = json.find("\"is_video\":true") != std::string::npos;
-    auto cn = progressive::formatCallNotification(call);
+    auto cn = pcp::formatCallNotification(call);
     std::ostringstream os;
     os << R"({"title":")" << cn.title << R"(","body":")" << cn.body
        << R"(","is_video":)" << (cn.isVideo ? "true" : "false")
@@ -2621,33 +2621,33 @@ JNI_FUNC(jstring, nativeFormatCallNotification)(JNIEnv* env, jclass, jstring jCa
 // --- Content Scanner / ToS ---
 
 JNI_FUNC(jboolean, nativeIsServerNotice)(JNIEnv* env, jclass, jstring jContentJson) {
-    return progressive::isServerNotice(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isServerNotice(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeMustAcceptTos)(JNIEnv* env, jclass, jstring jResponseJson) {
-    return progressive::mustAcceptTos(jStr(env, jResponseJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::mustAcceptTos(jStr(env, jResponseJson)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeBuildTosAcceptBody)(JNIEnv* env, jclass, jstring jVersion) {
-    auto result = progressive::buildTosAcceptBody(jStr(env, jVersion));
+    auto result = pcp::buildTosAcceptBody(jStr(env, jVersion));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Login Utilities ---
 
 JNI_FUNC(jboolean, nativeIsValidLoginCredentials)(JNIEnv* env, jclass, jstring jUserId, jstring jPassword) {
-    return progressive::isValidLoginCredentials(jStr(env, jUserId), jStr(env, jPassword)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidLoginCredentials(jStr(env, jUserId), jStr(env, jPassword)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeGenerateDeviceId)(JNIEnv* env, jclass) {
-    auto result = progressive::generateDeviceId();
+    auto result = pcp::generateDeviceId();
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Password Validator ---
 
 JNI_FUNC(jstring, nativeValidatePassword)(JNIEnv* env, jclass, jstring jPassword) {
-    auto result = progressive::validatePassword(jStr(env, jPassword));
+    auto result = pcp::validatePassword(jStr(env, jPassword));
     std::ostringstream os;
     os << R"({"valid":)" << (result.valid ? "true" : "false")
        << R"(,"strength":)" << result.strength
@@ -2657,107 +2657,107 @@ JNI_FUNC(jstring, nativeValidatePassword)(JNIEnv* env, jclass, jstring jPassword
 }
 
 JNI_FUNC(jint, nativeComputePasswordStrength)(JNIEnv* env, jclass, jstring jPassword) {
-    return progressive::computePasswordStrength(jStr(env, jPassword));
+    return pcp::computePasswordStrength(jStr(env, jPassword));
 }
 
 JNI_FUNC(jstring, nativeGetStrengthLabel)(JNIEnv* env, jclass, jint jStrength) {
-    auto result = progressive::getStrengthLabel(jStrength);
+    auto result = pcp::getStrengthLabel(jStrength);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeGeneratePasswordFeedback)(JNIEnv* env, jclass, jstring jPassword) {
-    auto result = progressive::generatePasswordFeedback(jStr(env, jPassword));
+    auto result = pcp::generatePasswordFeedback(jStr(env, jPassword));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Event Validator ---
 
 JNI_FUNC(jboolean, nativeIsValidEventId)(JNIEnv* env, jclass, jstring jEventId) {
-    return progressive::isValidEventId(jStr(env, jEventId)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidEventId(jStr(env, jEventId)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeIsValidSenderId)(JNIEnv* env, jclass, jstring jSenderId) {
-    return progressive::isValidSenderId(jStr(env, jSenderId)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidSenderId(jStr(env, jSenderId)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeIsFileSizeWithinLimits)(JNIEnv* env, jclass, jlong jFileSize, jlong jMaxSize) {
-    return progressive::isFileSizeWithinLimits(jFileSize, jMaxSize) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isFileSizeWithinLimits(jFileSize, jMaxSize) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Invite Utilities ---
 
 JNI_FUNC(jboolean, nativeIsInviteExpired)(JNIEnv* env, jclass, jlong jInvitedAtMs, jint jMaxDays) {
-    return progressive::isInviteExpired(jInvitedAtMs, jMaxDays) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isInviteExpired(jInvitedAtMs, jMaxDays) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeBuildKnockBody)(JNIEnv* env, jclass, jstring jReason) {
-    auto result = progressive::buildKnockBody(jStr(env, jReason));
+    auto result = pcp::buildKnockBody(jStr(env, jReason));
     return env->NewStringUTF(result.c_str());
 }
 
 // ============================================================
 // Olm Account + SAS (from commit f760516d)
 // ============================================================
-static progressive::OlmAccountData g_olmAccount;
-static progressive::OlmSessionManager g_olmSessionMgr;
+static pcp::OlmAccountData g_olmAccount;
+static pcp::OlmSessionManager g_olmSessionMgr;
 
 JNI_FUNC(jboolean, nativeOlmCreateAccount)(JNIEnv* env, jclass, jstring jUserId, jstring jDeviceId) {
-    g_olmAccount = progressive::createOlmAccount(jStr(env, jUserId), jStr(env, jDeviceId));
+    g_olmAccount = pcp::createOlmAccount(jStr(env, jUserId), jStr(env, jDeviceId));
     return g_olmAccount.valid ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeOlmGetIdentityKeys)(JNIEnv* env, jclass) {
-    return env->NewStringUTF(progressive::getAccountIdentityKeys(g_olmAccount).c_str());
+    return env->NewStringUTF(pcp::getAccountIdentityKeys(g_olmAccount).c_str());
 }
 
 JNI_FUNC(jstring, nativeOlmGenerateOneTimeKeys)(JNIEnv* env, jclass, jint jCount) {
-    auto result = progressive::generateOneTimeKeys(g_olmAccount, jCount);
+    auto result = pcp::generateOneTimeKeys(g_olmAccount, jCount);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeOlmSignMessage)(JNIEnv* env, jclass, jstring jMessage) {
-    auto result = progressive::accountSign(g_olmAccount, jStr(env, jMessage));
+    auto result = pcp::accountSign(g_olmAccount, jStr(env, jMessage));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeVerifyDeviceSignature)(JNIEnv* env, jclass, jstring jDeviceKeysJson, jstring jUserId, jstring jDeviceId, jstring jSignKeyB64, jstring jSignatureB64) {
-    return progressive::verifyDeviceSignature(jStr(env, jDeviceKeysJson), jStr(env, jUserId),
+    return pcp::verifyDeviceSignature(jStr(env, jDeviceKeysJson), jStr(env, jUserId),
         jStr(env, jDeviceId), jStr(env, jSignKeyB64), jStr(env, jSignatureB64)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeComputeDeviceFingerprint)(JNIEnv* env, jclass, jstring jIdentityKeyB64) {
-    auto result = progressive::computeDeviceFingerprint(jStr(env, jIdentityKeyB64));
+    auto result = pcp::computeDeviceFingerprint(jStr(env, jIdentityKeyB64));
     return env->NewStringUTF(result.c_str());
 }
 
 // SAS Emoji Verification
-static progressive::SasVerification g_sas;
+static pcp::SasVerification g_sas;
 
 JNI_FUNC(jstring, nativeSasCreate)(JNIEnv* env, jclass) {
-    g_sas = progressive::sasCreate();
+    g_sas = pcp::sasCreate();
     return env->NewStringUTF(g_sas.ourPubkey.c_str());
 }
 
 JNI_FUNC(jboolean, nativeSasSetTheirKey)(JNIEnv* env, jclass, jstring jTheirPubkey) {
-    return progressive::sasSetTheirKey(g_sas, jStr(env, jTheirPubkey)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::sasSetTheirKey(g_sas, jStr(env, jTheirPubkey)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeSasGetEmojis)(JNIEnv* env, jclass) {
-    auto result = progressive::sasGetEmojis(g_sas);
+    auto result = pcp::sasGetEmojis(g_sas);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeSasCalculateMac)(JNIEnv* env, jclass, jstring jInput, jstring jInfo) {
-    auto result = progressive::sasCalculateMac(g_sas, jStr(env, jInput), jStr(env, jInfo));
+    auto result = pcp::sasCalculateMac(g_sas, jStr(env, jInput), jStr(env, jInfo));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jboolean, nativeSasVerifyMac)(JNIEnv* env, jclass, jstring jTheirMac, jstring jInput, jstring jInfo) {
-    return progressive::sasVerifyMac(g_sas, jStr(env, jTheirMac), jStr(env, jInput), jStr(env, jInfo)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::sasVerifyMac(g_sas, jStr(env, jTheirMac), jStr(env, jInput), jStr(env, jInfo)) ? JNI_TRUE : JNI_FALSE;
 }
 
 // --- Megolm Decryptor ---
-static progressive::MegolmSessionManager g_megolmManager;
+static pcp::MegolmSessionManager g_megolmManager;
 
 JNI_FUNC(jboolean, nativeMegolmAddSession)(JNIEnv* env, jclass, jstring jRoom, jstring jSenderKey, jstring jSessionId, jstring jSessionKey) {
     return g_megolmManager.addSession(jStr(env, jRoom), jStr(env, jSenderKey),
@@ -2768,7 +2768,7 @@ JNI_FUNC(jstring, nativeMegolmDecrypt)(JNIEnv* env, jclass, jstring jRoom, jstri
     auto room = jStr(env, jRoom); auto sk = jStr(env, jSenderKey); auto sid = jStr(env, jSessionId);
     auto* session = g_megolmManager.findSession(room, sk, sid);
     if (!session) return env->NewStringUTF("");
-    auto result = progressive::megolmDecrypt(*session, jStr(env, jCiphertext));
+    auto result = pcp::megolmDecrypt(*session, jStr(env, jCiphertext));
     return env->NewStringUTF(result.c_str());
 }
 
@@ -2781,13 +2781,13 @@ JNI_FUNC(void, nativeMegolmClearRoom)(JNIEnv* env, jclass, jstring jRoom) {
 }
 
 JNI_FUNC(jint, nativeTimelineChunkCount)(JNIEnv* env, jclass, jstring jRoom) {
-    static std::unordered_map<std::string, progressive::TimelineChunkManager> managers;
+    static std::unordered_map<std::string, pcp::TimelineChunkManager> managers;
     auto room = jStr(env, jRoom);
     auto it = managers.find(room);
     return it != managers.end() ? it->second.chunkCount() : 0;
 }
 JNI_FUNC(jstring, nativeTimelineGetSnapshot)(JNIEnv* env, jclass, jstring jRoom, jint jLimit, jint jOffset) {
-    static std::unordered_map<std::string, progressive::TimelineChunkManager> managers;
+    static std::unordered_map<std::string, pcp::TimelineChunkManager> managers;
     auto room = jStr(env, jRoom);
     auto it = managers.find(room);
     if (it == managers.end()) return env->NewStringUTF("[]");
@@ -2803,22 +2803,22 @@ JNI_FUNC(jstring, nativeTimelineGetSnapshot)(JNIEnv* env, jclass, jstring jRoom,
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jint, nativeTimelineEventsAvailable)(JNIEnv* env, jclass, jstring jRoom, jint jDir) {
-    static std::unordered_map<std::string, progressive::TimelineChunkManager> managers;
+    static std::unordered_map<std::string, pcp::TimelineChunkManager> managers;
     auto room = jStr(env, jRoom);
     auto it = managers.find(room);
     if (it == managers.end()) return 0;
-    auto dir = jDir == 0 ? progressive::TimelineDirection::FORWARDS : progressive::TimelineDirection::BACKWARDS;
+    auto dir = jDir == 0 ? pcp::TimelineDirection::FORWARDS : pcp::TimelineDirection::BACKWARDS;
     return it->second.eventsAvailable(dir);
 }
 JNI_FUNC(jint, nativeTimelineAddSyncEvent)(JNIEnv* env, jclass, jstring jRoom, jstring jEventId, jstring jType, jstring jSenderId, jstring jContentJson, jlong jOriginTs, jint jDi, jstring jStateKey, jstring jRedacts, jstring jRelType, jstring jRelatesToId) {
-    static std::unordered_map<std::string, progressive::TimelineChunkManager> managers;
+    static std::unordered_map<std::string, pcp::TimelineChunkManager> managers;
     auto room = jStr(env, jRoom);
     auto it = managers.find(room);
     if (it == managers.end()) {
         managers.emplace(std::piecewise_construct, std::forward_as_tuple(room), std::forward_as_tuple(room));
         it = managers.find(room);
     }
-    progressive::TimelineEventData ev;
+    pcp::TimelineEventData ev;
     ev.eventId = jStr(env, jEventId);
     ev.roomId = room;
     ev.type = jStr(env, jType);
@@ -2834,8 +2834,8 @@ JNI_FUNC(jint, nativeTimelineAddSyncEvent)(JNIEnv* env, jclass, jstring jRoom, j
     return it->second.addLiveEvent(ev);
 }
 JNI_FUNC(jboolean, nativeTimelineAttachDb)(JNIEnv* env, jclass, jstring jRoom, jstring jDbKey) {
-    static std::unordered_map<std::string, progressive::TimelineChunkManager> managers;
-    static std::unordered_map<std::string, std::unique_ptr<progressive::SqliteDB>> g_sqliteDbs;
+    static std::unordered_map<std::string, pcp::TimelineChunkManager> managers;
+    static std::unordered_map<std::string, std::unique_ptr<pcp::SqliteDB>> g_sqliteDbs;
     auto room = jStr(env, jRoom);
     auto dbKey = jStr(env, jDbKey);
     auto dbit = g_sqliteDbs.find(dbKey);
@@ -2862,7 +2862,7 @@ JNI_FUNC(jstring, nativeExtractNextBatchLight)(JNIEnv* env, jclass, jstring jPar
     return env->NewStringUTF(json.substr(pos, end - pos).c_str());
 }
 JNI_FUNC(jstring, nativeListRoomWidgets)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto widgets = progressive::listRoomWidgets(jStr(env, jStateJson));
+    auto widgets = pcp::listRoomWidgets(jStr(env, jStateJson));
     std::ostringstream os; os << "[";
     for (size_t i = 0; i < widgets.size(); i++) {
         if (i > 0) os << ",";
@@ -2875,50 +2875,50 @@ JNI_FUNC(jstring, nativeListRoomWidgets)(JNIEnv* env, jclass, jstring jStateJson
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeMarkdownToHtml)(JNIEnv* env, jclass, jstring jMarkdown, jboolean jTables, jboolean jLinks, jboolean jCode, jboolean jScroll) {
-    progressive::MdConfig config;
+    pcp::MdConfig config;
     config.enableTables = jTables;
     config.enableLinks = jLinks;
     config.enableCodeBlocks = jCode;
     config.enableHorizontalScroll = jScroll;
     config.enableImages = false;
-    auto result = progressive::markdownToHtml(jStr(env, jMarkdown), config);
+    auto result = pcp::markdownToHtml(jStr(env, jMarkdown), config);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildSyncFilter)(JNIEnv* env, jclass, jboolean jThreads, jboolean jPresence, jint jTimelineLimit, jboolean jLazyLoad) {
-    progressive::SyncFilter filter;
+    pcp::SyncFilter filter;
     filter.includeThreads = jThreads;
     filter.includePresence = jPresence;
     filter.timelineLimit = jTimelineLimit;
     filter.lazyLoadMembers = jLazyLoad;
-    auto result = progressive::buildSyncFilter(filter);
+    auto result = pcp::buildSyncFilter(filter);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeValidateAndFormatRecoveryKey)(JNIEnv* env, jclass, jstring jRawKey) {
-    auto result = progressive::validateAndFormatRecoveryKey(jStr(env, jRawKey));
+    auto result = pcp::validateAndFormatRecoveryKey(jStr(env, jRawKey));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatMemberNotice)(JNIEnv* env, jclass, jstring jMembership, jstring jPrevMembership, jstring jSenderId, jstring jSenderName, jstring jTargetId, jstring jTargetName, jstring jReason, jboolean jDirect, jboolean jSelf) {
-    auto result = progressive::formatMemberNotice(jStr(env, jMembership), jStr(env, jPrevMembership), jStr(env, jSenderId), jStr(env, jSenderName), jStr(env, jTargetId), jStr(env, jTargetName), jStr(env, jReason), jDirect, jSelf);
+    auto result = pcp::formatMemberNotice(jStr(env, jMembership), jStr(env, jPrevMembership), jStr(env, jSenderId), jStr(env, jSenderName), jStr(env, jTargetId), jStr(env, jTargetName), jStr(env, jReason), jDirect, jSelf);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatCallNotice)(JNIEnv* env, jclass, jstring jEventType, jboolean jVideo, jstring jSender, jboolean jSelf) {
-    auto result = progressive::formatCallNotice(jStr(env, jEventType), jVideo, jStr(env, jSender), jSelf);
+    auto result = pcp::formatCallNotice(jStr(env, jEventType), jVideo, jStr(env, jSender), jSelf);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeAnnotateEdited)(JNIEnv* env, jclass, jstring jBody, jboolean jEdited) {
-    auto result = progressive::annotateEdited(jStr(env, jBody), jEdited);
+    auto result = pcp::annotateEdited(jStr(env, jBody), jEdited);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeWidgetMgrInit)(JNIEnv* env, jclass, jstring jRoomId, jstring jUserId,
                                          jstring jDisplayName, jstring jAvatarUrl) {
-    g_widgetMgr.reset(new progressive::WidgetManager(
+    g_widgetMgr.reset(new pcp::WidgetManager(
         jStr(env, jRoomId), jStr(env, jUserId),
         jStr(env, jDisplayName), jStr(env, jAvatarUrl)));
     return JNI_TRUE;
 }
 JNI_FUNC(jboolean, nativeWidgetMgrSetSecurityPolicy)(JNIEnv* env, jclass, jstring jPolicyJson) {
     auto json = jStr(env, jPolicyJson);
-    auto policy = progressive::defaultWidgetSecurityPolicy();
+    auto policy = pcp::defaultWidgetSecurityPolicy();
     if (json.find("\"enforce_same_origin\":false") != std::string::npos) policy.enforceSameOrigin = false;
     if (json.find("\"allow_data_urls\":true") != std::string::npos) policy.allowDataUrls = true;
     if (json.find("\"allow_blob_urls\":true") != std::string::npos) policy.allowBlobUrls = true;
@@ -2969,18 +2969,18 @@ JNI_FUNC(jstring, nativeWidgetMgrSetMaximized)(JNIEnv* env, jclass, jstring jWid
 JNI_FUNC(jstring, nativeWidgetMgrRequestCapability)(JNIEnv* env, jclass, jstring jWidgetId, jint jCap) {
     std::string error;
     auto result = getWidgetMgr()->requestCapability(jStr(env, jWidgetId),
-        static_cast<progressive::WidgetCapability>(jCap), error);
+        static_cast<pcp::WidgetCapability>(jCap), error);
     if (result.empty()) return env->NewStringUTF(("{\"error\":\"" + error + "\"}").c_str());
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeWidgetMgrApproveCapability)(JNIEnv* env, jclass, jstring jWidgetId, jint jCap) {
     auto result = getWidgetMgr()->approveCapability(jStr(env, jWidgetId),
-        static_cast<progressive::WidgetCapability>(jCap));
+        static_cast<pcp::WidgetCapability>(jCap));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeWidgetMgrDenyCapability)(JNIEnv* env, jclass, jstring jWidgetId, jint jCap) {
     auto result = getWidgetMgr()->denyCapability(jStr(env, jWidgetId),
-        static_cast<progressive::WidgetCapability>(jCap));
+        static_cast<pcp::WidgetCapability>(jCap));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeWidgetMgrGetUrl)(JNIEnv* env, jclass, jstring jWidgetId) {
@@ -3039,7 +3039,7 @@ JNI_FUNC(jstring, nativeBackupParseVersion)(JNIEnv* env, jclass, jstring jJson) 
 }
 JNI_FUNC(jstring, nativeBackupBuildCreateVersion)(JNIEnv* env, jclass, jstring jConfigJson) {
     auto json = jStr(env, jConfigJson);
-    progressive::KeyBackupConfig c;
+    pcp::KeyBackupConfig c;
     c.algorithm = jExtractStr(json, "algorithm");
     if (c.algorithm.empty()) c.algorithm = "m.megolm_backup.v1.curve25519-aes-sha2";
     c.authData = jExtractStr(json, "auth_data");
@@ -3065,7 +3065,7 @@ JNI_FUNC(jstring, nativeBackupExportSession)(JNIEnv* env, jclass, jstring jRoomI
 }
 JNI_FUNC(jstring, nativeBackupEncryptSession)(JNIEnv* env, jclass, jstring jSessionJson, jstring jAuthData) {
     auto json = jStr(env, jSessionJson);
-    progressive::MegolmSessionExport s;
+    pcp::MegolmSessionExport s;
     s.roomId = jExtractStr(json, "room_id");
     s.senderKey = jExtractStr(json, "sender_key");
     s.sessionId = jExtractStr(json, "session_id");
@@ -3120,89 +3120,89 @@ JNI_FUNC(void, nativeBackupAdvanceDownloaded)(JNIEnv* env, jclass) { getBackupMg
 JNI_FUNC(void, nativeBackupAdvanceDecrypted)(JNIEnv* env, jclass) { getBackupMgr()->advanceDecrypted(1); }
 JNI_FUNC(void, nativeBackupAdvanceImported)(JNIEnv* env, jclass) { getBackupMgr()->advanceImported(1); }
 JNI_FUNC(void, nativeBackupMarkComplete)(JNIEnv* env, jclass) { getBackupMgr()->markComplete(); }
-JNI_FUNC(void, nativeBackupReset)(JNIEnv* env, jclass) { g_backupMgr.reset(new progressive::KeyBackupManager()); }
+JNI_FUNC(void, nativeBackupReset)(JNIEnv* env, jclass) { g_backupMgr.reset(new pcp::KeyBackupManager()); }
 JNI_FUNC(jstring, nativeExtractHtmlTitle)(JNIEnv* env, jclass, jstring jHtml) {
-    auto result = progressive::extractHtmlTitle(jStr(env, jHtml));
+    auto result = pcp::extractHtmlTitle(jStr(env, jHtml));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeExtractMetaDescription)(JNIEnv* env, jclass, jstring jHtml) {
-    auto result = progressive::extractMetaDescription(jStr(env, jHtml));
+    auto result = pcp::extractMetaDescription(jStr(env, jHtml));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeResolveUrl)(JNIEnv* env, jclass, jstring jBase, jstring jRel) {
-    auto result = progressive::resolveUrl(jStr(env, jBase), jStr(env, jRel));
+    auto result = pcp::resolveUrl(jStr(env, jBase), jStr(env, jRel));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeUrlPreviewToJson)(JNIEnv* env, jclass, jstring jPreviewJson) {
     auto json = jStr(env, jPreviewJson);
-    progressive::UrlPreview p;
+    pcp::UrlPreview p;
     p.url = jExtractStr(json, "url"); p.title = jExtractStr(json, "title"); p.description = jExtractStr(json, "description");
     p.imageUrl = jExtractStr(json, "image_url"); p.siteName = jExtractStr(json, "site_name"); p.type = jExtractStr(json, "type");
     p.imageWidth = jExtractInt(json, "image_width"); p.imageHeight = jExtractInt(json, "image_height");
     p.hasImage = jExtractBool(json, "has_image");
     p.hasTitle = jExtractBool(json, "has_title");
     p.valid = jExtractBool(json, "valid");
-    auto result = progressive::urlPreviewToJson(p);
+    auto result = pcp::urlPreviewToJson(p);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildSearxngUrl)(JNIEnv* env, jclass, jstring jEndpoint, jstring jQuery, jint jMax) {
-    auto result = progressive::buildSearxngUrl(jStr(env, jEndpoint), jStr(env, jQuery), jMax);
+    auto result = pcp::buildSearxngUrl(jStr(env, jEndpoint), jStr(env, jQuery), jMax);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildDuckDuckGoUrl)(JNIEnv* env, jclass, jstring jQuery) {
-    auto result = progressive::buildDuckDuckGoUrl(jStr(env, jQuery));
+    auto result = pcp::buildDuckDuckGoUrl(jStr(env, jQuery));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildGoogleUrl)(JNIEnv* env, jclass, jstring jApiKey, jstring jEngineId, jstring jQuery, jint jMax) {
-    auto result = progressive::buildGoogleUrl(jStr(env, jApiKey), jStr(env, jEngineId), jStr(env, jQuery), jMax);
+    auto result = pcp::buildGoogleUrl(jStr(env, jApiKey), jStr(env, jEngineId), jStr(env, jQuery), jMax);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatFingerprint)(JNIEnv* env, jclass, jstring jFingerprint) {
-    auto result = progressive::formatFingerprint(jStr(env, jFingerprint));
+    auto result = pcp::formatFingerprint(jStr(env, jFingerprint));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsDeviceInactive)(JNIEnv* env, jclass, jlong jLastSeenMs) {
-    return progressive::isDeviceInactive(jLastSeenMs) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isDeviceInactive(jLastSeenMs) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeSatisfiesMinVersion)(JNIEnv* env, jclass, jstring jCurrent, jstring jMinimum) {
-    return progressive::satisfiesMinVersion(jStr(env, jCurrent), jStr(env, jMinimum)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::satisfiesMinVersion(jStr(env, jCurrent), jStr(env, jMinimum)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeParseFederationVersion)(JNIEnv* env, jclass, jstring jJson) {
-    auto version = progressive::parseFederationVersion(jStr(env, jJson));
+    auto version = pcp::parseFederationVersion(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"name":")" << version.name
        << R"(","version":")" << version.version << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jboolean, nativeIsValidReportReason)(JNIEnv* env, jclass, jstring jReason) {
-    return progressive::isValidReportReason(jStr(env, jReason)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidReportReason(jStr(env, jReason)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeGetReasonDescription)(JNIEnv* env, jclass, jstring jCode) {
-    auto result = progressive::getReasonDescription(jStr(env, jCode));
+    auto result = pcp::getReasonDescription(jStr(env, jCode));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeExtractDefaultSecretKey)(JNIEnv* env, jclass, jstring jAccountDataJson) {
-    auto result = progressive::extractDefaultSecretKey(jStr(env, jAccountDataJson));
+    auto result = pcp::extractDefaultSecretKey(jStr(env, jAccountDataJson));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeHasCrossSigningSecrets)(JNIEnv* env, jclass, jstring jAccountDataJson) {
-    return progressive::hasCrossSigningSecrets(jStr(env, jAccountDataJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::hasCrossSigningSecrets(jStr(env, jAccountDataJson)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsOffensive)(JNIEnv* env, jclass, jint jScore) {
-    return progressive::isOffensive(jScore) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isOffensive(jScore) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeTruncateReportDescription)(JNIEnv* env, jclass, jstring jDesc, jint jMax) {
-    auto result = progressive::truncateReportDescription(jStr(env, jDesc), jMax);
+    auto result = pcp::truncateReportDescription(jStr(env, jDesc), jMax);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsContentScannerAvailable)(JNIEnv* env, jclass, jstring jCapabilitiesJson) {
-    return progressive::isContentScannerAvailable(jStr(env, jCapabilitiesJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isContentScannerAvailable(jStr(env, jCapabilitiesJson)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsPasswordError)(JNIEnv* env, jclass, jstring jErrorCode) {
-    return progressive::isPasswordError(jStr(env, jErrorCode)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isPasswordError(jStr(env, jErrorCode)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeGetAllErrorCodes)(JNIEnv* env, jclass) {
-    auto codes = progressive::getAllErrorCodes();
+    auto codes = pcp::getAllErrorCodes();
     std::ostringstream os; os << "[";
     for (size_t i = 0; i < codes.size(); i++) {
         if (i > 0) os << ",";
@@ -3212,102 +3212,102 @@ JNI_FUNC(jstring, nativeGetAllErrorCodes)(JNIEnv* env, jclass) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeBuildCallInviteContent)(JNIEnv* env, jclass, jstring jCallId, jboolean jVideo, jstring jSdp, jint jLifetime) {
-    auto result = progressive::buildCallInviteContent(jStr(env, jCallId), jVideo, jStr(env, jSdp), jLifetime);
+    auto result = pcp::buildCallInviteContent(jStr(env, jCallId), jVideo, jStr(env, jSdp), jLifetime);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildCallAnswerContent)(JNIEnv* env, jclass, jstring jCallId, jstring jSdp) {
-    auto result = progressive::buildCallAnswerContent(jStr(env, jCallId), jStr(env, jSdp));
+    auto result = pcp::buildCallAnswerContent(jStr(env, jCallId), jStr(env, jSdp));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeGetCallState)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto result = progressive::getCallState(jStr(env, jContentJson));
+    auto result = pcp::getCallState(jStr(env, jContentJson));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsPublicRoom)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto rules = progressive::parseRoomJoinRulesContent(jStr(env, jStateJson));
-    return progressive::isPublicRoom(rules) ? JNI_TRUE : JNI_FALSE;
+    auto rules = pcp::parseRoomJoinRulesContent(jStr(env, jStateJson));
+    return pcp::isPublicRoom(rules) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsInviteOnly)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto rules = progressive::parseRoomJoinRulesContent(jStr(env, jStateJson));
-    return progressive::isInviteOnly(rules) ? JNI_TRUE : JNI_FALSE;
+    auto rules = pcp::parseRoomJoinRulesContent(jStr(env, jStateJson));
+    return pcp::isInviteOnly(rules) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeJoinRuleToString)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto rules = progressive::parseRoomJoinRulesContent(jStr(env, jStateJson));
-    auto result = progressive::roomJoinRulesToString(rules.joinRules);
+    auto rules = pcp::parseRoomJoinRulesContent(jStr(env, jStateJson));
+    auto result = pcp::roomJoinRulesToString(rules.joinRules);
     return env->NewStringUTF(result);
 }
 JNI_FUNC(jboolean, nativeIsHistoryPubliclyVisible)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto vis = progressive::parseRoomHistoryVisibilityContent(jStr(env, jStateJson));
-    return progressive::isHistoryPubliclyVisible(vis) ? JNI_TRUE : JNI_FALSE;
+    auto vis = pcp::parseRoomHistoryVisibilityContent(jStr(env, jStateJson));
+    return pcp::isHistoryPubliclyVisible(vis) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeHistoryVisibilityToString)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto vis = progressive::parseRoomHistoryVisibilityContent(jStr(env, jStateJson));
-    auto result = progressive::roomHistoryVisibilityToString(vis.historyVisibility);
+    auto vis = pcp::parseRoomHistoryVisibilityContent(jStr(env, jStateJson));
+    auto result = pcp::roomHistoryVisibilityToString(vis.historyVisibility);
     return env->NewStringUTF(result);
 }
 JNI_FUNC(jboolean, nativeAreGuestsAllowed)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto access = progressive::parseRoomGuestAccessContent(jStr(env, jStateJson));
-    return progressive::areGuestsAllowed(access) ? JNI_TRUE : JNI_FALSE;
+    auto access = pcp::parseRoomGuestAccessContent(jStr(env, jStateJson));
+    return pcp::areGuestsAllowed(access) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsRoomUpgraded)(JNIEnv* env, jclass, jstring jStateJson) {
-    auto tombstone = progressive::parseRoomTombstoneContent(jStr(env, jStateJson));
+    auto tombstone = pcp::parseRoomTombstoneContent(jStr(env, jStateJson));
     return !tombstone.replacementRoomId.empty() ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsUserId)(JNIEnv* env, jclass, jstring jInput) {
-    return progressive::isUserId(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isUserId(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsRoomId)(JNIEnv* env, jclass, jstring jInput) {
-    return progressive::isRoomId(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isRoomId(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsRoomAlias)(JNIEnv* env, jclass, jstring jInput) {
-    return progressive::isRoomAlias(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isRoomAlias(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsEventId)(JNIEnv* env, jclass, jstring jInput) {
-    return progressive::isEventId(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isEventId(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsMxcUrl)(JNIEnv* env, jclass, jstring jUrl) {
-    return progressive::isMxcUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isMxcUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsPhoneNumber)(JNIEnv* env, jclass, jstring jInput) {
-    return progressive::isPhoneNumber(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isPhoneNumber(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsValidEmail)(JNIEnv* env, jclass, jstring jInput) {
-    return progressive::isValidEmail(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidEmail(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeExtractServerNameFromId)(JNIEnv* env, jclass, jstring jMxid) {
-    auto result = progressive::extractServerNameFromId(jStr(env, jMxid));
+    auto result = pcp::extractServerNameFromId(jStr(env, jMxid));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeExtractUserNameFromId)(JNIEnv* env, jclass, jstring jMxid) {
-    auto result = progressive::extractUserNameFromId(jStr(env, jMxid));
+    auto result = pcp::extractUserNameFromId(jStr(env, jMxid));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeCandidateAliasFromRoomName)(JNIEnv* env, jclass, jstring jName, jstring jDomain, jint jMaxLen) {
-    auto result = progressive::candidateAliasFromRoomName(jStr(env, jName), jStr(env, jDomain), jMaxLen);
+    auto result = pcp::candidateAliasFromRoomName(jStr(env, jName), jStr(env, jDomain), jMaxLen);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildSessionRenameBody)(JNIEnv* env, jclass, jstring jSessionId, jstring jNewName) {
-    auto result = progressive::buildSessionRenameBody(jStr(env, jSessionId), jStr(env, jNewName));
+    auto result = pcp::buildSessionRenameBody(jStr(env, jSessionId), jStr(env, jNewName));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsMatrixToPermalink)(JNIEnv* env, jclass, jstring jUrl) {
-    return progressive::isMatrixToPermalink(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isMatrixToPermalink(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsAppPermalink)(JNIEnv* env, jclass, jstring jUrl) {
-    return progressive::isAppPermalink(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isAppPermalink(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsValidOrderString)(JNIEnv* env, jclass, jstring jOrder) {
-    return progressive::isValidOrderString(jStr(env, jOrder)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidOrderString(jStr(env, jOrder)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsGroupId)(JNIEnv* env, jclass, jstring jInput) {
-    return progressive::isGroupId(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isGroupId(jStr(env, jInput)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeParseDeviceName)(JNIEnv* env, jclass, jstring jUserAgent) {
-    auto result = progressive::parseDeviceName(jStr(env, jUserAgent));
+    auto result = pcp::parseDeviceName(jStr(env, jUserAgent));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeExtractMatrixIds)(JNIEnv* env, jclass, jstring jText) {
-    auto ids = progressive::extractMatrixIds(jStr(env, jText));
+    auto ids = pcp::extractMatrixIds(jStr(env, jText));
     std::ostringstream os; os << R"({"user_ids":[)";
     for (size_t i = 0; i < ids.userIds.size(); i++) {
         if (i > 0) os << ","; os << R"(")" << ids.userIds[i] << R"(")";
@@ -3328,7 +3328,7 @@ JNI_FUNC(jstring, nativeExtractMatrixIds)(JNIEnv* env, jclass, jstring jText) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParseMatrixToPermalink)(JNIEnv* env, jclass, jstring jUrl) {
-    auto info = progressive::parseMatrixToPermalink(jStr(env, jUrl));
+    auto info = pcp::parseMatrixToPermalink(jStr(env, jUrl));
     std::ostringstream os;
     os << R"({"type":")" << info.type
        << R"(","user_id":")" << info.userId
@@ -3338,7 +3338,7 @@ JNI_FUNC(jstring, nativeParseMatrixToPermalink)(JNIEnv* env, jclass, jstring jUr
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParseLoginFlowsList)(JNIEnv* env, jclass, jstring jJson) {
-    auto flows = progressive::parseLoginFlowsList(jStr(env, jJson));
+    auto flows = pcp::parseLoginFlowsList(jStr(env, jJson));
     std::ostringstream os; os << "[";
     for (size_t i = 0; i < flows.size(); i++) {
         if (i > 0) os << ",";
@@ -3350,108 +3350,108 @@ JNI_FUNC(jstring, nativeParseLoginFlowsList)(JNIEnv* env, jclass, jstring jJson)
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeBuildUserIdentifier)(JNIEnv* env, jclass, jstring jUserId) {
-    auto result = progressive::buildUserIdentifier(jStr(env, jUserId));
+    auto result = pcp::buildUserIdentifier(jStr(env, jUserId));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsNotifModeDifferent)(JNIEnv* env, jclass, jstring jOld, jstring jNew) {
-    auto parse = [](const std::string& s) -> progressive::NotifMode {
-        if (s == "all") return progressive::NotifMode::All;
-        if (s == "mentions") return progressive::NotifMode::Mentions;
-        if (s == "none") return progressive::NotifMode::None;
-        return progressive::NotifMode::Default;
+    auto parse = [](const std::string& s) -> pcp::NotifMode {
+        if (s == "all") return pcp::NotifMode::All;
+        if (s == "mentions") return pcp::NotifMode::Mentions;
+        if (s == "none") return pcp::NotifMode::None;
+        return pcp::NotifMode::Default;
     };
-    return progressive::isNotifModeDifferent(parse(jStr(env, jOld)), parse(jStr(env, jNew))) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isNotifModeDifferent(parse(jStr(env, jOld)), parse(jStr(env, jNew))) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeGetDefaultModeForRoom)(JNIEnv* env, jclass, jboolean jDirect, jboolean jEncrypted) {
-    auto mode = progressive::getDefaultModeForRoom(jDirect, jEncrypted);
+    auto mode = pcp::getDefaultModeForRoom(jDirect, jEncrypted);
     const char* s = "default";
-    if (mode == progressive::NotifMode::All) s = "all";
-    else if (mode == progressive::NotifMode::Mentions) s = "mentions";
-    else if (mode == progressive::NotifMode::None) s = "none";
+    if (mode == pcp::NotifMode::All) s = "all";
+    else if (mode == pcp::NotifMode::Mentions) s = "mentions";
+    else if (mode == pcp::NotifMode::None) s = "none";
     return env->NewStringUTF(s);
 }
 JNI_FUNC(jboolean, nativeMeetsMinimumRequirements)(JNIEnv* env, jclass, jstring jPassword) {
-    return progressive::meetsMinimumRequirements(jStr(env, jPassword)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::meetsMinimumRequirements(jStr(env, jPassword)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jint, nativeCountCharClasses)(JNIEnv* env, jclass, jstring jPassword) {
-    return progressive::countCharClasses(jStr(env, jPassword));
+    return pcp::countCharClasses(jStr(env, jPassword));
 }
 JNI_FUNC(jboolean, nativeIsCommonPassword)(JNIEnv* env, jclass, jstring jPassword) {
-    return progressive::isCommonPassword(jStr(env, jPassword)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isCommonPassword(jStr(env, jPassword)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeBuildSsoLoginUrl)(JNIEnv* env, jclass, jstring jBaseUrl, jstring jRedirectUrl) {
-    auto result = progressive::buildSsoLoginUrl(jStr(env, jBaseUrl), jStr(env, jRedirectUrl));
+    auto result = pcp::buildSsoLoginUrl(jStr(env, jBaseUrl), jStr(env, jRedirectUrl));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeGetSsoProviderBrand)(JNIEnv* env, jclass, jstring jProvider) {
-    auto result = progressive::getSsoProviderBrand(jStr(env, jProvider));
+    auto result = pcp::getSsoProviderBrand(jStr(env, jProvider));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeGetTrustLabel)(JNIEnv* env, jclass, jstring jLevel) {
     auto s = jStr(env, jLevel);
-    progressive::TrustLevel level = progressive::TrustLevel::Unknown;
-    if (s == "verified") level = progressive::TrustLevel::Verified;
-    else if (s == "warning") level = progressive::TrustLevel::Warning;
-    else if (s == "blacklisted") level = progressive::TrustLevel::Blacklisted;
-    auto result = progressive::getTrustLabel(level);
+    pcp::TrustLevel level = pcp::TrustLevel::Unknown;
+    if (s == "verified") level = pcp::TrustLevel::Verified;
+    else if (s == "warning") level = pcp::TrustLevel::Warning;
+    else if (s == "blacklisted") level = pcp::TrustLevel::Blacklisted;
+    auto result = pcp::getTrustLabel(level);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsMxcUri)(JNIEnv* env, jclass, jstring jUrl) {
-    return progressive::isMxcUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isMxcUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeExtractMxcServerName)(JNIEnv* env, jclass, jstring jMxcUrl) {
-    auto result = progressive::extractServerNameFromId(jStr(env, jMxcUrl));
+    auto result = pcp::extractServerNameFromId(jStr(env, jMxcUrl));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeExtractMxcMediaId)(JNIEnv* env, jclass, jstring jMxcUrl) {
-    auto result = progressive::extractMxcMediaId(jStr(env, jMxcUrl));
+    auto result = pcp::extractMxcMediaId(jStr(env, jMxcUrl));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildMxcUri)(JNIEnv* env, jclass, jstring jServer, jstring jMediaId) {
-    auto result = progressive::buildMxcUri(jStr(env, jServer), jStr(env, jMediaId));
+    auto result = pcp::buildMxcUri(jStr(env, jServer), jStr(env, jMediaId));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeResolveMxcDownloadUrl)(JNIEnv* env, jclass, jstring jMxcUrl, jstring jHomeServer) {
-    auto result = progressive::resolveMxcDownloadUrl(jStr(env, jMxcUrl), jStr(env, jHomeServer));
+    auto result = pcp::resolveMxcDownloadUrl(jStr(env, jMxcUrl), jStr(env, jHomeServer));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeHasTextWithImage)(JNIEnv* env, jclass, jstring jContentJson) {
-    return progressive::hasTextWithImage(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::hasTextWithImage(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeResolveMxcThumbnailUrl)(JNIEnv* env, jclass, jstring jMxcUrl, jstring jHomeServer, jint jW, jint jH) {
-    auto result = progressive::resolveMxcThumbnailUrl(jStr(env, jMxcUrl), jStr(env, jHomeServer), jW, jH);
+    auto result = pcp::resolveMxcThumbnailUrl(jStr(env, jMxcUrl), jStr(env, jHomeServer), jW, jH);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeGetExtensionFromMimeType)(JNIEnv* env, jclass, jstring jMime) {
-    auto result = progressive::getExtensionFromMimeType(jStr(env, jMime));
+    auto result = pcp::getExtensionFromMimeType(jStr(env, jMime));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeExtractUsefulTextFromReply)(JNIEnv* env, jclass, jstring jRepliedBody) {
-    auto result = progressive::extractUsefulTextFromReply(jStr(env, jRepliedBody));
+    auto result = pcp::extractUsefulTextFromReply(jStr(env, jRepliedBody));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatSpoilerTextFromHtml)(JNIEnv* env, jclass, jstring jHtml) {
-    auto result = progressive::formatSpoilerTextFromHtml(jStr(env, jHtml));
+    auto result = pcp::formatSpoilerTextFromHtml(jStr(env, jHtml));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeGetLatestEditEventId)(JNIEnv* env, jclass, jstring jEditSummaryJson, jstring jOriginalEventId) {
-    auto result = progressive::getLatestEditEventId(jStr(env, jEditSummaryJson), jStr(env, jOriginalEventId));
+    auto result = pcp::getLatestEditEventId(jStr(env, jEditSummaryJson), jStr(env, jOriginalEventId));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeGetEditedTargetEventId)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto result = progressive::getEditedTargetEventId(jStr(env, jContentJson));
+    auto result = pcp::getEditedTargetEventId(jStr(env, jContentJson));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildUserStatusJson)(JNIEnv* env, jclass, jstring jStatus, jstring jEmoji, jlong jNowMs) {
-    auto result = progressive::buildUserStatusJson(jStr(env, jStatus), jStr(env, jEmoji), jNowMs);
+    auto result = pcp::buildUserStatusJson(jStr(env, jStatus), jStr(env, jEmoji), jNowMs);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeGetPresenceStatusText)(JNIEnv* env, jclass, jboolean jOnline, jlong jLastActiveMs) {
-    auto result = progressive::getPresenceStatusText(jOnline, jLastActiveMs);
+    auto result = pcp::getPresenceStatusText(jOnline, jLastActiveMs);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeGetStatusSuggestions)(JNIEnv* env, jclass) {
-    auto suggestions = progressive::getStatusSuggestions();
+    auto suggestions = pcp::getStatusSuggestions();
     std::ostringstream os; os << "[";
     for (size_t i = 0; i < suggestions.size(); i++) {
         if (i > 0) os << ",";
@@ -3461,128 +3461,128 @@ JNI_FUNC(jstring, nativeGetStatusSuggestions)(JNIEnv* env, jclass) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParseMarkdownTable)(JNIEnv* env, jclass, jstring jTableBlock, jboolean jWithScroll) {
-    auto result = progressive::parseMarkdownTable(jStr(env, jTableBlock), jWithScroll);
+    auto result = pcp::parseMarkdownTable(jStr(env, jTableBlock), jWithScroll);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsReply)(JNIEnv* env, jclass, jstring jContentJson) {
-    return progressive::isReply(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isReply(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsEdit)(JNIEnv* env, jclass, jstring jContentJson) {
-    return progressive::isEdit(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isEdit(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsReaction)(JNIEnv* env, jclass, jstring jContentJson) {
-    return progressive::isReaction(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isReaction(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsThreadRoot)(JNIEnv* env, jclass, jstring jContentJson) {
-    return progressive::isThreadRoot(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isThreadRoot(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeExtractThreadRoot)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto result = progressive::extractThreadRoot(jStr(env, jContentJson));
+    auto result = pcp::extractThreadRoot(jStr(env, jContentJson));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeExtractReplySource)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto result = progressive::extractReplySource(jStr(env, jContentJson));
+    auto result = pcp::extractReplySource(jStr(env, jContentJson));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeExtractEditSource)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto result = progressive::extractEditSource(jStr(env, jContentJson));
+    auto result = pcp::extractEditSource(jStr(env, jContentJson));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildReplyRelationWithThread)(JNIEnv* env, jclass, jstring jEventId, jstring jThreadRoot) {
-    auto result = progressive::buildReplyRelationWithThread(jStr(env, jEventId), jStr(env, jThreadRoot));
+    auto result = pcp::buildReplyRelationWithThread(jStr(env, jEventId), jStr(env, jThreadRoot));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeParseRoomNameContent)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto content = progressive::parseRoomNameContent(jStr(env, jContentJson));
+    auto content = pcp::parseRoomNameContent(jStr(env, jContentJson));
     std::ostringstream os;
     os << R"({"name":")" << content.name << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParseRoomTopicContent)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto content = progressive::parseRoomTopicContent(jStr(env, jContentJson));
+    auto content = pcp::parseRoomTopicContent(jStr(env, jContentJson));
     std::ostringstream os;
     os << R"({"topic":")" << content.topic << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParseRoomAvatarContent)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto content = progressive::parseRoomAvatarContent(jStr(env, jContentJson));
+    auto content = pcp::parseRoomAvatarContent(jStr(env, jContentJson));
     std::ostringstream os;
     os << R"({"avatar_url":")" << content.avatarUrl << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeGetBannerColor)(JNIEnv* env, jclass, jlong jDowntimeMs) {
-    auto result = progressive::ConnectionMonitor::getBannerColor(jDowntimeMs);
+    auto result = pcp::ConnectionMonitor::getBannerColor(jDowntimeMs);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jint, nativeCountEmojis)(JNIEnv* env, jclass, jstring jText) {
-    return progressive::countEmojis(jStr(env, jText));
+    return pcp::countEmojis(jStr(env, jText));
 }
 JNI_FUNC(jint, nativeCountUniqueEmojis)(JNIEnv* env, jclass, jstring jText) {
-    return progressive::countUniqueEmojis(jStr(env, jText));
+    return pcp::countUniqueEmojis(jStr(env, jText));
 }
 JNI_FUNC(jstring, nativeFormatMediaCollapseLabel)(JNIEnv* env, jclass, jint jCount) {
-    auto result = progressive::formatMediaCollapseLabel(jCount);
+    auto result = pcp::formatMediaCollapseLabel(jCount);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsEmojiCodePoint)(JNIEnv* env, jclass, jint jCodepoint) {
-    return progressive::isEmojiCodePoint(jCodepoint) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isEmojiCodePoint(jCodepoint) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeNormalizeMimeType)(JNIEnv* env, jclass, jstring jMime) {
-    auto result = progressive::normalizeMimeType(jStr(env, jMime));
+    auto result = pcp::normalizeMimeType(jStr(env, jMime));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeParseJoinRules)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto rules = progressive::parseRoomJoinRulesContent(jStr(env, jContentJson));
+    auto rules = pcp::parseRoomJoinRulesContent(jStr(env, jContentJson));
     std::ostringstream os;
-    os << R"({"rule":")" << progressive::roomJoinRulesToString(rules.joinRules) << "\"}";
+    os << R"({"rule":")" << pcp::roomJoinRulesToString(rules.joinRules) << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParseHistoryVisibility)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto vis = progressive::parseRoomHistoryVisibilityContent(jStr(env, jContentJson));
+    auto vis = pcp::parseRoomHistoryVisibilityContent(jStr(env, jContentJson));
     std::ostringstream os;
-    os << R"({"visibility":")" << progressive::roomHistoryVisibilityToString(vis.historyVisibility) << "\"}";
+    os << R"({"visibility":")" << pcp::roomHistoryVisibilityToString(vis.historyVisibility) << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParseGuestAccess)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto access = progressive::parseRoomGuestAccessContent(jStr(env, jContentJson));
+    auto access = pcp::parseRoomGuestAccessContent(jStr(env, jContentJson));
     std::ostringstream os;
-    os << R"({"access":")" << progressive::guestAccessToString(access.guestAccess) << "\"}";
+    os << R"({"access":")" << pcp::guestAccessToString(access.guestAccess) << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jboolean, nativeIsKnownPushRuleKind)(JNIEnv* env, jclass, jstring jKind) {
-    return progressive::isKnownPushRuleKind(jStr(env, jKind)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isKnownPushRuleKind(jStr(env, jKind)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeGetRuleKindDescription)(JNIEnv* env, jclass, jstring jKind, jboolean jEnabled) {
-    auto result = progressive::getRuleKindDescription(jStr(env, jKind), jEnabled);
+    auto result = pcp::getRuleKindDescription(jStr(env, jKind), jEnabled);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsMsc3061SharedKey)(JNIEnv* env, jclass, jstring jContentJson) {
-    return progressive::isMsc3061SharedKey(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isMsc3061SharedKey(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeFormatMsc3061Status)(JNIEnv* env, jclass, jboolean jShared, jstring jVisibility) {
-    auto result = progressive::formatMsc3061Status(jShared, jStr(env, jVisibility));
+    auto result = pcp::formatMsc3061Status(jShared, jStr(env, jVisibility));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeCanShareHistory)(JNIEnv* env, jclass, jstring jVisibility) {
-    return progressive::canShareHistory(jStr(env, jVisibility)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::canShareHistory(jStr(env, jVisibility)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeGeneratePollOptionId)(JNIEnv* env, jclass) {
-    auto result = progressive::generatePollOptionId();
+    auto result = pcp::generatePollOptionId();
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeDisambiguateName)(JNIEnv* env, jclass, jstring jDisplayName, jstring jMxid) {
-    auto result = progressive::disambiguateName(jStr(env, jDisplayName), jStr(env, jMxid));
+    auto result = pcp::disambiguateName(jStr(env, jDisplayName), jStr(env, jMxid));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeGetIdentityInitials)(JNIEnv* env, jclass, jstring jName) {
-    auto result = progressive::getIdentityInitials(jStr(env, jName));
+    auto result = pcp::getIdentityInitials(jStr(env, jName));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsCanonicalAlias)(JNIEnv* env, jclass, jstring jAlias, jstring jExpectedRoomId) {
-    return progressive::isCanonicalAlias(jStr(env, jAlias), jStr(env, jExpectedRoomId)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isCanonicalAlias(jStr(env, jAlias), jStr(env, jExpectedRoomId)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeSuggestAliases)(JNIEnv* env, jclass, jstring jRoomName) {
-    auto aliases = progressive::suggestAliases(jStr(env, jRoomName));
+    auto aliases = pcp::suggestAliases(jStr(env, jRoomName));
     std::ostringstream os; os << "[";
     for (size_t i = 0; i < aliases.size(); i++) {
         if (i > 0) os << ",";
@@ -3592,52 +3592,52 @@ JNI_FUNC(jstring, nativeSuggestAliases)(JNIEnv* env, jclass, jstring jRoomName) 
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParsePresenceInfo)(JNIEnv* env, jclass, jstring jUserId, jstring jJson) {
-    auto info = progressive::parsePresence(jStr(env, jUserId), jStr(env, jJson));
-    auto line = progressive::formatPresenceLine(info);
+    auto info = pcp::parsePresence(jStr(env, jUserId), jStr(env, jJson));
+    auto line = pcp::formatPresenceLine(info);
     return env->NewStringUTF(line.c_str());
 }
 JNI_FUNC(jstring, nativeParseBackupInfo)(JNIEnv* env, jclass, jstring jJson) {
-    auto info = progressive::parseBackupInfo(jStr(env, jJson));
-    auto result = progressive::formatBackupStats(info);
+    auto info = pcp::parseBackupInfo(jStr(env, jJson));
+    auto result = pcp::formatBackupStats(info);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeParseCrossSigningStatus)(JNIEnv* env, jclass, jstring jJson, jstring jUserId) {
-    auto status = progressive::parseCrossSigningStatus(jStr(env, jJson), jStr(env, jUserId));
-    auto result = progressive::formatCrossSigningStatus(status);
+    auto status = pcp::parseCrossSigningStatus(jStr(env, jJson), jStr(env, jUserId));
+    auto result = pcp::formatCrossSigningStatus(status);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeParseKeyBackupVersion)(JNIEnv* env, jclass, jstring jJson) {
-    auto backup = progressive::parseKeyBackupVersion(jStr(env, jJson));
-    auto result = progressive::keyBackupVersionToJson(backup);
+    auto backup = pcp::parseKeyBackupVersion(jStr(env, jJson));
+    auto result = pcp::keyBackupVersionToJson(backup);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeParseDeviceList)(JNIEnv* env, jclass, jstring jApiResponseJson, jstring jCurrentDeviceId) {
-    auto stats = progressive::parseDeviceList(jStr(env, jApiResponseJson), jStr(env, jCurrentDeviceId));
-    auto result = progressive::deviceListToJson(stats);
+    auto stats = pcp::parseDeviceList(jStr(env, jApiResponseJson), jStr(env, jCurrentDeviceId));
+    auto result = pcp::deviceListToJson(stats);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeComputePermissions)(JNIEnv* env, jclass, jstring jPlJson, jstring jMyUserId) {
-    auto pl = progressive::parseRoomPowerLevels(jStr(env, jPlJson));
-    auto perms = progressive::computePermissions(pl, jStr(env, jMyUserId));
-    auto result = progressive::permissionsToJson(perms);
+    auto pl = pcp::parseRoomPowerLevels(jStr(env, jPlJson));
+    auto perms = pcp::computePermissions(pl, jStr(env, jMyUserId));
+    auto result = pcp::permissionsToJson(perms);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeParseTombstone)(JNIEnv* env, jclass, jstring jJson) {
-    auto tombstone = progressive::parseRoomTombstoneContent(jStr(env, jJson));
-    auto result = progressive::tombstoneContentToJson(tombstone);
+    auto tombstone = pcp::parseRoomTombstoneContent(jStr(env, jJson));
+    auto result = pcp::tombstoneContentToJson(tombstone);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeParseScanResult)(JNIEnv* env, jclass, jstring jJson) {
-    auto result = progressive::parseScanResult(jStr(env, jJson));
-    return env->NewStringUTF(progressive::formatScanResult(result).c_str());
+    auto result = pcp::parseScanResult(jStr(env, jJson));
+    return env->NewStringUTF(pcp::formatScanResult(result).c_str());
 }
 JNI_FUNC(jstring, nativeParseServerNotice)(JNIEnv* env, jclass, jstring jJson, jstring jEventId) {
-    auto notice = progressive::parseServerNoticeEvent(jStr(env, jJson), jStr(env, jEventId));
-    auto result = progressive::formatServerNoticeEvent(notice);
+    auto notice = pcp::parseServerNoticeEvent(jStr(env, jJson), jStr(env, jEventId));
+    auto result = pcp::formatServerNoticeEvent(notice);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeParseMemberList)(JNIEnv* env, jclass, jstring jRoomId, jstring jJson, jboolean jTruncated) {
-    auto list = progressive::parseMemberList(jStr(env, jRoomId), jStr(env, jJson), jTruncated);
+    auto list = pcp::parseMemberList(jStr(env, jRoomId), jStr(env, jJson), jTruncated);
     std::ostringstream os;
     os << R"({"room_id":")" << list.roomId
        << R"(","total":)" << list.totalMembers
@@ -3655,7 +3655,7 @@ JNI_FUNC(jstring, nativeParseMemberList)(JNIEnv* env, jclass, jstring jRoomId, j
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParsePublicRoom)(JNIEnv* env, jclass, jstring jJson) {
-    auto room = progressive::parsePublicRoom(jStr(env, jJson));
+    auto room = pcp::parsePublicRoom(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"room_id":")" << room.roomId
        << R"(","name":")" << room.name
@@ -3666,7 +3666,7 @@ JNI_FUNC(jstring, nativeParsePublicRoom)(JNIEnv* env, jclass, jstring jJson) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParseEventRelation)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto rel = progressive::parseEventRelation(jStr(env, jContentJson));
+    auto rel = pcp::parseEventRelation(jStr(env, jContentJson));
     std::ostringstream os;
     os << R"({"rel_type":")" << rel.relType
        << R"(","event_id":")" << rel.eventId
@@ -3674,7 +3674,7 @@ JNI_FUNC(jstring, nativeParseEventRelation)(JNIEnv* env, jclass, jstring jConten
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeParsePublicRoomsResponse)(JNIEnv* env, jclass, jstring jJson) {
-    auto resp = progressive::parsePublicRoomsResponse(jStr(env, jJson));
+    auto resp = pcp::parsePublicRoomsResponse(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"total":)" << resp.totalRoomCountEstimate
        << R"(,"next_batch":")" << resp.nextBatch
@@ -3689,7 +3689,7 @@ JNI_FUNC(jstring, nativeParsePublicRoomsResponse)(JNIEnv* env, jclass, jstring j
 }
 JNI_FUNC(jstring, nativeComputeThreadSummary)(JNIEnv* env, jclass, jstring jRootEventId, jstring jEventsJson) {
     auto rootId = jStr(env, jRootEventId);
-    progressive::ThreadSummary summary;
+    pcp::ThreadSummary summary;
     summary.rootEventId = rootId;
     summary.replyCount = 0;
     auto json = jStr(env, jEventsJson);
@@ -3699,23 +3699,23 @@ JNI_FUNC(jstring, nativeComputeThreadSummary)(JNIEnv* env, jclass, jstring jRoot
         summary.replyCount++;
         pos++;
     }
-    auto result = progressive::threadSummaryToJson(summary);
+    auto result = pcp::threadSummaryToJson(summary);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatRelationDescription)(JNIEnv* env, jclass, jstring jRelType, jstring jEventId, jstring jKey) {
-    progressive::EventRelationInfo rel;
+    pcp::EventRelationInfo rel;
     rel.relType = jStr(env, jRelType);
     rel.eventId = jStr(env, jEventId);
     rel.key = jStr(env, jKey);
-    auto result = progressive::formatRelationDescription(rel);
+    auto result = pcp::formatRelationDescription(rel);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeBuildScanRequestBody)(JNIEnv* env, jclass, jstring jMxcUri) {
-    auto result = progressive::buildScanRequestBody(jStr(env, jMxcUri));
+    auto result = pcp::buildScanRequestBody(jStr(env, jMxcUri));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeParseEventContent)(JNIEnv* env, jclass, jstring jEventType, jstring jContentJson) {
-    auto content = progressive::parseEventContent(jStr(env, jEventType), jStr(env, jContentJson));
+    auto content = pcp::parseEventContent(jStr(env, jEventType), jStr(env, jContentJson));
     std::ostringstream os;
     os << R"({"event_type":")" << content.eventType
        << R"(","msg_type":")" << content.msgType
@@ -3725,7 +3725,7 @@ JNI_FUNC(jstring, nativeParseEventContent)(JNIEnv* env, jclass, jstring jEventTy
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeCanonicalizeJson)(JNIEnv* env, jclass, jstring jJson) {
-    auto result = progressive::canonicalizeJson(jStr(env, jJson));
+    auto result = pcp::canonicalizeJson(jStr(env, jJson));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(void, nativeUploaderSetChunkSizeMb)(JNIEnv* env, jclass, jint jMb) {
@@ -3747,7 +3747,7 @@ JNI_FUNC(jstring, nativeUploaderGetChunkInfo)(JNIEnv* env, jclass, jint jIndex) 
 }
 JNI_FUNC(jstring, nativeUploaderContentRange)(JNIEnv* env, jclass, jint jIndex) {
     auto chunk = g_uploader.getChunkInfo(jIndex);
-    auto result = progressive::ChunkedUploader::formatContentRange(chunk);
+    auto result = pcp::ChunkedUploader::formatContentRange(chunk);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(void, nativeUploaderAdvance)(JNIEnv* env, jclass) { g_uploader.advanceChunk(); }
@@ -3765,10 +3765,10 @@ JNI_FUNC(jstring, nativeUploaderProgress)(JNIEnv* env, jclass) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jint, nativeSuggestChunkSizeMb)(JNIEnv* env, jclass, jlong jFileSize) {
-    return progressive::ChunkedUploader::suggestChunkSizeMb(jFileSize);
+    return pcp::ChunkedUploader::suggestChunkSizeMb(jFileSize);
 }
 JNI_FUNC(jstring, nativeBuildThreadListJson)(JNIEnv* env, jclass, jstring jEventsJson) {
-    auto result = progressive::buildThreadListJson(jStr(env, jEventsJson));
+    auto result = pcp::buildThreadListJson(jStr(env, jEventsJson));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeComputeThreadUnreadCount)(JNIEnv* env, jclass, jstring jEventIdsJson, jstring jReadReceiptId, jstring jHighlightIdsJson) {
@@ -3787,7 +3787,7 @@ JNI_FUNC(jstring, nativeComputeThreadUnreadCount)(JNIEnv* env, jclass, jstring j
     auto highlightIds = parseStrArray(jStr(env, jHighlightIdsJson));
     auto readId = jStr(env, jReadReceiptId);
 
-    auto result = progressive::computeThreadUnreadCount(eventIds, readId, highlightIds);
+    auto result = pcp::computeThreadUnreadCount(eventIds, readId, highlightIds);
     std::ostringstream os;
     os << R"({"total":)" << result.totalReplies << R"(,"unread":)" << result.unreadReplies
        << R"(,"highlight":)" << result.highlightReplies << R"(,"has_unread":)" << (result.hasUnread ? "true" : "false") << "}";
@@ -3795,11 +3795,11 @@ JNI_FUNC(jstring, nativeComputeThreadUnreadCount)(JNIEnv* env, jclass, jstring j
 }
 JNI_FUNC(jstring, nativeFormatReceiptAccessibility)(JNIEnv* env, jclass, jstring jReceiptsJson, jint jOverflow) {
     auto json = jStr(env, jReceiptsJson);
-    std::vector<progressive::ReceiptEntry> entries;
+    std::vector<pcp::ReceiptEntry> entries;
     // Parse JSON array of {userId, displayName, avatarUrl, timestamp}
     size_t p = 0;
     while ((p = json.find("\"displayName\"", p)) != std::string::npos) {
-        progressive::ReceiptEntry e;
+        pcp::ReceiptEntry e;
         p = json.rfind('{', p); if (p == std::string::npos) break;
         int depth = 1; size_t s = p; p++;
         while (p < json.size() && depth > 0) {
@@ -3812,20 +3812,20 @@ JNI_FUNC(jstring, nativeFormatReceiptAccessibility)(JNIEnv* env, jclass, jstring
         if (dn != std::string::npos) { dn = entryJson.find('"', dn+13); dn++; size_t d=dn; while(d<entryJson.size()&&entryJson[d]!='"')d++; e.displayName=entryJson.substr(dn,d-dn); }
         entries.push_back(e);
     }
-    auto result = progressive::formatReceiptAccessibility(entries, jOverflow);
+    auto result = pcp::formatReceiptAccessibility(entries, jOverflow);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeFormatOverflowLabel)(JNIEnv* env, jclass, jint jCount) {
-    auto result = progressive::formatOverflowLabel(jCount);
+    auto result = pcp::formatOverflowLabel(jCount);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Space Hierarchy ---
 
 JNI_FUNC(jstring, nativeSearchSpaceChildren)(JNIEnv* env, jclass, jstring jChildrenJson, jstring jQuery) {
-    auto children = progressive::parseSpaceChildren(jStr(env, jChildrenJson));
-    auto filtered = progressive::searchSpaceChildren(children, jStr(env, jQuery));
+    auto children = pcp::parseSpaceChildren(jStr(env, jChildrenJson));
+    auto filtered = pcp::searchSpaceChildren(children, jStr(env, jQuery));
     std::ostringstream os; os << "[";
     for (size_t i = 0; i < filtered.size(); i++) {
         if (i > 0) os << ",";
@@ -3839,7 +3839,7 @@ JNI_FUNC(jstring, nativeSearchSpaceChildren)(JNIEnv* env, jclass, jstring jChild
 // --- 3PID Manager ---
 
 JNI_FUNC(jstring, nativeParseThreePid)(JNIEnv* env, jclass, jstring jInput) {
-    auto pid = progressive::parseThreePid(jStr(env, jInput));
+    auto pid = pcp::parseThreePid(jStr(env, jInput));
     std::ostringstream os;
     os << R"({"medium":")" << pid.medium
        << R"(","address":")" << pid.address << "\"}";
@@ -3911,38 +3911,38 @@ JNI_FUNC(jstring, nativeTrackPollResponse)(JNIEnv* env, jclass, jstring jOptionI
 // --- Audio / Voice ---
 
 JNI_FUNC(jboolean, nativeIsSupportedAudioType)(JNIEnv* env, jclass, jstring jMime) {
-    return progressive::isSupportedAudioType(jStr(env, jMime)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isSupportedAudioType(jStr(env, jMime)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeFormatPositionInfo)(JNIEnv* env, jclass, jlong jPos, jlong jDur) {
-    auto result = progressive::formatPositionInfo(jPos, jDur);
+    auto result = pcp::formatPositionInfo(jPos, jDur);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Direct Message Map ---
 
 JNI_FUNC(jstring, nativeParseDirectMessageMap)(JNIEnv* env, jclass, jstring jJson) {
-    auto dmMap = progressive::parseDirectMessageMap(jStr(env, jJson));
-    auto result = progressive::buildDirectMessageMapJson(dmMap);
+    auto dmMap = pcp::parseDirectMessageMap(jStr(env, jJson));
+    auto result = pcp::buildDirectMessageMapJson(dmMap);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Edit History ---
 
 JNI_FUNC(jstring, nativeGetEditCountBadge)(JNIEnv* env, jclass, jint jCount) {
-    auto result = progressive::getEditCountBadge(jCount);
+    auto result = pcp::getEditCountBadge(jCount);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeComputeEditDiffSummary)(JNIEnv* env, jclass, jstring jOld, jstring jNew) {
-    auto result = progressive::computeEditDiffSummary(jStr(env, jOld), jStr(env, jNew));
+    auto result = pcp::computeEditDiffSummary(jStr(env, jOld), jStr(env, jNew));
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Notification State (Element Web algorithm) ---
 
 JNI_FUNC(jstring, nativeComputeNotificationState)(JNIEnv* env, jclass, jstring jRoomJson) {
-    progressive::RoomListItem room;
+    pcp::RoomListItem room;
     auto json = jStr(env, jRoomJson);
     auto extractInt = [&](const std::string& key) -> int {
         auto p = json.find("\"" + key + "\"");
@@ -3963,8 +3963,8 @@ JNI_FUNC(jstring, nativeComputeNotificationState)(JNIEnv* env, jclass, jstring j
     room.highlightCount = extractInt("highlight_count");
     room.isMuted = extractBool("is_muted");
 
-    auto state = progressive::computeNotificationState(room);
-    auto result = progressive::notificationStateToJson(state);
+    auto state = pcp::computeNotificationState(room);
+    auto result = pcp::notificationStateToJson(state);
     return env->NewStringUTF(result.c_str());
 }
 
@@ -3972,7 +3972,7 @@ JNI_FUNC(jstring, nativeComputeNotificationState)(JNIEnv* env, jclass, jstring j
 
 JNI_FUNC(jstring, nativeSearchRoomList)(JNIEnv* env, jclass, jstring jRoomsJson, jstring jQuery) {
     auto json = jStr(env, jRoomsJson);
-    std::vector<progressive::RoomListItem> rooms;
+    std::vector<pcp::RoomListItem> rooms;
     // Parse JSON array of rooms
     size_t p = 0;
     while ((p = json.find("\"roomId\"", p)) != std::string::npos) {
@@ -3983,12 +3983,12 @@ JNI_FUNC(jstring, nativeSearchRoomList)(JNIEnv* env, jclass, jstring jRoomsJson,
             p++;
         }
         std::string rj = json.substr(s, p - s);
-        progressive::RoomListItem room;
+        pcp::RoomListItem room;
         room.roomId = jExtractStr(json, "roomId");
         room.name = jExtractStr(json, "name");
         rooms.push_back(room);
     }
-    auto results = progressive::searchRoomList(rooms, jStr(env, jQuery));
+    auto results = pcp::searchRoomList(rooms, jStr(env, jQuery));
     std::ostringstream os; os << "[";
     for (size_t i = 0; i < results.size(); i++) {
         if (i > 0) os << ",";
@@ -3999,11 +3999,11 @@ JNI_FUNC(jstring, nativeSearchRoomList)(JNIEnv* env, jclass, jstring jRoomsJson,
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jboolean, nativeIsStateEvent)(JNIEnv* env, jclass, jstring jEventType) {
-    return progressive::isStateEvent(jStr(env, jEventType)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isStateEvent(jStr(env, jEventType)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeComputePollResults)(JNIEnv* env, jclass, jstring jPollJson) {
     auto json = jStr(env, jPollJson);
-    progressive::PollResult result;
+    pcp::PollResult result;
     // ... (implementation in previous commit)
     auto qPos = json.find("\"question\"");
     if (qPos != std::string::npos) {
@@ -4030,7 +4030,7 @@ JNI_FUNC(jstring, nativeComputePollResults)(JNIEnv* env, jclass, jstring jPollJs
                     optsPos++;
                 }
                 std::string optJson = json.substr(start, optsPos - start);
-                progressive::PollOption opt;
+                pcp::PollOption opt;
                 auto idP = optJson.find("\"id\"");
                 if (idP != std::string::npos) {
                     idP = optJson.find('"', idP + 4);
@@ -4076,7 +4076,7 @@ JNI_FUNC(jstring, nativeComputePollResults)(JNIEnv* env, jclass, jstring jPollJs
 // --- Location Sharing ---
 
 JNI_FUNC(jstring, nativeLocationStartSession)(JNIEnv* env, jclass, jstring jSessionId, jstring jRoomId, jstring jUserId, jint jInterval) {
-    progressive::LocationSession session;
+    pcp::LocationSession session;
     session.sessionId = jStr(env, jSessionId);
     session.roomId = jStr(env, jRoomId);
     session.userId = jStr(env, jUserId);
@@ -4103,36 +4103,36 @@ JNI_FUNC(jstring, nativeLocationExportJson)(JNIEnv* env, jclass) {
 // --- AI Agent ---
 
 JNI_FUNC(jboolean, nativeAgentHasToolCalls)(JNIEnv* env, jclass, jstring jResponse) {
-    return progressive::hasToolCalls(jStr(env, jResponse)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::hasToolCalls(jStr(env, jResponse)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeAgentExtractTextAnswer)(JNIEnv* env, jclass, jstring jResponse) {
-    auto result = progressive::extractTextAnswer(jStr(env, jResponse));
+    auto result = pcp::extractTextAnswer(jStr(env, jResponse));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeAgentGetToolsSchema)(JNIEnv* env, jclass) {
-    auto result = progressive::getAgentToolsSchema();
+    auto result = pcp::getAgentToolsSchema();
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Notification Formatting ---
 
 JNI_FUNC(jstring, nativeFormatThreadNotificationCount)(JNIEnv* env, jclass, jint jCount, jint jHighlight) {
-    auto result = progressive::formatThreadNotificationCount(jCount, jHighlight);
+    auto result = pcp::formatThreadNotificationCount(jCount, jHighlight);
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeFormatUnreadCounter)(JNIEnv* env, jclass, jint jCount) {
-    auto result = progressive::formatUnreadCounter(jCount);
+    auto result = pcp::formatUnreadCounter(jCount);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Push Notification Evaluator ---
 
 JNI_FUNC(jstring, nativeEvaluatePushNotification)(JNIEnv* env, jclass, jstring jEventJson, jstring jRulesJson, jstring jDisplayName, jstring jMyUserId) {
-    auto rules = progressive::parsePushRules(jStr(env, jRulesJson));
-    auto result = progressive::evaluatePushNotification(
+    auto rules = pcp::parsePushRules(jStr(env, jRulesJson));
+    auto result = pcp::evaluatePushNotification(
         jStr(env, jEventJson), rules, jStr(env, jDisplayName), jStr(env, jMyUserId));
     std::ostringstream os;
     os << R"({"notify":)" << (result.shouldNotify ? "true" : "false")
@@ -4145,44 +4145,44 @@ JNI_FUNC(jstring, nativeEvaluatePushNotification)(JNIEnv* env, jclass, jstring j
 // --- Room Upgrade ---
 
 JNI_FUNC(jstring, nativeProcessRoomUpgrade)(JNIEnv* env, jclass, jstring jTombstoneJson) {
-    auto info = progressive::processRoomUpgrade(jStr(env, jTombstoneJson));
+    auto info = pcp::processRoomUpgrade(jStr(env, jTombstoneJson));
     std::ostringstream os;
     os << R"({"is_upgrade":)" << (info.isUpgrade ? "true" : "false")
        << R"(,"successor":")" << info.successorRoomId
-       << R"(,"notice":")" << progressive::formatUpgradeNotice(info) << "\"}";
+       << R"(,"notice":")" << pcp::formatUpgradeNotice(info) << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 
 // --- Redaction ---
 
 JNI_FUNC(jstring, nativeFormatRedactionNotice)(JNIEnv* env, jclass, jstring jReason, jboolean jSelf, jboolean jState) {
-    auto result = progressive::formatRedactionNotice(jStr(env, jReason), jSelf, jState);
+    auto result = pcp::formatRedactionNotice(jStr(env, jReason), jSelf, jState);
     return env->NewStringUTF(result.c_str());
 }
 
 // --- Key Backup ---
 JNI_FUNC(jstring, nativeFormatRoomNameNotice)(JNIEnv* env, jclass, jstring jName, jstring jNewName, jboolean jSelf) {
-    auto result = progressive::formatRoomNameNotice(jStr(env, jName), jStr(env, jNewName), jSelf);
+    auto result = pcp::formatRoomNameNotice(jStr(env, jName), jStr(env, jNewName), jSelf);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatRoomTopicNotice)(JNIEnv* env, jclass, jstring jName, jstring jTopic, jboolean jSelf) {
-    auto result = progressive::formatRoomTopicNotice(jStr(env, jName), jStr(env, jTopic), jSelf);
+    auto result = pcp::formatRoomTopicNotice(jStr(env, jName), jStr(env, jTopic), jSelf);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatRoomAvatarNotice)(JNIEnv* env, jclass, jstring jName, jboolean jRemoved, jboolean jSelf) {
-    auto result = progressive::formatRoomAvatarNotice(jStr(env, jName), jRemoved, jSelf);
+    auto result = pcp::formatRoomAvatarNotice(jStr(env, jName), jRemoved, jSelf);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatRoomCreateNotice)(JNIEnv* env, jclass, jstring jName, jstring jPredecessor, jboolean jDirect, jboolean jSelf) {
-    auto result = progressive::formatRoomCreateNotice(jStr(env, jName), jStr(env, jPredecessor), jDirect, jSelf);
+    auto result = pcp::formatRoomCreateNotice(jStr(env, jName), jStr(env, jPredecessor), jDirect, jSelf);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatRoomTombstoneNotice)(JNIEnv* env, jclass, jstring jName, jstring jReplacement, jboolean jSelf) {
-    auto result = progressive::formatRoomTombstoneNotice(jStr(env, jName), jStr(env, jReplacement), jSelf);
+    auto result = pcp::formatRoomTombstoneNotice(jStr(env, jName), jStr(env, jReplacement), jSelf);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatRoomEncryptionNotice)(JNIEnv* env, jclass, jstring jName, jboolean jEnabled, jboolean jSelf) {
-    auto result = progressive::formatRoomEncryptionNotice(jStr(env, jName), jEnabled, jSelf);
+    auto result = pcp::formatRoomEncryptionNotice(jStr(env, jName), jEnabled, jSelf);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeFormatPowerLevelDiff)(JNIEnv* env, jclass, jstring jSender, jstring jOldJson, jstring jNewJson, jstring jNamesJson, jboolean jSelf) {
@@ -4220,99 +4220,99 @@ JNI_FUNC(jstring, nativeFormatPowerLevelDiff)(JNIEnv* env, jclass, jstring jSend
         np = nne;
     }
 
-    auto result = progressive::formatPowerLevelDiff(jStr(env, jSender), oldLevels, newLevels, names, jSelf);
+    auto result = pcp::formatPowerLevelDiff(jStr(env, jSender), oldLevels, newLevels, names, jSelf);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsValidPollQuestion)(JNIEnv* env, jclass, jstring jQuestion) {
-    return progressive::isValidPollQuestion(jStr(env, jQuestion)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidPollQuestion(jStr(env, jQuestion)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsStickerEvent)(JNIEnv* env, jclass, jstring jEventType) {
-    return progressive::isStickerEvent(jStr(env, jEventType)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isStickerEvent(jStr(env, jEventType)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeHasAttachmentUrl)(JNIEnv* env, jclass, jstring jContentJson) {
-    return progressive::hasAttachmentUrl(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::hasAttachmentUrl(jStr(env, jContentJson)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeCreateUploadsFilterJson)(JNIEnv* env, jclass, jint jCount) {
-    auto result = progressive::createUploadsFilterJson(jCount);
+    auto result = pcp::createUploadsFilterJson(jCount);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeGetErrorDescription)(JNIEnv* env, jclass, jstring jCode) {
-    auto result = progressive::getErrorDescription(jStr(env, jCode));
+    auto result = pcp::getErrorDescription(jStr(env, jCode));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeIsRateLimitError)(JNIEnv* env, jclass, jstring jErrorJson) {
-    auto error = progressive::parseMatrixErrorJson(jStr(env, jErrorJson));
-    return progressive::isRateLimitError(error) ? JNI_TRUE : JNI_FALSE;
+    auto error = pcp::parseMatrixErrorJson(jStr(env, jErrorJson));
+    return pcp::isRateLimitError(error) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsSoftLogout)(JNIEnv* env, jclass, jstring jErrorJson) {
-    auto error = progressive::parseMatrixErrorJson(jStr(env, jErrorJson));
-    return progressive::isSoftLogout(error) ? JNI_TRUE : JNI_FALSE;
+    auto error = pcp::parseMatrixErrorJson(jStr(env, jErrorJson));
+    return pcp::isSoftLogout(error) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeNeedsConsent)(JNIEnv* env, jclass, jstring jErrorJson) {
-    auto error = progressive::parseMatrixErrorJson(jStr(env, jErrorJson));
-    return progressive::needsConsent(error) ? JNI_TRUE : JNI_FALSE;
+    auto error = pcp::parseMatrixErrorJson(jStr(env, jErrorJson));
+    return pcp::needsConsent(error) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeIsUserDeactivated)(JNIEnv* env, jclass, jstring jErrorJson) {
-    auto error = progressive::parseMatrixErrorJson(jStr(env, jErrorJson));
-    return progressive::isUserDeactivated(error) ? JNI_TRUE : JNI_FALSE;
+    auto error = pcp::parseMatrixErrorJson(jStr(env, jErrorJson));
+    return pcp::isUserDeactivated(error) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeFormatImageNotification)(JNIEnv* env, jclass, jstring jSender) {
-    auto r = progressive::formatImageNotification(jStr(env, jSender));
+    auto r = pcp::formatImageNotification(jStr(env, jSender));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeFormatFileNotification)(JNIEnv* env, jclass, jstring jSender, jstring jFileName) {
-    auto r = progressive::formatFileNotification(jStr(env, jSender), jStr(env, jFileName));
+    auto r = pcp::formatFileNotification(jStr(env, jSender), jStr(env, jFileName));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeFormatVideoNotification)(JNIEnv* env, jclass, jstring jSender) {
-    auto r = progressive::formatVideoNotification(jStr(env, jSender));
+    auto r = pcp::formatVideoNotification(jStr(env, jSender));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeFormatAudioNotification)(JNIEnv* env, jclass, jstring jSender, jboolean jVoice) {
-    auto r = progressive::formatAudioNotification(jStr(env, jSender), jVoice);
+    auto r = pcp::formatAudioNotification(jStr(env, jSender), jVoice);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeFormatInviteNotification)(JNIEnv* env, jclass, jstring jInviter, jstring jRoomName) {
-    auto r = progressive::formatInviteNotification(jStr(env, jInviter), jStr(env, jRoomName));
+    auto r = pcp::formatInviteNotification(jStr(env, jInviter), jStr(env, jRoomName));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeFormatRoomNotification)(JNIEnv* env, jclass, jint jCount, jstring jRoomName) {
-    auto r = progressive::formatRoomNotification(jCount, jStr(env, jRoomName));
+    auto r = pcp::formatRoomNotification(jCount, jStr(env, jRoomName));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeFormatStickerNotification)(JNIEnv* env, jclass, jstring jSender) {
-    auto r = progressive::formatStickerNotification(jStr(env, jSender));
+    auto r = pcp::formatStickerNotification(jStr(env, jSender));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeFormatLocationNotification)(JNIEnv* env, jclass, jstring jSender) {
-    auto r = progressive::formatLocationNotification(jStr(env, jSender));
+    auto r = pcp::formatLocationNotification(jStr(env, jSender));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeFormatPollNotification)(JNIEnv* env, jclass, jstring jSender, jboolean jStart) {
-    auto r = progressive::formatPollNotification(jStr(env, jSender), jStart);
+    auto r = pcp::formatPollNotification(jStr(env, jSender), jStart);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeCacheKeyForUrl)(JNIEnv* env, jclass, jstring jUrl) {
-    auto r = progressive::cacheKeyForUrl(jStr(env, jUrl));
+    auto r = pcp::cacheKeyForUrl(jStr(env, jUrl));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jboolean, nativeGetSettingBool)(JNIEnv* env, jclass, jstring jJson, jstring jKey, jboolean jDefault) {
-    return progressive::getSettingBool(jStr(env, jJson), jStr(env, jKey), jDefault) ? JNI_TRUE : JNI_FALSE;
+    return pcp::getSettingBool(jStr(env, jJson), jStr(env, jKey), jDefault) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeSetSettingBool)(JNIEnv* env, jclass, jstring jJson, jstring jKey, jboolean jVal) {
-    auto r = progressive::setSettingBool(jStr(env, jJson), jStr(env, jKey), jVal);
+    auto r = pcp::setSettingBool(jStr(env, jJson), jStr(env, jKey), jVal);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeGetSettingString)(JNIEnv* env, jclass, jstring jJson, jstring jKey, jstring jDefault) {
-    auto r = progressive::getSettingString(jStr(env, jJson), jStr(env, jKey), jStr(env, jDefault));
+    auto r = pcp::getSettingString(jStr(env, jJson), jStr(env, jKey), jStr(env, jDefault));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeSetSettingString)(JNIEnv* env, jclass, jstring jJson, jstring jKey, jstring jVal) {
-    auto r = progressive::setSettingString(jStr(env, jJson), jStr(env, jKey), jStr(env, jVal));
+    auto r = pcp::setSettingString(jStr(env, jJson), jStr(env, jKey), jStr(env, jVal));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeParseUrl)(JNIEnv* env, jclass, jstring jUrl) {
-    auto u = progressive::parseUrl(jStr(env, jUrl));
+    auto u = pcp::parseUrl(jStr(env, jUrl));
     std::ostringstream os;
     os << R"({"scheme":")" << u.scheme
        << R"(","host":")" << u.host
@@ -4322,7 +4322,7 @@ JNI_FUNC(jstring, nativeParseUrl)(JNIEnv* env, jclass, jstring jUrl) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeOlmCreateInboundSession)(JNIEnv* env, jclass, jstring jTheirKey, jstring jPreKeyMsg) {
-    auto session = progressive::createInboundOlmSession(g_olmAccount, jStr(env, jTheirKey), jStr(env, jPreKeyMsg));
+    auto session = pcp::createInboundOlmSession(g_olmAccount, jStr(env, jTheirKey), jStr(env, jPreKeyMsg));
     if (!session.valid) return env->NewStringUTF("");
     auto sid = session.sessionId;
     g_olmSessionMgr.addSession(jStr(env, jTheirKey), sid, std::move(session));
@@ -4331,152 +4331,152 @@ JNI_FUNC(jstring, nativeOlmCreateInboundSession)(JNIEnv* env, jclass, jstring jT
 JNI_FUNC(jstring, nativeOlmDecryptMessage)(JNIEnv* env, jclass, jstring jSenderKey, jstring jSessionId, jstring jCiphertext) {
     auto* session = g_olmSessionMgr.findSession(jStr(env, jSenderKey), jStr(env, jSessionId));
     if (!session) return env->NewStringUTF("");
-    auto result = progressive::olmDecryptMessage(*session, jStr(env, jCiphertext));
+    auto result = pcp::olmDecryptMessage(*session, jStr(env, jCiphertext));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeOlmPickleAccount)(JNIEnv* env, jclass) {
-    auto result = progressive::pickleOlmAccount(g_olmAccount);
+    auto result = pcp::pickleOlmAccount(g_olmAccount);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeOlmUnpickleAccount)(JNIEnv* env, jclass, jstring jPickled, jstring jUserId, jstring jDeviceId) {
-    g_olmAccount = progressive::unpickleOlmAccount(jStr(env, jPickled), jStr(env, jUserId), jStr(env, jDeviceId));
+    g_olmAccount = pcp::unpickleOlmAccount(jStr(env, jPickled), jStr(env, jUserId), jStr(env, jDeviceId));
     return g_olmAccount.valid ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeSignEvent)(JNIEnv* env, jclass, jstring jEventJson) {
-    auto result = progressive::signEvent(g_olmAccount, jStr(env, jEventJson));
+    auto result = pcp::signEvent(g_olmAccount, jStr(env, jEventJson));
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jboolean, nativeVerifyEventSignature)(JNIEnv* env, jclass, jstring jEventJson, jstring jSignKeyB64) {
-    return progressive::verifyEventSignature(jStr(env, jEventJson), jStr(env, jSignKeyB64)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::verifyEventSignature(jStr(env, jEventJson), jStr(env, jSignKeyB64)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(void, nativeSasDestroy)(JNIEnv* env, jclass) {
-    progressive::sasDestroy(g_sas);
+    pcp::sasDestroy(g_sas);
 }
 JNI_FUNC(jstring, nativeParseJsonStringValue)(JNIEnv* env, jclass, jstring jJson, jstring jKey) {
-    auto r = progressive::parseJsonStringValue(jStr(env, jJson), jStr(env, jKey));
+    auto r = pcp::parseJsonStringValue(jStr(env, jJson), jStr(env, jKey));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeFederationVersionToJson)(JNIEnv* env, jclass, jstring jVersionJson) {
-    auto v = progressive::parseFederationVersion(jStr(env, jVersionJson));
-    auto r = progressive::federationVersionToJson(v);
+    auto v = pcp::parseFederationVersion(jStr(env, jVersionJson));
+    auto r = pcp::federationVersionToJson(v);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativePresenceEnumToString)(JNIEnv* env, jclass, jint jPresence) {
-    auto r = progressive::presenceEnumToString(static_cast<progressive::PresenceEnum>(jPresence));
+    auto r = pcp::presenceEnumToString(static_cast<pcp::PresenceEnum>(jPresence));
     return env->NewStringUTF(r);
 }
 JNI_FUNC(jstring, nativeCredentialsToJson)(JNIEnv* env, jclass, jstring jCredsJson) {
     auto json = jStr(env, jCredsJson);
-    progressive::Credentials c;
+    pcp::Credentials c;
     c.userId = jExtractStr(json, "user_id"); c.accessToken = jExtractStr(json, "access_token"); c.refreshToken = jExtractStr(json, "refresh_token");
     c.homeServer = jExtractStr(json, "home_server"); c.deviceId = jExtractStr(json, "device_id");
-    auto r = progressive::credentialsToJson(c);
+    auto r = pcp::credentialsToJson(c);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeSdpTypeToString)(JNIEnv* env, jclass, jint jType) {
-    auto r = progressive::sdpTypeToString(static_cast<progressive::SdpType>(jType));
+    auto r = pcp::sdpTypeToString(static_cast<pcp::SdpType>(jType));
     return env->NewStringUTF(r);
 }
 JNI_FUNC(jstring, nativeEndCallReasonToString)(JNIEnv* env, jclass, jint jReason) {
-    auto r = progressive::endCallReasonToString(static_cast<progressive::EndCallReason>(jReason));
+    auto r = pcp::endCallReasonToString(static_cast<pcp::EndCallReason>(jReason));
     return env->NewStringUTF(r);
 }
 JNI_FUNC(jstring, nativeMessageTextToJson)(JNIEnv* env, jclass, jstring jContentJson) {
     auto json = jStr(env, jContentJson);
-    progressive::MessageTextContent m;
+    pcp::MessageTextContent m;
     m.msgType = jExtractStr(json, "msgtype"); m.body = jExtractStr(json, "body"); m.formattedBody = jExtractStr(json, "formatted_body");
     m.format = jExtractStr(json, "format"); m.relatesToRaw = jExtractStr(json, "m.relates_to");
     m.isFallback = jExtractBool(json, "is_fallback");
-    auto r = progressive::messageTextToJson(m);
+    auto r = pcp::messageTextToJson(m);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeMessageNoticeToJson)(JNIEnv* env, jclass, jstring jContentJson) {
     auto json = jStr(env, jContentJson);
-    progressive::MessageNoticeContent m;
+    pcp::MessageNoticeContent m;
     m.body = jExtractStr(json, "body"); m.msgType = jExtractStr(json, "msgtype");
-    auto r = progressive::messageNoticeToJson(m);
+    auto r = pcp::messageNoticeToJson(m);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeMessageEmoteToJson)(JNIEnv* env, jclass, jstring jContentJson) {
     auto json = jStr(env, jContentJson);
-    progressive::MessageEmoteContent m;
+    pcp::MessageEmoteContent m;
     m.body = jExtractStr(json, "body"); m.msgType = jExtractStr(json, "msgtype");
     m.formattedBody = jExtractStr(json, "formatted_body"); m.format = jExtractStr(json, "format");
-    auto r = progressive::messageEmoteToJson(m);
+    auto r = pcp::messageEmoteToJson(m);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeMessageImageToJson)(JNIEnv* env, jclass, jstring jContentJson) {
     auto json = jStr(env, jContentJson);
-    progressive::MessageImageContent m;
+    pcp::MessageImageContent m;
     m.url = jExtractStr(json, "url"); m.thumbnailUrl = jExtractStr(json, "thumbnail_url"); // thumbnailInfo skipped (struct, not string)
     m.mimeType = jExtractStr(json, "mimetype"); m.filename = jExtractStr(json, "filename"); m.body = jExtractStr(json, "body");
     m.width = static_cast<int>(jExtractInt(json, "w")); m.height = static_cast<int>(jExtractInt(json, "h"));
     m.size = static_cast<int>(jExtractInt(json, "size"));
-    auto r = progressive::messageImageToJson(m);
+    auto r = pcp::messageImageToJson(m);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeMessageVideoToJson)(JNIEnv* env, jclass, jstring jContentJson) {
     auto json = jStr(env, jContentJson);
-    progressive::MessageVideoContent m;
+    pcp::MessageVideoContent m;
     m.url = jExtractStr(json, "url"); m.thumbnailUrl = jExtractStr(json, "thumbnail_url"); m.mimeType = jExtractStr(json, "mimetype");
     m.filename = jExtractStr(json, "filename"); m.body = jExtractStr(json, "body"); m.duration = jExtractInt(json, "duration");
     m.width = static_cast<int>(jExtractInt(json, "w")); m.height = static_cast<int>(jExtractInt(json, "h"));
     m.size = static_cast<int>(jExtractInt(json, "size"));
-    auto r = progressive::messageVideoToJson(m);
+    auto r = pcp::messageVideoToJson(m);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeMessageAudioToJson)(JNIEnv* env, jclass, jstring jContentJson) {
     auto json = jStr(env, jContentJson);
-    progressive::MessageAudioContent m;
+    pcp::MessageAudioContent m;
     m.url = jExtractStr(json, "url"); m.mimeType = jExtractStr(json, "mimetype"); m.filename = jExtractStr(json, "filename");
     m.body = jExtractStr(json, "body"); m.duration = jExtractInt(json, "duration"); m.size = static_cast<int>(jExtractInt(json, "size"));
-    auto r = progressive::messageAudioToJson(m);
+    auto r = pcp::messageAudioToJson(m);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeMessageFileToJson)(JNIEnv* env, jclass, jstring jContentJson) {
     auto json = jStr(env, jContentJson);
-    progressive::MessageFileContent m;
+    pcp::MessageFileContent m;
     m.url = jExtractStr(json, "url"); m.mimeType = jExtractStr(json, "mimetype"); m.filename = jExtractStr(json, "filename");
     m.body = jExtractStr(json, "body"); m.size = static_cast<int>(jExtractInt(json, "size"));
-    auto r = progressive::messageFileToJson(m);
+    auto r = pcp::messageFileToJson(m);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeDeviceInfoToJson)(JNIEnv* env, jclass, jstring jDeviceJson) {
     auto json = jStr(env, jDeviceJson);
-    progressive::DeviceInfo d;
+    pcp::DeviceInfo d;
     d.userId = jExtractStr(json, "user_id"); d.deviceId = jExtractStr(json, "device_id"); d.displayName = jExtractStr(json, "display_name");
     d.lastSeenIp = jExtractStr(json, "last_seen_ip"); d.lastSeenUserAgent = jExtractStr(json, "last_seen_user_agent");
     d.lastSeenTs = jExtractInt(json, "last_seen_ts");
-    auto r = progressive::deviceInfoToJson(d);
+    auto r = pcp::deviceInfoToJson(d);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jboolean, nativeCanFitInStorage)(JNIEnv* env, jclass, jlong jRequired, jlong jAvailable, jlong jReserved) {
-    return progressive::canFitInStorage(jRequired, jAvailable, jReserved) ? JNI_TRUE : JNI_FALSE;
+    return pcp::canFitInStorage(jRequired, jAvailable, jReserved) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jlong, nativeEstimateMessageCacheSize)(JNIEnv* env, jclass, jint jCount, jint jAvgSize) {
-    return progressive::estimateMessageCacheSize(jCount, jAvgSize);
+    return pcp::estimateMessageCacheSize(jCount, jAvgSize);
 }
 JNI_FUNC(jboolean, nativeShouldIgnoreSignOutError)(JNIEnv* env, jclass, jstring jCode, jint jHttpCode) {
-    return progressive::shouldIgnoreSignOutError(jStr(env, jCode), jHttpCode) ? JNI_TRUE : JNI_FALSE;
+    return pcp::shouldIgnoreSignOutError(jStr(env, jCode), jHttpCode) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeSignInAgainBodyToJson)(JNIEnv* env, jclass, jstring jParamsJson) {
     auto json = jStr(env, jParamsJson);
-    progressive::SignInAgainParams p;
+    pcp::SignInAgainParams p;
     p.password = jExtractStr(json, "password"); p.userId = jExtractStr(json, "user_id");
     p.deviceId = jExtractStr(json, "device_id"); p.homeServerUrl = jExtractStr(json, "home_server_url");
-    auto r = progressive::signInAgainBodyToJson(p);
+    auto r = pcp::signInAgainBodyToJson(p);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativePollTypeToString)(JNIEnv* env, jclass, jint jType) {
-    auto r = progressive::pollTypeToString(static_cast<progressive::PollType>(jType));
+    auto r = pcp::pollTypeToString(static_cast<pcp::PollType>(jType));
     return env->NewStringUTF(r);
 }
 JNI_FUNC(jint, nativePollTypeFromString)(JNIEnv* env, jclass, jstring jType) {
-    return static_cast<jint>(progressive::pollTypeFromString(jStr(env, jType)));
+    return static_cast<jint>(pcp::pollTypeFromString(jStr(env, jType)));
 }
 JNI_FUNC(jstring, nativeAcceptTermsBodyToJson)(JNIEnv* env, jclass, jstring jBodyJson) {
     auto json = jStr(env, jBodyJson);
-    progressive::AcceptTermsBody b;
+    pcp::AcceptTermsBody b;
     // Parse accepted_urls array
     size_t p = 0;
     while ((p = json.find("\"", p)) != std::string::npos) {
@@ -4489,23 +4489,23 @@ JNI_FUNC(jstring, nativeAcceptTermsBodyToJson)(JNIEnv* env, jclass, jstring jBod
         }
         p = e + 1;
     }
-    auto r = progressive::acceptTermsBodyToJson(b);
+    auto r = pcp::acceptTermsBodyToJson(b);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeLiveDraftConfigToJson)(JNIEnv* env, jclass, jstring jConfigJson) {
     auto json = jStr(env, jConfigJson);
-    progressive::LiveDraftConfig c;
+    pcp::LiveDraftConfig c;
     c.enabled = jExtractBool(json, "enabled");
     c.characterThreshold = static_cast<int>(jExtractInt(json, "character_threshold"));
     c.updateIntervalMs = static_cast<int>(jExtractInt(json, "update_interval_ms"));
     c.draftPrefix = jExtractStr(json, "draft_prefix");
     c.finalEditRemovesPrefix = jExtractBool(json, "final_edit_removes_prefix");
-    auto r = progressive::liveDraftConfigToJson(c);
+    auto r = pcp::liveDraftConfigToJson(c);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeEncryptedFileKeyToJson)(JNIEnv* env, jclass, jstring jKeyJson) {
     auto json = jStr(env, jKeyJson);
-    progressive::EncryptedFileKey k;
+    pcp::EncryptedFileKey k;
     k.alg = jExtractStr(json, "alg"); k.kty = jExtractStr(json, "kty"); k.k = jExtractStr(json, "k");
     k.ext = jExtractBool(json, "ext");
     // Parse key_ops array
@@ -4519,54 +4519,54 @@ JNI_FUNC(jstring, nativeEncryptedFileKeyToJson)(JNIEnv* env, jclass, jstring jKe
             }
         }
     }
-    auto r = progressive::encryptedFileKeyToJson(k);
+    auto r = pcp::encryptedFileKeyToJson(k);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jboolean, nativeIsValidJwkKey)(JNIEnv* env, jclass, jstring jKeyJson) {
     auto json = jStr(env, jKeyJson);
-    progressive::EncryptedFileKey k;
+    pcp::EncryptedFileKey k;
     k.alg = jExtractStr(json, "alg"); k.kty = jExtractStr(json, "kty"); k.k = jExtractStr(json, "k");
     k.ext = jExtractBool(json, "ext");
-    return progressive::isValidJwkKey(k) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidJwkKey(k) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeExtractFileKey)(JNIEnv* env, jclass, jstring jKeyJson) {
     auto json = jStr(env, jKeyJson);
-    progressive::EncryptedFileKey k;
+    pcp::EncryptedFileKey k;
     k.alg = jExtractStr(json, "alg"); k.kty = jExtractStr(json, "kty"); k.k = jExtractStr(json, "k");
     k.ext = jExtractBool(json, "ext");
-    auto r = progressive::extractFileKey(k);
+    auto r = pcp::extractFileKey(k);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeEncryptedFileInfoToJson)(JNIEnv* env, jclass, jstring jInfoJson) {
     auto json = jStr(env, jInfoJson);
-    progressive::EncFileInfo i;
+    pcp::EncFileInfo i;
     i.url = jExtractStr(json, "url"); i.iv = jExtractStr(json, "iv"); i.version = jExtractStr(json, "version");
     i.alg = jExtractStr(json, "alg"); i.kty = jExtractStr(json, "kty"); i.k = jExtractStr(json, "k");
     i.ext = jExtractBool(json, "ext");
-    auto r = progressive::encryptedFileInfoToJson(i);
+    auto r = pcp::encryptedFileInfoToJson(i);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jboolean, nativeIsValidEncryptedFile)(JNIEnv* env, jclass, jstring jInfoJson) {
     auto json = jStr(env, jInfoJson);
-    progressive::EncFileInfo i;
+    pcp::EncFileInfo i;
     i.url = jExtractStr(json, "url"); i.iv = jExtractStr(json, "iv"); i.version = jExtractStr(json, "version");
     i.alg = jExtractStr(json, "alg"); i.kty = jExtractStr(json, "kty"); i.k = jExtractStr(json, "k");
     i.ext = jExtractBool(json, "ext");
-    return progressive::isValidEncryptedFile(i) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isValidEncryptedFile(i) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeExtractFileIv)(JNIEnv* env, jclass, jstring jInfoJson) {
     auto json = jStr(env, jInfoJson);
-    progressive::EncFileInfo i;
+    pcp::EncFileInfo i;
     i.url = jExtractStr(json, "url"); i.iv = jExtractStr(json, "iv"); i.version = jExtractStr(json, "version");
     i.alg = jExtractStr(json, "alg"); i.kty = jExtractStr(json, "kty"); i.k = jExtractStr(json, "k");
     i.ext = jExtractBool(json, "ext");
-    auto r = progressive::extractFileIv(i);
+    auto r = pcp::extractFileIv(i);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeSha256)(JNIEnv* env, jclass, jbyteArray jData) {
     jsize len = env->GetArrayLength(jData);
     jbyte* bytes = env->GetByteArrayElements(jData, nullptr);
-    auto hash = progressive::sha256(reinterpret_cast<uint8_t*>(bytes), static_cast<size_t>(len));
+    auto hash = pcp::sha256(reinterpret_cast<uint8_t*>(bytes), static_cast<size_t>(len));
     env->ReleaseByteArrayElements(jData, bytes, JNI_ABORT);
     // Convert to hex string
     static const char* hex = "0123456789abcdef";
@@ -4580,52 +4580,52 @@ JNI_FUNC(jstring, nativeBase58Encode)(JNIEnv* env, jclass, jbyteArray jData) {
     jbyte* bytes = env->GetByteArrayElements(jData, nullptr);
     std::vector<uint8_t> input(reinterpret_cast<uint8_t*>(bytes), reinterpret_cast<uint8_t*>(bytes) + len);
     env->ReleaseByteArrayElements(jData, bytes, JNI_ABORT);
-    auto r = progressive::base58Encode(input);
+    auto r = pcp::base58Encode(input);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jboolean, nativeTlsBridgeAvailable)(JNIEnv* env, jclass) {
-    return progressive::tlsBridgeAvailable() ? JNI_TRUE : JNI_FALSE;
+    return pcp::tlsBridgeAvailable() ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeCreateRoomPresetToString)(JNIEnv* env, jclass, jint jPreset) {
-    auto r = progressive::createRoomPresetToString(static_cast<progressive::CreateRoomPreset>(jPreset));
+    auto r = pcp::createRoomPresetToString(static_cast<pcp::CreateRoomPreset>(jPreset));
     return env->NewStringUTF(r);
 }
 JNI_FUNC(jstring, nativeApplyWidgetUrlTemplate)(JNIEnv* env, jclass, jstring jUrl, jstring jTemplateJson) {
     auto json = jStr(env, jTemplateJson);
-    progressive::WidgetUrlTemplate t;
+    pcp::WidgetUrlTemplate t;
     auto s = [&](const std::string& k) -> std::string { return jExtractStr(json, k); };
     t.userId = s("user_id"); t.roomId = s("room_id"); t.widgetId = s("widget_id");
     t.displayName = s("display_name"); t.avatarUrl = s("avatar_url");
     t.clientId = s("client_id"); t.clientTheme = s("client_theme");
     t.clientLanguage = s("client_language");
-    auto result = progressive::applyWidgetUrlTemplate(jStr(env, jUrl), t);
+    auto result = pcp::applyWidgetUrlTemplate(jStr(env, jUrl), t);
     return env->NewStringUTF(result.c_str());
 }
 JNI_FUNC(jstring, nativeValidateWidgetSecurity)(JNIEnv* env, jclass, jstring jUrl, jstring jPolicyJson) {
     auto json = jStr(env, jPolicyJson);
-    auto policy = progressive::defaultWidgetSecurityPolicy();
+    auto policy = pcp::defaultWidgetSecurityPolicy();
     if (jExtractBool(json, "enforce_same_origin") == false &&
         json.find("\"enforce_same_origin\"") != std::string::npos) policy.enforceSameOrigin = false;
     if (jExtractBool(json, "allow_data_urls")) policy.allowDataUrls = true;
     if (jExtractBool(json, "allow_blob_urls")) policy.allowBlobUrls = true;
 
     std::string reason;
-    bool ok = progressive::validateWidgetSecurity(jStr(env, jUrl), policy, reason);
+    bool ok = pcp::validateWidgetSecurity(jStr(env, jUrl), policy, reason);
     std::ostringstream os;
     os << R"({"valid":)" << (ok ? "true" : "false")
        << R"(,"reason":")" << reason << "\"}";
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeClassifyWidgetType)(JNIEnv* env, jclass, jstring jType) {
-    auto wt = progressive::classifyWidgetType(jStr(env, jType));
-    return env->NewStringUTF(progressive::getWidgetTypeName(jStr(env, jType)).c_str());
+    auto wt = pcp::classifyWidgetType(jStr(env, jType));
+    return env->NewStringUTF(pcp::getWidgetTypeName(jStr(env, jType)).c_str());
 }
 JNI_FUNC(jboolean, nativeIsAutoApprovedCapability)(JNIEnv* env, jclass, jint jCap, jstring jWidgetType) {
-    return progressive::isAutoApprovedCapability(
-        static_cast<progressive::WidgetCapability>(jCap), jStr(env, jWidgetType)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isAutoApprovedCapability(
+        static_cast<pcp::WidgetCapability>(jCap), jStr(env, jWidgetType)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeLiveLocationParseGeoUri)(JNIEnv* env, jclass, jstring jUri) {
-    auto geo = progressive::parseGeoUri(jStr(env, jUri));
+    auto geo = pcp::parseGeoUri(jStr(env, jUri));
     std::ostringstream os;
     os << R"({"lat":)" << geo.latitude << R"(,"lon":)" << geo.longitude
        << R"(,"alt":)" << geo.altitude << R"(,"uncertainty":)" << geo.uncertainty
@@ -4634,20 +4634,20 @@ JNI_FUNC(jstring, nativeLiveLocationParseGeoUri)(JNIEnv* env, jclass, jstring jU
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeLiveLocationFormatMessage)(JNIEnv* env, jclass, jdouble jLat, jdouble jLon, jdouble jAcc, jstring jLabel) {
-    progressive::GeoCoordinate c; c.latitude = jLat; c.longitude = jLon; c.accuracy = jAcc;
-    auto r = progressive::formatLocationMessage(c, jStr(env, jLabel));
+    pcp::GeoCoordinate c; c.latitude = jLat; c.longitude = jLon; c.accuracy = jAcc;
+    auto r = pcp::formatLocationMessage(c, jStr(env, jLabel));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeLiveLocationFormatGeoUri)(JNIEnv* env, jclass, jdouble jLat, jdouble jLon) {
-    progressive::GeoCoordinate c; c.latitude = jLat; c.longitude = jLon;
-    auto r = progressive::formatGeoUri(c);
+    pcp::GeoCoordinate c; c.latitude = jLat; c.longitude = jLon;
+    auto r = pcp::formatGeoUri(c);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jdouble, nativeLiveLocationDistance)(JNIEnv* env, jclass, jdouble jLat1, jdouble jLon1, jdouble jLat2, jdouble jLon2) {
     // Use inline haversine via the manager's clustering (static utility)
-    progressive::GeoCoordinate a; a.latitude = jLat1; a.longitude = jLon1;
-    progressive::GeoCoordinate b; b.latitude = jLat2; b.longitude = jLon2;
-    progressive::LiveLocationManager tmp;
+    pcp::GeoCoordinate a; a.latitude = jLat1; a.longitude = jLon1;
+    pcp::GeoCoordinate b; b.latitude = jLat2; b.longitude = jLon2;
+    pcp::LiveLocationManager tmp;
     auto clusters = tmp.clusterLocations({a, b}, 99999999.0);
     (void)clusters;
     // Simple haversine implementation inline
@@ -4676,7 +4676,7 @@ JNI_FUNC(jboolean, nativeLiveLocationIsDue)(JNIEnv* env, jclass, jstring jSessio
 }
 JNI_FUNC(jstring, nativeLiveLocationUpdate)(JNIEnv* env, jclass, jstring jSessionId, jdouble jLat, jdouble jLon, jdouble jAcc) {
     std::string error;
-    progressive::GeoCoordinate c; c.latitude = jLat; c.longitude = jLon; c.accuracy = jAcc;
+    pcp::GeoCoordinate c; c.latitude = jLat; c.longitude = jLon; c.accuracy = jAcc;
     auto r = getLocationMgr()->updateLocation(jStr(env, jSessionId), c, error);
     if (r.empty()) return env->NewStringUTF(("{\"error\":\"" + error + "\"}").c_str());
     return env->NewStringUTF(r.c_str());
@@ -4694,10 +4694,10 @@ JNI_FUNC(jstring, nativeLiveLocationHistory)(JNIEnv* env, jclass, jstring jSessi
 }
 JNI_FUNC(jstring, nativeLiveLocationBuildMapUrl)(JNIEnv* env, jclass, jstring jRoomId, jstring jConfigJson) {
     auto json = jStr(env, jConfigJson);
-    progressive::MapTileConfig cfg;
+    pcp::MapTileConfig cfg;
     auto ps = jExtractStr(json, "provider");
-    if (ps == "google") cfg.provider = progressive::MapProvider::GOOGLE_MAPS;
-    else if (ps == "apple") cfg.provider = progressive::MapProvider::APPLE_MAPS;
+    if (ps == "google") cfg.provider = pcp::MapProvider::GOOGLE_MAPS;
+    else if (ps == "apple") cfg.provider = pcp::MapProvider::APPLE_MAPS;
     cfg.width = static_cast<int>(jExtractInt(json, "width"));
     cfg.height = static_cast<int>(jExtractInt(json, "height"));
     cfg.zoom = static_cast<int>(jExtractInt(json, "zoom"));
@@ -4709,11 +4709,11 @@ JNI_FUNC(jstring, nativeLiveLocationBuildMapUrl)(JNIEnv* env, jclass, jstring jR
 }
 JNI_FUNC(jstring, nativeLiveLocationCluster)(JNIEnv* env, jclass, jstring jCoordsJson, jdouble jRadius) {
     auto json = jStr(env, jCoordsJson);
-    std::vector<progressive::GeoCoordinate> coords;
+    std::vector<pcp::GeoCoordinate> coords;
     // Parse [{"lat":...,"lon":...}, ...]
     size_t p = 0;
     while ((p = json.find("\"lat\"", p)) != std::string::npos) {
-        progressive::GeoCoordinate c;
+        pcp::GeoCoordinate c;
         c.latitude = static_cast<double>(jExtractInt(json.substr(p), "lat")) * 0.000001;
         if (c.latitude == 0.0) {
             auto s = jExtractStr(json.substr(p), "lat");
@@ -4738,15 +4738,15 @@ JNI_FUNC(jstring, nativeLiveLocationCluster)(JNIEnv* env, jclass, jstring jCoord
 }
 JNI_FUNC(jboolean, nativeLiveLocationWithinGeofence)(JNIEnv* env, jclass, jdouble jLat, jdouble jLon,
                                                       jdouble jCenterLat, jdouble jCenterLon, jdouble jRadius) {
-    progressive::GeoCoordinate c; c.latitude = jLat; c.longitude = jLon;
-    progressive::GeofenceRegion r; r.centerLat = jCenterLat; r.centerLon = jCenterLon; r.radiusMeters = jRadius;
-    return progressive::isWithinGeofence(c, r) ? JNI_TRUE : JNI_FALSE;
+    pcp::GeoCoordinate c; c.latitude = jLat; c.longitude = jLon;
+    pcp::GeofenceRegion r; r.centerLat = jCenterLat; r.centerLon = jCenterLon; r.radiusMeters = jRadius;
+    return pcp::isWithinGeofence(c, r) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeCallStartOutgoing)(JNIEnv* env, jclass, jstring jRoomId, jstring jCalleeId,
                                             jstring jCalleeName, jint jType, jstring jSdp) {
     std::string error;
     auto r = getCallMgr()->startOutgoingCall(jStr(env, jRoomId), jStr(env, jCalleeId),
-        jStr(env, jCalleeName), static_cast<progressive::CallType>(jType), jStr(env, jSdp), error);
+        jStr(env, jCalleeName), static_cast<pcp::CallType>(jType), jStr(env, jSdp), error);
     if (r.empty()) return env->NewStringUTF(("{\"error\":\"" + error + "\"}").c_str());
     return env->NewStringUTF(r.c_str());
 }
@@ -4754,7 +4754,7 @@ JNI_FUNC(jstring, nativeCallHandleIncoming)(JNIEnv* env, jclass, jstring jCallId
                                              jstring jCallerId, jstring jCallerName, jint jType, jstring jSdp, jint jLifetime) {
     auto r = getCallMgr()->handleIncomingCall(jStr(env, jCallId), jStr(env, jRoomId),
         jStr(env, jCallerId), jStr(env, jCallerName),
-        static_cast<progressive::CallType>(jType), jStr(env, jSdp), jLifetime);
+        static_cast<pcp::CallType>(jType), jStr(env, jSdp), jLifetime);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeCallAnswer)(JNIEnv* env, jclass, jstring jCallId, jstring jSdp) {
@@ -4769,17 +4769,17 @@ JNI_FUNC(jstring, nativeCallReject)(JNIEnv* env, jclass, jstring jCallId) {
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeCallHangup)(JNIEnv* env, jclass, jstring jCallId) {
-    auto r = getCallMgr()->hangupCall(jStr(env, jCallId), progressive::CallManagerEndReason::USER_HUNG_UP);
+    auto r = getCallMgr()->hangupCall(jStr(env, jCallId), pcp::CallManagerEndReason::USER_HUNG_UP);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeCallGetActive)(JNIEnv* env, jclass) {
-    progressive::CallSession call;
+    pcp::CallSession call;
     if (getCallMgr()->getActiveCall(call))
         return env->NewStringUTF(getCallMgr()->callToJson(call).c_str());
     return env->NewStringUTF("{}");
 }
 JNI_FUNC(jstring, nativeCallGetIncoming)(JNIEnv* env, jclass) {
-    progressive::CallSession call;
+    pcp::CallSession call;
     if (getCallMgr()->getIncomingCall(call))
         return env->NewStringUTF(getCallMgr()->callToJson(call).c_str());
     return env->NewStringUTF("{}");
@@ -4795,8 +4795,8 @@ JNI_FUNC(jstring, nativeCallFormatDuration)(JNIEnv* env, jclass, jint jSecs) {
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeCallParseSdp)(JNIEnv* env, jclass, jstring jSdpText, jstring jType) {
-    auto sdp = progressive::parseSdp(jStr(env, jSdpText), jStr(env, jType));
-    return env->NewStringUTF(progressive::sdpToJson(sdp).c_str());
+    auto sdp = pcp::parseSdp(jStr(env, jSdpText), jStr(env, jType));
+    return env->NewStringUTF(pcp::sdpToJson(sdp).c_str());
 }
 JNI_FUNC(void, nativeCallSetMuted)(JNIEnv* env, jclass, jstring jCallId, jboolean jMuted) {
     getCallMgr()->setMuted(jStr(env, jCallId), jMuted);
@@ -4805,7 +4805,7 @@ JNI_FUNC(void, nativeCallSetVideo)(JNIEnv* env, jclass, jstring jCallId, jboolea
     getCallMgr()->setVideoEnabled(jStr(env, jCallId), jOn);
 }
 JNI_FUNC(void, nativeCallReset)(JNIEnv* env, jclass) {
-    g_callMgr.reset(new progressive::CallManager());
+    g_callMgr.reset(new pcp::CallManager());
 }
 JNI_FUNC(jboolean, nativeThreadIsRoot)(JNIEnv* env, jclass, jstring jContent, jstring jEventId) {
     return getThreadMgr()->isThreadRoot(jStr(env, jContent), jStr(env, jEventId)) ? JNI_TRUE : JNI_FALSE;
@@ -4815,7 +4815,7 @@ JNI_FUNC(jstring, nativeThreadExtractRoot)(JNIEnv* env, jclass, jstring jContent
 }
 JNI_FUNC(void, nativeThreadUpsert)(JNIEnv* env, jclass, jstring jThreadJson) {
     auto json = jStr(env, jThreadJson);
-    progressive::ThreadInfoFull t;
+    pcp::ThreadInfoFull t;
     t.threadId = jExtractStr(json, "thread_id");
     t.roomId = jExtractStr(json, "room_id");
     t.rootSenderId = jExtractStr(json, "root_sender_id");
@@ -4863,7 +4863,7 @@ JNI_FUNC(jstring, nativeThreadGetNotifications)(JNIEnv* env, jclass) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(void, nativeThreadReset)(JNIEnv* env, jclass) {
-    g_threadMgr.reset(new progressive::ThreadManager());
+    g_threadMgr.reset(new pcp::ThreadManager());
 }
 JNI_FUNC(jstring, nativePollBuildStart)(JNIEnv* env, jclass, jstring jQuestion, jstring jOptionsJson,
                                          jint jKind, jint jMaxSel, jboolean jUnstable) {
@@ -4879,7 +4879,7 @@ JNI_FUNC(jstring, nativePollBuildStart)(JNIEnv* env, jclass, jstring jQuestion, 
     }
     std::string error;
     auto r = getPollMgr()->buildPollStartContent(jStr(env, jQuestion), opts,
-        static_cast<progressive::PollKind>(jKind), jMaxSel, jUnstable, error);
+        static_cast<pcp::PollKind>(jKind), jMaxSel, jUnstable, error);
     if (r.empty()) return env->NewStringUTF(("{\"error\":\"" + error + "\"}").c_str());
     return env->NewStringUTF(r.c_str());
 }
@@ -4905,10 +4905,10 @@ JNI_FUNC(jstring, nativePollTally)(JNIEnv* env, jclass, jstring jPollJson, jstri
     auto poll = getPollMgr()->parsePollStartContent(jStr(env, jPollJson), true);
     auto vjson = jStr(env, jVotesJson);
     // Parse votes array: [{"voter":"@a:org","name":"Alice","opts":["A","B"]}, ...]
-    std::vector<progressive::PollVote> votes;
+    std::vector<pcp::PollVote> votes;
     size_t p = 0;
     while ((p = vjson.find("\"voter\"", p)) != std::string::npos) {
-        progressive::PollVote v;
+        pcp::PollVote v;
         v.voterId = jExtractStr(vjson.substr(p), "voter");
         v.voterName = jExtractStr(vjson.substr(p), "name");
         // Parse opts
@@ -4951,11 +4951,11 @@ JNI_FUNC(void, nativeSpaceSetRoot)(JNIEnv* env, jclass, jstring jId, jstring jNa
     getSpaceGraph()->setRoot(jStr(env, jId), jStr(env, jName), jStr(env, jTopic), jStr(env, jAvatar));
 }
 JNI_FUNC(void, nativeSpaceAddChild)(JNIEnv* env, jclass, jstring jParent, jstring jChildJson) {
-    auto child = progressive::parseSpaceChild(jStr(env, jChildJson), jStr(env, jChildJson));
+    auto child = pcp::parseSpaceChild(jStr(env, jChildJson), jStr(env, jChildJson));
     child.roomId = jStr(env, jParent); // stateKey is the parent... wait, stateKey is the CHILD room ID
     // Re-parse: first arg is parent, second is child state content
     auto contentJson = jStr(env, jChildJson);
-    child = progressive::parseSpaceChild(jStr(env, jChildJson), contentJson);
+    child = pcp::parseSpaceChild(jStr(env, jChildJson), contentJson);
     // Actually: stateKey = child room ID, contentJson = content
     // We need: parentId = first arg, child info from second arg
     // Let's do: second arg format: {"room_id":"!child:org","suggested":true,"order":"001"}
@@ -4966,7 +4966,7 @@ JNI_FUNC(void, nativeSpaceAddChild)(JNIEnv* env, jclass, jstring jParent, jstrin
     getSpaceGraph()->addChild(jStr(env, jParent), child);
 }
 JNI_FUNC(void, nativeSpaceAddChildRaw)(JNIEnv* env, jclass, jstring jParent, jstring jChildId, jboolean jSuggested) {
-    progressive::SpaceChildEntry c;
+    pcp::SpaceChildEntry c;
     c.roomId = jStr(env, jChildId);
     c.suggested = jSuggested;
     c.valid = true;
@@ -4978,8 +4978,8 @@ JNI_FUNC(void, nativeSpaceSetMetadata)(JNIEnv* env, jclass, jstring jRoomId, jst
         jStr(env, jAvatar), jStr(env, jJoinRule), jJoined);
 }
 JNI_FUNC(jstring, nativeSpaceTraverse)(JNIEnv* env, jclass, jint jMode, jint jMaxDepth) {
-    progressive::SpaceTraversalOptions opts;
-    opts.mode = static_cast<progressive::SpaceTraversal>(jMode);
+    pcp::SpaceTraversalOptions opts;
+    opts.mode = static_cast<pcp::SpaceTraversal>(jMode);
     opts.maxDepth = jMaxDepth > 0 ? jMaxDepth : 10;
     opts.includeSubspaces = true;
     auto result = getSpaceGraph()->traverse(opts);
@@ -5012,7 +5012,7 @@ JNI_FUNC(jstring, nativeSpaceSearch)(JNIEnv* env, jclass, jstring jSpaceId, jstr
     return env->NewStringUTF(getSpaceGraph()->flatListToJson(results).c_str());
 }
 JNI_FUNC(void, nativeSpaceReset)(JNIEnv* env, jclass) {
-    g_spaceGraph.reset(new progressive::SpaceGraph());
+    g_spaceGraph.reset(new pcp::SpaceGraph());
 }
 JNI_FUNC(jstring, nativePinEvent)(JNIEnv* env, jclass, jstring jRoomId, jstring jEventId,
                                    jstring jPinnedBy, jint jPowerLevel) {
@@ -5054,25 +5054,25 @@ JNI_FUNC(jboolean, nativePinCanManage)(JNIEnv* env, jclass, jint jPowerLevel) {
     return getPinMgr()->canManagePins(jPowerLevel) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(void, nativePinReset)(JNIEnv* env, jclass) {
-    g_pinMgr.reset(new progressive::PinManagerFull());
+    g_pinMgr.reset(new pcp::PinManagerFull());
 }
 JNI_FUNC(jstring, nativeMediaViewerParse)(JNIEnv* env, jclass, jstring jContentJson) {
-    auto info = progressive::parseMediaInfo(jStr(env, jContentJson));
-    progressive::applyExifRotation(info);
-    auto dims = progressive::getDisplayDimensions(info);
+    auto info = pcp::parseMediaInfo(jStr(env, jContentJson));
+    pcp::applyExifRotation(info);
+    auto dims = pcp::getDisplayDimensions(info);
     std::ostringstream os;
     os << R"({"mxc":")" << info.mxcUrl
        << R"(","mime":")" << info.mimeType
-       << R"(","type":")" << progressive::getMediaTypeName(info.type)
+       << R"(","type":")" << pcp::getMediaTypeName(info.type)
        << R"(","width":)" << info.width
        << R"(,"height":)" << info.height
        << R"(,"display_w":)" << dims.width
        << R"(,"display_h":)" << dims.height
        << R"(,"size":)" << info.sizeBytes
-       << R"(,"size_fmt":")" << progressive::formatMediaSize(info.sizeBytes)
+       << R"(,"size_fmt":")" << pcp::formatMediaSize(info.sizeBytes)
        << R"(","duration_ms":)" << info.durationMs
-       << R"(,"duration_fmt":")" << progressive::formatMediaDuration(info.durationMs)
-       << R"(,"exif_rotation":)" << progressive::exifRotationDegrees(info.exifOrientation)
+       << R"(,"duration_fmt":")" << pcp::formatMediaDuration(info.durationMs)
+       << R"(,"exif_rotation":)" << pcp::exifRotationDegrees(info.exifOrientation)
        << R"(,"has_thumb":)" << (info.hasThumbnail ? "true" : "false")
        << R"(,"file_name":")" << info.fileName
        << R"(","thumb_url":")" << info.thumbnailUrl << R"(")"
@@ -5080,16 +5080,16 @@ JNI_FUNC(jstring, nativeMediaViewerParse)(JNIEnv* env, jclass, jstring jContentJ
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeMediaViewerFormatSize)(JNIEnv* env, jclass, jlong jBytes) {
-    auto r = progressive::formatMediaSize(jBytes);
+    auto r = pcp::formatMediaSize(jBytes);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeMediaViewerFormatDuration)(JNIEnv* env, jclass, jint jMs) {
-    auto r = progressive::formatMediaDuration(jMs);
+    auto r = pcp::formatMediaDuration(jMs);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeMediaViewerViewport)(JNIEnv* env, jclass, jstring jContentJson, jint jVpW, jint jVpH) {
-    auto info = progressive::parseMediaInfo(jStr(env, jContentJson));
-    auto state = progressive::calculateViewport(info, jVpW, jVpH);
+    auto info = pcp::parseMediaInfo(jStr(env, jContentJson));
+    auto state = pcp::calculateViewport(info, jVpW, jVpH);
     std::ostringstream os;
     os << R"({"scale":)" << state.scale
        << R"(,"min_scale":)" << state.minScale
@@ -5103,23 +5103,23 @@ JNI_FUNC(jstring, nativeMediaViewerViewport)(JNIEnv* env, jclass, jstring jConte
 }
 JNI_FUNC(jstring, nativeMediaViewerThumbnailUrl)(JNIEnv* env, jclass, jstring jMxcUrl, jstring jHomeServer,
                                                    jint jW, jint jH) {
-    progressive::ThumbnailConfig cfg;
+    pcp::ThumbnailConfig cfg;
     cfg.width = jW; cfg.height = jH;
-    auto r = progressive::resolveMxcThumbnailUrl(jStr(env, jMxcUrl), jStr(env, jHomeServer), cfg);
+    auto r = pcp::resolveMxcThumbnailUrl(jStr(env, jMxcUrl), jStr(env, jHomeServer), cfg);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeMediaViewerDownloadUrl)(JNIEnv* env, jclass, jstring jMxcUrl, jstring jHomeServer) {
-    auto r = progressive::resolveMxcDownloadUrl(jStr(env, jMxcUrl), jStr(env, jHomeServer));
+    auto r = pcp::resolveMxcDownloadUrl(jStr(env, jMxcUrl), jStr(env, jHomeServer));
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jint, nativeMediaViewerExifRotation)(JNIEnv* env, jclass, jint jRaw) {
-    return progressive::exifRotationDegrees(progressive::exifFromRaw(jRaw));
+    return pcp::exifRotationDegrees(pcp::exifFromRaw(jRaw));
 }
 JNI_FUNC(jboolean, nativeMediaViewerCanThumbnail)(JNIEnv* env, jclass, jstring jMime) {
-    return progressive::canGenerateThumbnail(jStr(env, jMime)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::canGenerateThumbnail(jStr(env, jMime)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeOidcParseMetadata)(JNIEnv* env, jclass, jstring jJson) {
-    auto meta = progressive::parseOidcMetadata(jStr(env, jJson));
+    auto meta = pcp::parseOidcMetadata(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"issuer":")" << meta.issuer
        << R"(","auth_endpoint":")" << meta.authorizationEndpoint
@@ -5132,18 +5132,18 @@ JNI_FUNC(jstring, nativeOidcParseMetadata)(JNIEnv* env, jclass, jstring jJson) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeOidcBuildRegistration)(JNIEnv* env, jclass, jstring jConfigJson) {
-    progressive::OidcConfig cfg;
+    pcp::OidcConfig cfg;
     auto json = jStr(env, jConfigJson);
     cfg.clientName = jExtractStr(json, "client_name");
-    if (cfg.clientName.empty()) cfg.clientName = "Progressive Chat";
+    if (cfg.clientName.empty()) cfg.clientName = "PCP";
     cfg.redirectUri = jExtractStr(json, "redirect_uri");
     cfg.clientUri = jExtractStr(json, "client_uri");
     cfg.logoUri = jExtractStr(json, "logo_uri");
-    auto r = progressive::buildClientRegistrationRequest(cfg);
+    auto r = pcp::buildClientRegistrationRequest(cfg);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeOidcParseRegistration)(JNIEnv* env, jclass, jstring jJson) {
-    auto reg = progressive::parseClientRegistration(jStr(env, jJson));
+    auto reg = pcp::parseClientRegistration(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"client_id":")" << reg.clientId
        << R"(","client_secret":")" << reg.clientSecret
@@ -5152,13 +5152,13 @@ JNI_FUNC(jstring, nativeOidcParseRegistration)(JNIEnv* env, jclass, jstring jJso
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeOidcBuildAuthorization)(JNIEnv* env, jclass, jstring jMetaJson, jstring jRegJson, jstring jConfigJson) {
-    auto meta = progressive::parseOidcMetadata(jStr(env, jMetaJson));
-    auto reg = progressive::parseClientRegistration(jStr(env, jRegJson));
-    progressive::OidcConfig cfg;
+    auto meta = pcp::parseOidcMetadata(jStr(env, jMetaJson));
+    auto reg = pcp::parseClientRegistration(jStr(env, jRegJson));
+    pcp::OidcConfig cfg;
     auto json = jStr(env, jConfigJson);
     cfg.redirectUri = jExtractStr(json, "redirect_uri");
     cfg.clientName = jExtractStr(json, "client_name");
-    auto auth = progressive::buildOidcAuthorization(meta, reg, cfg);
+    auto auth = pcp::buildOidcAuthorization(meta, reg, cfg);
     std::ostringstream os;
     os << R"({"url":")" << auth.authorizationUrl
        << R"(","state":")" << auth.state
@@ -5170,7 +5170,7 @@ JNI_FUNC(jstring, nativeOidcBuildAuthorization)(JNIEnv* env, jclass, jstring jMe
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeOidcParseToken)(JNIEnv* env, jclass, jstring jJson) {
-    auto resp = progressive::parseTokenResponse(jStr(env, jJson));
+    auto resp = pcp::parseTokenResponse(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"access_token":")" << resp.accessToken
        << R"(","refresh_token":")" << resp.refreshToken
@@ -5181,14 +5181,14 @@ JNI_FUNC(jstring, nativeOidcParseToken)(JNIEnv* env, jclass, jstring jJson) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeOidcBuildRefresh)(JNIEnv* env, jclass, jstring jRefreshToken, jstring jClientId) {
-    progressive::OidcRefreshRequest req;
+    pcp::OidcRefreshRequest req;
     req.refreshToken = jStr(env, jRefreshToken);
     req.clientId = jStr(env, jClientId);
-    auto r = progressive::buildTokenRefreshRequest(req);
+    auto r = pcp::buildTokenRefreshRequest(req);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeOidcParseWhoami)(JNIEnv* env, jclass, jstring jJson) {
-    auto val = progressive::parseWhoamiResponse(jStr(env, jJson));
+    auto val = pcp::parseWhoamiResponse(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"user_id":")" << val.userId
        << R"(","device_id":")" << val.deviceId
@@ -5198,40 +5198,40 @@ JNI_FUNC(jstring, nativeOidcParseWhoami)(JNIEnv* env, jclass, jstring jJson) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jstring, nativeOidcParseWellKnown)(JNIEnv* env, jclass, jstring jJson) {
-    auto wk = progressive::parseWellKnown(jStr(env, jJson));
+    auto wk = pcp::parseWellKnown(jStr(env, jJson));
     std::ostringstream os;
     os << R"({"base_url":")" << wk.baseUrl
        << R"(","oidc_issuer":")" << wk.oidcIssuer
        << R"(,"supports_oidc":)" << (wk.supportsOidc ? "true" : "false")
        << R"(,"supports_password":)" << (wk.supportsPassword ? "true" : "false")
-       << R"(,"requires_oidc":)" << (progressive::requiresOidc(wk) ? "true" : "false")
+       << R"(,"requires_oidc":)" << (pcp::requiresOidc(wk) ? "true" : "false")
        << "}";
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jboolean, nativeOidcIsCallback)(JNIEnv* env, jclass, jstring jUrl) {
-    return progressive::isSsoCallbackUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isSsoCallbackUrl(jStr(env, jUrl)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeOidcExtractCode)(JNIEnv* env, jclass, jstring jUrl) {
-    return env->NewStringUTF(progressive::extractAuthCodeFromCallback(jStr(env, jUrl)).c_str());
+    return env->NewStringUTF(pcp::extractAuthCodeFromCallback(jStr(env, jUrl)).c_str());
 }
 JNI_FUNC(jstring, nativeOidcBuildPasswordLogin)(JNIEnv* env, jclass, jstring jUser, jstring jPass, jstring jDevId, jstring jDevName) {
-    progressive::LoginCredentials creds;
+    pcp::LoginCredentials creds;
     creds.userId = jStr(env, jUser);
     creds.password = jStr(env, jPass);
     creds.deviceId = jStr(env, jDevId);
     creds.initialDeviceDisplayName = jStr(env, jDevName);
-    auto r = progressive::buildPasswordLoginRequest(creds);
+    auto r = pcp::buildPasswordLoginRequest(creds);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeUserDirBuildSearch)(JNIEnv* env, jclass, jstring jTerm, jint jLimit) {
-    progressive::UserSearchQuery q;
+    pcp::UserSearchQuery q;
     q.searchTerm = jStr(env, jTerm);
     q.limit = jLimit;
     auto r = getUserDir()->buildSearchRequest(q);
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeUserDirSearch)(JNIEnv* env, jclass, jstring jQuery, jstring jResponseJson) {
-    progressive::UserSearchQuery q;
+    pcp::UserSearchQuery q;
     q.searchTerm = jStr(env, jQuery);
     q.limit = 20;
     auto resp = getUserDir()->search(q, jStr(env, jResponseJson));
@@ -5242,7 +5242,7 @@ JNI_FUNC(jstring, nativeUserDirBestName)(JNIEnv* env, jclass, jstring jDisplayNa
     return env->NewStringUTF(r.c_str());
 }
 JNI_FUNC(jstring, nativeUserDirAvatarInit)(JNIEnv* env, jclass, jstring jDisplayName, jstring jUserId) {
-    progressive::UserSearchResult u;
+    pcp::UserSearchResult u;
     u.displayName = jStr(env, jDisplayName);
     u.userId = jStr(env, jUserId);
     auto r = getUserDir()->getAvatarInitial(u);
@@ -5251,24 +5251,24 @@ JNI_FUNC(jstring, nativeUserDirAvatarInit)(JNIEnv* env, jclass, jstring jDisplay
 JNI_FUNC(jboolean, nativeUserDirIsValidQuery)(JNIEnv* env, jclass, jstring jQ) {
     return getUserDir()->isValidSearchQuery(jStr(env, jQ)) ? JNI_TRUE : JNI_FALSE;
 }
-JNI_FUNC(void, nativeProfileStart)(JNIEnv* env, jclass) { progressive::Profiler::instance().startProfiling(); }
-JNI_FUNC(void, nativeProfileStop)(JNIEnv* env, jclass) { progressive::Profiler::instance().stopProfiling(); }
-JNI_FUNC(void, nativeProfileReset)(JNIEnv* env, jclass) { progressive::Profiler::instance().reset(); }
+JNI_FUNC(void, nativeProfileStart)(JNIEnv* env, jclass) { pcp::Profiler::instance().startProfiling(); }
+JNI_FUNC(void, nativeProfileStop)(JNIEnv* env, jclass) { pcp::Profiler::instance().stopProfiling(); }
+JNI_FUNC(void, nativeProfileReset)(JNIEnv* env, jclass) { pcp::Profiler::instance().reset(); }
 JNI_FUNC(jboolean, nativeProfileIsActive)(JNIEnv* env, jclass) {
-    return progressive::Profiler::instance().isProfiling() ? JNI_TRUE : JNI_FALSE;
+    return pcp::Profiler::instance().isProfiling() ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeProfileReport)(JNIEnv* env, jclass) {
-    return env->NewStringUTF(progressive::Profiler::instance().reportToJson().c_str());
+    return env->NewStringUTF(pcp::Profiler::instance().reportToJson().c_str());
 }
 JNI_FUNC(jstring, nativeProfileReportText)(JNIEnv* env, jclass) {
-    return env->NewStringUTF(progressive::Profiler::instance().reportToText().c_str());
+    return env->NewStringUTF(pcp::Profiler::instance().reportToText().c_str());
 }
 JNI_FUNC(jstring, nativeProfileGetSummary)(JNIEnv* env, jclass, jstring jName) {
-    auto s = progressive::Profiler::instance().getSummary(jStr(env, jName));
-    return env->NewStringUTF(progressive::Profiler::instance().summaryToJson(s).c_str());
+    auto s = pcp::Profiler::instance().getSummary(jStr(env, jName));
+    return env->NewStringUTF(pcp::Profiler::instance().summaryToJson(s).c_str());
 }
 JNI_FUNC(jstring, nativeProfileMemory)(JNIEnv* env, jclass) {
-    auto snap = progressive::Profiler::instance().takeMemorySnapshot("jni");
+    auto snap = pcp::Profiler::instance().takeMemorySnapshot("jni");
     std::ostringstream os;
     os << R"({"bytes":)" << snap.allocatedBytes
        << R"(,"alloc_count":)" << snap.allocateCount
@@ -5277,25 +5277,25 @@ JNI_FUNC(jstring, nativeProfileMemory)(JNIEnv* env, jclass) {
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(jint, nativeProfileStartAction)(JNIEnv* env, jclass, jstring jName, jboolean jCold) {
-    return progressive::Profiler::instance().startAction(jStr(env, jName), "", jCold);
+    return pcp::Profiler::instance().startAction(jStr(env, jName), "", jCold);
 }
 JNI_FUNC(jlong, nativeProfileStopAction)(JNIEnv* env, jclass, jint jIdx) {
-    return progressive::Profiler::instance().stopAction(jIdx);
+    return pcp::Profiler::instance().stopAction(jIdx);
 }
 JNI_FUNC(void, nativeProfileSetBudget)(JNIEnv* env, jclass, jstring jPattern, jlong jBudgetNs) {
-    progressive::Profiler::instance().setActionBudget(jStr(env, jPattern), jBudgetNs);
+    pcp::Profiler::instance().setActionBudget(jStr(env, jPattern), jBudgetNs);
 }
 JNI_FUNC(jstring, nativeProfileActionReport)(JNIEnv* env, jclass) {
-    return env->NewStringUTF(progressive::Profiler::instance().actionReportToJson().c_str());
+    return env->NewStringUTF(pcp::Profiler::instance().actionReportToJson().c_str());
 }
 JNI_FUNC(jstring, nativeProfileActionReportText)(JNIEnv* env, jclass) {
-    return env->NewStringUTF(progressive::Profiler::instance().actionReportToText().c_str());
+    return env->NewStringUTF(pcp::Profiler::instance().actionReportToText().c_str());
 }
 JNI_FUNC(jstring, nativeProfileOverlaySnapshot)(JNIEnv* env, jclass) {
-    return env->NewStringUTF(progressive::Profiler::instance().realTimeSnapshotJson().c_str());
+    return env->NewStringUTF(pcp::Profiler::instance().realTimeSnapshotJson().c_str());
 }
 JNI_FUNC(jstring, nativeProfileOverlayText)(JNIEnv* env, jclass) {
-    return env->NewStringUTF(progressive::Profiler::instance().realTimeSnapshotText().c_str());
+    return env->NewStringUTF(pcp::Profiler::instance().realTimeSnapshotText().c_str());
 }
 JNI_FUNC(jstring, nativeDeviceParseList)(JNIEnv* env, jclass, jstring jJson) {
     auto resp = getDeviceMgr()->parseDevicesList(jStr(env, jJson));
@@ -5310,11 +5310,11 @@ JNI_FUNC(jstring, nativeDeviceParseCrypto)(JNIEnv* env, jclass, jstring jDevId, 
     return env->NewStringUTF(getDeviceMgr()->cryptoDeviceToJson(dev).c_str());
 }
 JNI_FUNC(jstring, nativeDeviceBuildRename)(JNIEnv* env, jclass, jstring jDevId, jstring jNewName) {
-    progressive::DeviceRenameRequest req; req.deviceId = jStr(env, jDevId); req.newDisplayName = jStr(env, jNewName);
+    pcp::DeviceRenameRequest req; req.deviceId = jStr(env, jDevId); req.newDisplayName = jStr(env, jNewName);
     return env->NewStringUTF(getDeviceMgr()->buildRenameRequest(req).c_str());
 }
 JNI_FUNC(jstring, nativeDeviceBuildDelete)(JNIEnv* env, jclass, jstring jDevId, jstring jAuthType, jstring jSession, jstring jPass) {
-    progressive::DeviceDeletionRequest req; req.deviceId = jStr(env, jDevId); req.authType = jStr(env, jAuthType);
+    pcp::DeviceDeletionRequest req; req.deviceId = jStr(env, jDevId); req.authType = jStr(env, jAuthType);
     req.authSession = jStr(env, jSession); req.password = jStr(env, jPass);
     return env->NewStringUTF(getDeviceMgr()->buildDeleteRequest(req).c_str());
 }
@@ -5322,9 +5322,9 @@ JNI_FUNC(jstring, nativeDeviceFormatFingerprint)(JNIEnv* env, jclass, jstring jR
     return env->NewStringUTF(getDeviceMgr()->formatFingerprint(jStr(env, jRawKey)).c_str());
 }
 JNI_FUNC(jstring, nativeDeviceGetTrustLabel)(JNIEnv* env, jclass, jboolean jCrossSigning, jboolean jLocal) {
-    progressive::DeviceVerification tl = progressive::DeviceVerification::UNKNOWN;
-    if (jCrossSigning) tl = progressive::DeviceVerification::VERIFIED;
-    else if (jLocal) tl = progressive::DeviceVerification::UNVERIFIED;
+    pcp::DeviceVerification tl = pcp::DeviceVerification::UNKNOWN;
+    if (jCrossSigning) tl = pcp::DeviceVerification::VERIFIED;
+    else if (jLocal) tl = pcp::DeviceVerification::UNVERIFIED;
     return env->NewStringUTF(getDeviceMgr()->getTrustLabel(tl).c_str());
 }
 JNI_FUNC(jstring, nativeDeviceFormatLastSeen)(JNIEnv* env, jclass, jlong jTs) {
@@ -5337,7 +5337,7 @@ JNI_FUNC(jboolean, nativeDeviceSatisfiesVersion)(JNIEnv* env, jclass, jstring jV
     return getDeviceMgr()->satisfiesMinVersion(jStr(env, jVer), jStr(env, jMin)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeRoomDirBuildSearch)(JNIEnv* env, jclass, jstring jTerm, jint jLimit, jstring jSince) {
-    progressive::PublicRoomsParams p;
+    pcp::PublicRoomsParams p;
     p.filter = jStr(env, jTerm);
     p.limit = jLimit;
     p.since = jStr(env, jSince);
@@ -5349,11 +5349,11 @@ JNI_FUNC(jstring, nativeRoomDirParseResponse)(JNIEnv* env, jclass, jstring jJson
 }
 JNI_FUNC(jstring, nativeRoomDirBuildVisibility)(JNIEnv* env, jclass, jint jVis) {
     return env->NewStringUTF(getRoomDir()->buildVisibilityRequest(
-        static_cast<progressive::RoomDirectoryVisibility>(jVis)).c_str());
+        static_cast<pcp::RoomDirectoryVisibility>(jVis)).c_str());
 }
 JNI_FUNC(jstring, nativeRoomDirParseVisibility)(JNIEnv* env, jclass, jstring jJson) {
     auto vis = getRoomDir()->parseVisibilityResponse(jStr(env, jJson));
-    return env->NewStringUTF(progressive::visibilityToString(vis));
+    return env->NewStringUTF(pcp::visibilityToString(vis));
 }
 JNI_FUNC(jstring, nativeRoomDirCheckAlias)(JNIEnv* env, jclass, jstring jAlias, jstring jJson) {
     auto r = getRoomDir()->parseAliasAvailability(jStr(env, jJson), jStr(env, jAlias));
@@ -5361,7 +5361,7 @@ JNI_FUNC(jstring, nativeRoomDirCheckAlias)(JNIEnv* env, jclass, jstring jAlias, 
 }
 JNI_FUNC(jstring, nativeRoomDirFormatPreview)(JNIEnv* env, jclass, jstring jRoomJson) {
     auto json = jStr(env, jRoomJson);
-    progressive::PublicRoom r;
+    pcp::PublicRoom r;
     r.roomId = jExtractStr(json, "room_id");
     r.name = jExtractStr(json, "name");
     r.topic = jExtractStr(json, "topic");
@@ -5369,11 +5369,11 @@ JNI_FUNC(jstring, nativeRoomDirFormatPreview)(JNIEnv* env, jclass, jstring jRoom
     return env->NewStringUTF(getRoomDir()->formatRoomPreview(r).c_str());
 }
 JNI_FUNC(jstring, nativeSessionComputeId)(JNIEnv* env, jclass, jstring jUserId, jstring jDeviceId) {
-    return env->NewStringUTF(progressive::SessionManager::computeSessionId(jStr(env, jUserId), jStr(env, jDeviceId)).c_str());
+    return env->NewStringUTF(pcp::SessionManager::computeSessionId(jStr(env, jUserId), jStr(env, jDeviceId)).c_str());
 }
 JNI_FUNC(jstring, nativeSessionCreate)(JNIEnv* env, jclass, jstring jCredsJson, jstring jConfigJson, jint jLoginType) {
     auto cjson = jStr(env, jCredsJson);
-    progressive::SessionCredentials creds;
+    pcp::SessionCredentials creds;
     creds.userId = jExtractStr(cjson, "user_id");
     creds.accessToken = jExtractStr(cjson, "access_token");
     creds.refreshToken = jExtractStr(cjson, "refresh_token");
@@ -5382,7 +5382,7 @@ JNI_FUNC(jstring, nativeSessionCreate)(JNIEnv* env, jclass, jstring jCredsJson, 
     creds.valid = true;
 
     auto hjson = jStr(env, jConfigJson);
-    progressive::HomeServerConfig config;
+    pcp::HomeServerConfig config;
     config.homeServerUrl = jExtractStr(hjson, "home_server_url");
     config.homeServerUrlBase = jExtractStr(hjson, "home_server_url_base");
     config.homeServerHost = jExtractStr(hjson, "home_server_host");
@@ -5390,9 +5390,9 @@ JNI_FUNC(jstring, nativeSessionCreate)(JNIEnv* env, jclass, jstring jCredsJson, 
     config.valid = true;
 
     std::string error;
-    auto sid = getSessionMgrFull()->createSession(creds, config, static_cast<progressive::SessionLoginType>(jLoginType), error);
+    auto sid = getSessionMgrFull()->createSession(creds, config, static_cast<pcp::SessionLoginType>(jLoginType), error);
     if (sid.empty()) return env->NewStringUTF(("{\"error\":\"" + error + "\"}").c_str());
-    progressive::SavedSessionInfo info; getSessionMgrFull()->getSession(sid, info);
+    pcp::SavedSessionInfo info; getSessionMgrFull()->getSession(sid, info);
     return env->NewStringUTF(getSessionMgrFull()->sessionToJson(info).c_str());
 }
 JNI_FUNC(jboolean, nativeSessionOpen)(JNIEnv* env, jclass, jstring jSid) {
@@ -5409,7 +5409,7 @@ JNI_FUNC(jboolean, nativeSessionSetActive)(JNIEnv* env, jclass, jstring jSid) {
     return getSessionMgrFull()->setActiveSession(jStr(env, jSid)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeSessionGetActive)(JNIEnv* env, jclass) {
-    progressive::SavedSessionInfo info;
+    pcp::SavedSessionInfo info;
     if (getSessionMgrFull()->getActiveSession(info))
         return env->NewStringUTF(getSessionMgrFull()->sessionToJson(info).c_str());
     return env->NewStringUTF("{}");
@@ -5429,7 +5429,7 @@ JNI_FUNC(jstring, nativeServerNoticeParse)(JNIEnv* env, jclass, jstring jErrorJs
 }
 JNI_FUNC(jstring, nativeServerNoticeFormatLimit)(JNIEnv* env, jclass, jstring jErrorJson, jint jMode) {
     auto info = getServerNotice()->parseMatrixError(jStr(env, jErrorJson));
-    return env->NewStringUTF(getServerNotice()->formatResourceLimitError(info, static_cast<progressive::ResourceLimitMode>(jMode)).c_str());
+    return env->NewStringUTF(getServerNotice()->formatResourceLimitError(info, static_cast<pcp::ResourceLimitMode>(jMode)).c_str());
 }
 JNI_FUNC(jstring, nativeServerNoticeGetDescription)(JNIEnv* env, jclass, jstring jCode) {
     return env->NewStringUTF(getServerNotice()->getErrorCodeDescription(jStr(env, jCode)).c_str());
@@ -5461,7 +5461,7 @@ JNI_FUNC(jstring, nativeUploadParseResponse)(JNIEnv* env, jclass, jstring jJson)
 }
 JNI_FUNC(jstring, nativeUploadBuildContent)(JNIEnv* env, jclass, jstring jAttachmentJson, jstring jMxcUrl) {
     auto json = jStr(env, jAttachmentJson);
-    progressive::MediaContentAttachmentData a;
+    pcp::MediaContentAttachmentData a;
     a.size = jExtractInt(json, "size");
     a.duration = jExtractInt(json, "duration");
     a.height = jExtractInt(json, "height");
@@ -5469,7 +5469,7 @@ JNI_FUNC(jstring, nativeUploadBuildContent)(JNIEnv* env, jclass, jstring jAttach
     a.exifOrientation = static_cast<int>(jExtractInt(json, "exif_orientation"));
     a.name = jExtractStr(json, "name");
     a.mimeType = jExtractStr(json, "mime_type");
-    a.type = progressive::MediaContentAttachmentData::detectType(a.mimeType);
+    a.type = pcp::MediaContentAttachmentData::detectType(a.mimeType);
     a.valid = true;
     return env->NewStringUTF(getUploadMgr()->buildMediaContent(a, jStr(env, jMxcUrl)).c_str());
 }
@@ -5489,23 +5489,23 @@ JNI_FUNC(void, nativeUploadSetMaxSize)(JNIEnv* env, jclass, jlong jMax) {
     getUploadMgr()->setMaxFileSize(jMax);
 }
 JNI_FUNC(jstring, nativeIdentityParse3pid)(JNIEnv* env, jclass, jstring jInput) {
-    auto pid = progressive::IS_ThreePid::parse(jStr(env, jInput));
+    auto pid = pcp::IS_ThreePid::parse(jStr(env, jInput));
     return env->NewStringUTF(getIdentityMgr()->threePidToJson(pid).c_str());
 }
 JNI_FUNC(jstring, nativeIdentityBuildBind)(JNIEnv* env, jclass, jstring jInput) {
-    auto pid = progressive::IS_ThreePid::parse(jStr(env, jInput));
+    auto pid = pcp::IS_ThreePid::parse(jStr(env, jInput));
     return env->NewStringUTF(getIdentityMgr()->buildBindRequest(pid).c_str());
 }
 JNI_FUNC(jstring, nativeIdentityBuildLookup)(JNIEnv* env, jclass, jstring jPidsJson) {
     auto json = jStr(env, jPidsJson);
-    std::vector<progressive::IS_ThreePid> pids;
+    std::vector<pcp::IS_ThreePid> pids;
     size_t p = 0;
     while ((p = json.find("\"", p)) != std::string::npos) {
         p++; size_t e = p;
         while (e < json.size() && json[e] != '"') e++;
         std::string v = json.substr(p, e - p);
         if (!v.empty() && v != "[" && v != "]" && v != ",") {
-            auto pid = progressive::IS_ThreePid::parse(v);
+            auto pid = pcp::IS_ThreePid::parse(v);
             if (pid.valid) pids.push_back(pid);
         }
         p = e + 1;
@@ -5568,10 +5568,10 @@ JNI_FUNC(jboolean, nativeCrossSigningCanSign)(JNIEnv* env, jclass) {
     return getCrossSigningMgr()->canCrossSign() ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeCrossSigningBuildKeys)(JNIEnv* env, jclass, jstring jUserId, jstring jMsk, jstring jUsk, jstring jSsk) {
-    auto msk = progressive::CrossSigningManager::buildMasterKey(jStr(env, jUserId), jStr(env, jMsk));
-    auto usk = progressive::CrossSigningManager::buildUserSigningKey(jStr(env, jUserId), jStr(env, jUsk));
-    auto ssk = progressive::CrossSigningManager::buildSelfSigningKey(jStr(env, jUserId), jStr(env, jSsk));
-    auto info = progressive::CrossSigningManager::buildCrossSigningInfo(jStr(env, jUserId), msk, usk, ssk);
+    auto msk = pcp::CrossSigningManager::buildMasterKey(jStr(env, jUserId), jStr(env, jMsk));
+    auto usk = pcp::CrossSigningManager::buildUserSigningKey(jStr(env, jUserId), jStr(env, jUsk));
+    auto ssk = pcp::CrossSigningManager::buildSelfSigningKey(jStr(env, jUserId), jStr(env, jSsk));
+    auto info = pcp::CrossSigningManager::buildCrossSigningInfo(jStr(env, jUserId), msk, usk, ssk);
     return env->NewStringUTF(getCrossSigningMgr()->crossSigningInfoToJson(info).c_str());
 }
 JNI_FUNC(jstring, nativeCrossSigningCheckSelf)(JNIEnv* env, jclass) {
@@ -5586,7 +5586,7 @@ JNI_FUNC(void, nativeCrossSigningTrustMaster)(JNIEnv* env, jclass) {
     getCrossSigningMgr()->markMyMasterKeyAsTrusted();
 }
 JNI_FUNC(void, nativeDraftSave)(JNIEnv* env, jclass, jstring jRoomId, jstring jContent, jint jType, jstring jLinkedId) {
-    progressive::UserDraft draft;
+    pcp::UserDraft draft;
     draft.type = static_cast<int>(jType);
     draft.content = jStr(env, jContent);
     draft.roomId = jStr(env, jRoomId);
@@ -5619,16 +5619,16 @@ JNI_FUNC(jstring, nativeDraftStripPrefix)(JNIEnv* env, jclass, jstring jText) {
     return env->NewStringUTF(getDraftMgr()->stripDraftPrefix(jStr(env, jText)).c_str());
 }
 JNI_FUNC(jstring, nativeRoomStateParseVisibility)(JNIEnv* env, jclass, jstring jContent) {
-    auto vis = progressive::parseRoomHistoryVisibilityContent(jStr(env, jContent));
-    return env->NewStringUTF(progressive::roomHistoryVisibilityToString(vis.historyVisibility));
+    auto vis = pcp::parseRoomHistoryVisibilityContent(jStr(env, jContent));
+    return env->NewStringUTF(pcp::roomHistoryVisibilityToString(vis.historyVisibility));
 }
 JNI_FUNC(jstring, nativeRoomStateParseJoinRules)(JNIEnv* env, jclass, jstring jContent) {
-    auto rule = progressive::parseRoomJoinRulesContent(jStr(env, jContent));
-    return env->NewStringUTF(progressive::roomJoinRulesToString(rule.joinRules));
+    auto rule = pcp::parseRoomJoinRulesContent(jStr(env, jContent));
+    return env->NewStringUTF(pcp::roomJoinRulesToString(rule.joinRules));
 }
 JNI_FUNC(jboolean, nativeRoomStateShouldShare)(JNIEnv* env, jclass, jstring jContent) {
-    auto vis = progressive::parseRoomHistoryVisibilityContent(jStr(env, jContent));
-    return progressive::canShareHistory(progressive::roomHistoryVisibilityToString(vis.historyVisibility)) ? JNI_TRUE : JNI_FALSE;
+    auto vis = pcp::parseRoomHistoryVisibilityContent(jStr(env, jContent));
+    return pcp::canShareHistory(pcp::roomHistoryVisibilityToString(vis.historyVisibility)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jboolean, nativeRoomStateIsPublic)(JNIEnv* env, jclass, jstring jRoomId) {
     return getRoomStateMgr()->isPublicRoom(jStr(env, jRoomId)) ? JNI_TRUE : JNI_FALSE;
@@ -5637,17 +5637,17 @@ JNI_FUNC(jboolean, nativeRoomStateIsInviteOnly)(JNIEnv* env, jclass, jstring jRo
     return getRoomStateMgr()->isInviteOnly(jStr(env, jRoomId)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(void, nativeRoomStateSetVisibility)(JNIEnv* env, jclass, jstring jRoomId, jint jVis) {
-    getRoomStateMgr()->setHistoryVisibility(jStr(env, jRoomId), static_cast<progressive::RSM_RoomHistoryVisibility>(static_cast<int>(jVis)));
+    getRoomStateMgr()->setHistoryVisibility(jStr(env, jRoomId), static_cast<pcp::RSM_RoomHistoryVisibility>(static_cast<int>(jVis)));
 }
 JNI_FUNC(void, nativeRoomStateSetJoinRule)(JNIEnv* env, jclass, jstring jRoomId, jint jRule) {
-    getRoomStateMgr()->setJoinRule(jStr(env, jRoomId), static_cast<progressive::RoomJoinRule>(jRule));
+    getRoomStateMgr()->setJoinRule(jStr(env, jRoomId), static_cast<pcp::RoomJoinRule>(jRule));
 }
 JNI_FUNC(jstring, nativeTermsParse)(JNIEnv* env, jclass, jstring jJson) {
     auto resp = getTermsMgr()->parseTermsResponse(jStr(env, jJson));
     return env->NewStringUTF(getTermsMgr()->responseToJson(resp).c_str());
 }
 JNI_FUNC(jstring, nativeTermsBuildAgree)(JNIEnv* env, jclass, jstring jUrlsJson) {
-    progressive::TermsAgreementRequest req;
+    pcp::TermsAgreementRequest req;
     auto json = jStr(env, jUrlsJson);
     size_t p = 0;
     while ((p = json.find("\"", p)) != std::string::npos) {
@@ -5681,7 +5681,7 @@ JNI_FUNC(jstring, nativeTermsGetPending)(JNIEnv* env, jclass, jstring jResponseJ
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(void, nativeOverlaySetConfig)(JNIEnv* env, jclass, jstring jJson) {
-    progressive::TransparentOverlayConfig cfg;
+    pcp::TransparentOverlayConfig cfg;
     auto json = jStr(env, jJson);
     cfg.oneFingerHoldMs = static_cast<int>(jExtractInt(json, "one_finger_hold_ms"));
     cfg.twoFingerHoldMs = static_cast<int>(jExtractInt(json, "two_finger_hold_ms"));
@@ -5716,10 +5716,10 @@ JNI_FUNC(jstring, nativeOverlayGetState)(JNIEnv* env, jclass) {
     return env->NewStringUTF(getOverlayEngine()->stateToJson().c_str());
 }
 JNI_FUNC(void, nativeOverlaySetSafetyMode)(JNIEnv* env, jclass, jint jMode) {
-    getOverlayEngine()->setSafetyMode(static_cast<progressive::OverlaySafetyMode>(jMode));
+    getOverlayEngine()->setSafetyMode(static_cast<pcp::OverlaySafetyMode>(jMode));
 }
 JNI_FUNC(void, nativeOverlaySetSafetyPerms)(JNIEnv* env, jclass, jstring jJson) {
-    progressive::OverlaySafetyPermissions perms;
+    pcp::OverlaySafetyPermissions perms;
     auto json = jStr(env, jJson);
     perms.allowTap = jExtractBool(json, "allow_tap");
     perms.allowScroll = jExtractBool(json, "allow_scroll");
@@ -5732,7 +5732,7 @@ JNI_FUNC(void, nativeOverlaySetSafetyPerms)(JNIEnv* env, jclass, jstring jJson) 
     getOverlayEngine()->setSafetyPermissions(perms);
 }
 JNI_FUNC(jboolean, nativeOverlayIsTouchAllowed)(JNIEnv* env, jclass, jint jAction) {
-    return getOverlayEngine()->isTouchAllowed(static_cast<progressive::TouchAction>(jAction)) ? JNI_TRUE : JNI_FALSE;
+    return getOverlayEngine()->isTouchAllowed(static_cast<pcp::TouchAction>(jAction)) ? JNI_TRUE : JNI_FALSE;
 }
 JNI_FUNC(jstring, nativeOverlaySafetyToJson)(JNIEnv* env, jclass) {
     return env->NewStringUTF(getOverlayEngine()->safetyToJson().c_str());
@@ -5754,16 +5754,16 @@ JNI_FUNC(jstring, nativeComposerApplyItalic)(JNIEnv* env, jclass, jstring jText,
     return env->NewStringUTF(getComposerMgr()->applyItalic(jStr(env, jText), jStart, jEnd).c_str());
 }
 JNI_FUNC(jstring, nativeComposerBuildQuoted)(JNIEnv* env, jclass, jstring jQuoted, jstring jReply, jstring jSender) {
-    return env->NewStringUTF(progressive::buildQuotedBody(jStr(env, jQuoted), jStr(env, jReply), jStr(env, jSender)).c_str());
+    return env->NewStringUTF(pcp::buildQuotedBody(jStr(env, jQuoted), jStr(env, jReply), jStr(env, jSender)).c_str());
 }
 JNI_FUNC(jstring, nativeComposerAutoEmoji)(JNIEnv* env, jclass, jstring jText) {
-    return env->NewStringUTF(progressive::autoReplaceEmojis(jStr(env, jText)).c_str());
+    return env->NewStringUTF(pcp::autoReplaceEmojis(jStr(env, jText)).c_str());
 }
 JNI_FUNC(jstring, nativeComposerExtractMention)(JNIEnv* env, jclass, jstring jText, jint jCursor) {
-    return env->NewStringUTF(progressive::extractMentionQuery(jStr(env, jText), jCursor).c_str());
+    return env->NewStringUTF(pcp::extractMentionQuery(jStr(env, jText), jCursor).c_str());
 }
 JNI_FUNC(jstring, nativeComposerValidate)(JNIEnv* env, jclass, jstring jText, jint jMaxLen) {
-    auto v = progressive::validateMessage(jStr(env, jText), jMaxLen);
+    auto v = pcp::validateMessage(jStr(env, jText), jMaxLen);
     std::ostringstream os;
     os << R"({"valid":)" << (v.valid ? "true" : "false")
        << R"(,"isEmpty":)" << (v.isEmpty ? "true" : "false")
@@ -5775,7 +5775,7 @@ JNI_FUNC(jstring, nativeComposerValidate)(JNIEnv* env, jclass, jstring jText, ji
     return env->NewStringUTF(os.str().c_str());
 }
 JNI_FUNC(void, nativeUndoSetConfig)(JNIEnv* env, jclass, jstring jJson) {
-    progressive::UndoConfig cfg;
+    pcp::UndoConfig cfg;
     auto json = jStr(env, jJson);
     cfg.maxDepth = static_cast<int>(jExtractInt(json, "max_depth"));
     cfg.autoCheckpointBytes = static_cast<int>(jExtractInt(json, "auto_checkpoint_bytes"));
@@ -5831,7 +5831,7 @@ JNI_FUNC(jstring, nativePermGetRole)(JNIEnv* env, jclass, jstring jUserId, jint 
 }
 JNI_FUNC(jstring, nativePermBuildContent)(JNIEnv* env, jclass, jstring jPlJson) {
     auto json = jStr(env, jPlJson);
-    progressive::PowerLevelsContent pl;
+    pcp::PowerLevelsContent pl;
     pl.ban = static_cast<int>(jExtractInt(json, "ban")); if (pl.ban == 0) pl.ban = 50;
     pl.kick = static_cast<int>(jExtractInt(json, "kick")); if (pl.kick == 0) pl.kick = 50;
     pl.invite = static_cast<int>(jExtractInt(json, "invite"));
@@ -5853,7 +5853,7 @@ JNI_FUNC(jstring, nativePermFormatChange)(JNIEnv* env, jclass, jstring jUserId, 
 }
 JNI_FUNC(void, nativeCacheRegisterRoom)(JNIEnv* env, jclass, jstring jRoomJson) {
     auto json = jStr(env, jRoomJson);
-    progressive::RoomPriority r;
+    pcp::RoomPriority r;
     r.roomId = jExtractStr(json, "room_id");
     r.roomName = jExtractStr(json, "room_name");
     r.priority = static_cast<int>(jExtractInt(json, "priority"));
@@ -5866,7 +5866,7 @@ JNI_FUNC(void, nativeCacheRegisterRoom)(JNIEnv* env, jclass, jstring jRoomJson) 
 }
 JNI_FUNC(jstring, nativeCacheGetPlan)(JNIEnv* env, jclass) {
     auto plan = getCacheMgr()->generatePlan();
-    return env->NewStringUTF(progressive::offlineCachePlanToJson(plan).c_str());
+    return env->NewStringUTF(pcp::offlineCachePlanToJson(plan).c_str());
 }
 JNI_FUNC(jstring, nativeCacheGetStats)(JNIEnv* env, jclass) {
     return env->NewStringUTF(getCacheMgr()->statsToJson().c_str());
@@ -5927,20 +5927,20 @@ JNI_FUNC(jstring, nativeSpoilerBuildContent)(JNIEnv* env, jclass, jstring jBody,
 // ============================================================
 
 JNI_FUNC(jboolean, nativeContainsRtlOverride)(JNIEnv* env, jclass, jstring jText) {
-    return progressive::containsRtlOverride(jStr(env, jText)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::containsRtlOverride(jStr(env, jText)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeContainsBidiOverride)(JNIEnv* env, jclass, jstring jText) {
-    return progressive::containsBidiOverride(jStr(env, jText)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::containsBidiOverride(jStr(env, jText)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeFilterBidiOverrides)(JNIEnv* env, jclass, jstring jText) {
-    auto result = progressive::filterBidiOverrides(jStr(env, jText));
+    auto result = pcp::filterBidiOverrides(jStr(env, jText));
     return env->NewStringUTF(result.c_str());
 }
 
 JNI_FUNC(jstring, nativeSanitizeDisplayText)(JNIEnv* env, jclass, jstring jText) {
-    auto result = progressive::sanitizeDisplayText(jStr(env, jText));
+    auto result = pcp::sanitizeDisplayText(jStr(env, jText));
     return env->NewStringUTF(result.c_str());
 }
 
@@ -5949,69 +5949,69 @@ JNI_FUNC(jstring, nativeSanitizeDisplayText)(JNIEnv* env, jclass, jstring jText)
 // ============================================================
 
 JNI_FUNC(jboolean, nativeErrorIsTokenError)(JNIEnv* env, jclass, jstring jErrorCode) {
-    progressive::ErrorContext ctx;
+    pcp::ErrorContext ctx;
     ctx.errorCode = jStr(env, jErrorCode);
-    return progressive::isTokenError(ctx) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isTokenError(ctx) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeErrorShouldBeRetried)(JNIEnv* env, jclass, jstring jErrorCode, jint jHttpCode, jboolean jIsNetwork) {
-    progressive::ErrorContext ctx;
+    pcp::ErrorContext ctx;
     ctx.errorCode = jStr(env, jErrorCode);
     ctx.httpCode = jHttpCode;
     ctx.isNetworkError = jIsNetwork;
-    return progressive::shouldBeRetried(ctx) ? JNI_TRUE : JNI_FALSE;
+    return pcp::shouldBeRetried(ctx) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeErrorIsInvalidUsername)(JNIEnv* env, jclass, jstring jErrorCode, jstring jErrorMessage) {
-    progressive::ErrorContext ctx;
+    pcp::ErrorContext ctx;
     ctx.errorCode = jStr(env, jErrorCode);
     ctx.errorMessage = jStr(env, jErrorMessage);
-    return progressive::isInvalidUsername(ctx) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isInvalidUsername(ctx) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeErrorIsInvalidPassword)(JNIEnv* env, jclass, jstring jErrorCode, jstring jErrorMessage) {
-    progressive::ErrorContext ctx;
+    pcp::ErrorContext ctx;
     ctx.errorCode = jStr(env, jErrorCode);
     ctx.errorMessage = jStr(env, jErrorMessage);
-    return progressive::isInvalidPassword(ctx) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isInvalidPassword(ctx) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeErrorIsWeakPassword)(JNIEnv* env, jclass, jstring jErrorCode) {
-    progressive::ErrorContext ctx;
+    pcp::ErrorContext ctx;
     ctx.errorCode = jStr(env, jErrorCode);
-    return progressive::isWeakPassword(ctx) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isWeakPassword(ctx) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeErrorIsLoginEmailUnknown)(JNIEnv* env, jclass, jstring jErrorCode, jstring jErrorMessage) {
-    progressive::ErrorContext ctx;
+    pcp::ErrorContext ctx;
     ctx.errorCode = jStr(env, jErrorCode);
     ctx.errorMessage = jStr(env, jErrorMessage);
-    return progressive::isLoginEmailUnknown(ctx) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isLoginEmailUnknown(ctx) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeErrorIsHomeserverUnavailable)(JNIEnv* env, jclass, jboolean jIsNetwork, jboolean jIsUnknownHost) {
-    progressive::ErrorContext ctx;
+    pcp::ErrorContext ctx;
     ctx.isNetworkError = jIsNetwork;
     ctx.isUnknownHost = jIsUnknownHost;
-    return progressive::isHomeserverUnavailable(ctx) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isHomeserverUnavailable(ctx) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeErrorIsRegistrationAvailability)(JNIEnv* env, jclass, jstring jErrorCode, jint jHttpCode) {
-    progressive::ErrorContext ctx;
+    pcp::ErrorContext ctx;
     ctx.errorCode = jStr(env, jErrorCode);
     ctx.httpCode = jHttpCode;
-    return progressive::isRegistrationAvailabilityError(ctx) ? JNI_TRUE : JNI_FALSE;
+    return pcp::isRegistrationAvailabilityError(ctx) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jstring, nativeClassifyError)(JNIEnv* env, jclass, jstring jErrorCode, jint jHttpCode, jstring jErrorMessage, jboolean jIsNetwork, jboolean jIsUnknownHost) {
-    progressive::ErrorContext ctx;
+    pcp::ErrorContext ctx;
     ctx.errorCode = jStr(env, jErrorCode);
     ctx.httpCode = jHttpCode;
     ctx.errorMessage = jStr(env, jErrorMessage);
     ctx.isNetworkError = jIsNetwork;
     ctx.isUnknownHost = jIsUnknownHost;
-    auto type = progressive::classifyError(ctx);
-    return env->NewStringUTF(progressive::humanErrorTypeName(type));
+    auto type = pcp::classifyError(ctx);
+    return env->NewStringUTF(pcp::humanErrorTypeName(type));
 }
 
 // ============================================================
@@ -6019,12 +6019,12 @@ JNI_FUNC(jstring, nativeClassifyError)(JNIEnv* env, jclass, jstring jErrorCode, 
 // ============================================================
 
 JNI_FUNC(jboolean, nativeWildcardMatch)(JNIEnv* env, jclass, jstring jPattern, jstring jValue) {
-    return progressive::wildcardMatch(jStr(env, jPattern), jStr(env, jValue)) ? JNI_TRUE : JNI_FALSE;
+    return pcp::wildcardMatch(jStr(env, jPattern), jStr(env, jValue)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNI_FUNC(jboolean, nativeIsServerAllowed)(JNIEnv* env, jclass, jstring jServerName, jstring jAclJson) {
-    auto acl = progressive::parseRoomServerAclContent(jStr(env, jAclJson));
-    return progressive::isServerAllowed(jStr(env, jServerName), acl) ? JNI_TRUE : JNI_FALSE;
+    auto acl = pcp::parseRoomServerAclContent(jStr(env, jAclJson));
+    return pcp::isServerAllowed(jStr(env, jServerName), acl) ? JNI_TRUE : JNI_FALSE;
 }
 
 // ============================================================
@@ -6032,8 +6032,8 @@ JNI_FUNC(jboolean, nativeIsServerAllowed)(JNIEnv* env, jclass, jstring jServerNa
 // ============================================================
 
 JNI_FUNC(jboolean, nativeCanJoinRoom)(JNIEnv* env, jclass, jstring jJoinRulesJson, jboolean jIsInvited, jboolean jIsMember, jboolean jIsMemberOfAllowedRoom) {
-    auto rules = progressive::parseRoomJoinRulesContent(jStr(env, jJoinRulesJson));
-    return progressive::canJoinRoom(rules, jIsInvited, jIsMember, jIsMemberOfAllowedRoom) ? JNI_TRUE : JNI_FALSE;
+    auto rules = pcp::parseRoomJoinRulesContent(jStr(env, jJoinRulesJson));
+    return pcp::canJoinRoom(rules, jIsInvited, jIsMember, jIsMemberOfAllowedRoom) ? JNI_TRUE : JNI_FALSE;
 }
 
 // ============================================================
@@ -6045,7 +6045,7 @@ JNI_FUNC(jboolean, nativeCanJoinRoom)(JNIEnv* env, jclass, jstring jJoinRulesJso
 // ============================================================
 
 JNI_FUNC(jstring, nativeEnsureCorrectFormattedBodyInTextReply)(JNIEnv* env, jclass, jstring jNewFormatted, jstring jNewBody, jstring jOriginalFormatted) {
-    auto result = progressive::ensureCorrectFormattedBodyInTextReply(
+    auto result = pcp::ensureCorrectFormattedBodyInTextReply(
         jStr(env, jNewFormatted), jStr(env, jNewBody), jStr(env, jOriginalFormatted));
     return env->NewStringUTF(result.c_str());
 }
@@ -6057,29 +6057,29 @@ JNI_FUNC(jstring, nativeEnsureCorrectFormattedBodyInTextReply)(JNIEnv* env, jcla
 JNI_FUNC(jstring, nativeBuildLlmRequest)(JNIEnv* env, jclass, jstring jPrompt, jint jProvider,
                                           jstring jEndpoint, jstring jToken, jstring jModel,
                                           jstring jSystem, jfloat jTemp, jint jMaxTokens) {
-    progressive::LlmConfig config;
-    config.provider = static_cast<progressive::LlmProvider>(jProvider);
+    pcp::LlmConfig config;
+    config.provider = static_cast<pcp::LlmProvider>(jProvider);
     config.apiEndpoint = jStr(env, jEndpoint);
     config.apiToken = jStr(env, jToken);
     config.model = jStr(env, jModel);
     config.systemPrompt = jStr(env, jSystem);
     config.temperature = jTemp;
     config.maxTokens = jMaxTokens;
-    auto body = progressive::buildLlmRequestBody(config, jStr(env, jPrompt));
+    auto body = pcp::buildLlmRequestBody(config, jStr(env, jPrompt));
     return env->NewStringUTF(body.c_str());
 }
 
 JNI_FUNC(jstring, nativeBuildLlmHeaders)(JNIEnv* env, jclass, jint jProvider, jstring jToken) {
-    progressive::LlmConfig config;
-    config.provider = static_cast<progressive::LlmProvider>(jProvider);
+    pcp::LlmConfig config;
+    config.provider = static_cast<pcp::LlmProvider>(jProvider);
     config.apiToken = jStr(env, jToken);
-    auto headers = progressive::buildLlmHeaders(config);
+    auto headers = pcp::buildLlmHeaders(config);
     return env->NewStringUTF(headers.c_str());
 }
 
 JNI_FUNC(jstring, nativeParseLlmResponse)(JNIEnv* env, jclass, jstring jBody, jint jStatusCode, jint jProvider) {
-    auto resp = progressive::parseLlmResponse(jStr(env, jBody), jStatusCode,
-                                               static_cast<progressive::LlmProvider>(jProvider));
+    auto resp = pcp::parseLlmResponse(jStr(env, jBody), jStatusCode,
+                                               static_cast<pcp::LlmProvider>(jProvider));
     std::string json = "{\"success\":" + std::string(resp.success ? "true" : "false") + ",";
     json += "\"text\":\"" + resp.text + "\",";
     json += "\"errorMessage\":\"" + resp.errorMessage + "\",";
@@ -6088,16 +6088,16 @@ JNI_FUNC(jstring, nativeParseLlmResponse)(JNIEnv* env, jclass, jstring jBody, ji
 }
 
 JNI_FUNC(jstring, nativeFormatLlmBroadcast)(JNIEnv* env, jclass, jstring jPrompt, jstring jResponse) {
-    auto formatted = progressive::formatLlmBroadcastMessage(jStr(env, jPrompt), jStr(env, jResponse));
+    auto formatted = pcp::formatLlmBroadcastMessage(jStr(env, jPrompt), jStr(env, jResponse));
     return env->NewStringUTF(formatted.c_str());
 }
 // ============================================================
 // Alarm Engine
 // ============================================================
 
-static progressive::NightModeManager g_nightMode;
+static pcp::NightModeManager g_nightMode;
 
-static progressive::AlarmManager g_alarmMgr;
+static pcp::AlarmManager g_alarmMgr;
 
 JNI_FUNC(jstring, nativeAlarmCreate)(JNIEnv* env, jclass, jstring jText) {
     auto id = g_alarmMgr.createAlarm(jStr(env, jText));
@@ -6134,7 +6134,7 @@ JNI_FUNC(void, nativeAlarmLoad)(JNIEnv* env, jclass, jstring jJson) {
 // ============================================================
 
 JNI_FUNC(void, nativeNotifSetMode)(JNIEnv* env, jclass, jint jMode) {
-    g_nightMode.setMode(static_cast<progressive::NightMode>(jMode));
+    g_nightMode.setMode(static_cast<pcp::NightMode>(jMode));
 }
 
 JNI_FUNC(jint, nativeNotifGetMode)(JNIEnv* env, jclass) {
@@ -6169,15 +6169,15 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* /*reserved*/) {
     JNIEnv* env = nullptr;
     if (vm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK)
         return JNI_ERR;
-    jclass clazz = env->FindClass("chat/progressive/app/native/ProgressiveNative");
+    jclass clazz = env->FindClass("chat/pcp/app/native/PcpNative");
     if (!clazz) return JNI_ERR;
     JNINativeMethod methods[] = {
         {(char*)"nativeOlmCreateAccount", (char*)"(Ljava/lang/String;Ljava/lang/String;)Z",
-         (void*)Java_chat_progressive_app_native_ProgressiveNative_nativeOlmCreateAccount},
+         (void*)Java_chat_pcp_app_native_PcpNative_nativeOlmCreateAccount},
         {(char*)"nativeOlmGetIdentityKeys", (char*)"()Ljava/lang/String;",
-         (void*)Java_chat_progressive_app_native_ProgressiveNative_nativeOlmGetIdentityKeys},
+         (void*)Java_chat_pcp_app_native_PcpNative_nativeOlmGetIdentityKeys},
         {(char*)"nativeOlmGenerateOneTimeKeys", (char*)"(I)Ljava/lang/String;",
-         (void*)Java_chat_progressive_app_native_ProgressiveNative_nativeOlmGenerateOneTimeKeys},
+         (void*)Java_chat_pcp_app_native_PcpNative_nativeOlmGenerateOneTimeKeys},
     };
     env->RegisterNatives(clazz, methods, 3);
     return JNI_VERSION_1_6;

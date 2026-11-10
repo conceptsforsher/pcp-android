@@ -1,10 +1,10 @@
-#include "progressive/space_graph.hpp"
+#include "pcp/space_graph.hpp"
 #include <sstream>
 #include <algorithm>
 #include <queue>
 #include <stack>
 
-namespace progressive {
+namespace pcp {
 
 // ================================================================
 // SpaceChildEntry parsing
@@ -569,4 +569,4 @@ std::vector<SpaceNode> SpaceGraph::sortByOrder(std::vector<SpaceNode> nodes, con
     return nodes;
 }
 
-} // namespace progressive
+} // namespace pcp

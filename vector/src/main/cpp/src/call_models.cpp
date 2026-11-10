@@ -1,6 +1,6 @@
-#include "progressive/call_models.hpp"
+#include "pcp/call_models.hpp"
 
-namespace progressive {
+namespace pcp {
 
 // ==== SdpType ====
 const char* sdpTypeToString(SdpType t) {
@@ -273,4 +273,4 @@ TurnServerResponse parseTurnServerResponse(const std::string& json) {
     return ts;
 }
 
-} // namespace progressive
+} // namespace pcp

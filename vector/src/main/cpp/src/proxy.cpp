@@ -1,8 +1,8 @@
-#include "progressive/proxy.hpp"
+#include "pcp/proxy.hpp"
 #include <sstream>
 #include <regex>
 
-namespace progressive {
+namespace pcp {
 
 ProxyConfig computeProxyConfig(
     ConnectionType connType,
@@ -89,4 +89,4 @@ std::string ProxyConfig::toJson() const {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

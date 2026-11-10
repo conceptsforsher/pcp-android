@@ -1,6 +1,6 @@
-#include "progressive/auth_models.hpp"
+#include "pcp/auth_models.hpp"
 
-namespace progressive {
+namespace pcp {
 
 const char* presenceEnumToString(PresenceEnum p) {
     switch (p) {
@@ -249,4 +249,4 @@ WidgetContent parseWidgetContent(const std::string& json) {
     return w;
 }
 
-} // namespace progressive
+} // namespace pcp

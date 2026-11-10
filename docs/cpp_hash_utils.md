@@ -2,14 +2,14 @@
 
 ## Overview
 
-A zero-dependency, pure C++ cryptographic hashing module for Progressive Chat.
+A zero-dependency, pure C++ cryptographic hashing module for PCP.
 Provides SHA-256, HMAC-SHA256, CRC32, Adler32, and token generation.
 All algorithms are implemented from scratch — no OpenSSL or external libraries required.
 
 ## Module Structure
 
 ```
-include/progressive/hash_utils.hpp    — Declarations
+include/pcp/hash_utils.hpp    — Declarations
 src/hash_utils.cpp                     — All implementations
 src/jni_bridge.cpp                     — JNI bindings
 ```
@@ -63,10 +63,10 @@ Performance: ~5 MB/s on arm64-v8a (single-threaded, no hardware acceleration).
 
 ```kotlin
 // Kotlin wrapper
-ProgressiveNative.nativeSha256Hex("hello world")
+PcpNative.nativeSha256Hex("hello world")
 // → "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
 
-ProgressiveNative.nativeGenerateToken(32)
+PcpNative.nativeGenerateToken(32)
 // → "K7xQm2pR9vL3nW8yA5bC0dE1fG4hI6jM"
 ```
 
@@ -74,12 +74,12 @@ ProgressiveNative.nativeGenerateToken(32)
 
 ```cpp
 void testSha256KnownVector() {
-    auto hash = progressive::sha256Hex("abc");
+    auto hash = pcp::sha256Hex("abc");
     assert(hash == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
 }
 
 void testHmacSha256() {
-    auto mac = progressive::hmacSha256("key", "message");
+    auto mac = pcp::hmacSha256("key", "message");
     assert(mac.size() == 32);
 }
 ```

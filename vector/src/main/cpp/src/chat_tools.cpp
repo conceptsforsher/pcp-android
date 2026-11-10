@@ -1,9 +1,9 @@
-#include "progressive/chat_tools.hpp"
+#include "pcp/chat_tools.hpp"
 #include <sstream>
 #include <algorithm>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 // ---- UserHideManager ----
 
@@ -207,4 +207,4 @@ bool isValidCrop(int imgW, int imgH, int cropX, int cropY, int cropW, int cropH)
     return true;
 }
 
-} // namespace progressive
+} // namespace pcp

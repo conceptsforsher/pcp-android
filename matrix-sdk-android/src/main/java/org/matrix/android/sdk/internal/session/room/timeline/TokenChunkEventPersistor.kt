@@ -59,7 +59,7 @@ internal class TokenChunkEventPersistor @Inject constructor(
 
     companion object {
         /**
-         * Optional native C++ timeline storage callback for Progressive Chat.
+         * Optional native C++ timeline storage callback for PCP.
          * Called for each event persisted to Realm, so native SQLite can mirror it.
          * Set by the app layer when SETTINGS_LABS_NATIVE_TIMELINE is enabled.
          * Parameters: roomId, eventId, type, senderId, contentJson, originTs, displayIndex
@@ -169,7 +169,7 @@ internal class TokenChunkEventPersistor @Inject constructor(
                 val ageLocalTs = now - (event.unsignedData?.age ?: 0)
                 val eventEntity = event.toEntity(roomId, SendState.SYNCED, ageLocalTs).copyToRealmOrIgnore(realm, EventInsertType.PAGINATION)
 
-                // Progressive Chat: mirror event to native C++ timeline (Labs-gated)
+                // PCP: mirror event to native C++ timeline (Labs-gated)
                 val callback = nativeEventPersistCallback
                 if (callback != null) {
                     val contentJson = "{}"

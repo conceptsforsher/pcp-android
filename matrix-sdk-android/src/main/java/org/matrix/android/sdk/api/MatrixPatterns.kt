@@ -16,7 +16,7 @@
 
 package org.matrix.android.sdk.api
 
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 import org.matrix.android.sdk.BuildConfig
 import timber.log.Timber
 
@@ -35,11 +35,11 @@ object MatrixPatterns {
     val ORDER_STRING_REGEX by lazy { "[ -~]+".toRegex() }
     const val SEP_REGEX = "/"
 
-    fun isUserId(str: String?): Boolean = str != null && ProgressiveNative.nativeIsUserId(str)
-    fun isRoomId(str: String?): Boolean = str != null && ProgressiveNative.nativeIsRoomId(str)
-    fun isRoomAlias(str: String?): Boolean = str != null && ProgressiveNative.nativeIsRoomAlias(str)
-    fun isEventId(str: String?): Boolean = str != null && ProgressiveNative.nativeIsEventId(str)
-    fun isGroupId(str: String?): Boolean = str != null && ProgressiveNative.nativeIsGroupId(str)
+    fun isUserId(str: String?): Boolean = str != null && PcpNative.nativeIsUserId(str)
+    fun isRoomId(str: String?): Boolean = str != null && PcpNative.nativeIsRoomId(str)
+    fun isRoomAlias(str: String?): Boolean = str != null && PcpNative.nativeIsRoomAlias(str)
+    fun isEventId(str: String?): Boolean = str != null && PcpNative.nativeIsEventId(str)
+    fun isGroupId(str: String?): Boolean = str != null && PcpNative.nativeIsGroupId(str)
 
     fun isPermalink(str: String?): Boolean {
         if (str == null) return false
@@ -49,19 +49,19 @@ object MatrixPatterns {
     }
 
     fun extractServerNameFromId(matrixId: String?): String? {
-        return ProgressiveNative.nativeExtractServerNameFromId(matrixId ?: "").takeIf { it.isNotEmpty() }
+        return PcpNative.nativeExtractServerNameFromId(matrixId ?: "").takeIf { it.isNotEmpty() }
     }
 
     fun extractUserNameFromId(matrixId: String): String? {
-        return if (isUserId(matrixId)) ProgressiveNative.nativeExtractUserNameFromId(matrixId).takeIf { it.isNotEmpty() } else null
+        return if (isUserId(matrixId)) PcpNative.nativeExtractUserNameFromId(matrixId).takeIf { it.isNotEmpty() } else null
     }
 
     fun isValidOrderString(order: String?): Boolean {
-        return order != null && order.length < 50 && ProgressiveNative.nativeIsValidOrderString(order)
+        return order != null && order.length < 50 && PcpNative.nativeIsValidOrderString(order)
     }
 
     fun candidateAliasFromRoomName(roomName: String, domain: String): String {
-        return ProgressiveNative.nativeCandidateAliasFromRoomName(roomName, domain)
+        return PcpNative.nativeCandidateAliasFromRoomName(roomName, domain)
     }
 
     fun String.getServerName(): String {

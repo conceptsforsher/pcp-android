@@ -9,7 +9,7 @@
 - **190+ JNI bridges** covering the full API surface: login→sync→timeline→rooms→profile→search→moderation→crypto→polls→spaces→calls→widgets
 - **Native SQLite** (SqliteDB + EventDatabase) ready as Realm replacement
 - **SQLite amalgamation** downloaded at build time — not stored in repo
-- **Cleanup**: 10 duplicate declarations removed from ProgressiveNative.kt, section headers consolidated
+- **Cleanup**: 10 duplicate declarations removed from PcpNative.kt, section headers consolidated
 
 ### Known issues
 - **Initial sync (account import) does not work** — the C++ native sync parser runs alongside Moshi for validation only. Full replacement in v0.2
@@ -18,7 +18,7 @@
 - OpenSSL not linked — AES-CTR and PBKDF2-HMAC-SHA512 unavailable via libolm
 
 ### Full changelog
-See [git history](https://github.com/progressive-chat/progressive-android/commits/main) for all 26+ commits since v0.1.
+See [git history](https://github.com/pcp-chat/pcp-android/commits/main) for all 26+ commits since v0.1.
 
 ---
 
@@ -26,7 +26,7 @@ See [git history](https://github.com/progressive-chat/progressive-android/commit
 (see below for full v0.2 roadmap)
 
 ### Core Architecture
-- **Pure C++ native engine** (`libprogressive_native.so`) — 194 modules replacing key SDK subsystems
+- **Pure C++ native engine** (`libpcp_native.so`) — 194 modules replacing key SDK subsystems
 - **Full login→sync→timeline pipeline** in native C++ with JNI bridges (50+ functions)
 - **API surface**: 25+ Matrix endpoints callable from native code (login, sync, send, join/leave, profile, search, moderation, push rules, room messages, filters)
 
@@ -86,7 +86,7 @@ See [git history](https://github.com/progressive-chat/progressive-android/commit
 - Theme: 65+ SC theme attributes in `attrs_room_message_colors.xml`
 
 ### Build & CI
-- `applicationId` changed to `chat.progressive.app`
+- `applicationId` changed to `chat.pcp.app`
 - NDK 21.3.6528147 (libc++), CMake 3.22.1, C++20
 - Android ARM32 F-Droid CI with `-PciAbi=armeabi-v7a`
 - Gradle heap 3072m, `out-of-process` Kotlin, `--warn` logging
@@ -102,16 +102,16 @@ See [git history](https://github.com/progressive-chat/progressive-android/commit
 
 ### Differences from Element Classic Android
 
-| Area | Element Classic | Progressive Chat v0.1 |
+| Area | Element Classic | PCP v0.1 |
 |------|-----------------|----------------------|
 | **Language** | Kotlin + some Rust (crypto) | Kotlin + C++20 native core |
 | **Database** | Realm (encrypted per-session) | Realm + experimental native SQLite |
 | **HTTP** | Retrofit + OkHttp | Retrofit + experimental C++ HTTP/1.1 client |
 | **JSON parsing** | Moshi (compile-time adapters) | Moshi + experimental C++ manual parser |
 | **Crypto** | Rust SDK (matrix-sdk-crypto) | libolm (C/C++ native) |
-| **Package ID** | `im.vector.app` | `chat.progressive.app` |
+| **Package ID** | `im.vector.app` | `chat.pcp.app` |
 | **License** | AGPL + Element Commercial | AGPL-3.0-only |
-| **App name** | Element Classic | Progressive Chat |
+| **App name** | Element Classic | PCP |
 | **Homeserver** | Any Matrix server | Any Matrix server |
 | **OIDC/MAS** | Partial (MSC3824 awareness) | Ported from Element X |
 

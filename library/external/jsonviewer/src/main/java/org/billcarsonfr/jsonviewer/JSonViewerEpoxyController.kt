@@ -11,7 +11,7 @@ import android.content.Context
 import android.view.View
 import com.airbnb.epoxy.TypedEpoxyController
 import com.airbnb.mvrx.Fail
-import chat.progressive.lib.core.utils.epoxy.charsequence.toEpoxyCharSequence
+import chat.pcp.lib.core.utils.epoxy.charsequence.toEpoxyCharSequence
 import me.gujun.android.span.Span
 import me.gujun.android.span.span
 

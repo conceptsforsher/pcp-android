@@ -18,7 +18,7 @@ import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
-import chat.progressive.lib.core.utils.epoxy.charsequence.EpoxyCharSequence
+import chat.pcp.lib.core.utils.epoxy.charsequence.EpoxyCharSequence
 
 @EpoxyModelClass
 internal abstract class ValueItem : EpoxyModelWithHolder<ValueItem.Holder>() {

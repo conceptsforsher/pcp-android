@@ -5,15 +5,15 @@ Rule: every SDK call below becomes a suspend call on `PcoreBridge`
 
 | # | File | score | sdk | getRoom | roomService |
 |---|---|---|---|---|---|
-| 1 | `chat/progressive/app/features/home/room/detail/TimelineViewModel.kt` | 75 | 45 | 2 | 12 |
-| 2 | `chat/progressive/app/features/home/room/detail/composer/MessageComposerViewModel.kt` | 45 | 27 | 2 | 6 |
-| 3 | `chat/progressive/app/features/home/HomeDetailViewModel.kt` | 43 | 11 | 0 | 16 |
-| 4 | `chat/progressive/app/features/home/room/list/home/HomeRoomListViewModel.kt` | 42 | 20 | 2 | 8 |
-| 5 | `chat/progressive/app/features/home/room/detail/timeline/factory/MessageItemFactory.kt` | 41 | 30 | 1 | 4 |
+| 1 | `chat/pcp/app/features/home/room/detail/TimelineViewModel.kt` | 75 | 45 | 2 | 12 |
+| 2 | `chat/pcp/app/features/home/room/detail/composer/MessageComposerViewModel.kt` | 45 | 27 | 2 | 6 |
+| 3 | `chat/pcp/app/features/home/HomeDetailViewModel.kt` | 43 | 11 | 0 | 16 |
+| 4 | `chat/pcp/app/features/home/room/list/home/HomeRoomListViewModel.kt` | 42 | 20 | 2 | 8 |
+| 5 | `chat/pcp/app/features/home/room/detail/timeline/factory/MessageItemFactory.kt` | 41 | 30 | 1 | 4 |
 
 ## Per-file call inventory
 
-### 1. chat/progressive/app/features/home/room/detail/TimelineViewModel.kt
+### 1. chat/pcp/app/features/home/room/detail/TimelineViewModel.kt
 
 - L80: import …`MatrixPatterns`
 - L81: import …`isMxcUrl`
@@ -71,7 +71,7 @@ Rule: every SDK call below becomes a suspend call on `PcoreBridge`
 - L997: `session.roomService().joinRoom(initialState.roomId)`
 - L1469: `session.roomService().getRoomMember(inviterId, summary.roomId)`
 
-### 2. chat/progressive/app/features/home/room/detail/composer/MessageComposerViewModel.kt
+### 2. chat/pcp/app/features/home/room/detail/composer/MessageComposerViewModel.kt
 
 - L55: import …`QueryStringValue`
 - L56: import …`Session`
@@ -112,7 +112,7 @@ Rule: every SDK call below becomes a suspend call on `PcoreBridge`
 - L797: `session.roomService().leaveRoom(it.roomId)`
 - L897: `} ?: room.sendService().sendTextMessage(sequence)`
 
-### 3. chat/progressive/app/features/home/HomeDetailViewModel.kt
+### 3. chat/pcp/app/features/home/HomeDetailViewModel.kt
 
 - L38: import …`RoomCategoryFilter`
 - L39: import …`toActiveSpaceOrNoFilter`
@@ -134,7 +134,7 @@ Rule: every SDK call below becomes a suspend call on `PcoreBridge`
 - L258: `val dmRooms = session.roomService().getNotificationCountForRooms(`
 - L266: `val otherRooms = session.roomService().getNotificationCountForRooms(`
 
-### 4. chat/progressive/app/features/home/room/list/home/HomeRoomListViewModel.kt
+### 4. chat/pcp/app/features/home/room/list/home/HomeRoomListViewModel.kt
 
 - L42: import …`orFalse`
 - L43: import …`QueryStringValue`
@@ -163,7 +163,7 @@ Rule: every SDK call below becomes a suspend call on `PcoreBridge`
 - L391: `val localRoomIds = session.roomService()`
 - L396: `session.roomService().deleteLocalRoom(it)`
 
-### 5. chat/progressive/app/features/home/room/detail/timeline/factory/MessageItemFactory.kt
+### 5. chat/pcp/app/features/home/room/detail/timeline/factory/MessageItemFactory.kt
 
 - L79: import …`isMxcUrl`
 - L80: import …`Session`

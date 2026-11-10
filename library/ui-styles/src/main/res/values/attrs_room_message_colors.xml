@@ -10,7 +10,7 @@
     <attr name="vctr_markdown_block_background_color" format="color" />
     <attr name="vctr_spoiler_background_color" format="color" />
 
-    <!-- ShieldChat / Progressive Chat theme attributes (Faraday-inspired) -->
+    <!-- ShieldChat / PCP theme attributes (Faraday-inspired) -->
     <attr name="colorAccentPale" format="color" />
     <attr name="sc_message_bg_incoming" format="color" />
     <attr name="sc_message_bg_outgoing" format="color" />

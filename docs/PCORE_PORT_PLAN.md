@@ -1,7 +1,7 @@
-# Port to progressive-core (pcore)
+# Port to pcp-core (pcore)
 
 Goal: replace the vendored `matrix-sdk-android` Kotlin SDK with the org's
-Qt-free C++ core (`progressive-core`), keeping every user-facing feature.
+Qt-free C++ core (`pcp-core`), keeping every user-facing feature.
 
 ## Why a bridge
 pcore is a native C++ library (E2EE + incremental sync + CS API). Android

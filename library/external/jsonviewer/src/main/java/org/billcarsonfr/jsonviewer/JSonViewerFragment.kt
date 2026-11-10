@@ -19,7 +19,7 @@ import com.airbnb.mvrx.Mavericks
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
-import chat.progressive.lib.core.utils.compat.getParcelableCompat
+import chat.pcp.lib.core.utils.compat.getParcelableCompat
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

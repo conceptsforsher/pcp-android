@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <chat.pcp.app.core.preference.PcpBasePreference
+        android:icon="@drawable/ic_settings_root_general"
+        android:title="@string/settings_general_title"
+        app:fragment="chat.pcp.app.features.settings.PcpSettingsGeneral"
+        app:isPreferenceVisible="@bool/settings_root_general_visible" />
+
+    <chat.pcp.app.core.preference.PcpBasePreference
+        android:icon="@drawable/ic_settings_root_notification"
+        android:title="@string/settings_notifications"
+        app:fragment="chat.pcp.app.features.settings.notifications.PcpSettingsNotifications"
+        app:isPreferenceVisible="@bool/settings_root_notification_visible" />
+
+    <chat.pcp.app.core.preference.PcpBasePreference
+        android:icon="@drawable/ic_settings_root_preferences"
+        android:title="@string/settings_preferences"
+        app:fragment="chat.pcp.app.features.settings.PcpSettingsPreferences"
+        app:isPreferenceVisible="@bool/settings_root_preferences_visible" />
+
+    <chat.pcp.app.core.preference.PcpBasePreference
+        android:icon="@drawable/ic_settings_root_call"
+        android:title="@string/preference_voice_and_video"
+        app:fragment="chat.pcp.app.features.settings.PcpSettingsVoiceVideo"
+        app:isPreferenceVisible="@bool/settings_root_voice_video_visible" />
+
+    <chat.pcp.app.core.preference.PcpBasePreference
+        android:icon="@drawable/ic_settings_root_security_privacy"
+        android:title="@string/settings_security_and_privacy"
+        app:fragment="chat.pcp.app.features.settings.PcpSettingsSecurity"
+        app:isPreferenceVisible="@bool/settings_root_security_privacy_visible" />
+
+    <chat.pcp.app.core.preference.PcpBasePreference
+        android:icon="@drawable/ic_settings_root_labs"
+        android:title="@string/room_settings_labs_pref_title"
+        app:fragment="chat.pcp.app.features.settings.labs.PcpSettingsLabs"
+        app:isPreferenceVisible="@bool/settings_root_labs_visible" />
+
+    <chat.pcp.app.core.preference.PcpBasePreference
+        android:icon="@drawable/ic_settings_root_advanced"
+        android:title="@string/settings_advanced_settings"
+        app:fragment="chat.pcp.app.features.settings.PcpSettingsAdvancedSettingsFragment"
+        app:isPreferenceVisible="@bool/settings_root_advanced_visible" />
+
+    <chat.pcp.app.core.preference.PcpBasePreference
+        android:icon="@drawable/ic_settings_root_help_about"
+        android:title="@string/preference_root_help_about"
+        app:fragment="chat.pcp.app.features.settings.PcpSettingsHelp"
+        app:isPreferenceVisible="@bool/settings_root_help_about_visible" />
+
+    <chat.pcp.app.core.preference.PcpBasePreference
+        android:icon="@drawable/ic_settings_root_legals"
+        android:title="@string/preference_root_legals"
+        app:fragment="chat.pcp.app.features.settings.legals.LegalsFragment"
+        app:isPreferenceVisible="@bool/settings_root_legals_visible" />
+
+</androidx.preference.PreferenceScreen>

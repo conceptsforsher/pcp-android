@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory android:title="@string/preference_help">
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="SETTINGS_HELP_PREFERENCE_KEY"
+            android:summary="@string/preference_help_summary"
+            android:title="@string/preference_help_title" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory android:title="@string/preference_versions">
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="SETTINGS_VERSION_PREFERENCE_KEY"
+            android:title="@string/settings_version"
+            tools:summary="PCP (development)" />
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="SETTINGS_NATIVE_CORE_VERSION_KEY"
+            android:title="Native Core (C++)"
+            tools:summary="libpcp_native.so — 95 modules" />
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="SETTINGS_SDK_VERSION_PREFERENCE_KEY"
+            android:title="@string/settings_sdk_version"
+            tools:summary="4.5.6" />
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="SETTINGS_CRYPTO_VERSION_PREFERENCE_KEY"
+            android:title="Encryption (libolm)"
+            tools:summary="libolm 3.2.16" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory android:title="Init Sync">
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="SETTINGS_DO_LEGACY_INIT_SYNC"
+            android:summary="Full re-sync from scratch (slow, downloads everything)"
+            android:title="Do a legacy init sync" />
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="SETTINGS_DO_OPTIMIZED_INIT_SYNC"
+            android:summary="Smart incremental sync (only downloads new data)"
+            android:title="Do an optimized init sync" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory android:title="@string/preference_system_settings">
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="APP_INFO_LINK_PREFERENCE_KEY"
+            android:summary="@string/settings_app_info_link_summary"
+            android:title="@string/settings_app_info_link_title" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

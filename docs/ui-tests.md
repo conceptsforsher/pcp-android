@@ -1,6 +1,6 @@
 # Automate user interface tests
 
-Progressive Chat ensures that some fundamental flows are properly working by running automated user interface tests.
+PCP ensures that some fundamental flows are properly working by running automated user interface tests.
 Ui tests are using the android [Espresso](https://developer.android.com/training/testing/espresso) library.
 
 Tests can be run on a real device, or on a virtual device (such as the emulator in Android Studio).
@@ -126,7 +126,7 @@ Each Robot aims to return the UI back to its original state after the interactio
 
 ```kotlin
 // launches and closes settings after executing the block
-progressiveRobot.settings {
+pcpRobot.settings {
     // whilst in the settings, launches and closes the advanced settings sub screen
     advancedSettings {
         // crawls all the pages within the advanced settings
@@ -136,7 +136,7 @@ progressiveRobot.settings {
 
 // enables developer mode by navigating to the settings, enabling the toggle and then returning to the starting point to execute the block
 // on block completion the Robot disables developer mode by navigating back to the settings and finally returning to the original starting point
-progressiveRobot.withDeveloperMode {
+pcpRobot.withDeveloperMode {
     // the same starting point as the example above
     settings {
         advancedSettings { crawlDeveloperOptions() }
@@ -147,7 +147,7 @@ progressiveRobot.withDeveloperMode {
 The Robots used in the example above...
 
 ```kotlin
-class ProgressiveRobot {
+class PcpRobot {
     fun settings(block: SettingsRobot.() -> Unit) {
         // double check we're where we think we are
         waitUntilViewVisible(withId(R.id.bottomNavigationView))
@@ -164,7 +164,7 @@ class ProgressiveRobot {
         waitUntilViewVisible(withId(R.id.bottomNavigationView))
     }
 
-    fun withDeveloperMode(block: ProgressiveRobot.() -> Unit) {
+    fun withDeveloperMode(block: PcpRobot.() -> Unit) {
         settings { toggleDeveloperMode() }
         block()
         settings { toggleDeveloperMode() }

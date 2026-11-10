@@ -143,7 +143,7 @@ android {
     compileSdk versions.compileSdk
 
     defaultConfig {
-        applicationId "chat.progressive.app"
+        applicationId "chat.pcp.app"
         // Set to API 21: see #405
         minSdk versions.minSdk
         targetSdk versions.targetSdk
@@ -234,16 +234,16 @@ android {
             storePassword 'android'
         }
         nightly {
-            keyAlias System.env.ELEMENT_ANDROID_NIGHTLY_KEYID ?: project.property("signing.progressive.nightly.keyId")
-            keyPassword System.env.ELEMENT_ANDROID_NIGHTLY_KEYPASSWORD ?: project.property("signing.progressive.nightly.keyPassword")
-            storePassword System.env.ELEMENT_ANDROID_NIGHTLY_STOREPASSWORD ?: project.property("signing.progressive.nightly.storePassword")
+            keyAlias System.env.ELEMENT_ANDROID_NIGHTLY_KEYID ?: project.property("signing.pcp.nightly.keyId")
+            keyPassword System.env.ELEMENT_ANDROID_NIGHTLY_KEYPASSWORD ?: project.property("signing.pcp.nightly.keyPassword")
+            storePassword System.env.ELEMENT_ANDROID_NIGHTLY_STOREPASSWORD ?: project.property("signing.pcp.nightly.storePassword")
 
         }
         release {
-            keyAlias project.property("signing.progressive.keyId")
-            keyPassword project.property("signing.progressive.keyPassword")
-            storeFile file(project.property("signing.progressive.storePath"))
-            storePassword project.property("signing.progressive.storePassword")
+            keyAlias project.property("signing.pcp.keyId")
+            keyPassword project.property("signing.pcp.keyPassword")
+            storeFile file(project.property("signing.pcp.storePath"))
+            storePassword project.property("signing.pcp.storePassword")
         }
     }
 
@@ -251,8 +251,8 @@ android {
         debug {
             applicationIdSuffix ".debug"
             signingConfig signingConfigs.debug
-            resValue "string", "app_name", "Progressive - dbg"
-            resValue "string", "app_name_sc_stable", "Progressive - dbg"
+            resValue "string", "app_name", "PCP - dbg"
+            resValue "string", "app_name_sc_stable", "PCP - dbg"
 
             if (project.hasProperty("coverage")) {
                 testCoverageEnabled = project.coverage == "true"
@@ -260,8 +260,8 @@ android {
         }
 
         release {
-            resValue "string", "app_name", "Progressive Chat"
-            resValue "string", "app_name_sc_stable", "Progressive Chat"
+            resValue "string", "app_name", "PCP"
+            resValue "string", "app_name_sc_stable", "PCP"
             postprocessing {
                 // FIXME Set to true.
                 removeUnusedCode false

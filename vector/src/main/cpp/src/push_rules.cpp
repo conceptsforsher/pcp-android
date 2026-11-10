@@ -1,9 +1,9 @@
-#include "progressive/push_rules.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/push_rules.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 PushCondition parsePushCondition(const std::string& conditionJson) {
     PushCondition cond;
@@ -518,4 +518,4 @@ PushEvaluation evaluatePushNotification(
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

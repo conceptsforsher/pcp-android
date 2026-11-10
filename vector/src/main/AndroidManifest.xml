@@ -484,26 +484,26 @@
 
         <!-- DeltaChat -->
         <activity
-            android:name="chat.progressive.app.features.delta.DeltaAuthActivity"
+            android:name="chat.pcp.app.features.delta.DeltaAuthActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize"
             android:label="@string/delta_auth" />
         <activity
-            android:name="chat.progressive.app.features.delta.DeltaChatListActivity"
+            android:name="chat.pcp.app.features.delta.DeltaChatListActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize"
             android:label="@string/delta_chat_list" />
         <activity
-            android:name="chat.progressive.app.features.delta.DeltaChatActivity"
+            android:name="chat.pcp.app.features.delta.DeltaChatActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize" />
         <activity
-            android:name="chat.progressive.app.features.delta.DeltaContactsActivity"
+            android:name="chat.pcp.app.features.delta.DeltaContactsActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize"
             android:label="Contacts" />
         <activity
-            android:name="chat.progressive.app.features.delta.DeltaProfileActivity"
+            android:name="chat.pcp.app.features.delta.DeltaProfileActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize"
             android:label="Profile" />

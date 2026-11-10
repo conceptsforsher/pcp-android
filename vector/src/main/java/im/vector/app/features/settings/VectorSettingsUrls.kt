@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2025 Progressive Chat
+ * Copyright 2021-2025 PCP
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  * Please see LICENSE files in the repository root for full details.
@@ -8,8 +8,8 @@
 package im.vector.app.features.settings
 
 object VectorSettingsUrls {
-    const val HELP = "https://progressive.chat/help"
-    const val COPYRIGHT = "https://progressive.chat/legal"
-    const val LICENSE = "https://github.com/progressive-chat/progressive-android/blob/main/LICENSE"
+    const val HELP = "https://pcp.chat/help"
+    const val COPYRIGHT = "https://pcp.chat/legal"
+    const val LICENSE = "https://github.com/pcp-chat/pcp-android/blob/main/LICENSE"
     const val THIRD_PARTY_LICENSES = "file:///android_asset/open_source_licenses.html"
 }

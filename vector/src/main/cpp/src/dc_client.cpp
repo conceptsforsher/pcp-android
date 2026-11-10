@@ -1,13 +1,13 @@
-#include "progressive/dc_client.hpp"
+#include "pcp/dc_client.hpp"
 
-#ifdef PROGRESSIVE_HAS_DELTACHAT
+#ifdef PCP_HAS_DELTACHAT
 
-#include "progressive/dc_bridge.hpp"
+#include "pcp/dc_bridge.hpp"
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
 
-namespace progressive {
+namespace pcp {
 namespace deltachat {
 
 static std::string toString(const char* str) {
@@ -51,7 +51,7 @@ DcNativeClient::~DcNativeClient() {
 bool DcNativeClient::init() {
     if (ctx_) return true;
     if (!load_dc_api(api_)) return false;
-    ctx_ = api_.create("progressive-android", nullptr);
+    ctx_ = api_.create("pcp-android", nullptr);
     if (!ctx_) return false;
     api_.open(ctx_);
     return true;
@@ -309,6 +309,6 @@ DcContact DcNativeClient::parseContactJson(const std::string& json) const {
 }
 
 } // namespace deltachat
-} // namespace progressive
+} // namespace pcp
 
-#endif // PROGRESSIVE_HAS_DELTACHAT
+#endif // PCP_HAS_DELTACHAT

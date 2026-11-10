@@ -1,9 +1,9 @@
-#include "progressive/notification.hpp"
+#include "pcp/notification.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 // ---- NotificationKeywords ----
 
@@ -134,4 +134,4 @@ std::string truncateForReactionPreview(const std::string& body, int maxLen) {
     return truncated + "...";
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -23,7 +23,7 @@ import im.vector.lib.strings.CommonStrings
 
 /**
  * Max visible read receipt avatars before showing "+N".
- * Default increased from 3 to 20 for Progressive Chat.
+ * Default increased from 3 to 20 for PCP.
  * User-configurable via Labs setting.
  */
 var maxReceiptDisplayed: Int = 20

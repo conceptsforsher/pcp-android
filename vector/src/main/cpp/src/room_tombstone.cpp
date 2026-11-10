@@ -1,6 +1,6 @@
-#include "progressive/room_tombstone.hpp"
+#include "pcp/room_tombstone.hpp"
 
-namespace progressive {
+namespace pcp {
 
 // ==== Versioning State ====
 //
@@ -114,4 +114,4 @@ std::string formatUpgradeNotice(const UpgradeInfo& info) {
     return "This room has been replaced. Continue in the new room?";
 }
 
-} // namespace progressive
+} // namespace pcp

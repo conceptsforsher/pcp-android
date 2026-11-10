@@ -1,11 +1,11 @@
-#include "progressive/dc_bridge.hpp"
+#include "pcp/dc_bridge.hpp"
 
-#ifdef PROGRESSIVE_HAS_DELTACHAT
+#ifdef PCP_HAS_DELTACHAT
 
 #include <dlfcn.h>
 #include <cstring>
 
-namespace progressive {
+namespace pcp {
 namespace deltachat {
 
 bool load_dc_api(DcApi& api) {
@@ -87,6 +87,6 @@ bool load_dc_api(DcApi& api) {
 }
 
 } // namespace deltachat
-} // namespace progressive
+} // namespace pcp
 
-#endif // PROGRESSIVE_HAS_DELTACHAT
+#endif // PCP_HAS_DELTACHAT

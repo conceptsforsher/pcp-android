@@ -28,7 +28,7 @@ Difference though (list not exhaustive):
 - Only API v2 is supported (see https://matrix.org/docs/spec/identity_service/latest)
 - Homeserver has to be up to date to support binding (Versions.isLoginAndRegistrationSupportedBySdk() has to return true)
 - The SDK managed the session and client secret when binding ThreePid. Those data are not exposed to the client.
-- The SDK supports incremental sendAttempt (this is not used by Progressive Chat)
+- The SDK supports incremental sendAttempt (this is not used by PCP)
 - The "Continue" button is now under the information, and not as the same place that the checkbox
 - The app can cancel a binding. Current data are erased from DB.
 - The API (IdentityService) is improved.

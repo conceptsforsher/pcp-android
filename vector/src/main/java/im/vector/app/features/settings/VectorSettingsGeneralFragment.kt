@@ -69,7 +69,7 @@ import java.io.File
 import java.net.URL
 import java.util.UUID
 import javax.inject.Inject
-import chat.progressive.app.features.delta.DeltaAuthActivity
+import chat.pcp.app.features.delta.DeltaAuthActivity
 
 @AndroidEntryPoint
 class VectorSettingsGeneralFragment :

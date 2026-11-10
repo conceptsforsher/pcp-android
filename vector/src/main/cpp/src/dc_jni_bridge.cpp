@@ -1,14 +1,14 @@
-#ifdef PROGRESSIVE_HAS_DELTACHAT
+#ifdef PCP_HAS_DELTACHAT
 
-#include "progressive/dc_client.hpp"
-#include "progressive/dc_types.hpp"
+#include "pcp/dc_client.hpp"
+#include "pcp/dc_types.hpp"
 #include <jni.h>
 #include <map>
 #include <memory>
 #include <string>
 #include <sstream>
 
-using namespace progressive::deltachat;
+using namespace pcp::deltachat;
 
 namespace {
 
@@ -30,7 +30,7 @@ static std::string fromString(JNIEnv* env, jstring str) {
 extern "C" {
 
 JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcInit(JNIEnv*, jclass) {
+Java_chat_pcp_app_native_PcpNative_dcInit(JNIEnv*, jclass) {
     auto client = std::make_unique<DcNativeClient>();
     if (!client->init()) return 0;
     jlong handle = nextHandle++;
@@ -39,40 +39,40 @@ Java_chat_progressive_app_native_ProgressiveNative_dcInit(JNIEnv*, jclass) {
 }
 
 JNIEXPORT void JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcDestroy(JNIEnv*, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcDestroy(JNIEnv*, jclass, jlong handle) {
     clients.erase(handle);
 }
 
 JNIEXPORT jboolean JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcConfigure(JNIEnv* env, jclass, jlong handle, jstring addr, jstring password) {
+Java_chat_pcp_app_native_PcpNative_dcConfigure(JNIEnv* env, jclass, jlong handle, jstring addr, jstring password) {
     auto it = clients.find(handle);
     if (it == clients.end()) return JNI_FALSE;
     return it->second->configure(fromString(env, addr), fromString(env, password)) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jboolean JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcIsConfigured(JNIEnv*, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcIsConfigured(JNIEnv*, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it == clients.end()) return JNI_FALSE;
     return it->second->isConfigured() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetInfo(JNIEnv* env, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcGetInfo(JNIEnv* env, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("{}");
     return toString(env, it->second->getInfo());
 }
 
 JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcSendText(JNIEnv* env, jclass, jlong handle, jlong chatId, jstring text) {
+Java_chat_pcp_app_native_PcpNative_dcSendText(JNIEnv* env, jclass, jlong handle, jlong chatId, jstring text) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->sendTextMessage(chatId, fromString(env, text));
 }
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetChats(JNIEnv* env, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcGetChats(JNIEnv* env, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("[]");
 
@@ -96,7 +96,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcGetChats(JNIEnv* env, jclas
 }
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetMessages(JNIEnv* env, jclass, jlong handle, jlong chatId) {
+Java_chat_pcp_app_native_PcpNative_dcGetMessages(JNIEnv* env, jclass, jlong handle, jlong chatId) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("[]");
 
@@ -119,32 +119,32 @@ Java_chat_progressive_app_native_ProgressiveNative_dcGetMessages(JNIEnv* env, jc
 }
 
 JNIEXPORT void JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcStartIo(JNIEnv*, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcStartIo(JNIEnv*, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it != clients.end()) it->second->startIo();
 }
 
 JNIEXPORT void JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcStopIo(JNIEnv*, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcStopIo(JNIEnv*, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it != clients.end()) it->second->stopIo();
 }
 
 JNIEXPORT void JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcMaybeNetwork(JNIEnv*, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcMaybeNetwork(JNIEnv*, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it != clients.end()) it->second->maybeNetwork();
 }
 
 JNIEXPORT jint JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetConnectivity(JNIEnv*, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcGetConnectivity(JNIEnv*, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->getConnectivity();
 }
 
 JNIEXPORT jint JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcCheckQr(JNIEnv* env, jclass, jlong handle, jstring qr) {
+Java_chat_pcp_app_native_PcpNative_dcCheckQr(JNIEnv* env, jclass, jlong handle, jstring qr) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->checkQr(fromString(env, qr));
@@ -153,13 +153,13 @@ Java_chat_progressive_app_native_ProgressiveNative_dcCheckQr(JNIEnv* env, jclass
 // --- Mark seen / delete messages ---
 
 JNIEXPORT void JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcMarkSeenMsgs(JNIEnv*, jclass, jlong handle, jlong chatId) {
+Java_chat_pcp_app_native_PcpNative_dcMarkSeenMsgs(JNIEnv*, jclass, jlong handle, jlong chatId) {
     auto it = clients.find(handle);
     if (it != clients.end()) it->second->markSeenMsgs({chatId});
 }
 
 JNIEXPORT void JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcDeleteChat(JNIEnv*, jclass, jlong handle, jlong chatId) {
+Java_chat_pcp_app_native_PcpNative_dcDeleteChat(JNIEnv*, jclass, jlong handle, jlong chatId) {
     auto it = clients.find(handle);
     if (it != clients.end()) it->second->deleteChat(chatId);
 }
@@ -167,7 +167,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcDeleteChat(JNIEnv*, jclass,
 // --- Contacts ---
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetContacts(JNIEnv* env, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcGetContacts(JNIEnv* env, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("[]");
     auto contacts = it->second->getContacts(0, "");
@@ -187,21 +187,21 @@ Java_chat_progressive_app_native_ProgressiveNative_dcGetContacts(JNIEnv* env, jc
 }
 
 JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcCreateContact(JNIEnv* env, jclass, jlong handle, jstring name, jstring addr) {
+Java_chat_pcp_app_native_PcpNative_dcCreateContact(JNIEnv* env, jclass, jlong handle, jstring name, jstring addr) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->createContact(fromString(env, name), fromString(env, addr));
 }
 
 JNIEXPORT jint JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcBlockContact(JNIEnv*, jclass, jlong handle, jlong contactId, jint block) {
+Java_chat_pcp_app_native_PcpNative_dcBlockContact(JNIEnv*, jclass, jlong handle, jlong contactId, jint block) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->blockContact(contactId, block);
 }
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetContactEncrinfo(JNIEnv* env, jclass, jlong handle, jlong contactId) {
+Java_chat_pcp_app_native_PcpNative_dcGetContactEncrinfo(JNIEnv* env, jclass, jlong handle, jlong contactId) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("");
     return toString(env, it->second->getContact(contactId).address);
@@ -210,35 +210,35 @@ Java_chat_progressive_app_native_ProgressiveNative_dcGetContactEncrinfo(JNIEnv* 
 // --- Groups ---
 
 JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcCreateGroupChat(JNIEnv* env, jclass, jlong handle, jint verified, jstring name) {
+Java_chat_pcp_app_native_PcpNative_dcCreateGroupChat(JNIEnv* env, jclass, jlong handle, jint verified, jstring name) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->createGroupChat(verified, fromString(env, name));
 }
 
 JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcAddContactToChat(JNIEnv*, jclass, jlong handle, jlong chatId, jlong contactId) {
+Java_chat_pcp_app_native_PcpNative_dcAddContactToChat(JNIEnv*, jclass, jlong handle, jlong chatId, jlong contactId) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->addContactToChat(chatId, contactId);
 }
 
 JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcRemoveContactFromChat(JNIEnv*, jclass, jlong handle, jlong chatId, jlong contactId) {
+Java_chat_pcp_app_native_PcpNative_dcRemoveContactFromChat(JNIEnv*, jclass, jlong handle, jlong chatId, jlong contactId) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->removeContactFromChat(chatId, contactId);
 }
 
 JNIEXPORT jint JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcSetChatName(JNIEnv* env, jclass, jlong handle, jlong chatId, jstring name) {
+Java_chat_pcp_app_native_PcpNative_dcSetChatName(JNIEnv* env, jclass, jlong handle, jlong chatId, jstring name) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->setChatName(chatId, fromString(env, name));
 }
 
 JNIEXPORT jint JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcSetChatProfileImage(JNIEnv* env, jclass, jlong handle, jlong chatId, jstring image) {
+Java_chat_pcp_app_native_PcpNative_dcSetChatProfileImage(JNIEnv* env, jclass, jlong handle, jlong chatId, jstring image) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return 0;
@@ -247,14 +247,14 @@ Java_chat_progressive_app_native_ProgressiveNative_dcSetChatProfileImage(JNIEnv*
 // --- SecureJoin ---
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetSecurejoinQr(JNIEnv* env, jclass, jlong handle, jlong chatId) {
+Java_chat_pcp_app_native_PcpNative_dcGetSecurejoinQr(JNIEnv* env, jclass, jlong handle, jlong chatId) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("");
     return toString(env, it->second->getSecureJoinQr(chatId));
 }
 
 JNIEXPORT jint JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcJoinSecurejoin(JNIEnv* env, jclass, jlong handle, jstring qr) {
+Java_chat_pcp_app_native_PcpNative_dcJoinSecurejoin(JNIEnv* env, jclass, jlong handle, jstring qr) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->joinSecureJoin(fromString(env, qr));
@@ -263,7 +263,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcJoinSecurejoin(JNIEnv* env,
 // --- Backup / IMEX ---
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcImex(JNIEnv* env, jclass, jlong handle, jint what, jstring param1, jstring param2) {
+Java_chat_pcp_app_native_PcpNative_dcImex(JNIEnv* env, jclass, jlong handle, jint what, jstring param1, jstring param2) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("");
     return toString(env, it->second->imex(what,
@@ -272,7 +272,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcImex(JNIEnv* env, jclass, j
 }
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcInitiateKeyTransfer(JNIEnv* env, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcInitiateKeyTransfer(JNIEnv* env, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("");
     return toString(env, it->second->initiateKeyTransfer());
@@ -281,19 +281,19 @@ Java_chat_progressive_app_native_ProgressiveNative_dcInitiateKeyTransfer(JNIEnv*
 // --- Config ---
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcSetConfig(JNIEnv* env, jclass, jlong handle, jstring key, jstring value) {
+Java_chat_pcp_app_native_PcpNative_dcSetConfig(JNIEnv* env, jclass, jlong handle, jstring key, jstring value) {
     return toString(env, "1");
 }
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetConfig(JNIEnv* env, jclass, jlong handle, jstring key) {
+Java_chat_pcp_app_native_PcpNative_dcGetConfig(JNIEnv* env, jclass, jlong handle, jstring key) {
     return toString(env, "");
 }
 
 // --- Send media ---
 
 JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcSendFile(JNIEnv* env, jclass, jlong handle, jlong chatId, jstring filePath, jstring mimeType) {
+Java_chat_pcp_app_native_PcpNative_dcSendFile(JNIEnv* env, jclass, jlong handle, jlong chatId, jstring filePath, jstring mimeType) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->sendTextMessage(chatId, fromString(env, filePath));
@@ -302,7 +302,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcSendFile(JNIEnv* env, jclas
 // --- Get fresh messages ---
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetFreshMsgs(JNIEnv* env, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcGetFreshMsgs(JNIEnv* env, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("[]");
     return toString(env, "[]");
@@ -311,7 +311,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcGetFreshMsgs(JNIEnv* env, j
 // --- Connectivity HTML ---
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetConnectivityHtml(JNIEnv* env, jclass, jlong handle) {
+Java_chat_pcp_app_native_PcpNative_dcGetConnectivityHtml(JNIEnv* env, jclass, jlong handle) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("");
     return toString(env, "");
@@ -320,7 +320,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcGetConnectivityHtml(JNIEnv*
 // --- Leave chat ---
 
 JNIEXPORT void JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcLeaveChat(JNIEnv*, jclass, jlong handle, jlong chatId) {
+Java_chat_pcp_app_native_PcpNative_dcLeaveChat(JNIEnv*, jclass, jlong handle, jlong chatId) {
     auto it = clients.find(handle);
     if (it != clients.end()) it->second->deleteChat(chatId);
 }
@@ -328,7 +328,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcLeaveChat(JNIEnv*, jclass, 
 // --- Reactions ---
 
 JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcSendReaction(JNIEnv* env, jclass, jlong handle, jlong chatId, jlong msgId, jstring reaction) {
+Java_chat_pcp_app_native_PcpNative_dcSendReaction(JNIEnv* env, jclass, jlong handle, jlong chatId, jlong msgId, jstring reaction) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->sendTextMessage(chatId, fromString(env, reaction));
@@ -337,7 +337,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcSendReaction(JNIEnv* env, j
 // --- Edit message ---
 
 JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcEditMessage(JNIEnv* env, jclass, jlong handle, jlong chatId, jlong msgId, jstring newText) {
+Java_chat_pcp_app_native_PcpNative_dcEditMessage(JNIEnv* env, jclass, jlong handle, jlong chatId, jlong msgId, jstring newText) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->sendTextMessage(chatId, fromString(env, newText));
@@ -346,7 +346,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcEditMessage(JNIEnv* env, jc
 // --- Voice message ---
 
 JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcSendVoice(JNIEnv* env, jclass, jlong handle, jlong chatId, jstring filePath) {
+Java_chat_pcp_app_native_PcpNative_dcSendVoice(JNIEnv* env, jclass, jlong handle, jlong chatId, jstring filePath) {
     auto it = clients.find(handle);
     if (it == clients.end()) return 0;
     return it->second->sendTextMessage(chatId, fromString(env, filePath));
@@ -355,7 +355,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcSendVoice(JNIEnv* env, jcla
 // --- Mute chat ---
 
 JNIEXPORT void JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcMuteChat(JNIEnv* env, jclass, jlong handle, jlong chatId, jlong durationMs) {
+Java_chat_pcp_app_native_PcpNative_dcMuteChat(JNIEnv* env, jclass, jlong handle, jlong chatId, jlong durationMs) {
     auto it = clients.find(handle);
     if (it != clients.end()) {
         it->second->sendTextMessage(chatId, "");
@@ -365,7 +365,7 @@ Java_chat_progressive_app_native_ProgressiveNative_dcMuteChat(JNIEnv* env, jclas
 // --- Get chat media ---
 
 JNIEXPORT jstring JNICALL
-Java_chat_progressive_app_native_ProgressiveNative_dcGetChatMedia(JNIEnv* env, jclass, jlong handle, jlong chatId) {
+Java_chat_pcp_app_native_PcpNative_dcGetChatMedia(JNIEnv* env, jclass, jlong handle, jlong chatId) {
     auto it = clients.find(handle);
     if (it == clients.end()) return env->NewStringUTF("[]");
     return toString(env, "[]");
@@ -374,4 +374,4 @@ Java_chat_progressive_app_native_ProgressiveNative_dcGetChatMedia(JNIEnv* env, j
 } // extern "C"
 } // namespace
 
-#endif // PROGRESSIVE_HAS_DELTACHAT
+#endif // PCP_HAS_DELTACHAT

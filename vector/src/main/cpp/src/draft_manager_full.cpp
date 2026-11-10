@@ -1,9 +1,9 @@
-#include "progressive/draft_manager_full.hpp"
+#include "pcp/draft_manager_full.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Enum ======
 
@@ -204,4 +204,4 @@ std::string FullDraftManager::configToJson() const {
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,9 +1,9 @@
-#include "progressive/tdlib_parser.hpp"
+#include "pcp/tdlib_parser.hpp"
 #include <android/log.h>
 
 #define TAG "TdParser"
 
-namespace progressive {
+namespace pcp {
 
 static ContentType classifyContent(const std::string& type) {
     if (type.find("Text") != std::string::npos) return ContentType::TEXT;
@@ -306,4 +306,4 @@ ContentType TdParser::parseContentType(const TlObject& content) {
     return classifyContent(content.type);
 }
 
-} // namespace progressive
+} // namespace pcp

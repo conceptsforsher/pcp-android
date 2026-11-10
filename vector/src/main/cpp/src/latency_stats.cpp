@@ -1,11 +1,11 @@
-#include "progressive/latency_stats.hpp"
+#include "pcp/latency_stats.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cmath>
 #include <chrono>
 #include <iomanip>
 
-namespace progressive {
+namespace pcp {
 
 void LatencyTracker::record(double latencyMs, const std::string& serverName, const std::string& endpoint, bool success) {
     samples_.push_back({
@@ -155,4 +155,4 @@ std::string LatencyTracker::statsToJson(const LatencyStats& stats) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

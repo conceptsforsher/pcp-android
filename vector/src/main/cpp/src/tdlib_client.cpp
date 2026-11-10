@@ -1,5 +1,5 @@
-#include "progressive/tdlib_client.hpp"
-#include "progressive/tdlib_bridge.hpp"
+#include "pcp/tdlib_client.hpp"
+#include "pcp/tdlib_bridge.hpp"
 #include <android/log.h>
 #include <cctype>
 #include <sstream>
@@ -7,7 +7,7 @@
 
 #define TAG "TdLibClient"
 
-namespace progressive {
+namespace pcp {
 
 static std::string escapeJson(const std::string& s) {
     std::string out;
@@ -321,7 +321,7 @@ TlObject TdLibClient::buildParams(int apiId, const std::string& apiHash,
 }
 
 void TdLibClient::initialize() {
-#ifdef PROGRESSIVE_HAS_TDLIB
+#ifdef PCP_HAS_TDLIB
     clientPtr = td_json_client_create();
     if (!clientPtr) {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "Failed to create TDLib client");
@@ -339,7 +339,7 @@ void TdLibClient::close() {
     if (receiveThread.joinable()) {
         receiveThread.join();
     }
-#ifdef PROGRESSIVE_HAS_TDLIB
+#ifdef PCP_HAS_TDLIB
     if (clientPtr) {
         td_json_client_destroy(clientPtr);
         clientPtr = nullptr;
@@ -349,7 +349,7 @@ void TdLibClient::close() {
 }
 
 void TdLibClient::sendRequest(const TlObject& request) {
-#ifdef PROGRESSIVE_HAS_TDLIB
+#ifdef PCP_HAS_TDLIB
     if (!clientPtr) return;
     auto json = request.toJson();
     __android_log_print(ANDROID_LOG_DEBUG, TAG, "send: %s", json.substr(0, 200).c_str());
@@ -358,7 +358,7 @@ void TdLibClient::sendRequest(const TlObject& request) {
 }
 
 TlObject TdLibClient::execute(const TlObject& request) {
-#ifdef PROGRESSIVE_HAS_TDLIB
+#ifdef PCP_HAS_TDLIB
     auto json = request.toJson();
     const char* result = td_json_client_execute(clientPtr, json.c_str());
     if (result && result[0]) {
@@ -392,7 +392,7 @@ void TdLibClient::startReceiveLoop() {
     running = true;
     receiveThread = std::thread([this]() {
         while (running) {
-#ifdef PROGRESSIVE_HAS_TDLIB
+#ifdef PCP_HAS_TDLIB
             const char* resp = td_json_client_receive(clientPtr, 1.0);
             if (resp && resp[0]) {
                 TlObject json = TlObject::fromJson(std::string(resp));
@@ -462,4 +462,4 @@ void TdLibClient::handleResponse(const TlObject& json) {
     }
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,9 +1,9 @@
-#include "progressive/membership_utils.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/membership_utils.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 MemberState parseMemberState(const std::string& membershipStr) {
     if (membershipStr == "join")     return MemberState::Join;
@@ -260,4 +260,4 @@ MemberStateDiff computeMemberStateDiff(
     return diff;
 }
 
-} // namespace progressive
+} // namespace pcp

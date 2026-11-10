@@ -1,7 +1,7 @@
-#include "progressive/event_relations_manager.hpp"
+#include "pcp/event_relations_manager.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Enum conversions ======
 
@@ -330,4 +330,4 @@ std::string EventRelationsManager::relationToJson(const RelationContent& rel) co
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

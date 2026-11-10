@@ -1,11 +1,11 @@
-#include "progressive/sync_handler.hpp"
-#include "progressive/presence_utils.hpp"
+#include "pcp/sync_handler.hpp"
+#include "pcp/presence_utils.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_set>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 // ==== JSON helpers (manual, local to this TU) ====
 
@@ -564,4 +564,4 @@ SyncPostTreatmentResult computeSyncPostTreatment(const SyncHandlerResult& handle
     return treatment;
 }
 
-} // namespace progressive
+} // namespace pcp

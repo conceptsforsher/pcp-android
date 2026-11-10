@@ -61,7 +61,7 @@ import kotlinx.coroutines.flow.onEach
 import org.matrix.android.sdk.api.session.crypto.model.DeviceInfo
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import javax.inject.Inject
-import chat.progressive.app.features.home.TelegramChatListActivity
+import chat.pcp.app.features.home.TelegramChatListActivity
 
 @AndroidEntryPoint
 class NewHomeDetailFragment :
@@ -217,8 +217,8 @@ class NewHomeDetailFragment :
         }
 
         views.telegramFab.debouncedClicks {
-            if (!chat.progressive.app.features.home.TelegramChatRepository.isLoggedIn.value) {
-                startActivity(android.content.Intent(requireContext(), chat.progressive.app.features.auth.TelegramAuthActivity::class.java))
+            if (!chat.pcp.app.features.home.TelegramChatRepository.isLoggedIn.value) {
+                startActivity(android.content.Intent(requireContext(), chat.pcp.app.features.auth.TelegramAuthActivity::class.java))
             } else {
                 startActivity(TelegramChatListActivity.newIntent(requireContext()))
             }

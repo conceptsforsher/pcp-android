@@ -1,8 +1,8 @@
-#include "progressive/tdlib_auth.hpp"
+#include "pcp/tdlib_auth.hpp"
 #include <android/log.h>
 #define TAG "TdLibAuth"
 
-namespace progressive {
+namespace pcp {
 
 static TlField str(const std::string& key, const std::string& val) {
     TlField f; f.key = key; f.isString = true; f.value = val; return f;
@@ -92,4 +92,4 @@ void TdLibAuth::handleAuthState(const std::string& type, const TlObject& state) 
     }
 }
 
-} // namespace progressive
+} // namespace pcp

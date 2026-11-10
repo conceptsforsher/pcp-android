@@ -5,14 +5,14 @@
 #include <memory>
 #include <android/log.h>
 
-#include "progressive/tdlib_native_client.hpp"
+#include "pcp/tdlib_native_client.hpp"
 
 #define JNI_FUNC(ret, name) \
-    JNIEXPORT ret JNICALL Java_chat_progressive_app_native_ProgressiveNative_##name
+    JNIEXPORT ret JNICALL Java_chat_pcp_app_native_PcpNative_##name
 
 #define TAG "TgNative"
 
-using namespace progressive;
+using namespace pcp;
 
 static std::mutex g_mutex;
 static long g_nextHandle = 1;
@@ -37,7 +37,7 @@ static void postToKotlin(const std::string& method, const std::string& arg1, con
     JNIEnv* e = nullptr;
     if (g_jvm->AttachCurrentThread(&e, nullptr) != JNI_OK) return;
 
-    jclass cls = e->FindClass("chat/progressive/app/native/ProgressiveNative");
+    jclass cls = e->FindClass("chat/pcp/app/native/PcpNative");
     if (!cls) { g_jvm->DetachCurrentThread(); return; }
 
     jmethodID mid = e->GetStaticMethodID(cls, method.c_str(), "(Ljava/lang/String;Ljava/lang/String;)V");

@@ -1,7 +1,7 @@
-#include "progressive/tdlib_file_manager.hpp"
+#include "pcp/tdlib_file_manager.hpp"
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 void TdFileManager::onFileUpdate(int fileId, int64_t size, int64_t downloaded, bool completed) {
     std::lock_guard<std::mutex> lock(mtx);
@@ -46,4 +46,4 @@ std::vector<FileEntry> TdFileManager::activeDownloads() const {
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

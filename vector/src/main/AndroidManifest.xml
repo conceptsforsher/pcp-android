@@ -371,54 +371,54 @@
         <activity android:name=".features.roomprofile.polls.detail.ui.RoomPollDetailActivity" />
 
         <activity
-            android:name="chat.progressive.app.features.auth.TelegramAuthActivity"
+            android:name="chat.pcp.app.features.auth.TelegramAuthActivity"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name="chat.progressive.app.features.home.TelegramChatActivity"
+            android:name="chat.pcp.app.features.home.TelegramChatActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name="chat.progressive.app.features.home.TelegramChatListActivity"
+            android:name="chat.pcp.app.features.home.TelegramChatListActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name="chat.progressive.app.features.home.TelegramProfileActivity" />
+            android:name="chat.pcp.app.features.home.TelegramProfileActivity" />
 
         <activity
-            android:name="chat.progressive.app.features.home.TelegramMembersActivity" />
+            android:name="chat.pcp.app.features.home.TelegramMembersActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramAccountActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramAccountActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramPrivacyActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramPrivacyActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramFoldersActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramFoldersActivity" />
 
         <activity
-            android:name="chat.progressive.app.features.home.TelegramProxyActivity" />
+            android:name="chat.pcp.app.features.home.TelegramProxyActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramDownloadsActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramDownloadsActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramSecurityActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramSecurityActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramAdminActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramAdminActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramLanguageActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramLanguageActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramJoinRequestsActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramJoinRequestsActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramExportActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramExportActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramEventLogActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramEventLogActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramStatsActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramStatsActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramStickersActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramStickersActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramChatInfoActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramChatInfoActivity" />
 
-        <activity android:name="chat.progressive.app.features.home.TelegramStoryViewerActivity" />
+        <activity android:name="chat.pcp.app.features.home.TelegramStoryViewerActivity" />
 
         <!-- Services -->
 

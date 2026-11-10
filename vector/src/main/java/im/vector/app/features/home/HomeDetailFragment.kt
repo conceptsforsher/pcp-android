@@ -53,8 +53,8 @@ import im.vector.lib.strings.CommonStrings
 import org.matrix.android.sdk.api.session.crypto.model.DeviceInfo
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import javax.inject.Inject
-import chat.progressive.app.features.home.TelegramChatListFragment
-import chat.progressive.app.features.home.TelegramChatRepository
+import chat.pcp.app.features.home.TelegramChatListFragment
+import chat.pcp.app.features.home.TelegramChatRepository
 
 @AndroidEntryPoint
 class HomeDetailFragment :
@@ -326,7 +326,7 @@ class HomeDetailFragment :
             when (it.itemId) {
                 R.id.bottom_action_telegram -> {
                     if (!TelegramChatRepository.isLoggedIn.value) {
-                        startActivity(android.content.Intent(requireContext(), chat.progressive.app.features.auth.TelegramAuthActivity::class.java))
+                        startActivity(android.content.Intent(requireContext(), chat.pcp.app.features.auth.TelegramAuthActivity::class.java))
                         false
                     } else {
                         viewModel.handle(HomeDetailAction.SwitchTab(HomeTab.RoomList(RoomListDisplayMode.TELEGRAM)))

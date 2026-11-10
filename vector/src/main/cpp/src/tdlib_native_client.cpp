@@ -1,9 +1,9 @@
-#include "progressive/tdlib_native_client.hpp"
+#include "pcp/tdlib_native_client.hpp"
 #include <android/log.h>
 
 #define TAG "TdNativeClient"
 
-namespace progressive {
+namespace pcp {
 
 TdNativeClient::TdNativeClient(int apiId_, const std::string& apiHash_,
                                const std::string& dbDir_, const std::string& filesDir_)
@@ -283,4 +283,4 @@ std::vector<TdMessage> TdNativeClient::getCachedMessages(int64_t chatId, int lim
     return cache->getMessages(chatId, limit, fromId);
 }
 
-} // namespace progressive
+} // namespace pcp

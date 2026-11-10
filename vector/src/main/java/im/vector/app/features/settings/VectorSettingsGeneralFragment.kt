@@ -321,7 +321,7 @@ class VectorSettingsGeneralFragment :
         // Add Telegram Account
         findPreference<VectorPreference>("SETTINGS_PROTOCOL_ADD_TELEGRAM_KEY")!!
                 .onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            startActivity(android.content.Intent(requireContext(), chat.progressive.app.features.auth.TelegramAuthActivity::class.java))
+            startActivity(android.content.Intent(requireContext(), chat.pcp.app.features.auth.TelegramAuthActivity::class.java))
             true
         }
         // Account deactivation is visible only if account is not managed by an external URL.

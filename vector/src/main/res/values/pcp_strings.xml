@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="notification_icon_style_entries">
+        <item>Element (default)</item>
+        <item>PCP Chart (filled)</item>
+        <item>PCP Chart (outline)</item>
+    </string-array>
+    <string-array name="notification_icon_style_values">
+        <item>element</item>
+        <item>chart_filled</item>
+        <item>chart_outline</item>
+    </string-array>
+
+    <string name="tg_auth_phone_hint">Phone number</string>
+    <string name="tg_auth_code_hint">Verification code</string>
+    <string name="tg_auth_password_hint">Two-factor password</string>
+    <string name="tg_auth_button_next">Next</string>
+    <string name="tg_auth_button_verify">Verify</string>
+    <string name="tg_auth_status_connecting">Connecting…</string>
+    <string name="tg_auth_status_ready">Logged in!</string>
+    <string name="tg_auth_status_closed">Session closed</string>
+    <string name="tg_auth_status_logging_out">Logging out…</string>
+    <string name="tg_auth_error_phone_empty">Please enter your phone number</string>
+    <string name="tg_auth_error_code_empty">Please enter the verification code</string>
+    <string name="tg_auth_error_password_empty">Please enter your password</string>
+    <string name="tg_chat_list_connecting">Connecting to Telegram…</string>
+    <string name="tg_chat_list_empty">No Telegram chats yet</string>
+    <string name="bottom_action_telegram">Telegram</string>
+</resources>

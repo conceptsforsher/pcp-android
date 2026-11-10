@@ -1,4 +1,4 @@
-#include "progressive/sqlite_wrapper.hpp"
+#include "pcp/sqlite_wrapper.hpp"
 #include <sqlite3.h>
 #include <android/log.h>
 #include <cstring>
@@ -8,7 +8,7 @@
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace progressive {
+namespace pcp {
 
 // ==== SQLite Database Implementation ====
 
@@ -360,4 +360,4 @@ std::string buildInsertSql(
     return sql;
 }
 
-} // namespace progressive
+} // namespace pcp

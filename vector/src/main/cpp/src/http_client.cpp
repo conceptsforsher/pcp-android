@@ -1,5 +1,5 @@
-#include "progressive/http_client.hpp"
-#include "progressive/tls_bridge.hpp"
+#include "pcp/http_client.hpp"
+#include "pcp/tls_bridge.hpp"
 #include <cstring>
 #include <sstream>
 
@@ -8,7 +8,7 @@
 // TLS connection is delegated to Android's javax.net.ssl.SSLSocket via JNI.
 // See jni_bridge.cpp for the native TLS socket wrapper.
 
-namespace progressive {
+namespace pcp {
 
 // ==== URL Parsing ====
 
@@ -214,4 +214,4 @@ MatrixErrorResponse parseMatrixError(const std::string& responseBody) {
     return err;
 }
 
-} // namespace progressive
+} // namespace pcp

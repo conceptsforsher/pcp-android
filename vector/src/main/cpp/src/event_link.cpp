@@ -1,9 +1,9 @@
-#include "progressive/event_link.hpp"
+#include "pcp/event_link.hpp"
 #include <sstream>
 #include <regex>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ---- Event Link Extraction ----
 
@@ -116,4 +116,4 @@ std::string formatFullTimestamp(int64_t epochMs) {
     return std::string(buf);
 }
 
-} // namespace progressive
+} // namespace pcp

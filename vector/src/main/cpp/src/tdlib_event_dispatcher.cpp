@@ -1,6 +1,6 @@
-#include "progressive/tdlib_event_dispatcher.hpp"
+#include "pcp/tdlib_event_dispatcher.hpp"
 
-namespace progressive {
+namespace pcp {
 
 void TdEventDispatcher::onMessageDeleted(int64_t chatId, const std::vector<int64_t>& ids) {
     MessageDeleted md{chatId, ids};
@@ -37,4 +37,4 @@ void TdEventDispatcher::onError(const TdError& error) {
     dispatch(TdEvent::ERROR, &eu);
 }
 
-} // namespace progressive
+} // namespace pcp

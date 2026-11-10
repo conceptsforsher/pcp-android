@@ -2,16 +2,16 @@
 #include <string>
 #include <android/log.h>
 
-#ifdef PROGRESSIVE_HAS_TDLIB
-#include "progressive/tdlib_bridge.hpp"
+#ifdef PCP_HAS_TDLIB
+#include "pcp/tdlib_bridge.hpp"
 #endif
 
 #define JNI_FUNC(ret, name) \
-    JNIEXPORT ret JNICALL Java_chat_progressive_app_telegram_TdLibNative_##name
+    JNIEXPORT ret JNICALL Java_chat_pcp_app_telegram_TdLibNative_##name
 
 #define TAG "TdLibBridge"
 
-#ifdef PROGRESSIVE_HAS_TDLIB
+#ifdef PCP_HAS_TDLIB
 
 static void* get_client_ptr(JNIEnv* env, jlong ptr) {
     return reinterpret_cast<void*>(static_cast<intptr_t>(ptr));
@@ -70,12 +70,12 @@ JNI_FUNC(void, nativeTdDestroyClient)(JNIEnv* env, jclass clazz, jlong clientPtr
 
 } // extern "C"
 
-#else // !PROGRESSIVE_HAS_TDLIB — stubs
+#else // !PCP_HAS_TDLIB — stubs
 
 extern "C" {
 
 JNI_FUNC(jlong, nativeTdCreateClient)(JNIEnv* env, jclass clazz) {
-    __android_log_print(ANDROID_LOG_ERROR, TAG, "TDLib not compiled in. Set PROGRESSIVE_HAS_TDLIB=1");
+    __android_log_print(ANDROID_LOG_ERROR, TAG, "TDLib not compiled in. Set PCP_HAS_TDLIB=1");
     return 0;
 }
 
@@ -90,4 +90,4 @@ JNI_FUNC(void, nativeTdDestroyClient)(JNIEnv* env, jclass clazz, jlong clientPtr
 
 } // extern "C"
 
-#endif // PROGRESSIVE_HAS_TDLIB
+#endif // PCP_HAS_TDLIB

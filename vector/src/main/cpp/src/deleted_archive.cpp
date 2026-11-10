@@ -1,9 +1,9 @@
-#include "progressive/deleted_archive.hpp"
+#include "pcp/deleted_archive.hpp"
 #include <sstream>
 #include <chrono>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 void DeletedMessageArchive::archive(const DeletedEvent& event) {
     DeletedEvent copy = event;
@@ -68,4 +68,4 @@ std::string DeletedMessageArchive::exportJson() const {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

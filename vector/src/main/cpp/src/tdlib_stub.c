@@ -5,7 +5,7 @@
 #include <pthread.h>
 
 /* ── TDLib JSON C API stub ──────────────────────────────────────────
-   Provides td_json_client_* symbols so progressive_native.so links
+   Provides td_json_client_* symbols so pcp_native.so links
    and the Telegram auth/messaging UI works without a real TDLib .so.
 
    Simulated:
@@ -143,13 +143,13 @@ const char *td_json_client_receive(void *client, double timeout) {
             const char *chats[] = {
                 "{\"@type\":\"updateNewChat\",\"chat\":{"
                 "\"@type\":\"chat\",\"id\":1001,"
-                "\"title\":\"Progressive Chat News\","
+                "\"title\":\"PCP News\","
                 "\"type\":{\"@type\":\"chatTypeSupergroup\",\"is_channel\":true},"
                 "\"last_message\":{"
                 "\"@type\":\"message\",\"id\":1,\"chat_id\":1001,\"date\":1000001,"
                 "\"content\":{"
                 "\"@type\":\"messageText\","
-                "\"text\":{\"@type\":\"formattedText\",\"text\":\"Welcome to Progressive Chat!\"}}},"
+                "\"text\":{\"@type\":\"formattedText\",\"text\":\"Welcome to PCP!\"}}},"
                 "\"unread_count\":1}}",
 
                 "{\"@type\":\"updateNewChat\",\"chat\":{"

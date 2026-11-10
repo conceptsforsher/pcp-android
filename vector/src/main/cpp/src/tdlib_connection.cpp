@@ -1,10 +1,10 @@
-#include "progressive/tdlib_connection.hpp"
+#include "pcp/tdlib_connection.hpp"
 #include <android/log.h>
 #include <ctime>
 
 #define TAG "TdConnection"
 
-namespace progressive {
+namespace pcp {
 
 void TdConnectionManager::onStateChanged(TdConnectionState s) {
     auto prev = state.exchange(s);
@@ -32,4 +32,4 @@ int64_t TdConnectionManager::disconnectDuration() const {
     return std::time(nullptr) - lastDisconnected;
 }
 
-} // namespace progressive
+} // namespace pcp

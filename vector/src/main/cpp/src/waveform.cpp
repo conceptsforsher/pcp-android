@@ -1,9 +1,9 @@
-#include "progressive/waveform.hpp"
+#include "pcp/waveform.hpp"
 #include <sstream>
 #include <cmath>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 std::vector<WaveformBar> generateWaveform(
     const std::vector<int16_t>& samples,
@@ -189,4 +189,4 @@ std::vector<int> sanitizeWaveform(const std::vector<int>& waveform) {
     return positive;
 }
 
-} // namespace progressive
+} // namespace pcp

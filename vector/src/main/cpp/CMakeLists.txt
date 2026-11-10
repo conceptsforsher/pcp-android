@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.22.1)
-project("progressive_native")
+project("pcp_native")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(
-    progressive_native
+    pcp_native
     SHARED
     src/jumptodate.cpp
     src/json_parser.cpp
@@ -113,7 +113,7 @@ add_library(
     src/space_graph.cpp
     src/notif_mode.cpp
     src/alarm_engine.cpp
-    src/progressive_stubs.cpp
+    src/pcp_stubs.cpp
     src/widget_manager.cpp
     src/user_directory.cpp
     src/transparent_overlay.cpp
@@ -272,11 +272,11 @@ if(NOT EXISTS "${SQLITE3_SRC}")
     message(STATUS "SQLite3 amalgamation extracted to ${SQLITE3_DIR}")
 endif()
 # Add to build after download+extraction
-target_sources(progressive_native PRIVATE "${SQLITE3_SRC}")
-target_include_directories(progressive_native PUBLIC "${SQLITE3_DIR}")
+target_sources(pcp_native PRIVATE "${SQLITE3_SRC}")
+target_include_directories(pcp_native PUBLIC "${SQLITE3_DIR}")
 
 target_include_directories(
-    progressive_native
+    pcp_native
     PUBLIC
     include
 )
@@ -287,17 +287,17 @@ find_library(log_lib log)
 add_subdirectory(libolm)
 
 target_link_libraries(
-    progressive_native
+    pcp_native
     ${log_lib}
     olm
 )
 
-target_compile_definitions(progressive_native PRIVATE PROGRESSIVE_HAS_OLM=1)
+target_compile_definitions(pcp_native PRIVATE PCP_HAS_OLM=1)
 
 # --- TDLib (Telegram MTProto) — optional, not required ---
-option(PROGRESSIVE_ENABLE_TDLIB "Enable Telegram MTProto support via TDLib" OFF)
+option(PCP_ENABLE_TDLIB "Enable Telegram MTProto support via TDLib" OFF)
 
-if(PROGRESSIVE_ENABLE_TDLIB)
+if(PCP_ENABLE_TDLIB)
     find_library(TDJSON_LIB tdjson
         PATHS ${CMAKE_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}
         NO_DEFAULT_PATH
@@ -307,8 +307,8 @@ if(PROGRESSIVE_ENABLE_TDLIB)
     endif()
     if(TDJSON_LIB)
         message(STATUS "TDLib found: ${TDJSON_LIB}")
-        target_link_libraries(progressive_native ${TDJSON_LIB})
-        target_compile_definitions(progressive_native PRIVATE PROGRESSIVE_HAS_TDLIB=1)
+        target_link_libraries(pcp_native ${TDJSON_LIB})
+        target_compile_definitions(pcp_native PRIVATE PCP_HAS_TDLIB=1)
     else()
         message(WARNING "TDLib not found — Telegram support disabled")
     endif()

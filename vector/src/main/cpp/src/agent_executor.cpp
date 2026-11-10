@@ -1,8 +1,8 @@
-#include "progressive/agent_executor.hpp"
+#include "pcp/agent_executor.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ==== System Prompt Builder ====
 // Constructs the system prompt that defines the agent's role, tools, and rules.
@@ -344,4 +344,4 @@ std::string agentStateToJson(const AgentState& state) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

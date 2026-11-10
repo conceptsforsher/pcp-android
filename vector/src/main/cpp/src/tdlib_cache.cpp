@@ -1,6 +1,6 @@
-#include "progressive/tdlib_cache.hpp"
+#include "pcp/tdlib_cache.hpp"
 
-#ifdef PROGRESSIVE_HAS_TDLIB
+#ifdef PCP_HAS_TDLIB
 
 #include <algorithm>
 #include <sqlite3.h>
@@ -9,7 +9,7 @@
 
 #define TAG "TdCache"
 
-namespace progressive {
+namespace pcp {
 
 static std::string esc(const std::string& s) {
     std::string out;
@@ -249,11 +249,11 @@ std::vector<TdStory> TdCache::getActiveStories() {
     return {};
 }
 
-} // namespace progressive
+} // namespace pcp
 
 #else
 // Stub implementation when TDLib is not available
-namespace progressive {
+namespace pcp {
 TdCache::TdCache(const std::string&) {}
 TdCache::~TdCache() {}
 bool TdCache::open() { return false; }

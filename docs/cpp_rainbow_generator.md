@@ -100,7 +100,7 @@ JNIEXPORT jstring JNICALL
 Java_..._nativeGenerateRainbow(JNIEnv* env, jclass, jstring jText)
 {
     auto text = std::string(env->GetStringUTFChars(jText, nullptr));
-    auto rainbow = progressive::generateRainbow(text);
+    auto rainbow = pcp::generateRainbow(text);
     return env->NewStringUTF(rainbow.c_str());
 }
 ```

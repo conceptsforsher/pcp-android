@@ -663,7 +663,7 @@ class HomeActivity :
                 true
             }
             R.id.menu_home_add_telegram -> {
-                startActivity(android.content.Intent(this, chat.progressive.app.features.auth.TelegramAuthActivity::class.java))
+                startActivity(android.content.Intent(this, chat.pcp.app.features.auth.TelegramAuthActivity::class.java))
                 true
             }
             else -> false

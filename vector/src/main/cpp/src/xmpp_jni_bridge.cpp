@@ -10,19 +10,19 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 #define JNI_XMPP(ret, name) \
-    JNIEXPORT ret JNICALL Java_chat_progressive_app_xmpp_XmppNative_##name
+    JNIEXPORT ret JNICALL Java_chat_pcp_app_xmpp_XmppNative_##name
 
-#ifdef PROGRESSIVE_HAS_XMPP
+#ifdef PCP_HAS_XMPP
 
-#include "progressive/xmpp_client.hpp"
-#include "progressive/json_parser.hpp"
-#include "progressive/exporter.hpp"
+#include "pcp/xmpp_client.hpp"
+#include "pcp/json_parser.hpp"
+#include "pcp/exporter.hpp"
 #include <memory>
 
 static JavaVM* g_xmppJvm = nullptr;
 static jclass g_xmppCallbackClass = nullptr;
 static std::mutex g_xmppMutex;
-static std::unordered_map<int64_t, std::unique_ptr<progressive::XmppClient>> g_xmppClients;
+static std::unordered_map<int64_t, std::unique_ptr<pcp::XmppClient>> g_xmppClients;
 static int64_t g_xmppNextHandle = 1;
 
 static std::string jStr(JNIEnv* env, jstring js) {
@@ -50,7 +50,7 @@ static void xmppPostToKotlin(const std::string& methodName, const std::string& j
         return;
     }
 
-    jclass clazz = env->FindClass("chat/progressive/app/xmpp/XmppNative");
+    jclass clazz = env->FindClass("chat/pcp/app/xmpp/XmppNative");
     if (!clazz) {
         LOGE("Failed to find XmppNative class");
         if (needDetach) g_xmppJvm->DetachCurrentThread();
@@ -75,31 +75,31 @@ static void xmppPostToKotlin(const std::string& methodName, const std::string& j
     }
 }
 
-static std::string rosterToJson(const std::vector<progressive::XmppUser>& roster) {
+static std::string rosterToJson(const std::vector<pcp::XmppUser>& roster) {
     std::ostringstream os;
     os << "[";
     for (size_t i = 0; i < roster.size(); i++) {
         if (i > 0) os << ",";
         const auto& u = roster[i];
-        os << R"({"jid":")" << progressive::escapeJson(u.jid)
-           << R"(","nickname":")" << progressive::escapeJson(u.nickname)
-           << R"(","status":")" << progressive::escapeJson(u.status)
-           << R"(","avatarHash":")" << progressive::escapeJson(u.avatarHash)
+        os << R"({"jid":")" << pcp::escapeJson(u.jid)
+           << R"(","nickname":")" << pcp::escapeJson(u.nickname)
+           << R"(","status":")" << pcp::escapeJson(u.status)
+           << R"(","avatarHash":")" << pcp::escapeJson(u.avatarHash)
            << R"(","isOnline":)" << (u.isOnline ? "true" : "false") << "}";
     }
     os << "]";
     return os.str();
 }
 
-static std::string chatsToJson(const std::vector<progressive::XmppChat>& chats) {
+static std::string chatsToJson(const std::vector<pcp::XmppChat>& chats) {
     std::ostringstream os;
     os << "[";
     for (size_t i = 0; i < chats.size(); i++) {
         if (i > 0) os << ",";
         const auto& c = chats[i];
-        os << R"({"jid":")" << progressive::escapeJson(c.jid)
-           << R"(","name":")" << progressive::escapeJson(c.name)
-           << R"(","lastMessage":")" << progressive::escapeJson(c.lastMessage)
+        os << R"({"jid":")" << pcp::escapeJson(c.jid)
+           << R"(","name":")" << pcp::escapeJson(c.name)
+           << R"(","lastMessage":")" << pcp::escapeJson(c.lastMessage)
            << R"(,"lastMessageTime":)" << c.lastMessageTime
            << R"(,"unreadCount":)" << c.unreadCount
            << R"(,"isGroupChat":)" << (c.isGroupChat ? "true" : "false") << "}";
@@ -119,43 +119,43 @@ JNI_XMPP(jlong, nativeXmppInit)(JNIEnv* env, jclass) {
 JNI_XMPP(jlong, nativeXmppConnect)(JNIEnv* env, jclass, jstring jAccountJson) {
     if (!g_xmppJvm) env->GetJavaVM(&g_xmppJvm);
 
-    progressive::XmppAccount account;
+    pcp::XmppAccount account;
     std::string json = jStr(env, jAccountJson);
 
-    account.jid = progressive::parseJsonStringValue(json, "jid");
-    account.password = progressive::parseJsonStringValue(json, "password");
-    account.server = progressive::parseJsonStringValue(json, "server");
-    account.resource = progressive::parseJsonStringValue(json, "resource");
-    account.port = static_cast<int>(progressive::parseJsonInt64Value(json, "port", 5222));
-    account.useTls = progressive::parseJsonBoolValue(json, "useTls", true);
+    account.jid = pcp::parseJsonStringValue(json, "jid");
+    account.password = pcp::parseJsonStringValue(json, "password");
+    account.server = pcp::parseJsonStringValue(json, "server");
+    account.resource = pcp::parseJsonStringValue(json, "resource");
+    account.port = static_cast<int>(pcp::parseJsonInt64Value(json, "port", 5222));
+    account.useTls = pcp::parseJsonBoolValue(json, "useTls", true);
 
-    if (account.resource.empty()) account.resource = "Progressive";
+    if (account.resource.empty()) account.resource = "PCP";
 
-    auto client = std::make_unique<progressive::XmppClient>();
-    client->setEventCallback([](progressive::XmppEventType type, const std::string& data) {
+    auto client = std::make_unique<pcp::XmppClient>();
+    client->setEventCallback([](pcp::XmppEventType type, const std::string& data) {
         switch (type) {
-            case progressive::XmppEventType::CONNECTION_CHANGED:
+            case pcp::XmppEventType::CONNECTION_CHANGED:
                 xmppPostToKotlin("xmppOnConnection", data);
                 break;
-            case progressive::XmppEventType::AUTH_CHANGED:
+            case pcp::XmppEventType::AUTH_CHANGED:
                 xmppPostToKotlin("xmppOnConnection", data);
                 break;
-            case progressive::XmppEventType::MESSAGE_RECEIVED:
+            case pcp::XmppEventType::MESSAGE_RECEIVED:
                 xmppPostToKotlin("xmppOnMessage", data);
                 break;
-            case progressive::XmppEventType::MAM_MESSAGE:
+            case pcp::XmppEventType::MAM_MESSAGE:
                 xmppPostToKotlin("xmppOnMamMessage", data);
                 break;
-            case progressive::XmppEventType::MAM_COMPLETE:
+            case pcp::XmppEventType::MAM_COMPLETE:
                 xmppPostToKotlin("xmppOnMamComplete", data);
                 break;
-            case progressive::XmppEventType::PRESENCE_CHANGED:
+            case pcp::XmppEventType::PRESENCE_CHANGED:
                 xmppPostToKotlin("xmppOnPresence", data);
                 break;
-            case progressive::XmppEventType::ROSTER_UPDATED:
+            case pcp::XmppEventType::ROSTER_UPDATED:
                 xmppPostToKotlin("xmppOnRoster", data);
                 break;
-            case progressive::XmppEventType::ERROR:
+            case pcp::XmppEventType::ERROR:
                 xmppPostToKotlin("xmppOnError", data);
                 break;
         }
@@ -309,10 +309,10 @@ JNI_XMPP(jstring, nativeXmppGetRooms)(JNIEnv* env, jclass, jlong jHandle) {
         for (size_t i = 0; i < rooms.size(); i++) {
             if (i > 0) os << ",";
             const auto& r = rooms[i];
-            os << R"({"jid":")" << progressive::escapeJson(r.jid)
-               << R"(","name":")" << progressive::escapeJson(r.name)
-               << R"(","subject":")" << progressive::escapeJson(r.subject)
-               << R"(","ownNickname":")" << progressive::escapeJson(r.ownNickname)
+            os << R"({"jid":")" << pcp::escapeJson(r.jid)
+               << R"(","name":")" << pcp::escapeJson(r.name)
+               << R"(","subject":")" << pcp::escapeJson(r.subject)
+               << R"(","ownNickname":")" << pcp::escapeJson(r.ownNickname)
                << R"(","isJoined":)" << (r.isJoined ? "true" : "false")
                << R"(,"participantCount":)" << r.participants.size() << "}";
         }
@@ -358,10 +358,10 @@ JNI_XMPP(jstring, nativeXmppRequestUploadSlot)(JNIEnv* env, jclass, jlong jHandl
     return env->NewStringUTF("{}");
 }
 
-#else // PROGRESSIVE_HAS_XMPP not defined — stubs
+#else // PCP_HAS_XMPP not defined — stubs
 
 JNI_XMPP(jlong, nativeXmppInit)(JNIEnv*, jclass) {
-    LOGE("XMPP support not compiled (PROGRESSIVE_HAS_XMPP not defined)");
+    LOGE("XMPP support not compiled (PCP_HAS_XMPP not defined)");
     return 0;
 }
 
@@ -429,4 +429,4 @@ JNI_XMPP(jstring, nativeXmppRequestUploadSlot)(JNIEnv* env, jclass, jlong, jstri
     return env->NewStringUTF("{}");
 }
 
-#endif // PROGRESSIVE_HAS_XMPP
+#endif // PCP_HAS_XMPP

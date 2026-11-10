@@ -112,7 +112,7 @@ class NewHomeDetailFragment :
                 true
             }
             R.id.menu_home_xmpp -> {
-                startActivity(Intent(requireContext(), chat.progressive.app.features.xmpp.XmppAuthActivity::class.java))
+                startActivity(Intent(requireContext(), chat.pcp.app.features.xmpp.XmppAuthActivity::class.java))
                 true
             }
             else -> false

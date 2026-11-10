@@ -1,10 +1,10 @@
-#include "progressive/room_mirror.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/room_mirror.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <regex>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 void RoomMirrorManager::addMirror(const MirrorConfig& config) {
     mirrors_[config.sourceRoomId] = config;
@@ -139,12 +139,12 @@ void RoomMirrorManager::importJson(const std::string& json) {
 
         std::string obj = json.substr(pos, end - pos + 1);
         MirrorConfig cfg;
-        cfg.sourceRoomId   = progressive::parseJsonStringValue(obj, "sourceRoomId");
-        cfg.sourceRoomName = progressive::parseJsonStringValue(obj, "sourceRoomName");
-        cfg.mirrorRoomId   = progressive::parseJsonStringValue(obj, "mirrorRoomId");
-        cfg.mirrorRoomName = progressive::parseJsonStringValue(obj, "mirrorRoomName");
-        auto enabledStr    = progressive::parseJsonStringValue(obj, "enabled");
-        auto dollsStr      = progressive::parseJsonStringValue(obj, "useDolls");
+        cfg.sourceRoomId   = pcp::parseJsonStringValue(obj, "sourceRoomId");
+        cfg.sourceRoomName = pcp::parseJsonStringValue(obj, "sourceRoomName");
+        cfg.mirrorRoomId   = pcp::parseJsonStringValue(obj, "mirrorRoomId");
+        cfg.mirrorRoomName = pcp::parseJsonStringValue(obj, "mirrorRoomName");
+        auto enabledStr    = pcp::parseJsonStringValue(obj, "enabled");
+        auto dollsStr      = pcp::parseJsonStringValue(obj, "useDolls");
         cfg.enabled  = (enabledStr == "true");
         cfg.useDolls = (dollsStr == "true");
 
@@ -162,7 +162,7 @@ HomeserverCapability parseRegistrationCapabilities(const std::string& wellKnownJ
     HomeserverCapability caps;
 
     // Parse "m.registration_disabled" or similar fields
-    auto regDisabled = progressive::parseJsonStringValue(wellKnownJson, "m.registration_disabled");
+    auto regDisabled = pcp::parseJsonStringValue(wellKnownJson, "m.registration_disabled");
     caps.registrationEnabled = (regDisabled != "true");
 
     // Check flows for email/captcha requirements
@@ -177,4 +177,4 @@ HomeserverCapability parseRegistrationCapabilities(const std::string& wellKnownJ
     return caps;
 }
 
-} // namespace progressive
+} // namespace pcp

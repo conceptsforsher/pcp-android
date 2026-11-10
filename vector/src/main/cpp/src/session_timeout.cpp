@@ -1,10 +1,10 @@
-#include "progressive/session_timeout.hpp"
+#include "pcp/session_timeout.hpp"
 #include <sstream>
 #include <chrono>
 #include <cctype>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 bool shouldLock(const SessionPolicy& policy, const SessionState& state) {
     if (state.isLocked) return false; // already locked
@@ -151,4 +151,4 @@ bool verifyPin(const std::string& pin, const std::string& storedHash, const std:
     return hashPin(pin, salt) == storedHash;
 }
 
-} // namespace progressive
+} // namespace pcp

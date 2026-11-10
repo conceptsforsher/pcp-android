@@ -104,7 +104,7 @@ internal class RoomSyncHandler @Inject constructor(
 
     companion object {
         /**
-         * Optional native C++ room mirror callback for Progressive Chat.
+         * Optional native C++ room mirror callback for PCP.
          * Called for each room during /sync so native SQLite can mirror.
          * Parameters: roomId, displayName, avatarUrl, topic, membership,
          *             notifCount, highlightCount, lastActivityMs, isDirect, isSpace, isFav, isEncrypted
@@ -300,7 +300,7 @@ internal class RoomSyncHandler @Inject constructor(
                 aggregator = aggregator
         )
 
-        // Progressive Chat: mirror to native SQLite
+        // PCP: mirror to native SQLite
         val cb = nativeRoomSyncCallback
         if (cb != null) {
             val notif = roomSync.unreadNotifications

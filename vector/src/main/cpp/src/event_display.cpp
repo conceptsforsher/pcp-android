@@ -1,7 +1,7 @@
-#include "progressive/event_display.hpp"
+#include "pcp/event_display.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 DisplayEventType classifyEvent(const std::string& eventType, const std::string& msgType) {
     if (eventType == "m.room.message" || eventType == "m.room.encrypted") {
@@ -170,4 +170,4 @@ std::string formatMemberEvent(const std::string& senderName, const std::string& 
     return out.str();
 }
 
-} // namespace progressive
+} // namespace pcp

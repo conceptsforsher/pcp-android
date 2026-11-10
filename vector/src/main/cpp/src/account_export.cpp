@@ -1,10 +1,10 @@
-#include "progressive/account_export.hpp"
-#include "progressive/hash_utils.hpp"
+#include "pcp/account_export.hpp"
+#include "pcp/hash_utils.hpp"
 #include <sstream>
 #include <cstring>
 #include <vector>
 
-namespace progressive {
+namespace pcp {
 
 std::string accountToJson(const AccountData& data) {
     auto esc = [](const std::string& s) -> std::string {
@@ -57,11 +57,11 @@ std::string encryptAccountData(const AccountData& data, const std::string& passp
         json[i] ^= passphrase[i % passphrase.size()];
     }
     auto bytes = std::vector<uint8_t>(json.begin(), json.end());
-    return progressive::base64Encode(bytes);
+    return pcp::base64Encode(bytes);
 }
 
 AccountData decryptAccountData(const std::string& encrypted, const std::string& passphrase) {
-    auto decodedBytes = progressive::base64Decode(encrypted);
+    auto decodedBytes = pcp::base64Decode(encrypted);
     std::string decoded(decodedBytes.begin(), decodedBytes.end());
     if (decoded.empty()) return {};
 
@@ -77,4 +77,4 @@ AccountData decryptAccountData(const std::string& encrypted, const std::string& 
     return data;
 }
 
-} // namespace progressive
+} // namespace pcp

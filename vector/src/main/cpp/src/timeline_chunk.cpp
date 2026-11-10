@@ -1,10 +1,10 @@
-#include "progressive/timeline_chunk.hpp"
-#include "progressive/sqlite_wrapper.hpp"
+#include "pcp/timeline_chunk.hpp"
+#include "pcp/sqlite_wrapper.hpp"
 #include <algorithm>
 #include <sstream>
 #include <limits>
 
-namespace progressive {
+namespace pcp {
 
 // ==== TimelineChunkManager ====
 
@@ -538,4 +538,4 @@ TimelineChunkManager deserializeChunkManager(const std::string& /*json*/, const 
     return TimelineChunkManager(roomId);
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -10,7 +10,7 @@ permissions: {}
 # Enrich gradle.properties for CI/CD
 env:
   GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx3072m -Dfile.encoding=UTF-8" -Dkotlin.incremental=false -Dkotlin.daemon.jvm.options="-Xmx1024m"
-  CI_GRADLE_ARG_PROPERTIES: --stacktrace --warn --no-build-cache -PpreDexEnable=false --max-workers 1 --no-daemon -PminifyEnabled=false -Pkotlin.compiler.execution.strategy=out-of-process -PciAbi=armeabi-v7a -Pandroid.enableBuildCache=false -Pkotlin.daemon.jvmargs=-Xmx1024m -PallWarningsAsErrors=false -PprogressiveXmpp=true
+  CI_GRADLE_ARG_PROPERTIES: --stacktrace --warn --no-build-cache -PpreDexEnable=false --max-workers 1 --no-daemon -PminifyEnabled=false -Pkotlin.compiler.execution.strategy=out-of-process -PciAbi=armeabi-v7a -Pandroid.enableBuildCache=false -Pkotlin.daemon.jvmargs=-Xmx1024m -PallWarningsAsErrors=false -PpcpXmpp=true
 
 jobs:
   debug:
@@ -85,7 +85,7 @@ jobs:
       - name: Upload Fdroid unsigned APK
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: progressive-v0.2.0-fdroid-arm32
+          name: pcp-v0.2.0-fdroid-arm32
           path: |
             vector-app/build/outputs/apk/fdroid/release/*.apk
       - name: Publish to GitHub Release
@@ -94,7 +94,7 @@ jobs:
           VERSION="v0.2.0"
           gh release delete "$VERSION-nightly" --cleanup-tag -y 2>/dev/null || true
           gh release create "$VERSION-nightly" \
-            --title "Progressive Chat $VERSION — Nightly Build" \
+            --title "PCP $VERSION — Nightly Build" \
             --target main \
             --notes "Automated nightly build from main branch. Commit: ${{ github.sha }}
 
@@ -121,7 +121,7 @@ jobs:
         id: download
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
-          name: progressive-v0.2.0-fdroid-arm32
+          name: pcp-v0.2.0-fdroid-arm32
       - name: Show apks in artifact
         run: ls -R ${STEPS_DOWNLOAD_OUTPUTS_DOWNLOAD_PATH}
         env:

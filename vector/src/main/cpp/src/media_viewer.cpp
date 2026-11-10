@@ -1,9 +1,9 @@
-#include "progressive/media_viewer.hpp"
+#include "pcp/media_viewer.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -340,4 +340,4 @@ ThumbnailConfig getRecommendedThumbnailConfig(int screenDensity) {
     return cfg;
 }
 
-} // namespace progressive
+} // namespace pcp

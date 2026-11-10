@@ -67,7 +67,7 @@ internal class RoomSummaryDataSource @Inject constructor(
 
     companion object {
         /**
-         * Optional native C++ room list mirror callback for Progressive Chat.
+         * Optional native C++ room list mirror callback for PCP.
          * Called with a JSON array of all room summaries so native SQLite can mirror.
          * Set by the app layer when SETTINGS_LABS_NATIVE_DB is enabled.
          */

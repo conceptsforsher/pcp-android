@@ -1,9 +1,9 @@
-#include "progressive/keyshare.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/keyshare.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 KeyRequestInfo parseKeyRequest(const std::string& eventContentJson, const std::string& eventId,
     const std::string& senderId) {
@@ -99,4 +99,4 @@ bool isKeyRequestExpired(const KeyRequestInfo& info, int timeoutMinutes) {
     return (now - info.requestedAtMs) > timeoutMinutes * 60 * 1000LL;
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,10 +1,10 @@
-#include "progressive/device_manager_full.hpp"
+#include "pcp/device_manager_full.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 #include <iomanip>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -442,4 +442,4 @@ std::string DeviceManager::trustLevelToJson(const DeviceVerification& level) con
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

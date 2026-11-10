@@ -1,21 +1,21 @@
-#ifdef PROGRESSIVE_HAS_XMPP
+#ifdef PCP_HAS_XMPP
 
 extern "C" {
 #include <strophe.h>
 }
 
-#include "progressive/xmpp_client.hpp"
-#include "progressive/exporter.hpp"
+#include "pcp/xmpp_client.hpp"
+#include "pcp/exporter.hpp"
 #include <android/log.h>
 #include <sstream>
 #include <cstring>
 #include <chrono>
 
-#define LOG_TAG "ProgressiveXmpp"
+#define LOG_TAG "PcpXmpp"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace progressive {
+namespace pcp {
 
 static void xmppLogHandler(void* /*userdata*/,
                             const xmpp_log_level_t /*level*/,
@@ -1262,6 +1262,6 @@ void XmppClient::enableCarbons() {
     LOGD("Carbones enabled");
 }
 
-} // namespace progressive
+} // namespace pcp
 
-#endif // PROGRESSIVE_HAS_XMPP
+#endif // PCP_HAS_XMPP

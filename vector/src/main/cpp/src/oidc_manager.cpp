@@ -1,10 +1,10 @@
-#include "progressive/oidc_manager.hpp"
+#include "pcp/oidc_manager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -490,4 +490,4 @@ std::string buildTokenLoginRequest(const LoginCredentials& creds) {
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

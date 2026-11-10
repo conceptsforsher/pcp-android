@@ -33,7 +33,7 @@ import com.bumptech.glide.request.target.Target
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.utils.DimensionConverter
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 import im.vector.app.features.settings.VectorPreferences
 import io.element.android.wysiwyg.view.spans.InlineCodeSpan
 import io.noties.markwon.AbstractMarkwonPlugin
@@ -206,8 +206,8 @@ class EventHtmlRenderer @Inject constructor(
     fun parse(text: String): Node {
         val processed = if (vectorPreferences.isNativeMarkdownEnabled()) {
             try {
-                ProgressiveNative.ensureLoaded()
-                ProgressiveNative.nativeMarkdownToHtml(text, true)
+                PcpNative.ensureLoaded()
+                PcpNative.nativeMarkdownToHtml(text, true)
             } catch (e: UnsatisfiedLinkError) {
                 text
             }
@@ -225,8 +225,8 @@ class EventHtmlRenderer @Inject constructor(
         return try {
             val markdown = if (vectorPreferences.isNativeMarkdownEnabled()) {
                 try {
-                    ProgressiveNative.ensureLoaded()
-                    ProgressiveNative.nativeMarkdownToHtml(text, true)
+                    PcpNative.ensureLoaded()
+                    PcpNative.nativeMarkdownToHtml(text, true)
                 } catch (e: UnsatisfiedLinkError) {
                     Timber.w(e, "Native markdown not loaded, using fallback")
                     text

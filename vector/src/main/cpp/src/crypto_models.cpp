@@ -1,6 +1,6 @@
-#include "progressive/crypto_models.hpp"
+#include "pcp/crypto_models.hpp"
 
-namespace progressive {
+namespace pcp {
 
 // ==== JSON Helpers ====
 
@@ -194,4 +194,4 @@ std::string cryptoDeviceInfoToJson(const CryptoDeviceInfo& info) {
     return json;
 }
 
-} // namespace progressive
+} // namespace pcp

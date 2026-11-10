@@ -1,6 +1,6 @@
-#include "progressive/create_room.hpp"
+#include "pcp/create_room.hpp"
 
-namespace progressive {
+namespace pcp {
 
 const char* createRoomPresetToString(CreateRoomPreset p) {
     switch (p) {
@@ -199,4 +199,4 @@ std::string relationContentToJson(const RelationContent& rel) {
     return json;
 }
 
-} // namespace progressive
+} // namespace pcp

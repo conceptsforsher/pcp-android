@@ -1,13 +1,13 @@
-#include "progressive/relation.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/relation.hpp"
+#include "pcp/json_parser.hpp"
 
-namespace progressive {
+namespace pcp {
 
 RelationInfo parseRelation(const std::string& eventJson) {
     RelationInfo info;
 
     // Extract the "content" block first, then look for "m.relates_to"
-    auto contentBlock = progressive::parseJsonStringValue(eventJson, "content");
+    auto contentBlock = pcp::parseJsonStringValue(eventJson, "content");
     std::string searchIn;
 
     if (!contentBlock.empty()) {
@@ -60,8 +60,8 @@ RelationInfo parseRelation(const std::string& eventJson) {
     std::string relatesToBlock = searchIn.substr(objStart, end - objStart);
 
     // Extract event_id from the relates_to block
-    info.sourceEventId = progressive::parseJsonStringValue(relatesToBlock, "event_id");
-    info.relationType = progressive::parseJsonStringValue(relatesToBlock, "rel_type");
+    info.sourceEventId = pcp::parseJsonStringValue(relatesToBlock, "event_id");
+    info.relationType = pcp::parseJsonStringValue(relatesToBlock, "rel_type");
 
     info.isRelation = !info.sourceEventId.empty();
     return info;
@@ -78,4 +78,4 @@ bool isJumpableRelationType(const char* relationType) {
     return isJumpableRelationType(std::string(relationType));
 }
 
-} // namespace progressive
+} // namespace pcp

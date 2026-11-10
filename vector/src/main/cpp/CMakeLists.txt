@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.22.1)
-project("progressive_native")
+project("pcp_native")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(
-    progressive_native
+    pcp_native
     SHARED
     src/jumptodate.cpp
     src/json_parser.cpp
@@ -113,7 +113,7 @@ add_library(
     src/space_graph.cpp
     src/notif_mode.cpp
     src/alarm_engine.cpp
-    src/progressive_stubs.cpp
+    src/pcp_stubs.cpp
     src/widget_manager.cpp
     src/user_directory.cpp
     src/transparent_overlay.cpp
@@ -262,11 +262,11 @@ if(NOT EXISTS "${SQLITE3_SRC}")
     message(STATUS "SQLite3 amalgamation extracted to ${SQLITE3_DIR}")
 endif()
 # Add to build after download+extraction
-target_sources(progressive_native PRIVATE "${SQLITE3_SRC}")
-target_include_directories(progressive_native PUBLIC "${SQLITE3_DIR}")
+target_sources(pcp_native PRIVATE "${SQLITE3_SRC}")
+target_include_directories(pcp_native PUBLIC "${SQLITE3_DIR}")
 
 target_include_directories(
-    progressive_native
+    pcp_native
     PUBLIC
     include
 )
@@ -278,10 +278,10 @@ add_subdirectory(libolm)
 
 # --- libexpat + libstrophe (XMPP protocol) ---
 # Both downloaded at configure time — NOT stored in repo.
-# Enable XMPP with: -DPROGRESSIVE_ENABLE_XMPP=ON
-option(PROGRESSIVE_ENABLE_XMPP "Enable XMPP support via libstrophe" OFF)
+# Enable XMPP with: -DPCP_ENABLE_XMPP=ON
+option(PCP_ENABLE_XMPP "Enable XMPP support via libstrophe" OFF)
 
-if(PROGRESSIVE_ENABLE_XMPP)
+if(PCP_ENABLE_XMPP)
     # -- libexpat --
     set(EXPAT_VERSION "2.6.4")
     set(EXPAT_TAG "R_2_6_4")
@@ -351,20 +351,20 @@ if(PROGRESSIVE_ENABLE_XMPP)
     target_compile_definitions(libstrophe PRIVATE HAVE_EXPAT=1 HAVE_OPENSSL=0)
     target_include_directories(libstrophe PUBLIC "${EXPAT_SRC_DIR}/expat/lib")
     target_link_libraries(libstrophe PUBLIC expat z)
-    target_link_libraries(progressive_native libstrophe expat)
-    target_compile_definitions(progressive_native PRIVATE PROGRESSIVE_HAS_XMPP=1)
+    target_link_libraries(pcp_native libstrophe expat)
+    target_compile_definitions(pcp_native PRIVATE PCP_HAS_XMPP=1)
     message(STATUS "XMPP support enabled (libstrophe)")
 else()
-    message(STATUS "XMPP support disabled (stubs). Enable with -DPROGRESSIVE_ENABLE_XMPP=ON")
+    message(STATUS "XMPP support disabled (stubs). Enable with -DPCP_ENABLE_XMPP=ON")
 endif()
 
 target_link_libraries(
-    progressive_native
+    pcp_native
     ${log_lib}
     olm
 )
 
-target_compile_definitions(progressive_native PRIVATE PROGRESSIVE_HAS_OLM=1)
+target_compile_definitions(pcp_native PRIVATE PCP_HAS_OLM=1)
 
 # SQLite3 amalgamation compile flags (optimize for Android, downloaded at build time)
 set_source_files_properties(

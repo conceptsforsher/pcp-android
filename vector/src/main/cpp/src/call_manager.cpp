@@ -1,9 +1,9 @@
-#include "progressive/call_manager.hpp"
+#include "pcp/call_manager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Call State/Reason String Conversions ======
 
@@ -659,4 +659,4 @@ std::string CallManager::formatCallEvent(const CallEvent& event, const std::stri
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -217,7 +217,7 @@ class FtueAuthCombinedRegisterFragment :
             views.serverSelectionSpacing.isVisible = !isMasSupportRequired
             views.serverSelectionDivider.isVisible = !isMasSupportRequired
             views.chooseServerCardErrorMas.isVisible = isMasSupportRequired
-            views.chooseServerCardDownloadReplacementApp.isVisible = false // Progressive Chat: don't redirect to other apps
+            views.chooseServerCardDownloadReplacementApp.isVisible = false // PCP: don't redirect to other apps
 
             if (isMasSupportRequired) {
                 views.chooseServerCardErrorMas.findViewById<TextView>(R.id.view_card_error_title).text =

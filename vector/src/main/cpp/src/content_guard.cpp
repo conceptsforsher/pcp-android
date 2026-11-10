@@ -1,8 +1,8 @@
-#include "progressive/content_guard.hpp"
+#include "pcp/content_guard.hpp"
 #include <sstream>
 #include <unordered_set>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Emoji Detection ====
 // Unicode emoji ranges from https://unicode.org/emoji/charts/full-emoji-list.html
@@ -183,4 +183,4 @@ std::string formatMediaCollapseLabel(int count) {
     return std::to_string(count) + " media omitted";
 }
 
-} // namespace progressive
+} // namespace pcp

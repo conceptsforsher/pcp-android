@@ -1,9 +1,9 @@
-#include "progressive/user_status.hpp"
+#include "pcp/user_status.hpp"
 #include <sstream>
 #include <ctime>
 #include <vector>
 
-namespace progressive {
+namespace pcp {
 
 // ==== UserStatus Methods ====
 
@@ -153,4 +153,4 @@ std::vector<std::string> getStatusSuggestions() {
     };
 }
 
-} // namespace progressive
+} // namespace pcp

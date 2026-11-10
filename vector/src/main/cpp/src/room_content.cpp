@@ -1,6 +1,6 @@
-#include "progressive/room_content.hpp"
+#include "pcp/room_content.hpp"
 
-namespace progressive {
+namespace pcp {
 
 // ==== Membership ====
 
@@ -576,4 +576,4 @@ bool canJoinRoom(const RoomJoinRulesContent& rules, bool userIsInvited,
     return false;
 }
 
-} // namespace progressive
+} // namespace pcp

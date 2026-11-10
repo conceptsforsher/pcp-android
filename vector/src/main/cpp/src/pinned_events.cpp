@@ -1,8 +1,8 @@
-#include "progressive/pinned_events.hpp"
+#include "pcp/pinned_events.hpp"
 #include <sstream>
 #include <regex>
 
-namespace progressive {
+namespace pcp {
 
 std::vector<std::string> parsePinnedEventIds(const std::string& stateContentJson) {
     std::vector<std::string> ids;
@@ -131,4 +131,4 @@ std::string formatPinnedEventsMessage(const std::vector<PinnedEvent>& events) {
     return formatPinnedEventsText(events);
 }
 
-} // namespace progressive
+} // namespace pcp

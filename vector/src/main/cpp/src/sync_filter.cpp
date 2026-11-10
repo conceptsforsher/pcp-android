@@ -1,8 +1,8 @@
-#include "progressive/sync_filter.hpp"
-#include "progressive/sync_utils.hpp"
+#include "pcp/sync_filter.hpp"
+#include "pcp/sync_utils.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ---- RoomEventFilter ----
 // Original Kotlin (RoomSyncFilterBuilder.kt:RoomEventFilter):
@@ -230,4 +230,4 @@ std::string syncFilterToJson(const RoomSyncFilter& filter) {
     return filter.toJson();
 }
 
-} // namespace progressive
+} // namespace pcp

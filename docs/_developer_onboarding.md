@@ -120,7 +120,7 @@ The SDK generated documentation also contains information about the entry points
 
 [Dagger](https://dagger.dev/) is used to inject all the dependencies to the SDK classes.
 
-SDK is exposing data as `LiveData`, but we are progressively migrating to `Flow`. Database is the source of truth.
+SDK is exposing data as `LiveData`, but we are gradually migrating to `Flow`. Database is the source of truth.
 
 Example:
 - Client send an Event using the `SendService`;

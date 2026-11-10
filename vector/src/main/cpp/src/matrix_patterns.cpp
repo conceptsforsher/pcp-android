@@ -1,8 +1,8 @@
-#include "progressive/matrix_patterns.hpp"
+#include "pcp/matrix_patterns.hpp"
 #include <regex>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 static const char* DOMAIN_REGEX = ":[A-Z0-9.-]+(:[0-9]{2,5})?";
 static const char* BASE64 = "[0-9A-Za-z/\\\\+=]+";
@@ -183,4 +183,4 @@ std::string candidateAliasFromRoomName(const std::string& roomName, const std::s
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,10 +1,10 @@
-#include "progressive/spellcheck.hpp"
+#include "pcp/spellcheck.hpp"
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 #include <cmath>
 
-namespace progressive {
+namespace pcp {
 
 // ---- SpellChecker ----
 
@@ -248,4 +248,4 @@ bool looksTypo(const std::string& word) {
     return false;
 }
 
-} // namespace progressive
+} // namespace pcp

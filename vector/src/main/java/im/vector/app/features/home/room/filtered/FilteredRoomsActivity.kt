@@ -14,7 +14,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.core.extensions.replaceFragment
 import im.vector.app.core.platform.VectorBaseActivity
@@ -93,16 +93,16 @@ class FilteredRoomsActivity : VectorBaseActivity<ActivityFilteredRoomsBinding>()
     private suspend fun queryLlm(prompt: String): String {
         return withContext(Dispatchers.IO) {
             try {
-                ProgressiveNative.ensureLoaded()
+                PcpNative.ensureLoaded()
                 val provider = vectorPreferences.getLlmProvider()
                 val endpoint = vectorPreferences.getLlmEndpoint()
                 val token = vectorPreferences.getLlmToken()
                 val model = vectorPreferences.getLlmModel()
 
-                val body = ProgressiveNative.nativeBuildLlmRequest(
+                val body = PcpNative.nativeBuildLlmRequest(
                     prompt, provider, endpoint, token, model, "", 0.7f, 1024
                 )
-                val headers = ProgressiveNative.nativeBuildLlmHeaders(provider, token)
+                val headers = PcpNative.nativeBuildLlmHeaders(provider, token)
 
                 val jsonMedia = "application/json".toMediaType()
                 val requestBody = body.toRequestBody(jsonMedia)
@@ -129,7 +129,7 @@ class FilteredRoomsActivity : VectorBaseActivity<ActivityFilteredRoomsBinding>()
                 val statusCode = response.code
                 response.close()
 
-                val parsed = ProgressiveNative.nativeParseLlmResponse(responseBody, statusCode, provider)
+                val parsed = PcpNative.nativeParseLlmResponse(responseBody, statusCode, provider)
                 val json = JSONObject(parsed)
                 if (json.getBoolean("success")) json.getString("text")
                 else json.getString("errorMessage")

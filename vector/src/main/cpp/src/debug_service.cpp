@@ -1,7 +1,7 @@
-#include "progressive/debug_service.hpp"
+#include "pcp/debug_service.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Debug Service Info Summary ====
 //
@@ -110,4 +110,4 @@ DebugDbInfo parseRealmDbInfo(const std::string& reportJson) {
     return info;
 }
 
-} // namespace progressive
+} // namespace pcp

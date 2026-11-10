@@ -3,10 +3,10 @@
 #include <memory>
 #include <mutex>
 #include <map>
-#include "progressive/irc_client.hpp"
-#include "progressive/irc_parser.hpp"
+#include "pcp/irc_client.hpp"
+#include "pcp/irc_parser.hpp"
 
-using namespace progressive::irc;
+using namespace pcp::irc;
 
 static std::map<jlong, std::unique_ptr<IrcClient>> clients;
 static std::mutex clientMutex;
@@ -34,7 +34,7 @@ static jmethodID gOnStateMethod = nullptr;
 static jmethodID gOnErrorMethod = nullptr;
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcCreateClient(JNIEnv* env, jclass) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcCreateClient(JNIEnv* env, jclass) {
     auto client = std::make_unique<IrcClient>();
 
     jlong id = nextClientId++;
@@ -97,7 +97,7 @@ Java_chat_progressive_app_irc_IrcNative_nativeIrcCreateClient(JNIEnv* env, jclas
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcConnect(JNIEnv* env, jclass, jlong clientId,
+Java_chat_pcp_app_irc_IrcNative_nativeIrcConnect(JNIEnv* env, jclass, jlong clientId,
                                                          jstring host, jint port, jboolean tls,
                                                          jstring nick, jstring user, jstring realName,
                                                          jstring password) {
@@ -116,61 +116,61 @@ Java_chat_progressive_app_irc_IrcNative_nativeIrcConnect(JNIEnv* env, jclass, jl
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcDisconnect(JNIEnv*, jclass, jlong clientId) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcDisconnect(JNIEnv*, jclass, jlong clientId) {
     auto* client = getClient(clientId);
     if (client) client->disconnect();
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcSendRaw(JNIEnv* env, jclass, jlong clientId, jstring line) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcSendRaw(JNIEnv* env, jclass, jlong clientId, jstring line) {
     auto* client = getClient(clientId);
     if (client) client->sendRaw(jstringToString(env, line));
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcJoin(JNIEnv* env, jclass, jlong clientId, jstring channel) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcJoin(JNIEnv* env, jclass, jlong clientId, jstring channel) {
     auto* client = getClient(clientId);
     if (client) client->join(jstringToString(env, channel));
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcPart(JNIEnv* env, jclass, jlong clientId, jstring channel, jstring reason) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcPart(JNIEnv* env, jclass, jlong clientId, jstring channel, jstring reason) {
     auto* client = getClient(clientId);
     if (client) client->part(jstringToString(env, channel), jstringToString(env, reason));
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcPrivmsg(JNIEnv* env, jclass, jlong clientId, jstring target, jstring text) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcPrivmsg(JNIEnv* env, jclass, jlong clientId, jstring target, jstring text) {
     auto* client = getClient(clientId);
     if (client) client->privmsg(jstringToString(env, target), jstringToString(env, text));
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcNotice(JNIEnv* env, jclass, jlong clientId, jstring target, jstring text) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcNotice(JNIEnv* env, jclass, jlong clientId, jstring target, jstring text) {
     auto* client = getClient(clientId);
     if (client) client->notice(jstringToString(env, target), jstringToString(env, text));
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcNick(JNIEnv* env, jclass, jlong clientId, jstring newNick) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcNick(JNIEnv* env, jclass, jlong clientId, jstring newNick) {
     auto* client = getClient(clientId);
     if (client) client->nick(jstringToString(env, newNick));
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcTopic(JNIEnv* env, jclass, jlong clientId, jstring channel, jstring newTopic) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcTopic(JNIEnv* env, jclass, jlong clientId, jstring channel, jstring newTopic) {
     auto* client = getClient(clientId);
     if (client) client->topic(jstringToString(env, channel), jstringToString(env, newTopic));
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcKick(JNIEnv* env, jclass, jlong clientId, jstring channel, jstring nick, jstring reason) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcKick(JNIEnv* env, jclass, jlong clientId, jstring channel, jstring nick, jstring reason) {
     auto* client = getClient(clientId);
     if (client) client->kick(jstringToString(env, channel), jstringToString(env, nick), jstringToString(env, reason));
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcDestroyClient(JNIEnv*, jclass, jlong clientId) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcDestroyClient(JNIEnv*, jclass, jlong clientId) {
     std::lock_guard<std::mutex> lock(clientMutex);
     auto it = clients.find(clientId);
     if (it != clients.end()) {
@@ -180,7 +180,7 @@ Java_chat_progressive_app_irc_IrcNative_nativeIrcDestroyClient(JNIEnv*, jclass, 
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_chat_progressive_app_irc_IrcNative_nativeIrcSetCallbackObject(JNIEnv* env, jclass, jobject callback) {
+Java_chat_pcp_app_irc_IrcNative_nativeIrcSetCallbackObject(JNIEnv* env, jclass, jobject callback) {
     std::lock_guard<std::mutex> lock(jniCallbackMutex);
 
     if (gCallbackObj) env->DeleteGlobalRef(gCallbackObj);

@@ -1,9 +1,9 @@
-#include "progressive/room_permissions.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/room_permissions.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 RoomPowerLevels parseRoomPowerLevels(const std::string& stateContentJson) {
     RoomPowerLevels pl;
@@ -152,4 +152,4 @@ std::string permissionsToJson(const RoomPermissions& perms) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

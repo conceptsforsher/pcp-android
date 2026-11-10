@@ -1,11 +1,11 @@
-#include "progressive/eventcache.hpp"
+#include "pcp/eventcache.hpp"
 #include <sstream>
 #include <android/log.h>
 
 #define LOG_TAG "EventCache"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
-namespace progressive {
+namespace pcp {
 
 void EventCache::put(const CachedEvent& event) {
     // Update reverse index: remove old relation if any
@@ -96,4 +96,4 @@ std::string EventCache::getContextData(const std::string& eventId) const {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

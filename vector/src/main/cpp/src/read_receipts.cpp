@@ -1,9 +1,9 @@
-#include "progressive/read_receipts.hpp"
+#include "pcp/read_receipts.hpp"
 #include <sstream>
 #include <algorithm>
 #include <unordered_map>
 
-namespace progressive {
+namespace pcp {
 
 void sortByTimestampDesc(std::vector<ReceiptEntry>& receipts) {
     std::sort(receipts.begin(), receipts.end(), [](const ReceiptEntry& a, const ReceiptEntry& b) {
@@ -126,4 +126,4 @@ std::string receiptDisplayToJson(const ReceiptDisplay& display) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

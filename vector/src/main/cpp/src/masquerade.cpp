@@ -1,10 +1,10 @@
-#include "progressive/masquerade.hpp"
+#include "pcp/masquerade.hpp"
 #include <sstream>
 #include <regex>
 #include <cctype>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 bool isValidMasqueradeName(const std::string& name) {
     if (name.empty() || name.size() > 30) return false;
@@ -45,4 +45,4 @@ std::string getSuggestedNames() {
            "Scheduler,Alarm,Reminders,Planner,Organizer";
 }
 
-} // namespace progressive
+} // namespace pcp

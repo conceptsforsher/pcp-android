@@ -20,7 +20,7 @@ import timber.log.Timber
 fun Session.startSyncing(context: Context) {
     val applicationContext = context.applicationContext
 
-    // Progressive Chat: native sync parser deferred to v0.2
+    // PCP: native sync parser deferred to v0.2
     // (requires careful integration with Labs flag + file-size safety checks)
 
     if (!syncService().hasAlreadySynced()) {

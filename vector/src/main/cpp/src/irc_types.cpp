@@ -1,8 +1,8 @@
-#include "progressive/irc_types.hpp"
+#include "pcp/irc_types.hpp"
 #include <sstream>
 #include <cstring>
 
-namespace progressive {
+namespace pcp {
 namespace irc {
 
 std::string IrcMessage::toJson() const {
@@ -27,4 +27,4 @@ std::string IrcMessage::toJson() const {
 }
 
 } // namespace irc
-} // namespace progressive
+} // namespace pcp

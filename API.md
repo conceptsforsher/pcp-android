@@ -1,12 +1,12 @@
-# Progressive Chat — Native C++ JNI API Reference
+# PCP — Native C++ JNI API Reference
 
 ## Overview
 - **Language:** C++20, NDK 21.3, CMake 3.22.1
-- **JNI surface:** ~400 functions across `chat.progressive.app.native.ProgressiveNative`
-- **Library:** `libprogressive_native.so`
+- **JNI surface:** ~400 functions across `chat.pcp.app.native.PcpNative`
+- **Library:** `libpcp_native.so`
 - **Modules:** 199 C++ files in `vector/src/main/cpp/`
 
-All functions have Kotlin `external fun` declarations and `*Fallback` implementations in `ProgressiveNative.kt`.
+All functions have Kotlin `external fun` declarations and `*Fallback` implementations in `PcpNative.kt`.
 
 ---
 
@@ -360,13 +360,13 @@ All functions have Kotlin `external fun` declarations and `*Fallback` implementa
 - **Lines:** ~3400
 - **JNI functions:** ~400
 - **Singleton state:** `g_eventDb`, `g_sqliteDbs`, `g_olmAccount`, `g_olmSessionMgr`, `g_megolmManager`, `g_sas`
-- **Macro:** `JNI_FUNC(ret, name)` → `Java_chat_progressive_app_native_ProgressiveNative_##name`
+- **Macro:** `JNI_FUNC(ret, name)` → `Java_chat_pcp_app_native_PcpNative_##name`
 
 ### C++ Module Count
 - **199 .cpp files** in `src/`
-- **~200 .hpp headers** in `include/progressive/`
+- **~200 .hpp headers** in `include/pcp/`
 
 ### Tests
 - **85 tests** covering 38 modules
 - Framework: `tests/test_framework.hpp`
-- Executable: `test_progressive` (CMake)
+- Executable: `test_pcp` (CMake)

@@ -1,8 +1,8 @@
-#include "progressive/message_aggregator.hpp"
+#include "pcp/message_aggregator.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 void MessageAggregator::addMessage(const AggregatedMessage& msg) {
     // Check if already exists
@@ -71,4 +71,4 @@ std::string MessageAggregator::exportJson() const {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

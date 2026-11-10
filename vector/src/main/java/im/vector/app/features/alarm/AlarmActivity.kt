@@ -1,5 +1,5 @@
 /*
- * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Progressive-Commercial
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-PCP-Commercial
  */
 
 package im.vector.app.features.alarm
@@ -23,7 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.databinding.ActivityAlarmBinding
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 import java.util.Locale
 import java.util.Timer
 import java.util.TimerTask
@@ -148,16 +148,16 @@ class AlarmActivity : VectorBaseActivity<ActivityAlarmBinding>() {
 
     private fun snoozeAlarm(minutes: Int) {
         try {
-            ProgressiveNative.ensureLoaded()
-            ProgressiveNative.nativeAlarmSnooze(alarmId, minutes)
+            PcpNative.ensureLoaded()
+            PcpNative.nativeAlarmSnooze(alarmId, minutes)
         } catch (_: Exception) { }
         stopAndFinish()
     }
 
     private fun dismissAlarm() {
         try {
-            ProgressiveNative.ensureLoaded()
-            ProgressiveNative.nativeAlarmDismiss(alarmId)
+            PcpNative.ensureLoaded()
+            PcpNative.nativeAlarmDismiss(alarmId)
         } catch (_: Exception) { }
         stopAndFinish()
     }

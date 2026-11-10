@@ -402,7 +402,7 @@ class MessageActionsViewModel @AssistedInject constructor(
                     if (vectorPreferences.isJumpToSourceRepliesEnabled()) append("m.reference,")
                     if (vectorPreferences.isJumpToSourceEditsEnabled()) append("m.replace,")
                 }.trimEnd(',')
-                val relation = chat.progressive.app.native.ProgressiveNative.parseRelationFallback(
+                val relation = chat.pcp.app.native.PcpNative.parseRelationFallback(
                     content, allowedTypes
                 )
                 if (relation.optBoolean("isRelation", false)) {

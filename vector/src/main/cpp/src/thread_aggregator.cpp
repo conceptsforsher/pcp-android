@@ -1,8 +1,8 @@
-#include "progressive/thread_aggregator.hpp"
+#include "pcp/thread_aggregator.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 void ThreadAggregator::addThread(const ThreadInfo& thread) {
     threads_[thread.threadId] = thread;
@@ -165,4 +165,4 @@ std::string threadMetaToJson(const ThreadMeta& meta) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

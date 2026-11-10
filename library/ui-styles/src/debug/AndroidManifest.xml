@@ -22,17 +22,17 @@
             android:theme="@style/Theme.Vector.Dark" />
 
         <activity
-            android:name=".debug.DebugProgressiveButtonStylesLightActivity"
+            android:name=".debug.DebugPcpButtonStylesLightActivity"
             android:theme="@style/Theme.Vector.Light" />
         <activity
-            android:name=".debug.DebugProgressiveButtonStylesDarkActivity"
+            android:name=".debug.DebugPcpButtonStylesDarkActivity"
             android:theme="@style/Theme.Vector.Dark" />
 
         <activity
-            android:name=".debug.DebugProgressiveTextViewLightActivity"
+            android:name=".debug.DebugPcpTextViewLightActivity"
             android:theme="@style/Theme.Vector.Light" />
         <activity
-            android:name=".debug.DebugProgressiveTextViewDarkActivity"
+            android:name=".debug.DebugPcpTextViewDarkActivity"
             android:theme="@style/Theme.Vector.Dark" />
     </application>
 

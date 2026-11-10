@@ -1,0 +1,27 @@
+/*
+ * Copyright 2026-2026 PCP
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-PCP
+ * Please see LICENSE files in the repository root for full details.
+ */
+
+package chat.pcp.app.features.onboarding.ftueauth
+
+import chat.pcp.app.features.login.SignMode
+import chat.pcp.app.features.onboarding.OnboardingAction
+import chat.pcp.app.features.themes.ThemeProvider
+import chat.pcp.lib.ui.styles.R
+
+fun SignMode.toAuthenticateAction(login: String, password: String, initialDeviceName: String): OnboardingAction.AuthenticateAction {
+    return when (this) {
+        SignMode.Unknown -> error("developer error")
+        SignMode.SignUp -> OnboardingAction.AuthenticateAction.Register(username = login, password, initialDeviceName)
+        SignMode.SignIn -> OnboardingAction.AuthenticateAction.Login(username = login, password, initialDeviceName)
+        SignMode.SignInWithMatrixId -> OnboardingAction.AuthenticateAction.LoginDirect(matrixId = login, password, initialDeviceName)
+    }
+}
+
+fun ThemeProvider.ftueBreakerBackground() = when (isLightTheme()) {
+    true -> R.drawable.bg_gradient_ftue_breaker
+    false -> R.drawable.bg_color_background
+}

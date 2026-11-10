@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace "chat.progressive.lib.strings"
+    namespace "chat.pcp.lib.strings"
 
     compileSdk versions.compileSdk
     defaultConfig {

@@ -20,6 +20,6 @@
 /node_modules
 **/out/failures
 *.bak
-progressive/.cxx/
-progressive/src/main/cpp/libolm/
-progressive/build_cmake/
+pcp/.cxx/
+pcp/src/main/cpp/libolm/
+pcp/build_cmake/

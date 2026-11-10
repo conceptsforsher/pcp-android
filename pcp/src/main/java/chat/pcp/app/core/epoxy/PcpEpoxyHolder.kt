@@ -1,0 +1,52 @@
+/*
+ * Copyright 2026-2026 PCP
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-PCP
+ * Please see LICENSE files in the repository root for full details.
+ */
+
+package chat.pcp.app.core.epoxy
+
+import android.view.View
+import com.airbnb.epoxy.EpoxyHolder
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
+
+/**
+ * A pattern for easier view binding with an [EpoxyHolder]
+ *
+ * See [SampleKotlinModelWithHolder] for a usage example.
+ */
+abstract class PcpEpoxyHolder : EpoxyHolder() {
+    lateinit var view: View
+
+    override fun bindView(itemView: View) {
+        view = itemView
+    }
+
+    protected fun <V : View> bind(id: Int): ReadOnlyProperty<PcpEpoxyHolder, V> =
+            Lazy { holder: PcpEpoxyHolder, prop ->
+                holder.view.findViewById(id) as V?
+                        ?: throw IllegalStateException("View ID $id for '${prop.name}' not found.")
+            }
+
+    /**
+     * Taken from Kotterknife.
+     * https://github.com/JakeWharton/kotterknife
+     */
+    private class Lazy<V>(
+            private val initializer: (PcpEpoxyHolder, KProperty<*>) -> V
+    ) : ReadOnlyProperty<PcpEpoxyHolder, V> {
+        private object EMPTY
+
+        private var value: Any? = EMPTY
+
+        override fun getValue(thisRef: PcpEpoxyHolder, property: KProperty<*>): V {
+            if (value == EMPTY) {
+                value = initializer(thisRef, property)
+            }
+            @Suppress("UNCHECKED_CAST")
+            return value as V
+        }
+    }
+}

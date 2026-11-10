@@ -15,13 +15,13 @@
  */
 package org.matrix.android.sdk.api.util
 
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 import org.matrix.android.sdk.api.session.room.model.message.MessageFormat
 import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
 
 object ContentUtils {
     fun extractUsefulTextFromReply(repliedBody: String): String =
-        ProgressiveNative.nativeExtractUsefulTextFromReply(repliedBody)
+        PcpNative.nativeExtractUsefulTextFromReply(repliedBody)
 
     fun extractUsefulTextFromHtmlReply(repliedBody: String): String {
         if (repliedBody.startsWith(MX_REPLY_START_TAG)) {
@@ -46,7 +46,7 @@ object ContentUtils {
     }
 
     fun formatSpoilerTextFromHtml(formattedBody: String): String =
-        ProgressiveNative.nativeFormatSpoilerTextFromHtml(formattedBody)
+        PcpNative.nativeFormatSpoilerTextFromHtml(formattedBody)
 
     private const val MX_REPLY_START_TAG = "<mx-reply>"
     private const val MX_REPLY_END_TAG = "</mx-reply>"

@@ -1,0 +1,24 @@
+/*
+ * Copyright 2026-2026 PCP
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-PCP
+ * Please see LICENSE files in the repository root for full details.
+ */
+
+package chat.pcp.app.features.roomdirectory.picker
+
+import com.airbnb.mvrx.Async
+import com.airbnb.mvrx.MavericksState
+import com.airbnb.mvrx.Uninitialized
+import chat.pcp.app.features.roomdirectory.RoomDirectoryServer
+import org.matrix.android.sdk.api.session.room.model.thirdparty.ThirdPartyProtocol
+
+data class RoomDirectoryPickerViewState(
+        val asyncThirdPartyRequest: Async<Map<String, ThirdPartyProtocol>> = Uninitialized,
+        val customHomeservers: Set<String> = emptySet(),
+        val inEditMode: Boolean = false,
+        val enteredServer: String = "",
+        val addServerAsync: Async<Unit> = Uninitialized,
+        // computed
+        val directories: List<RoomDirectoryServer> = emptyList()
+) : MavericksState

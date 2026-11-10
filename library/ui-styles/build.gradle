@@ -12,7 +12,7 @@ plugins {
 
 android {
 
-    namespace "chat.progressive.lib.ui.styles"
+    namespace "chat.pcp.lib.ui.styles"
 
     compileSdk versions.compileSdk
     defaultConfig {

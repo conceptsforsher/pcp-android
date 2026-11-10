@@ -1,0 +1,24 @@
+/*
+ * Copyright 2026-2026 PCP
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-PCP
+ * Please see LICENSE files in the repository root for full details.
+ */
+
+package chat.pcp.app.core.hardware
+
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import androidx.core.content.getSystemService
+
+fun vibrate(context: Context, durationMillis: Long = 100) {
+    val vibrator = context.getSystemService<Vibrator>() ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrator.vibrate(VibrationEffect.createOneShot(durationMillis, VibrationEffect.DEFAULT_AMPLITUDE))
+    } else {
+        @Suppress("DEPRECATION")
+        vibrator.vibrate(durationMillis)
+    }
+}

@@ -1,6 +1,6 @@
 package org.matrix.android.sdk.api.util
 
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 import org.matrix.android.sdk.api.extensions.orFalse
 
 object MimeTypes {
@@ -18,12 +18,12 @@ object MimeTypes {
 
     fun String?.normalizeMimeType(): String? {
         if (this == null) return null
-        return ProgressiveNative.nativeNormalizeMimeType(this)
+        return PcpNative.nativeNormalizeMimeType(this)
     }
 
-    fun String?.isMimeTypeImage() = this != null && ProgressiveNative.nativeIsMimeTypeImage(this)
-    fun String?.isMimeTypeVideo() = this != null && ProgressiveNative.nativeIsMimeTypeVideo(this)
-    fun String?.isMimeTypeAudio() = this != null && ProgressiveNative.nativeIsMimeTypeAudio(this)
+    fun String?.isMimeTypeImage() = this != null && PcpNative.nativeIsMimeTypeImage(this)
+    fun String?.isMimeTypeVideo() = this != null && PcpNative.nativeIsMimeTypeVideo(this)
+    fun String?.isMimeTypeAudio() = this != null && PcpNative.nativeIsMimeTypeAudio(this)
     fun String?.isMimeTypeApplication() = this?.startsWith("application/").orFalse()
     fun String?.isMimeTypeFile() = this?.startsWith("file/").orFalse()
     fun String?.isMimeTypeText() = this?.startsWith("text/").orFalse()

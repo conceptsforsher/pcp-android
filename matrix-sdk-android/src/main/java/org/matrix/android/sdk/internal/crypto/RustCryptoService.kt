@@ -656,7 +656,7 @@ internal class RustCryptoService @Inject constructor(
                     val roomId = content.roomId ?: return@forEach
                     val sessionId = content.sessionId ?: return@forEach
 
-                    // Progressive Chat: import key into native C++ MegolmSessionManager
+                    // PCP: import key into native C++ MegolmSessionManager
                     nativeKeyImport?.invoke(content.algorithm ?: "", roomId, sessionId, content.sessionKey ?: "")
 
                     notifyRoomKeyReceived(roomId, sessionId)
@@ -668,7 +668,7 @@ internal class RustCryptoService @Inject constructor(
                     val roomId = content.roomId ?: return@forEach
                     val sessionId = content.sessionId ?: return@forEach
 
-                    // Progressive Chat: import forwarded key into native C++ MegolmSessionManager
+                    // PCP: import forwarded key into native C++ MegolmSessionManager
                     nativeKeyImport?.invoke(content.algorithm ?: "", roomId, sessionId, content.sessionKey ?: "")
 
                     notifyRoomKeyReceived(roomId, sessionId)
@@ -919,7 +919,7 @@ internal class RustCryptoService @Inject constructor(
         const val CRYPTO_MIN_FORCE_SESSION_PERIOD_MILLIS = 3_600_000 // one hour
 
         /**
-         * Optional native C++ Megolm key import callback for Progressive Chat.
+         * Optional native C++ Megolm key import callback for PCP.
          * Set by the app layer when SETTINGS_LABS_NATIVE_CRYPTO is enabled.
          * Called when m.room_key or m.forwarded_room_key to_device events are received.
          * Parameters: algorithm, roomId, sessionId, sessionKey (base64)

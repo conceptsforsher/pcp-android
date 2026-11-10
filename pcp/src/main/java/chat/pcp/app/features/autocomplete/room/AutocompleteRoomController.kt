@@ -1,0 +1,37 @@
+/*
+ * Copyright 2026-2026 PCP
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-PCP
+ * Please see LICENSE files in the repository root for full details.
+ */
+
+package chat.pcp.app.features.autocomplete.room
+
+import com.airbnb.epoxy.TypedEpoxyController
+import chat.pcp.app.features.autocomplete.AutocompleteClickListener
+import chat.pcp.app.features.autocomplete.autocompleteMatrixItem
+import chat.pcp.app.features.home.AvatarRenderer
+import org.matrix.android.sdk.api.session.room.model.RoomSummary
+import org.matrix.android.sdk.api.util.toMatrixItem
+import javax.inject.Inject
+
+class AutocompleteRoomController @Inject constructor(private val avatarRenderer: AvatarRenderer) : TypedEpoxyController<List<RoomSummary>>() {
+
+    var listener: AutocompleteClickListener<RoomSummary>? = null
+
+    override fun buildModels(data: List<RoomSummary>?) {
+        if (data.isNullOrEmpty()) {
+            return
+        }
+        val host = this
+        data.forEach { roomSummary ->
+            autocompleteMatrixItem {
+                id(roomSummary.roomId)
+                matrixItem(roomSummary.toMatrixItem())
+                subName(roomSummary.canonicalAlias)
+                avatarRenderer(host.avatarRenderer)
+                clickListener { host.listener?.onItemClick(roomSummary) }
+            }
+        }
+    }
+}

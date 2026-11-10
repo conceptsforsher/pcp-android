@@ -14,7 +14,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import com.airbnb.mvrx.Mavericks
-import chat.progressive.lib.core.utils.compat.getParcelableCompat
+import chat.pcp.lib.core.utils.compat.getParcelableCompat
 
 class JSonViewerDialog : DialogFragment() {
 

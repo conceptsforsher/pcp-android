@@ -1,0 +1,38 @@
+/*
+ * Copyright 2026-2026 New Vector Ltd.
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial
+ * Please see LICENSE files in the repository root for full details.
+ */
+
+package chat.pcp.app.features.settings.locale
+
+import android.widget.TextView
+import com.airbnb.epoxy.EpoxyAttribute
+import com.airbnb.epoxy.EpoxyModelClass
+import chat.pcp.app.R
+import chat.pcp.app.core.epoxy.ClickListener
+import chat.pcp.app.core.epoxy.PcpEpoxyHolder
+import chat.pcp.app.core.epoxy.PcpEpoxyModel
+import chat.pcp.app.core.epoxy.onClick
+import chat.pcp.app.core.extensions.setTextOrHide
+
+@EpoxyModelClass
+abstract class LocaleItem : PcpEpoxyModel<LocaleItem.Holder>(R.layout.item_locale) {
+
+    @EpoxyAttribute var title: String? = null
+    @EpoxyAttribute var subtitle: String? = null
+    @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash) var clickListener: ClickListener? = null
+
+    override fun bind(holder: Holder) {
+        super.bind(holder)
+        holder.view.onClick(clickListener)
+        holder.titleView.setTextOrHide(title)
+        holder.subtitleView.setTextOrHide(subtitle)
+    }
+
+    class Holder : PcpEpoxyHolder() {
+        val titleView by bind<TextView>(R.id.localeTitle)
+        val subtitleView by bind<TextView>(R.id.localeSubtitle)
+    }
+}

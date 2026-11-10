@@ -1,0 +1,65 @@
+/*
+ * Copyright 2026-2026 PCP
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-PCP
+ * Please see LICENSE files in the repository root for full details.
+ */
+
+package chat.pcp.app.features.home
+
+import com.airbnb.mvrx.MavericksViewModelFactory
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import chat.pcp.app.core.di.MavericksAssistedViewModelFactory
+import chat.pcp.app.core.di.hiltMavericksViewModelFactory
+import chat.pcp.app.core.platform.EmptyAction
+import chat.pcp.app.core.platform.EmptyViewEvents
+import chat.pcp.app.core.platform.PcpDummyViewState
+import chat.pcp.app.core.platform.PcpViewModel
+import chat.pcp.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import org.matrix.android.sdk.api.session.Session
+import org.matrix.android.sdk.api.session.accountdata.UserAccountDataTypes
+import org.matrix.android.sdk.api.session.events.model.toModel
+import org.matrix.android.sdk.flow.flow
+import org.matrix.android.sdk.flow.unwrap
+import timber.log.Timber
+
+class UserColorAccountDataViewModel @AssistedInject constructor(
+        @Assisted initialState: PcpDummyViewState,
+        private val session: Session,
+        private val matrixItemColorProvider: MatrixItemColorProvider
+) : PcpViewModel<PcpDummyViewState, EmptyAction, EmptyViewEvents>(initialState) {
+
+    @AssistedFactory
+    interface Factory : MavericksAssistedViewModelFactory<UserColorAccountDataViewModel, PcpDummyViewState> {
+        override fun create(initialState: PcpDummyViewState): UserColorAccountDataViewModel
+    }
+
+    companion object : MavericksViewModelFactory<UserColorAccountDataViewModel, PcpDummyViewState> by hiltMavericksViewModelFactory()
+
+    init {
+        observeAccountData()
+    }
+
+    private fun observeAccountData() {
+        session.flow()
+                .liveUserAccountData(UserAccountDataTypes.TYPE_OVERRIDE_COLORS)
+                .unwrap()
+                .map { it.content.toModel<Map<String, String>>() }
+                .onEach { userColorAccountDataContent ->
+                    if (userColorAccountDataContent == null) {
+                        Timber.w("Invalid account data im.vector.setting.override_colors")
+                    }
+                    matrixItemColorProvider.setOverrideColors(userColorAccountDataContent)
+                }
+                .launchIn(viewModelScope)
+    }
+
+    override fun handle(action: EmptyAction) {
+        // No op
+    }
+}

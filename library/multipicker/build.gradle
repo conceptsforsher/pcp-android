@@ -10,7 +10,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 
 android {
-    namespace "chat.progressive.lib.multipicker"
+    namespace "chat.pcp.lib.multipicker"
 
     compileSdk versions.compileSdk
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The JNI bridge is the single translation layer between Kotlin and the C++ native modules in Progressive Chat. It is the largest file in the project (6543 lines, `progressive/src/main/cpp/src/jni_bridge.cpp`) and follows a strict naming convention mandated by the Java Native Interface specification. Most entry points are generated with a `JNI_FUNC(ret, name)` macro (831 uses) plus 17 explicit `Java_...` definitions — ~840 unique JNI functions in total, of which only 18 are currently declared in `ProgressiveNative.kt` (see `API.md` and `docs/cpp_coverage_next.md`).
+The JNI bridge is the single translation layer between Kotlin and the C++ native modules in PCP. It is the largest file in the project (6543 lines, `pcp/src/main/cpp/src/jni_bridge.cpp`) and follows a strict naming convention mandated by the Java Native Interface specification. Most entry points are generated with a `JNI_FUNC(ret, name)` macro (831 uses) plus 17 explicit `Java_...` definitions — ~840 unique JNI functions in total, of which only 18 are currently declared in `PcpNative.kt` (see `API.md` and `docs/cpp_coverage_next.md`).
 
 ## How JNI Naming Works
 
@@ -12,27 +12,27 @@ Every native function must follow the exact naming pattern:
 Java_<package>_<class>_<method>
 ```
 
-Where dots in the package name are replaced with underscores. For Progressive Chat:
+Where dots in the package name are replaced with underscores. For PCP:
 
 ```
-Kotlin:  chat.progressive.app.native.ProgressiveNative.nativeValidateAndBuild(...)
-JNI:     Java_chat_progressive_app_native_ProgressiveNative_nativeValidateAndBuild
+Kotlin:  chat.pcp.app.native.PcpNative.nativeValidateAndBuild(...)
+JNI:     Java_chat_pcp_app_native_PcpNative_nativeValidateAndBuild
 ```
 
-The Kotlin object `ProgressiveNative` in package `chat.progressive.app.native` produces JNI function names with prefix `Java_chat_progressive_app_native_ProgressiveNative_` (usually via the `JNI_FUNC` macro).
+The Kotlin object `PcpNative` in package `chat.pcp.app.native` produces JNI function names with prefix `Java_chat_pcp_app_native_PcpNative_` (usually via the `JNI_FUNC` macro).
 
 ## Singleton Architecture
 
 All C++ modules are accessed through **file-static instances** — globals declared in `jni_bridge.cpp`:
 
 ```cpp
-static progressive::EventCache        g_eventCache;
-static progressive::SearchIndex       g_searchIndex;
-static progressive::ChunkedUploader   g_uploader;
-static progressive::OlmAccountData    g_olmAccount;
-static progressive::OlmSessionManager g_olmSessionMgr;
-static progressive::MegolmSessionManager g_megolmManager;
-static progressive::EventDatabase     g_eventDb;
+static pcp::EventCache        g_eventCache;
+static pcp::SearchIndex       g_searchIndex;
+static pcp::ChunkedUploader   g_uploader;
+static pcp::OlmAccountData    g_olmAccount;
+static pcp::OlmSessionManager g_olmSessionMgr;
+static pcp::MegolmSessionManager g_megolmManager;
+static pcp::EventDatabase     g_eventDb;
 // ... dozens more (65 file-static singletons/registries in total)
 ```
 
@@ -46,15 +46,15 @@ proper synchronization; auditing them for data races is tracked work (see `docs/
 ## Data Flow: Kotlin → C++ → Kotlin
 
 ```
-1. Kotlin calls ProgressiveNative.nativeValidateAndBuild(roomId, date, server, token, enabled)
+1. Kotlin calls PcpNative.nativeValidateAndBuild(roomId, date, server, token, enabled)
        │
        ▼ jstring parameters
 2. JNI receives: JNIEnv* env, jclass, jstring jRoomId, jstring jDateString, ...
        │  GetStringUTFChars() converts jstring → const char*
-       │  constructs progressive::JumpToDateRequest
+       │  constructs pcp::JumpToDateRequest
        ▼
-3. C++ processes: progressive::validateAndComputeTimestamp(request)
-                  progressive::buildMsc3030Url(request)
+3. C++ processes: pcp::validateAndComputeTimestamp(request)
+                  pcp::buildMsc3030Url(request)
        │  Returns JSON string with url + accessToken
        ▼
 4. JNI returns: env->NewStringUTF(json.c_str())
@@ -81,17 +81,17 @@ std::string cppString(env->GetStringUTFChars(jParam, nullptr));
 
 ## Namespace Usage
 
-All C++ functions live in the `progressive` namespace. To avoid qualifying every type with `progressive::`, the bridge file uses:
+All C++ functions live in the `pcp` namespace. To avoid qualifying every type with `pcp::`, the bridge file uses:
 
 ```cpp
-using namespace progressive;
+using namespace pcp;
 ```
 
 This is placed once at the top of `jni_bridge.cpp` after all `#include` directives. It applies only to this translation unit — other `.cpp` files must qualify or use their own `using` directive.
 
 ## Kotlin Fallback Pattern
 
-Every JNI function has a **pure-Kotlin fallback** in `ProgressiveNative.kt` for when `libprogressive_native.so` fails to load:
+Every JNI function has a **pure-Kotlin fallback** in `PcpNative.kt` for when `libpcp_native.so` fails to load:
 
 ```kotlin
 fun parseResponseFallback(body: String?, httpStatus: Int): JSONObject {
@@ -108,23 +108,23 @@ The fallback is triggered by catching `UnsatisfiedLinkError`:
 
 ```kotlin
 val result = try {
-    JSONObject(ProgressiveNative.nativeParseResponse(body, code))
+    JSONObject(PcpNative.nativeParseResponse(body, code))
 } catch (e: UnsatisfiedLinkError) {
-    ProgressiveNative.parseResponseFallback(body, code)
+    PcpNative.parseResponseFallback(body, code)
 }
 ```
 
 ## Adding a New JNI Function
 
-1. **Create C++ module:** `include/progressive/new_module.hpp` + `src/new_module.cpp`
+1. **Create C++ module:** `include/pcp/new_module.hpp` + `src/new_module.cpp`
 2. **Add to CMakeLists.txt:** `src/new_module.cpp`
-3. **Add singleton to jni_bridge.cpp:** `static progressive::NewModule g_newModule;`
+3. **Add singleton to jni_bridge.cpp:** `static pcp::NewModule g_newModule;`
 4. **Add JNI function:** Follow the naming convention
-5. **Add Kotlin declaration in ProgressiveNative.kt:**
+5. **Add Kotlin declaration in PcpNative.kt:**
    ```kotlin
    @JvmStatic external fun nativeNewFunction(param: String): String
    ```
-6. **Optional: Add Kotlin fallback** in `ProgressiveNative.kt`
+6. **Optional: Add Kotlin fallback** in `PcpNative.kt`
 
 ## Performance Characteristics
 

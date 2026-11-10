@@ -4,7 +4,7 @@
 
 A complete C++ wrapper around the libolm C library — the reference implementation of Matrix's Double Ratchet and Megolm encryption algorithms. This module provides the same cryptographic primitives that Element Android used before migrating to the Rust crypto SDK (PR #8901).
 
-**Strategic importance:** Bringing libolm back into Progressive Chat as a C++ native module eliminates the Rust crypto dependency entirely. Every E2EE operation — key generation, session establishment, message encryption/decryption, device verification — runs through our own C++ code calling directly into the C libolm library.
+**Strategic importance:** Bringing libolm back into PCP as a C++ native module eliminates the Rust crypto dependency entirely. Every E2EE operation — key generation, session establishment, message encryption/decryption, device verification — runs through our own C++ code calling directly into the C libolm library.
 
 ## Why libolm
 
@@ -18,15 +18,15 @@ libolm is **already C**. Unlike the Rust crypto SDK (`matrix-rust-sdk`) which br
 ## Module Structure
 
 ```
-include/progressive/olm.hpp          — C++ class declarations
+include/pcp/olm.hpp          — C++ class declarations
 src/olm.cpp                           — Implementation (wraps libolm C API)
 ```
 
 To enable, add libolm source and uncomment in CMakeLists.txt:
 ```cmake
 add_subdirectory(libolm)
-target_link_libraries(progressive_native olm)
-target_compile_definitions(progressive_native PRIVATE PROGRESSIVE_HAS_OLM=1)
+target_link_libraries(pcp_native olm)
+target_compile_definitions(pcp_native PRIVATE PCP_HAS_OLM=1)
 ```
 
 ## Cryptographic Primitives
@@ -101,21 +101,21 @@ When libolm is linked, the following JNI functions will be added:
 
 ```kotlin
 // Account management
-ProgressiveNative.nativeOlmCreateAccount(): String         // → identity keys JSON
-ProgressiveNative.nativeOlmGenerateOneTimeKeys(count: Int) 
+PcpNative.nativeOlmCreateAccount(): String         // → identity keys JSON
+PcpNative.nativeOlmGenerateOneTimeKeys(count: Int) 
 
 // Session establishment
-ProgressiveNative.nativeOlmCreateOutboundSession(theirIdKey, theirOtKey): String
-ProgressiveNative.nativeOlmCreateInboundSession(preKeyMsg): String
+PcpNative.nativeOlmCreateOutboundSession(theirIdKey, theirOtKey): String
+PcpNative.nativeOlmCreateInboundSession(preKeyMsg): String
 
 // Encryption
-ProgressiveNative.nativeOlmEncrypt(sessionId, plaintext): String
-ProgressiveNative.nativeOlmDecrypt(sessionId, ciphertext): String
+PcpNative.nativeOlmEncrypt(sessionId, plaintext): String
+PcpNative.nativeOlmDecrypt(sessionId, ciphertext): String
 
 // Megolm
-ProgressiveNative.nativeMegolmCreateOutbound(): String     // → session key
-ProgressiveNative.nativeMegolmEncrypt(sessionId, plaintext): String
-ProgressiveNative.nativeMegolmDecrypt(sessionKey, ciphertext): String
+PcpNative.nativeMegolmCreateOutbound(): String     // → session key
+PcpNative.nativeMegolmEncrypt(sessionId, plaintext): String
+PcpNative.nativeMegolmDecrypt(sessionKey, ciphertext): String
 ```
 
 ## Migration from Rust Crypto

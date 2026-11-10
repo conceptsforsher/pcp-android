@@ -1,0 +1,587 @@
+cmake_minimum_required(VERSION 3.22.1)
+# Force rebuild 2026-05-30T18:00
+project("pcp_native")
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_library(
+    pcp_native
+    SHARED
+    src/jumptodate.cpp
+    src/json_parser.cpp
+    src/relation.cpp
+    src/exporter.cpp
+    src/eventcache.cpp
+    src/translate.cpp
+    src/proxy.cpp
+    src/yggdrasil.cpp
+    src/markdown.cpp
+    src/matrix_api.cpp
+    src/account_data_utils.cpp
+    src/account_export.cpp
+    src/audio_engine.cpp
+    src/auth_models.cpp
+    src/media_filter.cpp
+    src/content_filter.cpp
+    src/network_stats.cpp
+    src/masquerade.cpp
+    src/megolm_decryptor.cpp
+    src/olm_session.cpp
+    src/sas_verification.cpp
+    src/user_mask.cpp
+    src/chunked_upload.cpp
+    src/chat_features.cpp
+    src/debug_service.cpp
+    src/invitation_hide.cpp
+    src/thread_aggregator.cpp
+    src/user_messages.cpp
+    src/room_version.cpp
+    src/chat_preview.cpp
+    src/ram_monitor.cpp
+    src/cache_manager.cpp
+    src/call_models.cpp
+    src/canonical_json.cpp
+    src/message_aggregator.cpp
+    src/room_info.cpp
+    src/deleted_archive.cpp
+    src/search_index.cpp
+    src/module_loader.cpp
+    src/notification.cpp
+    src/room_mirror.cpp
+    src/input_tools.cpp
+    src/llm.cpp
+    src/read_receipts.cpp
+    src/room_analytics.cpp
+    src/room_content.cpp
+    src/room_counter.cpp
+    src/chat_tools.cpp
+    src/lang_detect.cpp
+    src/avatar_history.cpp
+    src/event_link.cpp
+    src/lightweight_call.cpp
+    src/scheduled_edit.cpp
+    src/svg_draw.cpp
+    src/profile_swiper.cpp
+    src/rainbow.cpp
+    src/text_formats.cpp
+    src/tls_bridge.cpp
+    src/url_tools.cpp
+    src/notif_priority.cpp
+    src/matrix_patterns.cpp
+    src/desync_detector.cpp
+    src/latency_stats.cpp
+    src/lightweight_settings.cpp
+    src/live_draft.cpp
+    src/string_utils.cpp
+    src/location_sharing.cpp
+    src/color_utils.cpp
+    src/e2ee_utils.cpp
+    src/thumbnail.cpp
+    src/waveform.cpp
+    src/session_timeout.cpp
+    src/password_validator.cpp
+    src/spellcheck.cpp
+    src/draft_manager.cpp
+    src/link_preview.cpp
+    src/text_stats.cpp
+    src/hash_utils.cpp
+    src/http_client.cpp
+    src/room_stats.cpp
+    src/mention_parser.cpp
+    src/poll_utils.cpp
+    src/reaction_utils.cpp
+    src/file_validator.cpp
+    src/graph_utils.cpp
+    src/date_utils.cpp
+    src/message_queue.cpp
+    src/pinned_events.cpp
+    src/server_capabilities.cpp
+    src/username_validator.cpp
+    src/emoji_analyzer.cpp
+    src/identity_utils.cpp
+    src/notif_analyzer.cpp
+    src/sync_analyzer.cpp
+    src/sync_models.cpp
+    src/user_rating.cpp
+    src/event_timeline.cpp
+    src/event_utils.cpp
+    src/room_directory.cpp
+    src/widget_utils.cpp
+    src/server_notice_manager.cpp
+    src/poll_manager.cpp
+    src/room_directory_manager.cpp
+    src/room_state_manager.cpp
+    src/space_graph.cpp
+    src/weather_utils.cpp
+    src/message_scheduler.cpp
+    src/notif_mode.cpp
+    src/alarm_engine.cpp
+    src/pcp_stubs.cpp
+    src/widget_manager.cpp
+    src/user_directory.cpp
+    src/transparent_overlay.cpp
+    src/thread_manager.cpp
+    src/text_undo_manager.cpp
+    src/terms_manager.cpp
+    src/sync_filter.cpp
+    src/spoiler_manager.cpp
+    src/session_manager_full.cpp
+    src/room_state.cpp
+    src/room_permissions_manager.cpp
+    src/profiler.cpp
+    src/pin_manager.cpp
+    src/oidc_manager.cpp
+    src/media_viewer.cpp
+    src/media_upload_manager.cpp
+    src/live_location.cpp
+    src/key_backup_manager.cpp
+    src/identity_server_manager.cpp
+    src/event_relations_manager.cpp
+    src/draft_manager_full.cpp
+    src/device_naming.cpp
+    src/composer_manager.cpp
+    src/call_manager.cpp
+    src/webrtc_utils.cpp
+    src/sso_utils.cpp
+    src/backup_utils.cpp
+    src/device_manager.cpp
+    src/device_manager_full.cpp
+    src/presence_utils.cpp
+    src/room_permissions.cpp
+    src/room_summary.cpp
+    src/room_tombstone.cpp
+    src/membership_utils.cpp
+    src/event_validator.cpp
+    src/room_encryption.cpp
+    src/login_utils.cpp
+    src/account_utils.cpp
+    src/connection_monitor.cpp
+    src/create_room.cpp
+    src/push_rules.cpp
+    src/raw_service.cpp
+    src/space_utils.cpp
+    src/event_relations.cpp
+    src/e2ee_decoration.cpp
+    src/room_list.cpp
+    src/room_uploads.cpp
+    src/media_utils.cpp
+    src/notif_settings.cpp
+    src/invite_utils.cpp
+    src/verification_utils.cpp
+    src/session_manager.cpp
+    src/signout_service.cpp
+    src/auth_utils.cpp
+    src/content_scanner.cpp
+    src/event_encryption.cpp
+    src/event_models.cpp
+    src/federation_version.cpp
+    src/report_utils.cpp
+    src/message_retry.cpp
+    src/sync_utils.cpp
+    src/event_display.cpp
+    src/permalink.cpp
+    src/network_monitor.cpp
+    src/client_info.cpp
+    src/keyshare.cpp
+    src/displayname_utils.cpp
+    src/message_location.cpp
+    src/timeline_chunk.cpp
+    src/timeline_utils.cpp
+    src/cross_signing.cpp
+    src/cross_signing_manager.cpp
+    src/crypto_algorithms.cpp
+    src/crypto_models.cpp
+    src/terms_service.cpp
+    src/edit_history.cpp
+    src/read_marker.cpp
+    src/slash_command.cpp
+    src/sliding_sync.cpp
+    src/sqlite_wrapper.cpp
+    src/sqlite_store.cpp
+    src/typing_monitor.cpp
+    src/unified_push.cpp
+    src/url_preview.cpp
+    src/web_search.cpp
+    src/power_levels.cpp
+    src/well_known.cpp
+    src/room_sort.cpp
+    src/key_backup.cpp
+    src/notif_format.cpp
+    src/notif_formatter.cpp
+    src/matrix_error.cpp
+    src/message_content.cpp
+    src/message_extras.cpp
+    src/agent_executor.cpp
+    src/push_condition.cpp
+    src/sender_notif_filter.cpp
+    src/string_order.cpp
+    src/event_classifier.cpp
+    src/encrypted_file.cpp
+    src/content_guard.cpp
+    src/user_status.cpp
+    src/offline_cache.cpp
+    src/oidc_auth.cpp
+    src/olm.cpp
+    src/openid_token.cpp
+    src/message_preview_utils.cpp
+    src/account_deactivation_utils.cpp
+    src/account_validator.cpp
+    src/admin_utils.cpp
+    src/attachment_handler.cpp
+    src/avatar_color_gen.cpp
+    src/avatar_cropper.cpp
+    src/avatar_picker.cpp
+    src/background_scheduler.cpp
+    src/backup_restore_utils.cpp
+    src/biometric_auth.cpp
+    src/config_loader.cpp
+    src/content_report_utils.cpp
+    src/crash_reporter.cpp
+    src/cross_sign_bootstrap.cpp
+    src/cross_sign_utils.cpp
+    src/cross_signing_status.cpp
+    src/crypto_init_utils.cpp
+    src/custom_status.cpp
+    src/deeplink_parser.cpp
+    src/dehydrate_utils.cpp
+    src/device_verifier.cpp
+    src/dispatch_manager.cpp
+    src/emoji_search.cpp
+    src/emoji_sticker.cpp
+    src/encryption_key_backup.cpp
+    src/encryption_verify_utils.cpp
+    src/event_batcher.cpp
+    src/event_retention.cpp
+    src/favorite_messages.cpp
+    src/font_manager.cpp
+    src/gossip_manager.cpp
+    src/identity_hash.cpp
+    src/identity_lookup.cpp
+    src/identity_server_lookup.cpp
+    src/ignore_utils.cpp
+    src/invite_validator.cpp
+    src/key_export_utils.cpp
+    src/key_share.cpp
+    src/knock_utils.cpp
+    src/language_switcher.cpp
+    src/lazy_loading_utils.cpp
+    src/link_previewer.cpp
+    src/location_share.cpp
+    src/login_token_util.cpp
+    src/markdown_parser.cpp
+    src/matrix_id_utils.cpp
+    src/media_compressor.cpp
+    src/media_download.cpp
+    src/media_gallery.cpp
+    src/media_scanner.cpp
+    src/media_thumbnailer.cpp
+    src/member_count_cache.cpp
+    src/message_edit.cpp
+    src/message_hasher.cpp
+    src/message_searcher.cpp
+    src/message_send_queue.cpp
+    src/notification_badge.cpp
+    src/notification_cleaner.cpp
+    src/notification_group.cpp
+    src/olm_utils.cpp
+    src/openid_token_utils.cpp
+    src/otk_utils.cpp
+    src/permission_validator.cpp
+    src/power_level_visualizer.cpp
+    src/presence_sync.cpp
+    src/public_room_lister.cpp
+    src/push_analytics.cpp
+    src/push_translator.cpp
+    src/qr_code_utils.cpp
+    src/reaction_sync.cpp
+    src/read_receipt_formatter.cpp
+    src/read_receipt_utils.cpp
+    src/read_tracker.cpp
+    src/recovery_utils.cpp
+    src/registration_flow.cpp
+    src/room_access_control.cpp
+    src/room_activity.cpp
+    src/room_alias_validator.cpp
+    src/room_autocomplete.cpp
+    src/room_bridge_utils.cpp
+    src/room_forgot_utils.cpp
+    src/room_kicker.cpp
+    src/room_knock_manager.cpp
+    src/room_mute_scheduler.cpp
+    src/room_previewer.cpp
+    src/room_sidebar.cpp
+    src/room_state_event_utils.cpp
+    src/room_suggestions.cpp
+    src/room_type_detector.cpp
+    src/room_upgrade_utils.cpp
+    src/search_utils.cpp
+    src/secret_sharing.cpp
+    src/secret_storage_utils.cpp
+    src/server_support.cpp
+    src/session_export.cpp
+    src/session_metadata_utils.cpp
+    src/session_signout.cpp
+    src/spellcheck_utils.cpp
+    src/spotlight_search_utils.cpp
+    src/sso_handler.cpp
+    src/state_resolver.cpp
+    src/sync_optimizer.cpp
+    src/sync_scheduler.cpp
+    src/sync_state_monitor.cpp
+    src/task_queue.cpp
+    src/theme_manager.cpp
+    src/thirdparty_invite.cpp
+    src/thread_summary.cpp
+    src/thread_utils.cpp
+    src/timeline_filter_utils.cpp
+    src/topic_parser.cpp
+    src/typing_indicator.cpp
+    src/user_badge_utils.cpp
+    src/user_block_manager.cpp
+    src/verification_request_utils.cpp
+    src/voice_broadcast_manager.cpp
+    src/voice_message_utils.cpp
+    src/widget_api_utils.cpp
+    src/widget_manager_ext.cpp
+    src/widget_url_check.cpp
+    src/event_content_utils.cpp
+    src/key_verification_utils.cpp
+    src/markdown_utils.cpp
+    src/pagination_utils.cpp
+    src/permission_checker.cpp
+    src/room_tag_utils.cpp
+    src/session_watchdog.cpp
+    src/thirdparty_utils.cpp
+    src/thumbnail_utils.cpp
+    src/user_report_utils.cpp
+    src/voice_broadcast_utils.cpp
+    src/backup_keys_utils.cpp
+    src/custom_emoji_utils.cpp
+    src/display_name_utils.cpp
+    src/event_hash_utils.cpp
+    src/event_highlight_display.cpp
+    src/event_origin_utils.cpp
+    src/message_format_utils.cpp
+    src/message_link_utils.cpp
+    src/notification_sound_utils.cpp
+    src/push_rule_utils.cpp
+    src/room_child_utils.cpp
+    src/room_notification_utils.cpp
+    src/room_parent_utils.cpp
+    src/room_role_utils.cpp
+    src/room_visibility_utils.cpp
+    src/toast_notification_utils.cpp
+    src/url_preview_utils.cpp
+    src/avatar_fallback_utils.cpp
+    src/avatar_url_utils.cpp
+    src/device_rename_utils.cpp
+    src/event_forward_utils.cpp
+    src/identity_server_utils.cpp
+    src/notification_action_utils.cpp
+    src/push_gateway_utils.cpp
+    src/session_info_utils.cpp
+    src/url_render_utils.cpp
+    src/user_directory_formatter.cpp
+    src/whois_utils.cpp
+    src/pcp_core.cpp
+    src/msg_encryption.cpp
+    src/key_backup_mgr.cpp
+    src/room_join_handler.cpp
+    src/federation_client.cpp
+    src/device_verif.cpp
+    src/sso_auth.cpp
+    src/widget_host.cpp
+    src/space_hierarchy.cpp
+    src/read_receipt_mgr.cpp
+    src/typing_handler.cpp
+    src/presence_tracker.cpp
+    src/matrix_events.cpp
+    src/room_manager.cpp
+    src/crypto_ops.cpp
+    src/sync_engine.cpp
+    src/notif_handler.cpp
+    src/media_tools.cpp
+    src/user_profiles.cpp
+    src/command_parser.cpp
+    src/notice_event_formatter.cpp
+    src/jni_bridge.cpp
+    src/eventdb.cpp
+    src/sync_status_utils.cpp
+    src/timeline_controller.cpp
+    src/message_processor.cpp
+    src/room_state_engine.cpp
+    src/search_engine.cpp
+    src/test_provider.cpp
+    src/sync_response_parser.cpp
+    src/event_builder.cpp
+    src/account_manager.cpp
+    src/push_controller.cpp
+    src/room_directory_full.cpp
+    src/e2ee_manager.cpp
+    src/space_controller.cpp
+    src/widget_controller.cpp
+    src/call_signaling.cpp
+    src/search_controller.cpp
+    src/backup_controller.cpp
+    src/notification_formatter.cpp
+    src/location_controller.cpp
+    src/voice_broadcast_ctrl.cpp
+    src/thread_controller.cpp
+    src/reaction_controller.cpp
+    src/read_receipt_controller.cpp
+    src/olm_manager.cpp
+    src/sas_manager.cpp
+    src/identity_server.cpp
+    src/sliding_sync_manager.cpp
+    src/inbound_federation.cpp
+    src/matrix_error_handler.cpp
+    src/room_upgrade_handler.cpp
+    src/pcp_combined_1.cpp
+    src/pcp_combined_2.cpp
+    src/pcp_combined_3.cpp
+    src/pcp_combined_4.cpp
+    src/pcp_combined_5.cpp
+    src/pcp_combined_6.cpp
+    src/key_share_handler.cpp
+    src/pcp_combined_7.cpp
+    src/pcp_combined_8.cpp
+    src/pcp_combined_9.cpp
+    src/auth_service_v4.cpp
+    src/cross_sign_v4.cpp
+    src/device_list_v4.cpp
+    src/e2ee_decor_v4.cpp
+    src/event_relations_v4.cpp
+    src/federation_v4.cpp
+    src/identity_v4.cpp
+    src/key_backup_v4.cpp
+    src/location_v4.cpp
+    src/media_upload_v4.cpp
+    src/megolm_v4.cpp
+    src/olm_crypto_v4.cpp
+    src/poll_engine_v4.cpp
+    src/presence_v4.cpp
+    src/push_rules_v4.cpp
+    src/read_receipt_v4.cpp
+    src/room_summary_v4.cpp
+    src/room_upgrade_v4.cpp
+    src/secret_store_v4.cpp
+    src/sdk_port_01.cpp
+    src/sdk_port_02.cpp
+    src/sdk_port_03.cpp
+    src/sdk_port_04.cpp
+    src/sdk_port_05.cpp
+    src/sdk_port_06.cpp
+    src/sdk_port_07.cpp
+    src/sdk_port_08.cpp
+    src/sdk_port_09.cpp
+    src/sdk_port_10.cpp
+    src/sdk_port_11.cpp
+    src/sdk_port_12.cpp
+    src/sdk_port_13.cpp
+    src/sdk_port_14.cpp
+    src/sdk_port_15.cpp
+    src/sdk_port_16.cpp
+    src/sdk_port_17.cpp
+    src/sdk_port_18.cpp
+    src/sdk_port_19.cpp
+    src/sdk_port_20.cpp
+    src/sdk_port_21.cpp
+    src/sdk_port_22.cpp
+    src/sdk_port_23.cpp
+    src/sdk_port_24.cpp
+    src/sdk_port_25.cpp
+    src/sdk_port_26.cpp
+    src/sdk_port_27.cpp
+    src/sdk_port_28.cpp
+    src/send_queue_v4.cpp
+    src/server_notice_v4.cpp
+    src/sliding_sync_v4.cpp
+    src/space_graph_v4.cpp
+    src/sync_handler_v4.cpp
+    src/thread_mgr_v4.cpp
+    src/timeline_chunk_v4.cpp
+    src/verification_v4.cpp
+    src/voice_broadcast_v4.cpp
+    src/widget_driver_v4.cpp
+)
+
+# --- Download SQLite3 amalgamation at configure time ---
+# sqlite3.c (255k lines) is NOT stored in the repo.
+# Downloaded once, cached in build dir.
+set(SQLITE3_DIR "${CMAKE_BINARY_DIR}/sqlite-amalgamation-3450200")
+set(SQLITE3_SRC "${SQLITE3_DIR}/sqlite3.c")
+if(NOT EXISTS "${SQLITE3_SRC}")
+    message(STATUS "Downloading SQLite3 amalgamation from sqlite.org...")
+    file(DOWNLOAD
+        "https://sqlite.org/2024/sqlite-amalgamation-3450200.zip"
+        "${CMAKE_BINARY_DIR}/sqlite3.zip"
+        SHOW_PROGRESS
+        STATUS download_status
+        TIMEOUT 120
+    )
+    list(GET download_status 0 download_code)
+    if(NOT download_code EQUAL 0)
+        list(GET download_status 1 download_err)
+        message(FATAL_ERROR "Failed to download SQLite: ${download_err}")
+    endif()
+    message(STATUS "Extracting SQLite amalgamation...")
+    file(MAKE_DIRECTORY "${SQLITE3_DIR}")
+    execute_process(
+        COMMAND python3 -c "import zipfile,sys; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])" "${CMAKE_BINARY_DIR}/sqlite3.zip" "${CMAKE_BINARY_DIR}"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+        RESULT_VARIABLE extract_result
+        ERROR_VARIABLE extract_err
+    )
+    if(NOT extract_result EQUAL 0)
+        message(FATAL_ERROR "SQLite extraction failed (${extract_result}): ${extract_err}")
+    endif()
+    if(NOT EXISTS "${SQLITE3_SRC}")
+        file(GLOB extracted_files "${CMAKE_BINARY_DIR}/sqlite*")
+        message(FATAL_ERROR "SQLite extraction failed — sqlite3.c not found. Extracted files in ${CMAKE_BINARY_DIR}: ${extracted_files}")
+    endif()
+    message(STATUS "SQLite3 amalgamation extracted to ${SQLITE3_DIR}")
+endif()
+# Add to build after download+extraction
+target_sources(pcp_native PRIVATE "${SQLITE3_SRC}")
+target_include_directories(pcp_native PUBLIC "${SQLITE3_DIR}")
+
+target_include_directories(
+    pcp_native
+    PUBLIC
+    include
+)
+
+find_library(log_lib log)
+
+# --- Binary size optimization ---
+# 491 C++ modules → 206MB .so → -Os + LTO + dead code stripping
+target_compile_options(pcp_native PRIVATE -Os -flto -fdata-sections -ffunction-sections -fvisibility=hidden)
+target_link_options(pcp_native PRIVATE -flto -Wl,--gc-sections -Wl,--exclude-libs,ALL)
+
+# --- libolm E2EE crypto (C/C++ native) ---
+# Downloaded at build time via FetchContent — not vendored in repo.
+include(FetchContent)
+FetchContent_Declare(
+    olm
+    GIT_REPOSITORY https://gitlab.matrix.org/matrix-org/olm.git
+    GIT_TAG 3.2.16
+    PATCH_COMMAND sed -i "s/cmake_minimum_required(VERSION 3.4)/cmake_minimum_required(VERSION 3.4...3.99)/" CMakeLists.txt
+)
+set(OLM_TESTS OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(olm)
+
+target_link_libraries(
+    pcp_native
+    ${log_lib}
+    olm
+)
+
+target_compile_definitions(pcp_native PRIVATE PCP_HAS_OLM=1)
+
+# SQLite3 amalgamation compile flags (optimize for Android, downloaded at build time)
+set_source_files_properties(
+    "${SQLITE3_DIR}/sqlite3.c"
+    PROPERTIES COMPILE_FLAGS "-DSQLITE_THREADSAFE=1 -DSQLITE_OMIT_LOAD_EXTENSION -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS -DSQLITE_MAX_EXPR_DEPTH=0 -DSQLITE_OMIT_DECLTYPE -DSQLITE_OMIT_DEPRECATED -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_USE_ALLOCA -Os"
+)
+

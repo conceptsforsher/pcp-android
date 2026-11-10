@@ -17,11 +17,11 @@
 
 package org.matrix.android.sdk.internal.crypto.keysbackup.util
 
-import chat.progressive.app.native.ProgressiveNative
+import chat.pcp.app.native.PcpNative
 
 /**
  * Base58 encoding/decoding using C++ native implementation.
  * Ref: https://github.com/bitcoin-labs/bitcoin-mobile-android
  */
-internal fun base58encode(input: ByteArray): String = ProgressiveNative.nativeBase58Encode(input)
-internal fun base58decode(input: String): ByteArray = ProgressiveNative.nativeBase58Decode(input)
+internal fun base58encode(input: ByteArray): String = PcpNative.nativeBase58Encode(input)
+internal fun base58decode(input: String): ByteArray = PcpNative.nativeBase58Decode(input)

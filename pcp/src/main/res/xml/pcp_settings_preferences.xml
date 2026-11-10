@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory
+        android:key="SETTINGS_USER_INTERFACE_KEY"
+        android:title="@string/settings_user_interface">
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY"
+            android:persistent="false"
+            android:title="@string/settings_interface_language"
+            app:fragment="chat.pcp.app.features.settings.locale.LocalePickerFragment" />
+
+        <chat.pcp.app.core.preference.PcpListPreference
+            android:defaultValue="system"
+            android:entries="@array/theme_entries"
+            android:entryValues="@array/theme_values"
+            android:key="APPLICATION_THEME_KEY"
+            android:summary="%s"
+            android:title="@string/settings_theme"
+            app:iconSpaceReserved="false" />
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:dialogTitle="@string/font_size"
+            android:key="SETTINGS_INTERFACE_TEXT_SIZE_KEY"
+            android:persistent="false"
+            android:title="@string/font_size" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory
+        android:title="@string/spaces"
+        android:key="SETTINGS_PREF_SPACE_CATEGORY">
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="false"
+            android:key="SETTINGS_PREF_SPACE_SHOW_ALL_ROOM_IN_HOME"
+            android:summary="@string/all_rooms_youre_in_will_be_shown_in_home"
+            android:title="@string/preference_show_all_rooms_in_home" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory android:title="@string/settings_category_composer">
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="false"
+            android:key="SETTINGS_ENABLE_MARKDOWN_KEY"
+            android:summary="@string/settings_send_markdown_summary"
+            android:title="@string/settings_send_markdown" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_SEND_TYPING_NOTIF_KEY"
+            android:summary="@string/settings_send_typing_notifs_summary"
+            android:title="@string/settings_send_typing_notifs" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="false"
+            android:key="SETTINGS_SEND_MESSAGE_WITH_ENTER"
+            android:summary="@string/settings_send_message_with_enter_summary"
+            android:title="@string/settings_send_message_with_enter" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_SHOW_EMOJI_KEYBOARD"
+            android:summary="@string/settings_show_emoji_keyboard_summary"
+            android:title="@string/settings_show_emoji_keyboard" />
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="SETTINGS_INTERFACE_TAKE_PHOTO_VIDEO"
+            android:persistent="false"
+            android:title="@string/option_take_photo_video"
+            tools:summary="@string/option_always_ask" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory android:title="@string/settings_category_timeline">
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="@bool/settings_interface_bubble_default"
+            android:key="SETTINGS_INTERFACE_BUBBLE_KEY"
+            android:title="@string/message_bubbles"
+            app:isPreferenceVisible="@bool/settings_interface_bubble_visible" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="@bool/settings_timeline_show_live_sender_info_default"
+            app:isPreferenceVisible="@bool/settings_timeline_show_live_sender_info_visible"
+            android:key="SETTINGS_TIMELINE_SHOW_LIVE_SENDER_INFO"
+            android:summary="@string/settings_show_latest_profile_description"
+            android:title="@string/settings_show_latest_profile" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_SHOW_URL_PREVIEW_KEY"
+            android:summary="@string/settings_inline_url_preview_summary"
+            android:title="@string/settings_inline_url_preview" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:key="SETTINGS_ALWAYS_SHOW_TIMESTAMPS_KEY"
+            android:title="@string/settings_always_show_timestamps" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:key="SETTINGS_12_24_TIMESTAMPS_KEY"
+            android:title="@string/settings_12_24_timestamps" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_SHOW_READ_RECEIPTS_KEY"
+            android:summary="@string/settings_show_read_receipts_summary"
+            android:title="@string/settings_show_read_receipts" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_SHOW_REDACTED_KEY"
+            android:summary="@string/settings_show_redacted_summary"
+            android:title="@string/settings_show_redacted" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY"
+            android:summary="@string/settings_show_join_leave_messages_summary"
+            android:title="@string/settings_show_join_leave_messages" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_SHOW_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY"
+            android:summary="@string/settings_show_avatar_display_name_changes_messages_summary"
+            android:title="@string/settings_show_avatar_display_name_changes_messages" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_ENABLE_CHAT_EFFECTS"
+            android:summary="@string/settings_chat_effects_description"
+            android:title="@string/settings_chat_effects_title" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="false"
+            android:key="SETTINGS_AUTOPLAY_ANIMATED_IMAGES"
+            android:summary="@string/settings_autoplay_animated_images_summary"
+            android:title="@string/settings_autoplay_animated_images_title" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:key="SETTINGS_VIBRATE_ON_MENTION_KEY"
+            android:title="@string/settings_vibrate_on_mention" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_ENABLE_DIRECT_SHARE"
+            android:summary="@string/settings_enable_direct_share_summary"
+            android:title="@string/settings_enable_direct_share_title" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory
+        android:key="SETTINGS_HOME_DISPLAY_KEY"
+        android:title="@string/settings_home_display">
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_PIN_MISSED_NOTIFICATIONS_PREFERENCE_KEY"
+            android:title="@string/settings_pin_missed_notifications" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_PIN_UNREAD_MESSAGES_PREFERENCE_KEY"
+            android:title="@string/settings_pin_unread_messages" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory
+        android:title="@string/settings_media">
+
+        <chat.pcp.app.core.preference.PcpBasePreference
+            android:key="SETTINGS_MEDIA_SAVING_PERIOD_KEY"
+            android:title="@string/settings_keep_media" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:key="SETTINGS_USE_NATIVE_CAMERA_PREFERENCE_KEY"
+            android:summary="@string/settings_labs_native_camera_summary"
+            android:title="@string/settings_labs_native_camera" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_PLAY_SHUTTER_SOUND_KEY"
+
+            android:title="@string/settings_play_shutter_sound" />
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:key="SETTINGS_PREVIEW_MEDIA_BEFORE_SENDING_KEY"
+            android:title="@string/settings_preview_media_before_sending" />
+
+        <chat.pcp.app.core.preference.PcpListPreference
+            android:defaultValue="0"
+            android:entries="@array/compression_levels"
+            android:entryValues="@array/compression_level_values"
+            android:key="SETTINGS_DEFAULT_MEDIA_COMPRESSION_KEY"
+            android:summary="%s"
+            android:title="@string/settings_default_compression" />
+
+        <chat.pcp.app.core.preference.PcpListPreference
+            android:defaultValue="0"
+            android:entries="@array/media_sources"
+            android:entryValues="@array/media_source_values"
+            android:key="SETTINGS_DEFAULT_MEDIA_SOURCE_KEY"
+            android:summary="%s"
+            android:title="@string/settings_default_media_source" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory
+        android:title="@string/settings_presence"
+        app:isPreferenceVisible="@bool/settings_presence_visible">
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:title="@string/settings_presence_user_always_appears_offline"
+            android:summary="@string/settings_presence_user_always_appears_offline_summary"
+            android:key="SETTINGS_PRESENCE_USER_ALWAYS_APPEARS_OFFLINE"
+            android:defaultValue="@bool/settings_presence_user_always_appears_offline_default" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+
+    <chat.pcp.app.core.preference.PcpPreferenceCategory android:title="@string/settings_category_room_directory">
+
+        <chat.pcp.app.core.preference.PcpSwitchPreference
+            android:key="SETTINGS_ROOM_DIRECTORY_SHOW_ALL_PUBLIC_ROOMS"
+            android:summary="@string/settings_room_directory_show_all_rooms_summary"
+            android:title="@string/settings_room_directory_show_all_rooms" />
+
+    </chat.pcp.app.core.preference.PcpPreferenceCategory>
+</androidx.preference.PreferenceScreen>

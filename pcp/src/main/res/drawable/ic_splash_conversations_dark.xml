@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="300dp"
+    android:viewportWidth="300"
+    android:viewportHeight="300">
+
+    <!-- Three connected avatars — gradient green theme -->
+    
+    <!-- Person 1 (top) -->
+    <path
+        android:fillColor="#0d2818"
+        android:pathData="M130,70 A20,20 0 1,1 170,70 A20,20 0 1,1 130,70 Z" />
+    <path
+        android:fillColor="#0d2818"
+        android:pathData="M120,95 Q120,120 150,120 Q180,120 180,95" />
+
+    <!-- Person 2 (bottom-left) -->
+    <path
+        android:fillColor="#14522f"
+        android:pathData="M75,160 A20,20 0 1,1 115,160 A20,20 0 1,1 75,160 Z" />
+    <path
+        android:fillColor="#14522f"
+        android:pathData="M65,185 Q65,210 95,210 Q125,210 125,185" />
+
+    <!-- Person 3 (bottom-right) -->
+    <path
+        android:fillColor="#1a6e3e"
+        android:pathData="M185,160 A20,20 0 1,1 225,160 A20,20 0 1,1 185,160 Z" />
+    <path
+        android:fillColor="#1a6e3e"
+        android:pathData="M175,185 Q175,210 205,210 Q235,210 235,185" />
+
+    <!-- Connection lines between people -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#22c55e"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M145,100 L95,145 M155,100 L205,145 M120,180 L180,180" />
+
+    <!-- Chat bubbles near each person -->
+    <!-- Top person bubble -->
+    <path
+        android:fillColor="#22c55e"
+        android:pathData="M185,60 L210,60 L210,80 L190,80 L185,85 L187,80 L185,80 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M190,68 L206,68 M190,74 L200,74"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+
+    <!-- Bottom-left person bubble -->
+    <path
+        android:fillColor="#22c55e"
+        android:pathData="M40,140 L60,140 L60,158 L44,158 L40,162 L42,158 L40,158 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,148 L56,148 M44,153 L50,153"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+
+    <!-- Bottom-right person bubble -->
+    <path
+        android:fillColor="#22c55e"
+        android:pathData="M240,140 L260,140 L260,158 L244,158 L240,162 L242,158 L240,158 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M244,148 L256,148 M244,153 L250,153"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+
+</vector>

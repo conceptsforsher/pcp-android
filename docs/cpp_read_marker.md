@@ -103,20 +103,20 @@ std::string readMarkerToJson(const ReadMarkerState& state);
 ## JNI Bridge
 
 ```cpp
-Java_im_vector_app_features_jumptodate_ProgressiveNative_nativeComputeReadMarker(
+Java_im_vector_app_features_jumptodate_PcpNative_nativeComputeReadMarker(
     JNIEnv*, jclass, jstring lastReadEventId, jobjectArray loadedEventIds,
     jobjectArray loadedSenders, jbooleanArray isMention, jbooleanArray isHighlight,
     jstring myUserId) -> jstring (JSON)
-Java_im_vector_app_features_jumptodate_ProgressiveNative_nativeShouldShowJumpToUnread(...)
-Java_im_vector_app_features_jumptodate_ProgressiveNative_nativeFormatUnreadJumpLabel(...)
-Java_im_vector_app_features_jumptodate_ProgressiveNative_nativeAdvanceReadMarker(...)
+Java_im_vector_app_features_jumptodate_PcpNative_nativeShouldShowJumpToUnread(...)
+Java_im_vector_app_features_jumptodate_PcpNative_nativeFormatUnreadJumpLabel(...)
+Java_im_vector_app_features_jumptodate_PcpNative_nativeAdvanceReadMarker(...)
 ```
 
 ## Kotlin Fallback
 
 Pure Kotlin implementations in `computeReadMarkerFallback()`,
 `shouldShowJumpToUnreadFallback()`, `formatUnreadJumpLabelFallback()`,
-`advanceReadMarkerFallback()` in ProgressiveNative.kt — used when `.so` fails
+`advanceReadMarkerFallback()` in PcpNative.kt — used when `.so` fails
 to load.
 
 ## Performance Notes

@@ -1,0 +1,38 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- PCP launcher icon: stylized chat bubble with growth arrow -->
+    
+    <!-- Outer chat bubble with rounded corners -->
+    <path
+        android:pathData="M22,24 h62 a6,6 0 0,1 6,6 v42 a6,6 0 0,1 -6,6 h-16 l-8,14 l1,-14 h-37 a6,6 0 0,1 -6,-6 v-42 a6,6 0 0,1 6,-6 z"
+        android:strokeColor="#ffffff"
+        android:fillColor="@android:color/transparent"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- PCP arrow inside bubble (upward trending) -->
+    <path
+        android:pathData="M42,50 l2,-16 l2,16 M33,48 l2,-10 l2,10 M51,48 l2,-10 l2,10"
+        android:fillColor="#ef4444"
+        android:strokeColor="#ef4444"
+        android:strokeWidth="1"
+        android:strokeLineCap="round" />
+
+    <!-- Three accent dots in bubble -->
+    <path
+        android:pathData="M28,36 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0 M28,46 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0 M28,56 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0"
+        android:fillColor="#55ffffff" />
+
+    <!-- Growth sparkle top right -->
+    <path
+        android:pathData="M76,28 l3,0 M77.5,25 l0,3 M80,32 l3,0 M81.5,29 l0,3 M72,32 l3,0 M73.5,29 l0,3"
+        android:strokeColor="#22c55e"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+
+</vector>

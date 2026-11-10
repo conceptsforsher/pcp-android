@@ -1,6 +1,6 @@
-include ':progressive-app'
-include ':progressive'
-include ':progressive-config'
+include ':pcp-app'
+include ':pcp'
+include ':pcp-config'
 
 include ':library:core-utils'
 include ':library:ui-strings'

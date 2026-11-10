@@ -18,6 +18,8 @@ I worked on the project for one month, then took a month off to rest. Right now 
 
 The client is approximately **halfway complete**. When ready, it will be published in the [Matrix.org clients directory](https://matrix.org/clients/).
 
+> 🧪 **Last tested commit:** `3b038a30` (`3b038a305622e641a155a4438cacb9136225d072`, 2026-08-06 — "README: update date; note that homeserver is IPv6-only")
+
 ## The Vision
 
 - **Pure C++ core** for maximum performance and portability

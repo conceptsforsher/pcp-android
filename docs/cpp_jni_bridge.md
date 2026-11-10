@@ -2,7 +2,7 @@
 
 ## Overview
 
-The JNI bridge is the single translation layer between Kotlin and all 80+ C++ native modules in Progressive Chat. It is the largest file in the project (~3400 lines) and follows a strict naming convention mandated by the Java Native Interface specification.
+The JNI bridge is the single translation layer between Kotlin and the C++ native modules in Progressive Chat. It is the largest file in the project (6543 lines, `progressive/src/main/cpp/src/jni_bridge.cpp`) and follows a strict naming convention mandated by the Java Native Interface specification. Most entry points are generated with a `JNI_FUNC(ret, name)` macro (831 uses) plus 17 explicit `Java_...` definitions — ~840 unique JNI functions in total, of which only 18 are currently declared in `ProgressiveNative.kt` (see `API.md` and `docs/cpp_coverage_next.md`).
 
 ## How JNI Naming Works
 
@@ -15,29 +15,33 @@ Java_<package>_<class>_<method>
 Where dots in the package name are replaced with underscores. For Progressive Chat:
 
 ```
-Kotlin:  im.vector.app.features.jumptodate.ProgressiveNative.nativeParseUrl()
-JNI:     Java_im_vector_app_features_jumptodate_ProgressiveNative_nativeParseUrl
+Kotlin:  chat.progressive.app.native.ProgressiveNative.nativeValidateAndBuild(...)
+JNI:     Java_chat_progressive_app_native_ProgressiveNative_nativeValidateAndBuild
 ```
 
-The Kotlin class `ProgressiveNative` at package `im.vector.app.features.jumptodate` produces JNI function names with prefix `Java_im_vector_app_features_jumptodate_ProgressiveNative_`.
+The Kotlin object `ProgressiveNative` in package `chat.progressive.app.native` produces JNI function names with prefix `Java_chat_progressive_app_native_ProgressiveNative_` (usually via the `JNI_FUNC` macro).
 
 ## Singleton Architecture
 
-All C++ modules are accessed through **global singleton instances** — one static variable per module, declared at the top of `jni_bridge.cpp`:
+All C++ modules are accessed through **file-static instances** — globals declared in `jni_bridge.cpp`:
 
 ```cpp
 static progressive::EventCache        g_eventCache;
-static progressive::KeywordFilter     g_keywordFilter;
-static progressive::NetworkStatsCollector g_netStats;
-static progressive::UserMaskRegistry  g_userMasks;
-static progressive::DesyncDetector    g_desyncDetector;
-static progressive::LatencyTracker    g_latencyTracker;
-// ... 20+ more singletons
+static progressive::SearchIndex       g_searchIndex;
+static progressive::ChunkedUploader   g_uploader;
+static progressive::OlmAccountData    g_olmAccount;
+static progressive::OlmSessionManager g_olmSessionMgr;
+static progressive::MegolmSessionManager g_megolmManager;
+static progressive::EventDatabase     g_eventDb;
+// ... dozens more (65 file-static singletons/registries in total)
 ```
 
 **Why singletons?** JNI functions are C-style free functions with no `this` pointer. They cannot access instance state directly. By holding state in static globals, each JNI call can access the same module instance that previous calls modified.
 
-**Thread safety:** All JNI calls originate from the Kotlin main thread (Android UI thread). Since JNI serializes through the single JVM thread, no mutex is needed.
+**Thread safety:** JNI calls can arrive on **any thread** (UI, sync, backup, crypto workers) — the old
+assumption that "all calls originate from the main thread, so no mutex is needed" is **wrong** and must not
+be relied on. Shared singletons (`g_eventCache`, `g_searchIndex`, `g_sqliteDbs`, crypto managers, ...) need
+proper synchronization; auditing them for data races is tracked work (see `docs/cpp_coverage_next.md`).
 
 ## Data Flow: Kotlin → C++ → Kotlin
 

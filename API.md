@@ -2,11 +2,23 @@
 
 ## Overview
 - **Language:** C++20, NDK 21.3, CMake 3.22.1
-- **JNI surface:** ~400 functions across `chat.progressive.app.native.ProgressiveNative`
+- **JNI surface:** ~840 entry points in `jni_bridge.cpp` under `chat.progressive.app.native.ProgressiveNative` (see `docs/cpp_coverage_next.md` for the exact audit)
 - **Library:** `libprogressive_native.so`
-- **Modules:** 199 C++ files in `vector/src/main/cpp/`
+- **Modules:** 496 `.cpp` files compiled (of 891 in `progressive/src/main/cpp/src/`); 566 headers in `progressive/src/main/cpp/include/progressive/`
 
-All functions have Kotlin `external fun` declarations and `*Fallback` implementations in `ProgressiveNative.kt`.
+> ⚠️ **Wiring status (next branch):** this document describes the **implemented C++ JNI surface**.
+> Only **18** of these functions are declared in `ProgressiveNative.kt` and reachable from Kotlin
+> (`nativeParseRelation`, `nativeBuild/ParseTranslateRequest/Response`, `nativeMarkdownToHtml`,
+> `nativeBuild/ParseLlm*`, `nativeNotifSet/GetMode`, `nativeFormatCountToShortDecimal`,
+> `nativeParseSlashCommand`, `nativeFormatNotice/Redacted/DisplayableEvent`, `nativeFormatThreadSummary`,
+> `nativeFormatEventDetails`, `nativeFormatRoomHistoryVis`, `nativeClassifyError`).
+> The rest are implemented but have **no Kotlin declaration or call site yet** — wiring them is tracked work.
+> 9 documented names have no compiled C++ implementation: `nativeCountRooms`, `nativeFormatRecoveryKey`,
+> `nativeValidateRecoveryKey`, `nativeGetRecoveryKeyExample`, `nativeIsValidPassphrase`,
+> `nativeGetMinPassphraseLength`, `nativeParseEncryptedFileKey`, `nativeParseMatrixErrorJson`, and
+> `nativeMimeToMsgType` (exists only in uncompiled `jni_stubs_part4.cpp`).
+> There are **no `*Fallback` Kotlin implementations** — `ProgressiveNative.kt` only catches
+> `UnsatisfiedLinkError` around `loadLibrary`, not per call.
 
 ---
 
@@ -357,16 +369,18 @@ All functions have Kotlin `external fun` declarations and `*Fallback` implementa
 ## Internals
 
 ### JNI Bridge (`jni_bridge.cpp`)
-- **Lines:** ~3400
-- **JNI functions:** ~400
-- **Singleton state:** `g_eventDb`, `g_sqliteDbs`, `g_olmAccount`, `g_olmSessionMgr`, `g_megolmManager`, `g_sas`
+- **Lines:** 6543
+- **JNI functions:** 831 `JNI_FUNC(...)` entries + 17 explicit `Java_...` definitions (~840 unique names)
+- **Singleton state:** dozens of file-static instances, e.g. `g_eventCache`, `g_searchIndex`, `g_uploader`, `g_olmAccount`, `g_olmSessionMgr`, `g_megolmManager`, `g_sas` (see `docs/cpp_jni_bridge.md`; the old 6-singleton list was incomplete)
 - **Macro:** `JNI_FUNC(ret, name)` → `Java_chat_progressive_app_native_ProgressiveNative_##name`
 
 ### C++ Module Count
-- **199 .cpp files** in `src/`
-- **~200 .hpp headers** in `include/progressive/`
+- **496 `.cpp` files compiled** (of 891 in `progressive/src/main/cpp/src/`)
+- **566 `.hpp` headers** in `progressive/src/main/cpp/include/progressive/`
+- **211 placeholder hash-stubs NOT compiled** (`big_*`, `batch_*`, `sdkport_*`, `mega_*`, `ngen_*`, `round3_*`, `tz_*`, `ktport_*`, `mx_*`) — see `docs/cpp_coverage_next.md`
+- **172 real modules + 6 `jni_stubs_part*.cpp` NOT compiled yet** — wiring tracked in `docs/cpp_coverage_next.md`
 
 ### Tests
-- **85 tests** covering 38 modules
+- **257 test functions** in `tests/test_progressive.cpp`
 - Framework: `tests/test_framework.hpp`
 - Executable: `test_progressive` (CMake)

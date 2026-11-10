@@ -51,7 +51,7 @@ import im.vector.lib.strings.CommonStrings
 import org.matrix.android.sdk.api.auth.registration.Stage
 import org.matrix.android.sdk.api.auth.toLocalizedLoginTerms
 import org.matrix.android.sdk.api.extensions.tryOrNull
-import chat.progressive.app.features.lemmy.LemmyAuthActivity
+import chat.pcp.app.features.lemmy.LemmyAuthActivity
 
 private const val FRAGMENT_REGISTRATION_STAGE_TAG = "FRAGMENT_REGISTRATION_STAGE_TAG"
 private const val FRAGMENT_LOGIN_TAG = "FRAGMENT_LOGIN_TAG"

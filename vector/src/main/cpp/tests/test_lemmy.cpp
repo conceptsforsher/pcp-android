@@ -2,8 +2,8 @@
 #include <string>
 #include <unordered_map>
 
-// Stub out progressive::httpExecute so lemmy_api.cpp links without real HTTP
-namespace progressive {
+// Stub out pcp::httpExecute so lemmy_api.cpp links without real HTTP
+namespace pcp {
 struct HttpRequest { std::string method; std::string url; std::string body; };
 struct HttpResponse { int statusCode = 200; std::string body; bool success = true; std::string errorMessage; };
 HttpResponse httpExecute(const HttpRequest&) { return {}; }
@@ -13,51 +13,51 @@ HttpResponse httpPut(const std::string&, const std::string&, int) { return {}; }
 }
 
 #include "test_framework.hpp"
-#include "progressive/lemmy_api.hpp"
+#include "pcp/lemmy_api.hpp"
 
 static void test_lemmy_build_json_empty() {
-    auto r = progressive::lemmyBuildJson({});
+    auto r = pcp::lemmyBuildJson({});
     ASSERT_STREQ(r, "{}");
 }
 
 static void test_lemmy_build_json_single_int() {
-    auto r = progressive::lemmyBuildJson({{"id", "42"}});
+    auto r = pcp::lemmyBuildJson({{"id", "42"}});
     ASSERT_STREQ(r, R"({"id":42})");
 }
 
 static void test_lemmy_build_json_string() {
-    auto r = progressive::lemmyBuildJson({{"name", "\"hello\""}});
+    auto r = pcp::lemmyBuildJson({{"name", "\"hello\""}});
     ASSERT_STREQ(r, R"({"name":"hello"})");
 }
 
 static void test_lemmy_build_json_bool() {
-    auto r = progressive::lemmyBuildJson({{"a", "true"}, {"b", "false"}});
+    auto r = pcp::lemmyBuildJson({{"a", "true"}, {"b", "false"}});
     ASSERT_STREQ(r, R"({"a":true,"b":false})");
 }
 
 static void test_lemmy_build_query_single() {
-    auto r = progressive::lemmyBuildQuery({{"type_", "Local"}});
+    auto r = pcp::lemmyBuildQuery({{"type_", "Local"}});
     ASSERT_STREQ(r, "type_=Local");
 }
 
 static void test_lemmy_build_query_multiple() {
-    auto r = progressive::lemmyBuildQuery({{"sort", "Active"}, {"page", "1"}});
+    auto r = pcp::lemmyBuildQuery({{"sort", "Active"}, {"page", "1"}});
     ASSERT_STREQ(r, "sort=Active&page=1");
 }
 
 static void test_lemmy_build_query_space() {
-    auto r = progressive::lemmyBuildQuery({{"q", "hello world"}});
+    auto r = pcp::lemmyBuildQuery({{"q", "hello world"}});
     ASSERT_STREQ(r, "q=hello%20world");
 }
 
 static void test_lemmy_build_url() {
-    progressive::setLemmyInstance("https://lemmy.ml");
-    ASSERT_STREQ(progressive::lemmyBuildUrl("/api/v3/site"), "https://lemmy.ml/api/v3/site");
+    pcp::setLemmyInstance("https://lemmy.ml");
+    ASSERT_STREQ(pcp::lemmyBuildUrl("/api/v3/site"), "https://lemmy.ml/api/v3/site");
 }
 
 static void test_lemmy_build_url_trailing_slash() {
-    progressive::setLemmyInstance("https://lemmy.ml/");
-    ASSERT_STREQ(progressive::lemmyBuildUrl("/api/v3/site"), "https://lemmy.ml/api/v3/site");
+    pcp::setLemmyInstance("https://lemmy.ml/");
+    ASSERT_STREQ(pcp::lemmyBuildUrl("/api/v3/site"), "https://lemmy.ml/api/v3/site");
 }
 
 int main() {

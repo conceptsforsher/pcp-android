@@ -1,4 +1,4 @@
-#include "progressive/megolm_decryptor.hpp"
+#include "pcp/megolm_decryptor.hpp"
 #include <olm/inbound_group_session.h>
 #include <olm/olm.h>
 #include <cstring>
@@ -8,7 +8,7 @@
 #define LOG_TAG "MegolmDecryptor"
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 
-namespace progressive {
+namespace pcp {
 
 static const char B64_C[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -150,4 +150,4 @@ void MegolmSessionManager::clearAll() {
     sessions_.clear();
 }
 
-} // namespace progressive
+} // namespace pcp

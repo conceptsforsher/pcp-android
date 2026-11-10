@@ -1,8 +1,8 @@
-#include "progressive/notif_mode.hpp"
+#include "pcp/notif_mode.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 NightModeManager::NightModeManager() {}
 
@@ -104,4 +104,4 @@ void NightModeManager::fromJson(const std::string& json) {
     }
 }
 
-} // namespace progressive
+} // namespace pcp

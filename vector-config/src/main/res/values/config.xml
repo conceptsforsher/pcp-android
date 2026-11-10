@@ -8,8 +8,8 @@
 
     <!-- Rageshake configuration -->
     <string name="bug_report_url" translatable="false">https://rageshakes.element.io/api/submit</string>
-    <string name="bug_report_app_name" translatable="false">progressive-chat</string>
-    <string name="bug_report_auto_uisi_app_name" translatable="false">progressive-auto-uisi</string>
+    <string name="bug_report_app_name" translatable="false">pcp-chat</string>
+    <string name="bug_report_auto_uisi_app_name" translatable="false">pcp-auto-uisi</string>
 
     <!--
         Pusher config for the application

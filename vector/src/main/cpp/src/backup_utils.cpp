@@ -1,12 +1,12 @@
-#include "progressive/backup_utils.hpp"
+#include "pcp/backup_utils.hpp"
 #include <random>
-#include "progressive/key_backup.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/key_backup.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
 #include <regex>
 
-namespace progressive {
+namespace pcp {
 
 BackupInfo parseBackupInfo(const std::string& apiResponseJson) {
     BackupInfo info;
@@ -294,4 +294,4 @@ BackupRecoveryKey parseRecoveryKey(const std::string& input) {
     return result;
 }
 
-} // namespace progressive
+} // namespace pcp

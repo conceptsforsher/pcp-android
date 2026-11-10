@@ -1,7 +1,7 @@
-#include "progressive/event_classifier.hpp"
+#include "pcp/event_classifier.hpp"
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Classification Functions ====
 
@@ -218,4 +218,4 @@ bool shouldRenderInThread(const std::string& contentJson) {
            contentJson.find("\"is_falling_back\":true") == std::string::npos;
 }
 
-} // namespace progressive
+} // namespace pcp

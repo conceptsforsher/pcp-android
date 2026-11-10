@@ -1,8 +1,8 @@
-#include "progressive/profile_swiper.hpp"
+#include "pcp/profile_swiper.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 void ProfileSwiper::setProfiles(const std::vector<ProfileEntry>& profiles) {
     profiles_ = profiles;
@@ -92,4 +92,4 @@ std::string ProfileSwiper::stateToJson(const SwipeState& state) {
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

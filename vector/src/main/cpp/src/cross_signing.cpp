@@ -1,8 +1,8 @@
-#include "progressive/cross_signing.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/cross_signing.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 CrossSigningStatus parseCrossSigningStatus(const std::string& accountDataJson, const std::string& userId) {
     // Original Kotlin (CrossSigningService.kt:89-112):
@@ -112,4 +112,4 @@ std::string buildBootstrapBody(const std::string& masterKey, const std::string& 
     return json.str();
 }
 
-} // namespace progressive
+} // namespace pcp

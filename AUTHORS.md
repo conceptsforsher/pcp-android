@@ -1,6 +1,6 @@
-# Progressive Chat — Authors
+# PCP — Authors
 
-Progressive Chat is developed and maintained by **Anton Maurer**.
+PCP is developed and maintained by **Anton Maurer**.
 
 The project is a fork of [Element Android Classic](https://github.com/element-hq/element-android).
 Most of the Kotlin/Java codebase originates from Element and its contributors.
@@ -9,9 +9,9 @@ You can read about the original Element Android authors in their
 
 ## C++ Native Core
 
-The `libprogressive_native.so` C++ library (165+ modules in `vector/src/main/cpp/`)
+The `libpcp_native.so` C++ library (165+ modules in `vector/src/main/cpp/`)
 is original work by Anton Maurer, gradually replacing Kotlin/Java components
-with high-performance native code. All C++ modules carry the progressive
+with high-performance native code. All C++ modules carry the pcp
 copyright alongside the original Element SPDX license.
 
 ## License

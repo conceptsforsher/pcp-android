@@ -1,7 +1,7 @@
-#include "progressive/federation_version.hpp"
+#include "pcp/federation_version.hpp"
 #include <cstdlib>
 
-namespace progressive {
+namespace pcp {
 
 // Manual JSON helpers for federation version (no external deps).
 // The response format is simple: {"server": {"name": "Synapse", "version": "1.62.0"}}
@@ -75,4 +75,4 @@ std::string federationVersionToJson(const FederationVersion& version) {
     return "{\"server\":" + srv + "}";
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -108,7 +108,7 @@ nativeGetAvailableCommands() → JSON array of command names
 ## Kotlin Fallback
 
 `parseSlashCommandFallback()` and `formatSlashCommandFallback()` in
-ProgressiveNative.kt provide Kotlin-native implementations when `.so` is
+PcpNative.kt provide Kotlin-native implementations when `.so` is
 not loaded.
 
 ## Performance

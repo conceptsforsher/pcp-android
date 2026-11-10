@@ -61,7 +61,7 @@ class VectorSettingsHelpAboutFragment :
         // application version
         findPreference<VectorPreference>(VectorPreferences.SETTINGS_VERSION_PREFERENCE_KEY)!!.let {
             it.summary = buildString {
-                append("Progressive Chat (development)")
+                append("PCP (development)")
                 if (buildMeta.isDebug) {
                     append("\n")
                     append(buildMeta.gitBranchName)
@@ -78,7 +78,7 @@ class VectorSettingsHelpAboutFragment :
 
         // Native core version
         findPreference<VectorPreference>(VectorPreferences.SETTINGS_NATIVE_CORE_VERSION_KEY)!!.let {
-            it.summary = "libprogressive_native.so — 95 C++ modules"
+            it.summary = "libpcp_native.so — 95 C++ modules"
             it.setOnPreferenceClickListener { pref ->
                 copyToClipboard(requireContext(), pref.summary.orEmpty())
                 true

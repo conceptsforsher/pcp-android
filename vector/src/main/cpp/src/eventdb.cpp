@@ -1,4 +1,4 @@
-#include "progressive/eventdb.hpp"
+#include "pcp/eventdb.hpp"
 #include <sqlite3.h>
 #include <android/log.h>
 #include <sstream>
@@ -8,7 +8,7 @@
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace progressive {
+namespace pcp {
 
 // Helper: safely extract column text, returns "" for NULL
 static std::string safeCol(sqlite3_stmt* stmt, int col) {
@@ -254,4 +254,4 @@ void EventDatabase::exec(const char* sql) const {
     sqlite3_exec(db_, sql, nullptr, nullptr, nullptr);
 }
 
-} // namespace progressive
+} // namespace pcp

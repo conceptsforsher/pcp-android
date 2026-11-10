@@ -1,5 +1,5 @@
-#include "progressive/sas_verification.hpp"
-#include "progressive/crypto_algorithms.hpp"
+#include "pcp/sas_verification.hpp"
+#include "pcp/crypto_algorithms.hpp"
 #include <olm/olm.h>
 #include <olm/sas.h>
 #include <cstring>
@@ -9,7 +9,7 @@
 #define LOG_TAG "SasVerif"
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 
-namespace progressive {
+namespace pcp {
 
 // ==== Base64 helpers ====
 static const char B64_C[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -209,4 +209,4 @@ const SasEmoji* getSasEmojiTable() {
     return EMOJI_TABLE;
 }
 
-} // namespace progressive
+} // namespace pcp

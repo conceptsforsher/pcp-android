@@ -1,9 +1,9 @@
-#include "progressive/media_upload_manager.hpp"
+#include "pcp/media_upload_manager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ====== Enum conversions ======
 
@@ -328,4 +328,4 @@ std::string MediaUploadManager::progressToJson() const {
     return os.str();
 }
 
-} // namespace progressive
+} // namespace pcp

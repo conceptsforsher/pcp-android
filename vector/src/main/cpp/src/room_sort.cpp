@@ -1,8 +1,8 @@
-#include "progressive/room_sort.hpp"
+#include "pcp/room_sort.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 bool roomSortCompare(const RoomSortEntry& a, const RoomSortEntry& b) {
     // Original Kotlin (RoomComparator.kt):
@@ -167,4 +167,4 @@ std::vector<RoomSortEntry> sortRoomsByBreadcrumbs(std::vector<RoomSortEntry> roo
     return rooms;
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -123,9 +123,9 @@ import im.vector.app.features.widgets.WidgetViewModel
 import im.vector.app.features.widgets.permissions.RoomWidgetPermissionViewModel
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
 import im.vector.app.features.workers.signout.SignoutCheckViewModel
-import chat.progressive.app.features.lemmy.home.LemmyHomeViewModel
-import chat.progressive.app.features.lemmy.home.LemmyPostDetailViewModel
-import chat.progressive.app.features.lemmy.home.LemmyInboxViewModel
+import chat.pcp.app.features.lemmy.home.LemmyHomeViewModel
+import chat.pcp.app.features.lemmy.home.LemmyPostDetailViewModel
+import chat.pcp.app.features.lemmy.home.LemmyInboxViewModel
 
 @InstallIn(MavericksViewModelComponent::class)
 @Module

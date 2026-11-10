@@ -1,10 +1,10 @@
-#include "progressive/device_naming.hpp"
+#include "pcp/device_naming.hpp"
 #include <sstream>
 #include <cctype>
 #include <algorithm>
 #include <chrono>
 
-namespace progressive {
+namespace pcp {
 
 // ---- User Agent Builder ----
 // Original Kotlin (ComputeUserAgentUseCase.kt:execute):
@@ -387,4 +387,4 @@ bool isDeviceActive(int64_t lastSeenMs, int64_t nowMs) {
     return diffMs <= 7LL * 24 * 3600 * 1000;
 }
 
-} // namespace progressive
+} // namespace pcp

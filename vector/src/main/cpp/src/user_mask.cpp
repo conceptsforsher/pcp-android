@@ -1,11 +1,11 @@
-#include "progressive/user_mask.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/user_mask.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <regex>
 #include <algorithm>
 #include <cctype>
 
-namespace progressive {
+namespace pcp {
 
 std::string UserMaskRegistry::normalizeMxid(const std::string& mxid) {
     std::string r = mxid;
@@ -90,10 +90,10 @@ void UserMaskRegistry::importJson(const std::string& json) {
         std::string objStr = json.substr(start, end - start + 1);
 
         UserMask mask;
-        mask.originalMxid = progressive::parseJsonStringValue(objStr, "originalMxid");
-        mask.displayName  = progressive::parseJsonStringValue(objStr, "displayName");
-        mask.avatarUrl    = progressive::parseJsonStringValue(objStr, "avatarUrl");
-        mask.overrideMxid = progressive::parseJsonStringValue(objStr, "overrideMxid");
+        mask.originalMxid = pcp::parseJsonStringValue(objStr, "originalMxid");
+        mask.displayName  = pcp::parseJsonStringValue(objStr, "displayName");
+        mask.avatarUrl    = pcp::parseJsonStringValue(objStr, "avatarUrl");
+        mask.overrideMxid = pcp::parseJsonStringValue(objStr, "overrideMxid");
 
         if (!mask.originalMxid.empty()) {
             setMask(mask);
@@ -121,4 +121,4 @@ std::string resolveAvatarUrl(const std::string& mxid, const std::string& origina
     return originalUrl;
 }
 
-} // namespace progressive
+} // namespace pcp

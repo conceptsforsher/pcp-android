@@ -1,9 +1,9 @@
-#include "progressive/thread_manager.hpp"
+#include "pcp/thread_manager.hpp"
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 
-namespace progressive {
+namespace pcp {
 
 // ====== JSON helpers ======
 
@@ -411,4 +411,4 @@ int ThreadManager::totalRoomsWithThreads() const {
     return static_cast<int>(rooms.size());
 }
 
-} // namespace progressive
+} // namespace pcp

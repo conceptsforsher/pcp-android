@@ -1,8 +1,8 @@
 # lemmy-client — C++20 Lemmy API Client
 
 A lightweight C++20 client library for the [Lemmy](https://join-lemmy.org/) API (v3).
-Designed for embedding into [progressive-android](https://github.com/...), uses the
-existing `progressive::HttpClient` (POSIX sockets, no external HTTP deps).
+Designed for embedding into [pcp-android](https://github.com/...), uses the
+existing `pcp::HttpClient` (POSIX sockets, no external HTTP deps).
 
 ## Structure
 
@@ -11,11 +11,11 @@ lemmy/
 ├── CMakeLists.txt               # Standalone build (static lib)
 ├── README.md
 └── ../src/main/cpp/
-    ├── include/progressive/
+    ├── include/pcp/
     │   ├── lemmy_types.hpp       # Data structs (LemmyAuth, LemmyError, ...)
     │   └── lemmy_api.hpp        # API surface (~50 functions)
     └── src/
-        └── lemmy_api.cpp        # Implementation (uses progressive/http_client)
+        └── lemmy_api.cpp        # Implementation (uses pcp/http_client)
 ```
 
 ## API Coverage
@@ -36,9 +36,9 @@ lemmy/
 ## Usage
 
 ```cpp
-#include "progressive/lemmy_api.hpp"
+#include "pcp/lemmy_api.hpp"
 
-using namespace progressive;
+using namespace pcp;
 
 // Set target instance
 setLemmyInstance("https://lemmy.ml");
@@ -62,14 +62,14 @@ std::string counts = lemmyGetUnreadCount(jwt);
 ```
 
 Return type for all functions is `std::string` (raw JSON). Parse with
-`progressive::parseJsonStringValue()` or pass through JNI to Kotlin.
+`pcp::parseJsonStringValue()` or pass through JNI to Kotlin.
 
 ## Build
 
-### As part of progressive-android (Gradle + CMake)
+### As part of pcp-android (Gradle + CMake)
 
 The library is compiled automatically through `externalNativeBuild` in
-`vector/build.gradle`. It's part of the `progressive_native` shared library.
+`vector/build.gradle`. It's part of the `pcp_native` shared library.
 
 ```bash
 ./gradlew :vector:externalNativeBuildDebug
@@ -82,7 +82,7 @@ add_subdirectory(lemmy)
 target_link_libraries(your_app lemmy_client)
 ```
 
-Set `PROGRESSIVE_NATIVE_TARGET` if the `progressive_native` target is named
+Set `PCP_NATIVE_TARGET` if the `pcp_native` target is named
 differently in your build.
 
 ## Auth Model
@@ -93,4 +93,4 @@ sent as `Authorization: Bearer <jwt>`.
 
 ## License
 
-AGPL-3.0-only — same as progressive-android.
+AGPL-3.0-only — same as pcp-android.

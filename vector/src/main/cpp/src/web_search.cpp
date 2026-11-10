@@ -1,7 +1,7 @@
-#include "progressive/web_search.hpp"
+#include "pcp/web_search.hpp"
 #include <sstream>
 
-namespace progressive {
+namespace pcp {
 
 // ==== Engine Name Conversions ====
 
@@ -390,4 +390,4 @@ SearchConfig searchConfigFromJson(const std::string& /*json*/) {
     return config;
 }
 
-} // namespace progressive
+} // namespace pcp

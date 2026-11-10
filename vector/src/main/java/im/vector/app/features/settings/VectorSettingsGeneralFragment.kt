@@ -69,7 +69,7 @@ import java.io.File
 import java.net.URL
 import java.util.UUID
 import javax.inject.Inject
-import chat.progressive.app.features.lemmy.LemmyAuthActivity
+import chat.pcp.app.features.lemmy.LemmyAuthActivity
 
 @AndroidEntryPoint
 class VectorSettingsGeneralFragment :

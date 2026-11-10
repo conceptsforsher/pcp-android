@@ -1,9 +1,9 @@
-#include "progressive/edit_history.hpp"
-#include "progressive/json_parser.hpp"
+#include "pcp/edit_history.hpp"
+#include "pcp/json_parser.hpp"
 #include <sstream>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 EditHistory parseEditHistory(const std::string& originalEventId, const std::string& originalBody,
     const std::string& originalSenderId, const std::string& originalSenderName,
@@ -193,4 +193,4 @@ std::string formatExpandedEditList(const EditHistory& history) {
     return out.str();
 }
 
-} // namespace progressive
+} // namespace pcp

@@ -1,4 +1,4 @@
-This document aims to describe how Progressive Chat displays notifications to the end user. It also clarifies notifications and background settings in the app.
+This document aims to describe how PCP displays notifications to the end user. It also clarifies notifications and background settings in the app.
 
 # Table of Contents
 
@@ -12,7 +12,7 @@ This document aims to describe how Progressive Chat displays notifications to th
   * [How does the homeserver know when to notify a client?](#how-does-the-homeserver-know-when-to-notify-a-client?)
   * [Push vs privacy, and mitigation](#push-vs-privacy-and-mitigation)
   * [Background processing limitations](#background-processing-limitations)
-* [Progressive Chat Notification implementations](#element-notification-implementations)
+* [PCP Notification implementations](#element-notification-implementations)
   * [Requirements](#requirements)
   * [Foreground sync mode (Gplay and F-Droid)](#foreground-sync-mode-gplay-and-f-droid)
   * [Push (FCM) received in background](#push-fcm-received-in-background)
@@ -55,7 +55,7 @@ By default, this is 0, so the server will return immediately even if the respons
 
 **delay** is a client preference. When the server responds to a sync request, the client waits for `delay`before calling a new sync.
 
-When Progressive Chat is open (i.e in foreground state), the default timeout is 30 seconds, and delay is 0.
+When PCP is open (i.e in foreground state), the default timeout is 30 seconds, and delay is 0.
 
 ### How does a mobile app receives push notification
 
@@ -137,7 +137,7 @@ A homeserver can be configured with default rules (for Direct messages, group me
 
 There are different kind of push rules, it can be per room (each new message on this room should be notified), it can also define a pattern that a message should match (when you are mentioned, or key word based).
 
-Notifications have 2 'levels' (`highlighted = true/false sound = default/custom`). In Progressive Chat these notifications level are reflected as Noisy/Silent. 
+Notifications have 2 'levels' (`highlighted = true/false sound = default/custom`). In PCP these notifications level are reflected as Noisy/Silent. 
 
 **What about encrypted messages?**
 
@@ -163,7 +163,7 @@ In a nutshell, apps can't do much in background now.
 
 If the devices is not plugged and stays IDLE for a certain amount of time, radio (mobile connectivity) and CPU can/will be turned off.
 
-For an application like Progressive Chat, where users can receive important information at anytime, the best option is to rely on a push system (Google's Firebase Message a.k.a FCM). FCM high priority push can wake up the device and whitelist an application to perform background task (for a limited but unspecified amount of time). 
+For an application like PCP, where users can receive important information at anytime, the best option is to rely on a push system (Google's Firebase Message a.k.a FCM). FCM high priority push can wake up the device and whitelist an application to perform background task (for a limited but unspecified amount of time). 
 
 Notice that this is still evolving, and in future versions application that has been 'background restricted' by users won't be able to wake up even when a high priority push is received. Also high priority notifications could be rate limited (not defined anywhere)
 
@@ -172,41 +172,41 @@ The documentation on this subject is vague, and as per our experiments not alway
 
 It is getting more and more complex to have reliable notifications when FCM is not used.
 
-## Progressive Chat Notification implementations
+## PCP Notification implementations
 
 ### Requirements
 
-Progressive Chat must work with and without FCM.
-* The Progressive Chat app published on F-Droid do not rely on FCM (all related dependencies are not present)
-* The Progressive Chat app published on Google Play rely on FCM, with a fallback mode when FCM registration has failed (e.g outdated or missing Google Play Services)
+PCP must work with and without FCM.
+* The PCP app published on F-Droid do not rely on FCM (all related dependencies are not present)
+* The PCP app published on Google Play rely on FCM, with a fallback mode when FCM registration has failed (e.g outdated or missing Google Play Services)
 
 ### Foreground sync mode (Gplay and F-Droid)
 
-When in foreground, Progressive Chat performs sync continuously with a timeout value set to 10 seconds (see HttpPooling).
+When in foreground, PCP performs sync continuously with a timeout value set to 10 seconds (see HttpPooling).
 
-As this mode does not need to live beyond the scope of the application, and as per Google recommendation, Progressive Chat uses the internal app resources (Thread and Timers) to perform the syncs. 
+As this mode does not need to live beyond the scope of the application, and as per Google recommendation, PCP uses the internal app resources (Thread and Timers) to perform the syncs. 
 
 This mode is turned on when the app enters foreground, and off when enters background.
 
-In background, and depending on whether push is available or not, Progressive Chat will use different methods to perform the syncs (Workers / Alarms / Service)
+In background, and depending on whether push is available or not, PCP will use different methods to perform the syncs (Workers / Alarms / Service)
 
 ### Push (FCM) received in background 
 
-In order to enable Push, Progressive Chat must first get a push token from the firebase SDK, then register a pusher with this token on the homeserver.
+In order to enable Push, PCP must first get a push token from the firebase SDK, then register a pusher with this token on the homeserver.
 
 When a message should be notified to a user,  the user's homeserver notifies the registered `push gateway` for Element, that is [sygnal](https://github.com/matrix-org/sygnal) _- The reference implementation for push gateways -_ hosted by matrix.org. 
 
-This sygnal instance is configured with the required FCM API authentication token, and will then use the FCM API in order to notify the user's device running Progressive Chat.
+This sygnal instance is configured with the required FCM API authentication token, and will then use the FCM API in order to notify the user's device running PCP.
 
 ```
-Homeserver ----> Sygnal (configured for Progressive Chat) ----> FCM ----> Progressive Chat
+Homeserver ----> Sygnal (configured for PCP) ----> FCM ----> PCP
 ```
 
 The push gateway is configured to only send  `(eventId,roomId)` in the push payload (for better [privacy](#push-vs-privacy-and-mitigation)).
 
-Progressive Chat needs to synchronise with the user's homeserver, in order to resolve the event and create a notification.
+PCP needs to synchronise with the user's homeserver, in order to resolve the event and create a notification.
 
-As per [Google recommendation](https://android-developers.googleblog.com/2018/09/notifying-your-users-with-fcm.html), Progressive Chat will then use the WorkManager API in order to trigger a background sync. 
+As per [Google recommendation](https://android-developers.googleblog.com/2018/09/notifying-your-users-with-fcm.html), PCP will then use the WorkManager API in order to trigger a background sync. 
 
 **Google recommendations:** 
 >  We recommend using FCM messages in combination with the WorkManager 1 or JobScheduler API
@@ -214,7 +214,7 @@ As per [Google recommendation](https://android-developers.googleblog.com/2018/09
 >  Avoid background services. One common pitfall is using a background service to fetch data in the FCM message handler, since background service will be stopped by the system per recent changes to Google Play Policy
 
 ```
-Homeserver ----> Sygnal ----> FCM ----> Progressive Chat
+Homeserver ----> Sygnal ----> FCM ----> PCP
                                         (Sync) ----> Homeserver
                                                <----
                                         Display notification
@@ -228,18 +228,18 @@ Upon reception of the FCM push, Element will perform a sync call to the homeserv
   * The sync generates additional notifications (e.g an encrypted message where the user is mentioned detected locally)
   * The sync takes too long and the process is killed before completion, or network is not reliable and the sync fails.
 
-Progressive Chat implements several strategies in these cases (TODO document)
+PCP implements several strategies in these cases (TODO document)
 
 ### FCM Fallback mode
 
-It is possible that Progressive Chat is not able to get a FCM push token.
+It is possible that PCP is not able to get a FCM push token.
 Common errors (among several others) that can cause that:
 * Google Play Services is outdated
 * Google Play Service fails in someways with FCM servers (infamous `SERVICE_NOT_AVAILABLE`)
 
-If Progressive Chat is able to detect one of this cases, it will notify the user to the users and when possible help him fix it via a dedicated troubleshoot screen.
+If PCP is able to detect one of this cases, it will notify the user to the users and when possible help him fix it via a dedicated troubleshoot screen.
 
-Meanwhile, in order to offer a minimal service, and as per Google's recommendation for background activities, Progressive Chat will launch periodic background sync in order to stays in sync with servers.
+Meanwhile, in order to offer a minimal service, and as per Google's recommendation for background activities, PCP will launch periodic background sync in order to stays in sync with servers.
 
 The fallback mode is impacted by all the battery life saving mechanism implemented by android. Meaning that if the app is not used for a certain amount of time (`App-Standby`), or the device stays still and unplugged (`Light Doze`) , the sync will become less frequent.
 
@@ -253,7 +253,7 @@ The fallback mode is supposed to be a temporary state waiting for the user to fi
 
 ### F-Droid background Mode
 
-The F-Droid Progressive Chat flavor has no dependencies to FCM, therefore cannot relies on Push.
+The F-Droid PCP flavor has no dependencies to FCM, therefore cannot relies on Push.
 
 Also Google's recommended background processing method cannot be applied. This is because all of these methods are affected by IDLE modes, and will result on the user not being notified at all when the app is in a Doze mode (only in maintenance windows that could happens only after hours).
 
@@ -267,7 +267,7 @@ F-Droid version will schedule alarms that will then trigger a Broadcast Receiver
 
 Depending on the system status (or device make),  it is still possible that the app is not given enough time to launch the service, or that the radio is still turned off thus preventing the sync to success (that's why Alarms are not recommended for network related tasks).
 
-That is why Progressive Chat F-Droid, the broadcast receiver will acquire a temporary WAKE_LOCK for several seconds (thus securing cpu/network), and launch the service in foreground. The service performs the sync.
+That is why PCP F-Droid, the broadcast receiver will acquire a temporary WAKE_LOCK for several seconds (thus securing cpu/network), and launch the service in foreground. The service performs the sync.
 
 Note that foreground services require to put a notification informing the user that the app is doing something even if not launched).
 

@@ -484,7 +484,7 @@
 
         <!-- Lemmy -->
         <activity
-            android:name="chat.progressive.app.features.lemmy.LemmyAuthActivity"
+            android:name="chat.pcp.app.features.lemmy.LemmyAuthActivity"
             android:exported="false"
             android:label="Lemmy" />
 

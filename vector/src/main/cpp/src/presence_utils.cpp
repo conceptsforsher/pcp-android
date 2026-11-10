@@ -1,9 +1,9 @@
-#include "progressive/presence_utils.hpp"
+#include "pcp/presence_utils.hpp"
 #include <sstream>
 #include <chrono>
 #include <algorithm>
 
-namespace progressive {
+namespace pcp {
 
 PresenceInfo parsePresence(const std::string& userId, const std::string& apiResponseJson) {
     PresenceInfo info;
@@ -160,4 +160,4 @@ std::string UserActivityTimer::elapsedFormatted() const {
     return out.str();
 }
 
-} // namespace progressive
+} // namespace pcp
